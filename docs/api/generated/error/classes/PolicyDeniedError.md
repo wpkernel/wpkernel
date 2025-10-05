@@ -2,78 +2,90 @@
 
 ---
 
-[WP Kernel API](../../README.md) / [error](../README.md) / KernelError
+[WP Kernel API](../../README.md) / [error](../README.md) / PolicyDeniedError
 
-# Class: KernelError
+# Class: PolicyDeniedError
 
-Defined in: [error/KernelError.ts:28](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/error/KernelError.ts#L28)
+Defined in: [error/PolicyDeniedError.ts:26](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/error/PolicyDeniedError.ts#L26)
 
-Base error class for WP Kernel
+Error thrown when a policy assertion fails
 
 ## Example
 
 ```typescript
-throw new KernelError('PolicyDenied', {
-	message: 'User lacks required capability',
-	context: { policyKey: 'things.manage', userId: 123 },
+throw new PolicyDeniedError({
+	namespace: 'my-plugin',
+	policyKey: 'posts.edit',
+	params: { postId: 123 },
+	message: 'You do not have permission to edit this post',
 });
 ```
 
 ## Extends
 
-- `Error`
-
-## Extended by
-
-- [`TransportError`](TransportError.md)
-- [`ServerError`](ServerError.md)
-- [`PolicyDeniedError`](PolicyDeniedError.md)
+- [`KernelError`](KernelError.md)
 
 ## Constructors
 
 ### Constructor
 
 ```ts
-new KernelError(code, options): KernelError;
+new PolicyDeniedError(options): PolicyDeniedError;
 ```
 
-Defined in: [error/KernelError.ts:53](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/error/KernelError.ts#L53)
+Defined in: [error/PolicyDeniedError.ts:54](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/error/PolicyDeniedError.ts#L54)
 
-Create a new KernelError
+Create a new PolicyDeniedError
 
 #### Parameters
 
-##### code
-
-[`ErrorCode`](../type-aliases/ErrorCode.md)
-
-Error code identifying the error type
-
 ##### options
 
-Error options
+Policy denied error options
+
+###### namespace
+
+`string`
+
+Plugin namespace
+
+###### policyKey
+
+`string`
+
+Policy key that was denied
+
+###### params?
+
+`unknown`
+
+Parameters passed to policy check
 
 ###### message?
 
 `string`
 
+Optional custom error message
+
 ###### data?
 
 [`ErrorData`](../interfaces/ErrorData.md)
+
+Additional error data
 
 ###### context?
 
 [`ErrorContext`](../interfaces/ErrorContext.md)
 
+Additional error context
+
 #### Returns
 
-`KernelError`
+`PolicyDeniedError`
 
 #### Overrides
 
-```ts
-Error.constructor;
-```
+[`KernelError`](KernelError.md).[`constructor`](KernelError.md#constructor)
 
 ## Properties
 
@@ -87,6 +99,10 @@ Defined in: [error/KernelError.ts:32](https://github.com/theGeekist/wp-kernel/bl
 
 Error code - identifies the type of error
 
+#### Inherited from
+
+[`KernelError`](KernelError.md).[`code`](KernelError.md#code)
+
 ---
 
 ### data?
@@ -99,6 +115,10 @@ Defined in: [error/KernelError.ts:37](https://github.com/theGeekist/wp-kernel/bl
 
 Additional data about the error
 
+#### Inherited from
+
+[`KernelError`](KernelError.md).[`data`](KernelError.md#data)
+
 ---
 
 ### context?
@@ -110,6 +130,47 @@ readonly optional context: ErrorContext;
 Defined in: [error/KernelError.ts:42](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/error/KernelError.ts#L42)
 
 Context in which the error occurred
+
+#### Inherited from
+
+[`KernelError`](KernelError.md).[`context`](KernelError.md#context)
+
+---
+
+### messageKey
+
+```ts
+readonly messageKey: string;
+```
+
+Defined in: [error/PolicyDeniedError.ts:31](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/error/PolicyDeniedError.ts#L31)
+
+I18n message key for user-facing error messages
+Format: `policy.denied.{namespace}.{policyKey}`
+
+---
+
+### policyKey
+
+```ts
+readonly policyKey: string;
+```
+
+Defined in: [error/PolicyDeniedError.ts:36](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/error/PolicyDeniedError.ts#L36)
+
+Policy key that was denied
+
+---
+
+### namespace
+
+```ts
+readonly namespace: string;
+```
+
+Defined in: [error/PolicyDeniedError.ts:41](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/error/PolicyDeniedError.ts#L41)
+
+Plugin namespace
 
 ## Methods
 
@@ -128,6 +189,10 @@ Serialize error to JSON-safe format
 [`SerializedError`](../interfaces/SerializedError.md)
 
 Serialized error object
+
+#### Inherited from
+
+[`KernelError`](KernelError.md).[`toJSON`](KernelError.md#tojson)
 
 ---
 
@@ -151,9 +216,13 @@ Serialized error object
 
 #### Returns
 
-`KernelError`
+[`KernelError`](KernelError.md)
 
 New KernelError instance
+
+#### Inherited from
+
+[`KernelError`](KernelError.md).[`fromJSON`](KernelError.md#fromjson)
 
 ---
 
@@ -180,6 +249,10 @@ Error to check
 `error is KernelError`
 
 True if error is a KernelError
+
+#### Inherited from
+
+[`KernelError`](KernelError.md).[`isKernelError`](KernelError.md#iskernelerror)
 
 ---
 
@@ -218,6 +291,10 @@ Additional context
 
 #### Returns
 
-`KernelError`
+[`KernelError`](KernelError.md)
 
 New KernelError wrapping the original
+
+#### Inherited from
+
+[`KernelError`](KernelError.md).[`wrap`](KernelError.md#wrap)

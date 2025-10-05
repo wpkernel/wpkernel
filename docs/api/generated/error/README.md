@@ -13,6 +13,7 @@ Exports all error types and utilities for consistent error handling throughout t
 ## Classes
 
 - [KernelError](classes/KernelError.md)
+- [PolicyDeniedError](classes/PolicyDeniedError.md)
 - [ServerError](classes/ServerError.md)
 - [TransportError](classes/TransportError.md)
 

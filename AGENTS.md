@@ -40,6 +40,10 @@ information/            # product spec, example plugin specs, roadmap, event tax
         > Do **not** use `--filter` for tests; it breaks our harness.
     - Build (if needed): `pnpm build`
 
+    - **When running agents (Codex, Co‑Pilot, etc.) inside private containers or CI**, set the environment variable `CI=1` before running any `git` or `pnpm` commands. This ensures non-interactive behaviour and avoids prompts that could block automation.
+
+    - **Note:** The pre-commit hook may take some time to complete. It performs typechecks and tests before allowing a commit. Contributors should wait patiently until it finishes.
+
 **When in doubt**: run install → typecheck → tests → lint fix → tests again.
 
 ---
