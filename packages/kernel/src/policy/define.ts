@@ -16,9 +16,14 @@
  */
 
 import { KernelError } from '../error/KernelError';
+import { PolicyDeniedError } from '../error/PolicyDeniedError';
 import { getNamespace } from '../namespace/detect';
 import { createPolicyCache, createPolicyCacheKey } from './cache';
-import { getPolicyRequestContext, getPolicyRuntime } from './context';
+import {
+	getPolicyRequestContext,
+	getPolicyRuntime,
+	type PolicyProxyOptions,
+} from './context';
 import type {
 	ParamsOf,
 	PolicyAdapters,
@@ -253,39 +258,6 @@ function ensureBoolean(value: unknown, key: string): asserts value is boolean {
 }
 
 /**
- * Build event context payload from policy check parameters.
- *
- * Merges request context (requestId from action) with policy parameters for
- * rich event payloads. Handles primitive params by wrapping in { value: ... }.
- *
- * @param policyKey - Policy key being checked
- * @param params    - Parameters passed to policy rule
- * @return Event context object with policyKey, optional requestId, and params
- * @internal
- */
-function buildContext(
-	policyKey: string,
-	params: unknown
-): Record<string, unknown> {
-	const context = getPolicyRequestContext();
-	const base: Record<string, unknown> = {
-		policyKey,
-	};
-
-	if (context?.requestId) {
-		base.requestId = context.requestId;
-	}
-
-	if (params && typeof params === 'object') {
-		Object.assign(base, params as Record<string, unknown>);
-	} else if (params !== undefined) {
-		base.value = params;
-	}
-
-	return base;
-}
-
-/**
  * Emit policy.denied event to all registered listeners.
  *
  * Broadcasts to three channels:
@@ -293,15 +265,16 @@ function buildContext(
  * - BroadcastChannel for cross-tab notification
  * - PHP bridge (when bridged: true in action context)
  *
- * @param namespace - Plugin namespace for event naming
- * @param payload   - Event payload (policyKey, context, messageKey, etc.)
+ * @param namespace      - Plugin namespace for event naming
+ * @param payload        - Event payload (policyKey, context, messageKey, etc.)
+ * @param requestContext - Optional captured request context (prevents race conditions in concurrent calls)
  * @internal
  */
 function emitPolicyDenied(
 	namespace: string,
-	payload: Omit<PolicyDeniedEvent, 'timestamp'>
+	payload: Omit<PolicyDeniedEvent, 'timestamp'>,
+	requestContext?: PolicyProxyOptions
 ) {
-	const requestContext = getPolicyRequestContext();
 	const resolvedNamespace = requestContext?.namespace ?? namespace;
 	const hooks = getHooks();
 	const channel = getEventChannel();
@@ -352,15 +325,17 @@ function createDeniedError(
 	policyKey: string,
 	params: unknown
 ) {
-	const messageKey = `policy.denied.${namespace}.${policyKey}`;
-	const context = buildContext(policyKey, params);
-	const error = new KernelError('PolicyDenied', {
-		message: `Policy "${policyKey}" denied.`,
-		context,
+	const error = new PolicyDeniedError({
+		namespace,
+		policyKey,
+		params,
 	});
 
-	(error as KernelError & { messageKey?: string }).messageKey = messageKey;
-	return { error, messageKey, context };
+	return {
+		error,
+		messageKey: error.messageKey,
+		context: error.context,
+	};
 }
 
 /**
@@ -722,17 +697,25 @@ export function definePolicy<K extends Record<string, unknown>>(
 			...params: ParamsOf<K, Key>
 		): void | Promise<void> {
 			const param = params[0] as ParamsOf<K, Key>[0] | undefined;
+			// Capture request context immediately to prevent race conditions
+			// in concurrent policy checks (see PR #60 review comment)
+			const capturedContext = getPolicyRequestContext();
+
 			const outcome = evaluate(key, param);
 			if (outcome instanceof Promise) {
 				return outcome.then((allowed) => {
 					if (!allowed) {
 						const { error, messageKey, context } =
 							createDeniedError(namespace, String(key), param);
-						emitPolicyDenied(namespace, {
-							policyKey: String(key),
-							context,
-							messageKey,
-						});
+						emitPolicyDenied(
+							namespace,
+							{
+								policyKey: String(key),
+								context,
+								messageKey,
+							},
+							capturedContext
+						);
 						throw error;
 					}
 				});
@@ -744,11 +727,15 @@ export function definePolicy<K extends Record<string, unknown>>(
 					String(key),
 					param
 				);
-				emitPolicyDenied(namespace, {
-					policyKey: String(key),
-					context,
-					messageKey,
-				});
+				emitPolicyDenied(
+					namespace,
+					{
+						policyKey: String(key),
+						context,
+						messageKey,
+					},
+					capturedContext
+				);
 				throw error;
 			}
 		},

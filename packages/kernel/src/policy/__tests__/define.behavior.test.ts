@@ -1,4 +1,4 @@
-import { type KernelError } from '../../error/KernelError';
+import { type PolicyDeniedError } from '../../error/PolicyDeniedError';
 import { withPolicyRequestContext } from '../context';
 import type { ActionRuntime } from '../../actions/types';
 import type { definePolicy as definePolicyFn } from '../define';
@@ -233,7 +233,7 @@ describe('definePolicy behaviour', () => {
 				() => policy.assert('content.update', { reason: 'missing' })
 			);
 		} catch (error) {
-			const err = error as KernelError & { messageKey?: string };
+			const err = error as PolicyDeniedError;
 			expect(err.messageKey).toBe('policy.denied.acme.content.update');
 			expect(err.context).toEqual(
 				expect.objectContaining({

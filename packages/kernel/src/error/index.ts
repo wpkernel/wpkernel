@@ -9,6 +9,7 @@
 export { KernelError } from './KernelError';
 export { TransportError } from './TransportError';
 export { ServerError } from './ServerError';
+export { PolicyDeniedError } from './PolicyDeniedError';
 export type { WordPressRESTError } from './ServerError';
 export type {
 	ErrorCode,

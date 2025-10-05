@@ -41,6 +41,28 @@ type BroadcastMessage =
 
 const hasWindow = typeof window !== 'undefined';
 
+/**
+ * Recursively serializes a value into a stable, canonical form for cache key generation.
+ *
+ * - Arrays are serialized element-wise with recursive stable serialization
+ * - Objects are serialized with properties sorted alphabetically by key to ensure
+ *   consistent output regardless of property insertion order
+ * - Primitives (string, number, boolean) and null are returned as-is
+ *
+ * This ensures cache keys generated from parameters are stable and deterministic,
+ * preventing cache misses due to differing property order in equivalent objects.
+ *
+ * @param value - The value to serialize (object, array, primitive, or null)
+ * @return The stably serialized value with consistent property ordering
+ * @internal
+ *
+ * @example
+ * ```typescript
+ * // These produce identical serialized output:
+ * stableSerialize({ b: 2, a: 1 }); // → { a: 1, b: 2 }
+ * stableSerialize({ a: 1, b: 2 }); // → { a: 1, b: 2 }
+ * ```
+ */
 function stableSerialize(value: unknown): unknown {
 	if (value === null) {
 		return null;

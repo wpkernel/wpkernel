@@ -5,6 +5,7 @@ import { usePolicy } from '../hooks';
 import { createPolicyProxy } from '../context';
 import type { PolicyHelpers, PolicyRule, UsePolicyResult } from '../types';
 import { KernelError } from '../../error/KernelError';
+import { PolicyDeniedError } from '../../error/PolicyDeniedError';
 
 describe('policy module', () => {
 	beforeAll(() => {
@@ -74,11 +75,11 @@ describe('policy module', () => {
 			{ namespace: 'acme' }
 		);
 
-		expect(() => policy.assert('tasks.manage')).toThrow(KernelError);
+		expect(() => policy.assert('tasks.manage')).toThrow(PolicyDeniedError);
 		try {
 			policy.assert('tasks.manage');
 		} catch (error) {
-			const err = error as KernelError & { messageKey?: string };
+			const err = error as PolicyDeniedError;
 			expect(err.code).toBe('PolicyDenied');
 			expect(err.messageKey).toBe('policy.denied.acme.tasks.manage');
 		}

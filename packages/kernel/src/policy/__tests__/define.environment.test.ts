@@ -2,7 +2,7 @@ import '@wordpress/jest-console';
 import type * as PolicyModule from '../define';
 import type * as WPData from '@wordpress/data';
 import type * as WPHooks from '@wordpress/hooks';
-import type { KernelError } from '../../error/KernelError';
+import type { PolicyDeniedError } from '../../error/PolicyDeniedError';
 import type { PolicyContext } from '../types';
 
 type PolicyModuleType = typeof PolicyModule;
@@ -190,7 +190,7 @@ describe('policy environment edge cases', () => {
 			try {
 				policy.assert('tasks.scalar', 'blocked');
 			} catch (error) {
-				const denied = error as KernelError & { messageKey?: string };
+				const denied = error as PolicyDeniedError;
 				expect(denied.code).toBe('PolicyDenied');
 				expect(denied.messageKey).toBe(
 					'policy.denied.acme.tasks.scalar'
@@ -206,7 +206,7 @@ describe('policy environment edge cases', () => {
 			try {
 				policy.assert('tasks.object', { reason: 'blocked' });
 			} catch (error) {
-				const denied = error as KernelError;
+				const denied = error as PolicyDeniedError;
 				expect(denied.context).toEqual(
 					expect.objectContaining({
 						policyKey: 'tasks.object',
