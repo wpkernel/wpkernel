@@ -155,6 +155,9 @@ importers:
       lint-staged:
         specifier: ^16.2.3
         version: 16.2.3
+      loglayer:
+        specifier: ^6.7.2
+        version: 6.7.2
       mermaid:
         specifier: ^11.12.0
         version: 11.12.0
@@ -2100,6 +2103,22 @@ packages:
 
   '@leichtgewicht/ip-codec@2.0.5':
     resolution: {integrity: sha512-Vo+PSpZG2/fmgmiNzYK9qWRh8h/CHrwD0mo1h1DzL4yzHNSfWYujGTYsWGreD000gcgmZ7K4Ys6Tx9TxtsKdDw==}
+
+  '@loglayer/context-manager@1.1.2':
+    resolution: {integrity: sha512-6CseJVZD0mRhblXSTMTfzw0eZD8nrotJ9dyNyl599pBth5R9voYvAWqjRDYeNLpH+0LwJlW6+HzSFIhX2Qq3yA==}
+    engines: {node: '>=18'}
+
+  '@loglayer/plugin@2.1.2':
+    resolution: {integrity: sha512-8i06nQIbzJ+nmY44qou7t5DaNSvb7GUWkqIiyVCsqeYnDygUTVU/c53g0tuAwPjQN7ywzWCrvOwTMbqaXpcbGQ==}
+    engines: {node: '>=18'}
+
+  '@loglayer/shared@2.4.0':
+    resolution: {integrity: sha512-K/8KJ0cM/DKj9lpFlKdCxMQWTz14kLLTUe7F4cmpWP0RRouURgxmjm5PLCaLh05pf4yxsm4+4Nfxfglxc/6fOA==}
+    engines: {node: '>=18'}
+
+  '@loglayer/transport@2.3.0':
+    resolution: {integrity: sha512-fAcyN1sHuJvGokhIskTwlwQ9qGr1HcNZK5ewdwOjLWztvhGpIBRhNMaatYVbsa1UgtYBATdFFqA6gLxitDb3ow==}
+    engines: {node: '>=18'}
 
   '@manypkg/find-root@1.1.0':
     resolution: {integrity: sha512-mki5uBvhHzO8kYYix/WRy2WX8S3B5wdVSc9D6KcU5lQNglP2yt58/VfLuAK49glRXChosY8ap2oJ1qgma3GUVA==}
@@ -7192,6 +7211,10 @@ packages:
 
   log-update@6.1.0:
     resolution: {integrity: sha512-9ie8ItPR6tjY5uYJh8K/Zrv/RMZ5VOlOWvtZdEHYSTFKZfIBPQa9tOAEeAWhd+AnIneLJ22w5fjOYtoutpWq5w==}
+    engines: {node: '>=18'}
+
+  loglayer@6.7.2:
+    resolution: {integrity: sha512-KMO8DRs3VagTkNmexZNi9IQqFxvNJ6C2J84kDarwj6u8TyEGtRqh/+21FMQ2VIV2YFu1P96OrRglYZERSOXjBg==}
     engines: {node: '>=18'}
 
   loglevel@1.9.2:
@@ -12430,6 +12453,20 @@ snapshots:
   '@kwsites/promise-deferred@1.1.1': {}
 
   '@leichtgewicht/ip-codec@2.0.5': {}
+
+  '@loglayer/context-manager@1.1.2':
+    dependencies:
+      '@loglayer/shared': 2.4.0
+
+  '@loglayer/plugin@2.1.2':
+    dependencies:
+      '@loglayer/shared': 2.4.0
+
+  '@loglayer/shared@2.4.0': {}
+
+  '@loglayer/transport@2.3.0':
+    dependencies:
+      '@loglayer/shared': 2.4.0
 
   '@manypkg/find-root@1.1.0':
     dependencies:
@@ -19118,6 +19155,13 @@ snapshots:
       slice-ansi: 7.1.2
       strip-ansi: 7.1.2
       wrap-ansi: 9.0.2
+
+  loglayer@6.7.2:
+    dependencies:
+      '@loglayer/context-manager': 1.1.2
+      '@loglayer/plugin': 2.1.2
+      '@loglayer/shared': 2.4.0
+      '@loglayer/transport': 2.3.0
 
   loglevel@1.9.2: {}
 

@@ -1,9 +1,13 @@
 # Sprint 4.5 Specification - Unified Reporting & Data Consolidation
 
-Context: Transitional sprint between 4 (Actions) and 5 (UI Blocks)
-Goal: Introduce a unified reporting framework, consolidate logging across kernel packages, and finalise the WordPress Data Integration work from Sprint 4.
-Roadmap Link: [[Roadmap PO • v1.0]] § Sprint 4.5
-Dependencies: [[Actions]], [[sprint_4.5_WordPress-Data-Integration-Implementation-Plan]], [[Policies]]
+## Scope (Sprint 4.5)
+
+- ESLint rule: `no-console-in-kernel`
+- Reporter consolidation using LogLayer
+- Data registry integration: `useKernel`, `kernelEventsPlugin`, `registerKernelStore`
+- Documentation updates
+
+See also: [WordPress Data Integration - Implementation Plan](../sprint_4.5_WordPress-Data-Integration-Implementation-Plan.md)
 
 ⸻
 
@@ -11,24 +15,21 @@ Dependencies: [[Actions]], [[sprint_4.5_WordPress-Data-Integration-Implementatio
 
 1. Deliver Reporter v0 - a unified logging framework using `loglayer` npm package
 2. Consolidate two fragmented `createReporter()` implementations (actions, policy) into single `packages/kernel/src/reporter/` module
-3. Implement multi-channel transports: console, hooks (`wp.hooks`), and bridge (PHP)
+3. Implement core multi-channel transports: console and hooks (`wp.hooks`)
 4. Add custom ESLint rule `no-console-in-kernel` to enforce reporter usage
-5. Finalise WordPress Data Integration with registry/store helpers and notices bridge
-6. Update all kernel code to use unified reporter
+5. Finalise WordPress Data Integration with registry/store helpers and notices bridge (deferred parts marked post-4.5)
 
 ⸻
 
 ## 2. Deliverables (by Package)
 
-| Package               | Deliverable                                                           | Status           |
-| --------------------- | --------------------------------------------------------------------- | ---------------- |
-| @geekist/wp-kernel    | Reporter v0 module using `loglayer`                                   | 🟡 New           |
-|                       | Consolidate actions/policy createReporter() → unified implementation  | 🟡 New           |
-|                       | Multi-channel transports (console, hooks, bridge)                     | 🟡 New           |
-|                       | Data Integration (useKernel, registerKernelStore, kernelEventsPlugin) | 🟢 From Sprint 4 |
-|                       | ESLint rule: no-console-in-kernel                                     | 🟡 New           |
-| @geekist/wp-kernel-ui | (Defer to Sprint 5 UI providers)                                      | ⏸               |
-| Showcase app          | Adopt unified reporter for notices and action feedback                | 🟡 New           |
+| Package               | Deliverable                                                          | Status |
+| --------------------- | -------------------------------------------------------------------- | ------ |
+| @geekist/wp-kernel    | Reporter v0 module using `loglayer`                                  | 🟡 New |
+|                       | Consolidate actions/policy createReporter() → unified implementation | 🟡 New |
+|                       | Multi-channel transports (console, hooks)                            | 🟡 New |
+|                       | ESLint rule: no-console-in-kernel                                    | 🟡 New |
+| @geekist/wp-kernel-ui | (Defer to Sprint 5 UI providers)                                     | ⏸     |
 
 ⸻
 
@@ -60,8 +61,8 @@ export function createReporter(opts?: ReporterOptions): Reporter;
 | ------- | ---------------------------------------------------------- |
 | Console | Pretty-printed logs (dev only)                             |
 | Hooks   | Emits {namespace}.reporter.{level} via wp.hooks.doAction() |
-| Bridge  | Optional bridge → PHP wpk.bridge.log                       |
-| All     | Uses all of the above                                      |
+| Bridge  | _Planned for post-4.5; not implemented in this sprint_     |
+| All     | Uses all of the above (post-4.5 enhancement)               |
 
 ### 3.3 Event Mapping
 
@@ -85,10 +86,18 @@ export function createReporter(opts?: ReporterOptions): Reporter;
 **Key Benefits**:
 
 - Single source of truth for all logging
-- Pluggable transport architecture (console, hooks, bridge)
+- Pluggable transport architecture (console, hooks)
 - Contextual logging with namespace support
 - Child loggers for nested contexts
 - Type-safe API
+
+**Implementation Guidance**:
+
+- Keep wrapper minimal and focused on LogLayer integration
+- Ensure namespace awareness for all log events
+- Provide test coverage for all channels implemented in this sprint
+- Avoid premature optimisation; focus on clarity and extensibility
+- Bridge transport and PHP integration to be implemented in later sprints
 
 ### 4.1 Basic Implementation
 
@@ -153,7 +162,8 @@ const hooksTransport = {
 };
 ```
 
-**Bridge Transport** (PHP logging):
+**Bridge Transport** (PHP logging):  
+_Planned for post-4.5 sprint; not implemented in this sprint._
 
 ```typescript
 const bridgeTransport = {
@@ -166,63 +176,21 @@ const bridgeTransport = {
 
 ⸻
 
-## 5. Repository Consolidation Plan
-
-**Note**: LogLayer makes the console sweep optional. Teams can migrate gradually as they touch code.
-
-### 5.1 Inventory (Optional)
-
-Run ripgrep to identify console usage:
-
-```bash
-rg "console\.(log|debug|info|warn|error)" packages app > /tmp/console.txt
-```
-
-Current inventory (from codebase scan):
-
-- Kernel core: ~10 instances (actions/context.ts, resource/cache.ts, namespace/detect.ts)
-- Showcase app: ~14 instances (debug logging in JobsList.tsx, admin/index.tsx)
-- CLI/Scripts: Multiple instances (legitimate user output - DO NOT TOUCH)
-- Tests: Multiple instances (legitimate test output - DO NOT TOUCH)
-- Docs: All console.\* are examples (DO NOT TOUCH)
-
-### 5.2 Migration Strategy
-
-**Gradual migration** (no codemod needed):
-
-1. LogLayer handles all `ctx.reporter.*` calls automatically
-2. New code uses `ctx.reporter.*` directly
-3. Old code continues working with deprecation warnings
-4. Teams migrate when convenient (no rush)
-
-### 5.3 Lint / CI Rules
-
-```javascript
-// eslint.config.js
-rules: {
-  'no-console': ['error', { allow: ['assert'] }],
-};
-```
-
-Dev-mode warning (console.warn) printed once per method:
-“ctx.reporter.warn is deprecated; use ctx.reporter.warn instead.”
-
-⸻
-
-## 6. Data Integration Completion
+## Data Registry Integration (Sprint 4.5)
 
 Deliver WordPress Data Integration components specified in [[WordPress Data Integration - Implementation Plan]].
 
-### 6.1 Components
+### Components
 
-Module Purpose Status
-useKernel(registry) Registry plugin injecting action middleware + reporter � New
-registerKernelStore() Store wrapper for kernel middleware � New
-kernelEventsPlugin() Action error → notice bridge � New
-kernelPolicyPlugin() Policy middleware ⏸ Defer to Sprint 3
-registerKernelPlugin() Editor UI provider ⏸ Defer to Sprint 5
+| Module                 | Purpose                                                | Status      |
+| ---------------------- | ------------------------------------------------------ | ----------- |
+| useKernel(registry)    | Registry plugin injecting action middleware + reporter | 🟡 New      |
+| registerKernelStore()  | Store wrapper for kernel middleware                    | 🟡 New      |
+| kernelEventsPlugin()   | Action error → notice bridge                           | 🟡 New      |
+| kernelPolicyPlugin()   | Policy middleware                                      | ⏸ Post-4.5 |
+| registerKernelPlugin() | Editor UI provider                                     | ⏸ Post-4.5 |
 
-### 6.2 Reporter Integration
+### Reporter Integration
 
 - All store/middleware installers accept `reporter` option.
 - Errors and policy denials emit `reporter.error()` with context.
@@ -231,7 +199,31 @@ registerKernelPlugin() Editor UI provider ⏸ Defer to Sprint 5
 
 ⸻
 
-## 7. Architecture Overview
+## Post-4.5 Context (Reference)
+
+The following sections are post-4.5 context/reference only.
+
+### Repository Consolidation Plan
+
+**Note**: LogLayer makes the console sweep optional. Teams can migrate gradually as they touch code. Full migration and bridge integration are post-4.5 enhancements.
+
+Gradual migration is optional and can be done incrementally after 4.5 if needed.
+
+### Lint / CI Rules
+
+```javascript
+// eslint.config.js
+rules: {
+  'no-console': ['error', { allow: ['assert'] }],
+};
+```
+
+Dev-mode warning (console.warn) printed once per method:  
+“ctx.reporter.warn is deprecated; use ctx.reporter.warn instead.”
+
+⸻
+
+### Architecture Overview
 
 ```
 ┌──────────────────────────────┐
@@ -244,8 +236,9 @@ registerKernelPlugin() Editor UI provider ⏸ Defer to Sprint 5
              ▼
 ┌──────────────────────────────┐
 │ Reporter v0 (4.5)            │
-│ console + wp.hooks + bridge  │
+│ console + wp.hooks           │
 │ → emits {ns}.reporter.*      │
+│ *Bridge transport planned*   │
 └────────────┬─────────────────┘
              │
              ▼
@@ -260,67 +253,58 @@ registerKernelPlugin() Editor UI provider ⏸ Defer to Sprint 5
 │ UI / Showcase (Sprint5) │
 │ consumes notices + logs │
 └──────────────────────────────┘
+```
 
 ⸻
 
-## 8. Testing Plan
+### Testing Plan
 
-### Unit Tests
+#### Unit Tests
+
 - `reporter.test.ts`: verify channel outputs and hook emission
 - `context.test.ts`: `ctx.reporter.*` forwards and warns once
 - `data/plugins/events.test.ts`: error → notice + `reporter.error()`
 
-### Integration
-- Run with real `@wordpress/data` registry → actions dispatch → error → notice
-- Ensure reporter logs hook events and PHP bridge payload fires when available
+#### Integration
 
-### E2E (Showcase)
+- Run with real `@wordpress/data` registry → actions dispatch → error → notice
+- Ensure reporter logs hook events as implemented in this sprint (console, hooks)
+- _PHP bridge payload firing tests to be added post-4.5_
+
+#### E2E (Showcase)
+
 - Trigger failed action → user sees UI notice and Reporter entry in dev console
 - Verify no raw `console.log()` output from kernel code
 
 ⸻
 
-## 9. Documentation
+### Documentation
 
-| Doc | Purpose |
-|-----|---------|
-| `docs/api/reporter.md` | API surface (createReporter, methods, channels) |
-| `docs/guide/reporting.md` | Migration guide from console to Reporter |
-| `docs/guide/actions.md` | Update `ctx.reporter` section |
-| `docs/guide/data.md` | Mention reporter option in `useKernel()` |
-| `docs/internal/contrib.md` | Add "No console.*" commit rule |
-
-⸻
-
-## 10. Risk & Mitigation
-
-| Risk | Impact | Mitigation |
-|------|--------|------------|
-| Residual logs in kernel core | Noise in CI | ESLint gate + manual sweep (optional) |
-| Hot reload breakage (LogLayer) | Low | Safe no-op cleanup |
-| Bridge channel flood | Medium | Throttle bridge emission by level |
-| Namespace collision | Low | Prefix reporter events with namespace |
+| Doc                        | Purpose                                         |
+| -------------------------- | ----------------------------------------------- |
+| `docs/api/reporter.md`     | API surface (createReporter, methods, channels) |
+| `docs/guide/reporting.md`  | Migration guide from console to Reporter        |
+| `docs/guide/actions.md`    | Update `ctx.reporter` section                   |
+| `docs/guide/data.md`       | Mention reporter option in `useKernel()`        |
+| `docs/internal/contrib.md` | Add "No console.\*" commit rule                 |
 
 ⸻
 
-## 11. Timeline (1 Day Estimate)
+### Risk & Mitigation
 
-| Phase | Effort | Deliverables |
-|-------|--------|--------------|
-| Reporter v0 Core | 3 h | Implementation + unit tests |
-| LogLayer Shim | 1 h | Dev warnings + tests |
-| Console Sweep (Optional) | 2 h | Replace logs in kernel core (gradual migration) |
-| Lint / CI Rules | 1 h | ESLint + CI check |
-| Docs | 2 h | API + migration guide |
-| **Total** | **≈ 9 h** | **Sprint 4.5 Complete** |
-
-**Note**: LogLayer enables gradual migration. Console sweep can be done incrementally after 4.5 if needed.
+| Risk                           | Impact      | Mitigation                                                |
+| ------------------------------ | ----------- | --------------------------------------------------------- |
+| Residual logs in kernel core   | Noise in CI | ESLint gate + manual sweep (optional)                     |
+| Hot reload breakage (LogLayer) | Low         | Safe no-op cleanup                                        |
+| Bridge channel flood           | Medium      | _Planned for post-4.5; throttle bridge emission by level_ |
+| Namespace collision            | Low         | Prefix reporter events with namespace                     |
 
 ⸻
 
-## 12. Definition of Done (DoD)
-- ✅ `createReporter()` implemented and tested
-- ✅ `ctx.reporter.*` forwards to `ctx.reporter` with deprecation notice
+## Definition of Done (DoD)
+
+- ✅ `createReporter()` implemented and tested (console and hooks channels only)
+- ✅ individual implementations of existing `ctx.reporter.*` forwards to the new `ctx.reporter` with deprecation notice
 - ✅ ESLint rules enforce no-console in kernel core (with exemptions)
 - ✅ Lint and CI enforce policy
 - ✅ Data Integration wrappers (`useKernel`, `kernelEventsPlugin`) accept reporter
@@ -331,7 +315,7 @@ registerKernelPlugin() Editor UI provider ⏸ Defer to Sprint 5
 
 **In Short ⚡**
 
-Sprint 4.5 consolidates the foundation:
-a Reporter for clarity, a LogLayer for backward compatibility, and a fully-wired WordPress Data bridge for native action feedback.
+Sprint 4.5 consolidates the foundation:  
+a Reporter for clarity, a LogLayer-based unified implementation, and lint rules to enforce usage.  
+_Bridge transport and full PHP integration are future work._  
 This ensures Sprint 5 UI can deliver developer-facing blocks and visual debuggers on top of a clean, event-driven, and fully observable kernel.
-```
