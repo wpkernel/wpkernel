@@ -316,7 +316,10 @@ export function emitLifecycleEvent(event: ActionLifecycleEvent): void {
 
 	if (event.scope === 'crossTab') {
 		const channel = getBroadcastChannel();
-		channel?.postMessage({ type: 'wpk.action.lifecycle', event });
+		channel?.postMessage({
+			type: WPK_INFRASTRUCTURE.ACTIONS_MESSAGE_TYPE_LIFECYCLE,
+			event,
+		});
 	}
 }
 
@@ -410,7 +413,7 @@ function emitDomainEvent(
 	if (eventMetadata.scope === 'crossTab') {
 		const channel = getBroadcastChannel();
 		channel?.postMessage({
-			type: 'wpk.action.event',
+			type: WPK_INFRASTRUCTURE.ACTIONS_MESSAGE_TYPE_EVENT,
 			event: eventName,
 			payload,
 			metadata: eventMetadata,

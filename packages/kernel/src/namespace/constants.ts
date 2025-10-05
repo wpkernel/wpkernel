@@ -57,6 +57,10 @@ export const WPK_INFRASTRUCTURE = {
 	ACTIONS_CHANNEL: `${WPK_NAMESPACE}.actions`,
 	/** WordPress hooks namespace prefix for kernel events plugin */
 	WP_HOOKS_NAMESPACE_PREFIX: `${WPK_NAMESPACE}/notices`,
+	/** BroadcastChannel message type for action lifecycle events */
+	ACTIONS_MESSAGE_TYPE_LIFECYCLE: `${WPK_NAMESPACE}.action.lifecycle`,
+	/** BroadcastChannel message type for action custom events */
+	ACTIONS_MESSAGE_TYPE_EVENT: `${WPK_NAMESPACE}.action.event`,
 } as const;
 
 /**
