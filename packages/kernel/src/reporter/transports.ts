@@ -9,6 +9,7 @@ import type {
 	ReporterLevel,
 	ReporterLogMetadata,
 } from './types';
+import { WPK_NAMESPACE } from '../namespace/constants';
 
 function isReporterLevel(level: LogLevelType): level is ReporterLevel {
 	return (
@@ -25,7 +26,7 @@ function resolveNamespace(
 	const candidate = context?.namespace;
 	return typeof candidate === 'string' && candidate.length > 0
 		? candidate
-		: 'kernel';
+		: WPK_NAMESPACE;
 }
 
 function parseMetadata(

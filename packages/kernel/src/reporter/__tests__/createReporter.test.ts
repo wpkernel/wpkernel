@@ -1,4 +1,5 @@
 import { createReporter } from '../index';
+import { WPK_NAMESPACE } from '../../namespace/constants';
 
 describe('createReporter', () => {
 	const originalInfo = console.info;
@@ -67,14 +68,17 @@ describe('createReporter', () => {
 
 	it('supports child reporters with nested namespaces', () => {
 		const reporter = createReporter({
-			namespace: 'kernel',
+			namespace: WPK_NAMESPACE,
 			channel: 'console',
 		});
 		const child = reporter.child('policy');
 
 		child.warn('denied');
 
-		expect(console.warn).toHaveBeenCalledWith('[kernel.policy]', 'denied');
+		expect(console.warn).toHaveBeenCalledWith(
+			`[${WPK_NAMESPACE}.policy]`,
+			'denied'
+		);
 	});
 
 	it('respects enabled=false by skipping transports', () => {

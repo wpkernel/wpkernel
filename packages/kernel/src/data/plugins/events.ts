@@ -2,6 +2,7 @@ import { KernelError } from '../../error/KernelError';
 import type { ActionErrorEvent, ReduxMiddleware } from '../../actions/types';
 import type { Reporter } from '../../reporter';
 import type { KernelRegistry } from '../types';
+import { WPK_INFRASTRUCTURE } from '../../namespace/constants';
 
 export type NoticeStatus = 'success' | 'info' | 'warning' | 'error';
 
@@ -94,13 +95,15 @@ function resolveErrorMessage(error: unknown): string {
 	return 'An unexpected error occurred';
 }
 
+let instanceCounter = 0;
+
 export function kernelEventsPlugin({
 	reporter,
 	registry,
 }: KernelEventsPluginOptions): KernelReduxMiddleware {
 	const hooks = getHooks();
 	const notices = getNoticesDispatch(registry);
-	const pluginNamespace = 'kernel/notices';
+	const pluginNamespace = `${WPK_INFRASTRUCTURE.WP_HOOKS_NAMESPACE_PREFIX}/${++instanceCounter}`;
 
 	let detach: (() => void) | undefined;
 

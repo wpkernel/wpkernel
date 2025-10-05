@@ -59,7 +59,7 @@ describe('useKernel', () => {
 		});
 		expect(window.wp?.hooks?.addAction).toHaveBeenCalledWith(
 			'wpk.action.error',
-			'kernel/notices',
+			expect.stringMatching(/^wpk\/notices\/\d+$/),
 			expect.any(Function)
 		);
 
@@ -69,7 +69,7 @@ describe('useKernel', () => {
 		expect(detachEvents).toHaveBeenCalled();
 		expect(window.wp?.hooks?.removeAction).toHaveBeenCalledWith(
 			'wpk.action.error',
-			'kernel/notices'
+			expect.stringMatching(/^wpk\/notices\/\d+$/)
 		);
 	});
 

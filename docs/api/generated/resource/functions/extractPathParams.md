@@ -10,7 +10,7 @@
 function extractPathParams(path): string[];
 ```
 
-Defined in: [resource/cache.ts:456](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/cache.ts#L456)
+Defined in: [resource/cache.ts:465](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/cache.ts#L465)
 
 Extract parameter names from a path
 

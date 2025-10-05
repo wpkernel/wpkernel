@@ -78,7 +78,7 @@ describe('kernelEventsPlugin', () => {
 		middleware.destroy?.();
 		expect(window.wp?.hooks?.removeAction).toHaveBeenCalledWith(
 			'wpk.action.error',
-			'kernel/notices'
+			expect.stringMatching(/^wpk\/notices\/\d+$/)
 		);
 	});
 
@@ -164,5 +164,42 @@ describe('kernelEventsPlugin', () => {
 		);
 
 		middleware.destroy?.();
+	});
+
+	it('creates unique namespaces for multiple plugin instances', () => {
+		const addAction = window.wp?.hooks?.addAction as jest.Mock;
+		const capturedNamespaces: string[] = [];
+
+		addAction.mockImplementation((_hookName: string, namespace: string) => {
+			capturedNamespaces.push(namespace);
+		});
+
+		const registry = createRegistryMock();
+
+		// Create multiple instances
+		const middleware1 = kernelEventsPlugin({ registry });
+		const middleware2 = kernelEventsPlugin({ registry });
+		const middleware3 = kernelEventsPlugin({ registry });
+
+		// Trigger middleware creation to register handlers
+		const next = jest.fn();
+		middleware1({ dispatch: jest.fn(), getState: jest.fn() })(next)({
+			type: 'IGNORE',
+		});
+		middleware2({ dispatch: jest.fn(), getState: jest.fn() })(next)({
+			type: 'IGNORE',
+		});
+		middleware3({ dispatch: jest.fn(), getState: jest.fn() })(next)({
+			type: 'IGNORE',
+		});
+
+		// Verify all namespaces are unique
+		expect(capturedNamespaces).toHaveLength(3);
+		expect(new Set(capturedNamespaces).size).toBe(3);
+
+		// Verify namespace format
+		capturedNamespaces.forEach((ns) => {
+			expect(ns).toMatch(/^wpk\/notices\/\d+$/);
+		});
 	});
 });

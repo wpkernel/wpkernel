@@ -10,7 +10,7 @@
 function normalizeCacheKey(pattern): string;
 ```
 
-Defined in: [resource/cache.ts:265](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/cache.ts#L265)
+Defined in: [resource/cache.ts:274](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/cache.ts#L274)
 
 Normalize a cache key pattern to a string representation.
 Filters out null/undefined values and joins with colons.
