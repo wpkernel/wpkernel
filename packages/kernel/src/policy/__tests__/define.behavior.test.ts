@@ -268,7 +268,7 @@ describe('definePolicy behaviour', () => {
 		}
 		expect(warn).toHaveBeenCalledWith(
 			'[kernel.policy]',
-			'[wp-kernel] Failed to create BroadcastChannel for policy events.',
+			'Failed to create BroadcastChannel for policy events.',
 			{ error: expect.any(Error) }
 		);
 		expect(console as any).toHaveWarned();

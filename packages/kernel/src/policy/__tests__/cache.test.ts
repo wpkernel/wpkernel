@@ -98,7 +98,7 @@ describe('createPolicyCache', () => {
 		expect(cache.keys()).toEqual([]);
 		expect(warn).toHaveBeenCalledWith(
 			'[kernel.policy.cache]',
-			'[wp-kernel] Failed to parse persisted policy cache.',
+			'Failed to parse persisted policy cache.',
 			expect.any(SyntaxError)
 		);
 		expect(console as any).toHaveWarned();
@@ -132,7 +132,7 @@ describe('createPolicyCache', () => {
 		cache.set('policy::void', false);
 		expect(warn).toHaveBeenCalledWith(
 			'[kernel.policy.cache]',
-			'[wp-kernel] Failed to persist policy cache.',
+			'Failed to persist policy cache.',
 			error
 		);
 		expect(console as any).toHaveWarned();
@@ -153,7 +153,7 @@ describe('createPolicyCache', () => {
 		expect(cache.keys()).toEqual([]);
 		expect(warn).toHaveBeenCalledWith(
 			'[kernel.policy.cache]',
-			'[wp-kernel] sessionStorage is not available for policy cache.',
+			'sessionStorage is not available for policy cache.',
 			expect.any(Error)
 		);
 		expect(console as any).toHaveWarned();
@@ -282,7 +282,7 @@ describe('createPolicyCache', () => {
 		const cache = createPolicyCache({}, 'acme');
 		expect(warn).toHaveBeenCalledWith(
 			'[kernel.policy.cache]',
-			'[wp-kernel] Failed to create BroadcastChannel for policy cache.',
+			'Failed to create BroadcastChannel for policy cache.',
 			expect.any(Error)
 		);
 		expect(console as any).toHaveWarned();

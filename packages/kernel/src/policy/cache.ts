@@ -120,7 +120,7 @@ function getStorage(options: PolicyCacheOptions | undefined): Storage | null {
 			return window.sessionStorage;
 		} catch (error) {
 			policyCacheReporter.warn(
-				'[wp-kernel] sessionStorage is not available for policy cache.',
+				'sessionStorage is not available for policy cache.',
 				error
 			);
 			return null;
@@ -153,7 +153,7 @@ function readPersisted(
 		return parsed;
 	} catch (error) {
 		policyCacheReporter.warn(
-			'[wp-kernel] Failed to parse persisted policy cache.',
+			'Failed to parse persisted policy cache.',
 			error
 		);
 		return {};
@@ -174,10 +174,7 @@ function persist(
 		const serialized = JSON.stringify(Object.fromEntries(store.entries()));
 		storage.setItem(`${STORAGE_KEY_PREFIX}.${namespace}`, serialized);
 	} catch (error) {
-		policyCacheReporter.warn(
-			'[wp-kernel] Failed to persist policy cache.',
-			error
-		);
+		policyCacheReporter.warn('Failed to persist policy cache.', error);
 	}
 }
 
@@ -200,7 +197,7 @@ function createBroadcastChannel(
 		return new window.BroadcastChannel(BROADCAST_CHANNEL_NAME);
 	} catch (error) {
 		policyCacheReporter.warn(
-			'[wp-kernel] Failed to create BroadcastChannel for policy cache.',
+			'Failed to create BroadcastChannel for policy cache.',
 			error
 		);
 		return null;

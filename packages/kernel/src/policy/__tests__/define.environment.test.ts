@@ -76,13 +76,13 @@ describe('policy environment edge cases', () => {
 		expect(broadcastSpy).toHaveBeenCalled();
 		expect(warnSpy).toHaveBeenCalledWith(
 			'[kernel.policy.cache]',
-			'[wp-kernel] Failed to create BroadcastChannel for policy cache.',
+			'Failed to create BroadcastChannel for policy cache.',
 			broadcastError
 		);
 		expect(console as any).toHaveWarned();
 		expect(warnSpy).toHaveBeenCalledWith(
 			'[kernel.policy]',
-			'[wp-kernel] Failed to create BroadcastChannel for policy events.',
+			'Failed to create BroadcastChannel for policy events.',
 			{ error: broadcastError }
 		);
 		expect(console as any).toHaveWarned();

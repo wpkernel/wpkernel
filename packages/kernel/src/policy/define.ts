@@ -104,7 +104,7 @@ function getEventChannel(): BroadcastChannel | null {
 		eventChannel = new window.BroadcastChannel(POLICY_EVENT_CHANNEL);
 	} catch (error) {
 		policyModuleReporter.warn(
-			'[wp-kernel] Failed to create BroadcastChannel for policy events.',
+			'Failed to create BroadcastChannel for policy events.',
 			{ error }
 		);
 		eventChannel = null;
