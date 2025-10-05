@@ -54,7 +54,11 @@ export const createKernelLibConfig = (
 		plugins: [
 			dts({
 				// Generate TypeScript declarations
-				include: ['src/**/*.ts', 'src/**/*.tsx'],
+				include: [
+					'src/**/*.ts',
+					'src/**/*.tsx',
+					'../../types/**/*.d.ts',
+				],
 				outDir: 'dist',
 				rollupTypes: false, // Don't bundle types (avoids TS version mismatch warning)
 			}),
