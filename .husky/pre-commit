@@ -13,6 +13,10 @@ pnpm typecheck:tests || {
   exit 1
 }
 
+# Enforce test coverage before allowing commit
+echo "🧪 Running tests with coverage threshold..."
+pnpm test:coverage
+
 # Build documentation to catch syntax errors
 echo "📚 Building documentation..."
 pnpm docs:build || {
