@@ -12,6 +12,14 @@ Define typed REST resources with automatic client generation, store integration,
 
 Declarative capability rules with caching, denial events, and React helpers for UI gating.
 
+### [Reporter](/api/reporter)
+
+Structured logging via LogLayer with console and WordPress hook transports.
+
+### [Data Helpers](/guide/data)
+
+Registry utilities (`useKernel`, `registerKernelStore`) and notice bridging for `@wordpress/data` stores.
+
 ### [Errors](/api/generated/error/README)
 
 Error types and handling primitives.

@@ -18,6 +18,10 @@
 import { KernelError } from '../error/KernelError';
 import { PolicyDeniedError } from '../error/PolicyDeniedError';
 import { getNamespace } from '../namespace/detect';
+import {
+	createReporter as createKernelReporter,
+	createNoopReporter,
+} from '../reporter';
 import { createPolicyCache, createPolicyCacheKey } from './cache';
 import {
 	getPolicyRequestContext,
@@ -39,6 +43,12 @@ import type {
 const POLICY_EVENT_CHANNEL = 'wpk.policy.events';
 const POLICY_DENIED_EVENT = 'policy.denied';
 const BRIDGE_POLICY_DENIED_EVENT = 'bridge.policy.denied';
+
+const policyModuleReporter = createKernelReporter({
+	namespace: 'kernel.policy',
+	channel: 'all',
+	level: 'warn',
+});
 
 interface WordPressHooks {
 	doAction: (eventName: string, payload: unknown) => void;
@@ -93,9 +103,9 @@ function getEventChannel(): BroadcastChannel | null {
 	try {
 		eventChannel = new window.BroadcastChannel(POLICY_EVENT_CHANNEL);
 	} catch (error) {
-		console.warn(
+		policyModuleReporter.warn(
 			'[wp-kernel] Failed to create BroadcastChannel for policy events.',
-			error
+			{ error }
 		);
 		eventChannel = null;
 	}
@@ -104,39 +114,27 @@ function getEventChannel(): BroadcastChannel | null {
 }
 
 /**
- * Create a policy reporter for structured logging.
+ * Resolve the reporter used for policy diagnostics.
  *
- * When debug mode is disabled (default), returns no-op stubs to avoid console noise.
- * When debug mode is enabled, returns console-based logger with [wp-kernel][policy] prefix.
+ * Debug mode enables the shared reporter with both console and hook transports.
+ * When debug is disabled, a no-op reporter is returned to avoid noise.
  *
- * @param debug - Enable debug logging (default: false)
- * @return Policy reporter interface with info/warn/error/debug methods
- * @internal
+ * @param debug     - Whether debug mode is enabled for the policy runtime
+ * @param namespace - Namespace used for reporter context
  */
-function createReporter(debug?: boolean): PolicyReporter {
+function resolveReporter(
+	debug: boolean | undefined,
+	namespace: string
+): PolicyReporter {
 	if (!debug) {
-		return {
-			info: () => undefined,
-			warn: () => undefined,
-			error: () => undefined,
-			debug: () => undefined,
-		};
+		return createNoopReporter();
 	}
 
-	return {
-		info(message, context) {
-			console.info(`[wp-kernel][policy] ${message}`, context ?? '');
-		},
-		warn(message, context) {
-			console.warn(`[wp-kernel][policy] ${message}`, context ?? '');
-		},
-		error(message, context) {
-			console.error(`[wp-kernel][policy] ${message}`, context ?? '');
-		},
-		debug(message, context) {
-			console.debug(`[wp-kernel][policy] ${message}`, context ?? '');
-		},
-	};
+	return createKernelReporter({
+		namespace,
+		channel: 'all',
+		level: 'debug',
+	});
 }
 
 /**
@@ -485,7 +483,8 @@ function createDeniedError(
  * ```typescript
  * // Listen for denied events
  * wp.hooks.addAction('acme.policy.denied', 'acme-plugin', (event) => {
- *   console.warn('Policy denied:', event.policyKey, event.context);
+ *   const reporter = createReporter({ namespace: 'acme.policy', channel: 'all' });
+ *   reporter.warn('Policy denied:', event.policyKey, event.context);
  *   // Show toast notification, track in analytics, etc.
  * });
  * ```
@@ -608,7 +607,7 @@ export function definePolicy<K extends Record<string, unknown>>(
 	options?: PolicyOptions
 ): PolicyHelpers<K> {
 	const namespace = options?.namespace ?? getNamespace();
-	const reporter = createReporter(options?.debug);
+	const reporter = resolveReporter(options?.debug, namespace);
 	const cache = createPolicyCache(options?.cache, namespace);
 	const adapters = resolveAdapters(options, reporter);
 
@@ -750,8 +749,9 @@ export function definePolicy<K extends Record<string, unknown>>(
 				}
 
 				if (rules.has(key) && process.env.NODE_ENV !== 'production') {
-					console.warn(
-						`Policy "${String(key)}" is being overridden via extend().`
+					policyModuleReporter.warn(
+						`Policy "${String(key)}" is being overridden via extend().`,
+						{ policyKey: String(key) }
 					);
 				}
 

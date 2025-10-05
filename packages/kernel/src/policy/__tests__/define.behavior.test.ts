@@ -82,9 +82,11 @@ describe('definePolicy behaviour', () => {
 			expect(outcome).toBe(false);
 		}
 		expect(warn).toHaveBeenCalledWith(
-			'[wp-kernel][policy] Failed to invoke wp.data.select("core").canUser',
+			'[wpk]',
+			'Failed to invoke wp.data.select("core").canUser',
 			expect.objectContaining({ error: expect.any(Error) })
 		);
+		expect(console as any).toHaveWarned();
 		select!.mockReset();
 	});
 
@@ -265,9 +267,11 @@ describe('definePolicy behaviour', () => {
 			expect((error as { code?: string }).code).toBe('PolicyDenied');
 		}
 		expect(warn).toHaveBeenCalledWith(
+			'[kernel.policy]',
 			'[wp-kernel] Failed to create BroadcastChannel for policy events.',
-			expect.any(Error)
+			{ error: expect.any(Error) }
 		);
+		expect(console as any).toHaveWarned();
 	});
 
 	it('warns when extending an existing policy key', async () => {
@@ -280,7 +284,10 @@ describe('definePolicy behaviour', () => {
 
 		policy.extend({ allow: () => false });
 		expect(warn).toHaveBeenCalledWith(
-			'Policy "allow" is being overridden via extend().'
+			'[kernel.policy]',
+			'Policy "allow" is being overridden via extend().',
+			{ policyKey: 'allow' }
 		);
+		expect(console as any).toHaveWarned();
 	});
 });

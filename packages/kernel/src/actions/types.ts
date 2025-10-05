@@ -16,6 +16,15 @@
 
 import type { CacheKeyPattern } from '../resource/cache';
 import type { PolicyHelpers } from '../policy/types';
+import type { Reporter } from '../reporter';
+
+/**
+ * Structured logging interface for action observability.
+ *
+ * Provided by the reporter module to ensure a single source of truth for
+ * transports and formatting while keeping the public type available here.
+ */
+export type { Reporter } from '../reporter';
 
 /**
  * Configuration options controlling action event propagation and bridging.
@@ -54,35 +63,6 @@ export interface ActionOptions {
 export interface ResolvedActionOptions {
 	scope: 'crossTab' | 'tabLocal';
 	bridged: boolean;
-}
-
-/**
- * Structured logging interface for action observability.
- *
- * The reporter provides standardized logging methods that actions can use for
- * telemetry, debugging, and error tracking. Host applications can inject custom
- * reporters to route logs to external observability tools (Sentry, Datadog, etc.).
- *
- * @example
- * ```typescript
- * async function CreatePost(ctx, input) {
- *   ctx.reporter.info('Creating post', { input });
- *   try {
- *     const post = await api.posts.create(input);
- *     ctx.reporter.debug('Post created', { postId: post.id });
- *     return post;
- *   } catch (err) {
- *     ctx.reporter.error('Post creation failed', { error: err });
- *     throw err;
- *   }
- * }
- * ```
- */
-export interface Reporter {
-	info: (message: string, context?: Record<string, unknown>) => void;
-	warn: (message: string, context?: Record<string, unknown>) => void;
-	error: (message: string, context?: Record<string, unknown>) => void;
-	debug?: (message: string, context?: Record<string, unknown>) => void;
 }
 
 /**

@@ -15,11 +15,18 @@
  */
 
 import { getNamespace } from '../namespace/detect';
+import { createReporter } from '../reporter';
 import type { PolicyCache, PolicyCacheOptions } from './types';
 
 const DEFAULT_TTL_MS = 60_000;
 const STORAGE_KEY_PREFIX = 'wpk.policy.cache';
 const BROADCAST_CHANNEL_NAME = 'wpk.policy.cache';
+
+const policyCacheReporter = createReporter({
+	namespace: 'kernel.policy.cache',
+	channel: 'console',
+	level: 'warn',
+});
 
 type Listener = () => void;
 
@@ -112,7 +119,7 @@ function getStorage(options: PolicyCacheOptions | undefined): Storage | null {
 		try {
 			return window.sessionStorage;
 		} catch (error) {
-			console.warn(
+			policyCacheReporter.warn(
 				'[wp-kernel] sessionStorage is not available for policy cache.',
 				error
 			);
@@ -145,7 +152,7 @@ function readPersisted(
 		}
 		return parsed;
 	} catch (error) {
-		console.warn(
+		policyCacheReporter.warn(
 			'[wp-kernel] Failed to parse persisted policy cache.',
 			error
 		);
@@ -167,7 +174,10 @@ function persist(
 		const serialized = JSON.stringify(Object.fromEntries(store.entries()));
 		storage.setItem(`${STORAGE_KEY_PREFIX}.${namespace}`, serialized);
 	} catch (error) {
-		console.warn('[wp-kernel] Failed to persist policy cache.', error);
+		policyCacheReporter.warn(
+			'[wp-kernel] Failed to persist policy cache.',
+			error
+		);
 	}
 }
 
@@ -189,7 +199,7 @@ function createBroadcastChannel(
 	try {
 		return new window.BroadcastChannel(BROADCAST_CHANNEL_NAME);
 	} catch (error) {
-		console.warn(
+		policyCacheReporter.warn(
 			'[wp-kernel] Failed to create BroadcastChannel for policy cache.',
 			error
 		);

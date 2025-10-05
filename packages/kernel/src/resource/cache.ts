@@ -1,3 +1,5 @@
+import { createReporter } from '../reporter';
+
 /**
  * Internal state shape exposed by the __getInternalState selector.
  * Mirrors reducer slices we care about for invalidation.
@@ -23,6 +25,12 @@ interface DispatchWithInvalidate {
  * Accepts a single pattern or an array of patterns.
  * @param patterns
  */
+const cacheReporter = createReporter({
+	namespace: 'kernel.cache',
+	channel: 'console',
+	level: 'warn',
+});
+
 function toPatternsArray(
 	patterns: CacheKeyPattern | CacheKeyPattern[]
 ): CacheKeyPattern[] {
@@ -194,7 +202,7 @@ function processStoreInvalidation(
 	const getInternalState = getInternalStateSelector(dataRegistry, storeKey);
 	if (!getInternalState) {
 		if (process.env.NODE_ENV === 'development') {
-			console.warn(
+			cacheReporter.warn(
 				`Store ${storeKey} does not expose __getInternalState selector`
 			);
 		}
@@ -578,7 +586,7 @@ export function invalidate(
 			);
 		} catch (error) {
 			if (process.env.NODE_ENV === 'development') {
-				console.warn(
+				cacheReporter.warn(
 					`Failed to invalidate cache for store ${key}:`,
 					error
 				);
@@ -649,7 +657,7 @@ export function invalidateAll(storeKey: string): void {
 		}
 	} catch (error) {
 		if (process.env.NODE_ENV === 'development') {
-			console.warn(
+			cacheReporter.warn(
 				`Failed to invalidate all caches for store ${storeKey}:`,
 				error
 			);

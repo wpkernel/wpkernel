@@ -643,9 +643,11 @@ describe('invalidate', () => {
 
 			// Should log warning in development
 			expect(consoleWarnSpy).toHaveBeenCalledWith(
+				'[kernel.cache]',
 				expect.stringContaining('Failed to invalidate cache for store'),
 				expect.any(Error)
 			);
+			expect(console as any).toHaveWarned();
 
 			consoleWarnSpy.mockRestore();
 			process.env.NODE_ENV = originalEnv;

@@ -1,3 +1,5 @@
+import { createReporter } from '../reporter';
+
 /**
  * Namespace Detection Module
  *
@@ -61,6 +63,12 @@ const RESERVED_NAMESPACES = [
 	'www',
 ] as const;
 
+const namespaceReporter = createReporter({
+	namespace: 'kernel.namespace',
+	channel: 'all',
+	level: 'warn',
+});
+
 /**
  * Check if we're in development mode
  * @return True if in development environment
@@ -89,11 +97,11 @@ function emitDevWarning(source: string, namespace: string): void {
 	}
 
 	if (source === 'fallback') {
-		console.warn(
+		namespaceReporter.warn(
 			`🔧 WP Kernel: Using fallback namespace "${namespace}". For deterministic behavior, set __WPK_NAMESPACE__ (build-time) or wpKernelData.textDomain (runtime). See: https://github.com/theGeekist/wp-kernel/docs/namespace-detection`
 		);
 	} else if (source === 'package-json') {
-		console.warn(
+		namespaceReporter.warn(
 			`📦 WP Kernel: Using package.json name for namespace "${namespace}". For WordPress-native behavior, set wpKernelData.textDomain or __WPK_NAMESPACE__. See: https://github.com/theGeekist/wp-kernel/docs/namespace-detection`
 		);
 	}

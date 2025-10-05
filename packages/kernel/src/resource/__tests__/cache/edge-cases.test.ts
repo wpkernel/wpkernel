@@ -94,10 +94,10 @@ describe('invalidate edge cases', () => {
 			}).not.toThrow();
 
 			expect(consoleWarnSpy).toHaveBeenCalledWith(
-				expect.stringContaining(
-					'does not expose __getInternalState selector'
-				)
+				'[kernel.cache]',
+				'Store wpk/thing does not expose __getInternalState selector'
 			);
+			expect(console as any).toHaveWarned();
 		});
 
 		it('should log warning when invalidateAll fails in development', () => {
@@ -117,9 +117,11 @@ describe('invalidate edge cases', () => {
 			}).not.toThrow();
 
 			expect(consoleWarnSpy).toHaveBeenCalledWith(
+				'[kernel.cache]',
 				expect.stringContaining('Failed to invalidate all caches'),
 				expect.any(Error)
 			);
+			expect(console as any).toHaveWarned();
 		});
 
 		it('should not log warning when invalidate fails in production', () => {

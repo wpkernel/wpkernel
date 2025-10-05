@@ -16,6 +16,7 @@ import { KernelError } from '../error/KernelError';
 import { invalidate as invalidateCache } from '../resource/cache';
 import { getNamespace } from '../namespace/detect';
 import { createPolicyProxy } from '../policy/context';
+import { createReporter as createKernelReporter } from '../reporter';
 import type {
 	ActionContext,
 	ActionLifecycleEvent,
@@ -141,56 +142,19 @@ export function generateActionRequestId(): string {
 	return `act_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
 }
 
-/**
- * Create a reporter for action lifecycle events.
- *
- * The reporter provides structured logging for action start, completion, and error events.
- * If the runtime provides a custom reporter, it's used; otherwise, falls back to console logging.
- *
- * This enables:
- * - Centralized logging to external observability tools (Sentry, Datadog, etc.)
- * - Structured event tracking for analytics
- * - Consistent action telemetry across the application
- *
- * @param runtime - Optional runtime configuration with custom reporter
- * @return Reporter instance for logging action events
- * @internal
- *
- * @example
- * ```typescript
- * // Using custom reporter
- * global.__WP_KERNEL_ACTION_RUNTIME__ = {
- *   reporter: {
- *     logActionStart: (ctx) => analytics.track('action.start', ctx),
- *     logActionComplete: (ctx, result) => analytics.track('action.complete', { ctx, result }),
- *     logActionError: (ctx, err) => sentry.captureException(err, { contexts: { action: ctx } })
- *   }
- * };
- *
- * // Falls back to console when no custom reporter provided
- * const reporter = createReporter();
- * reporter.logActionStart({ name: 'CreatePost', requestId: 'act_123' });
- * ```
- */
-function createReporter(runtime?: ActionRuntime): Reporter {
+function resolveReporter(
+	runtime: ActionRuntime | undefined,
+	namespace: string
+): Reporter {
 	if (runtime?.reporter) {
 		return runtime.reporter;
 	}
 
-	return {
-		info(message, context) {
-			console.info(`[wp-kernel] ${message}`, context ?? '');
-		},
-		warn(message, context) {
-			console.warn(`[wp-kernel] ${message}`, context ?? '');
-		},
-		error(message, context) {
-			console.error(`[wp-kernel] ${message}`, context ?? '');
-		},
-		debug(message, context) {
-			console.debug(`[wp-kernel] ${message}`, context ?? '');
-		},
-	};
+	return createKernelReporter({
+		namespace,
+		channel: 'all',
+		level: 'debug',
+	});
 }
 
 /**
@@ -487,7 +451,7 @@ export function createActionContext(
 		timestamp: Date.now(),
 	};
 
-	const reporter = createReporter(runtime);
+	const reporter = resolveReporter(runtime, namespace);
 	const policy = createPolicyProxy({
 		actionName,
 		requestId,

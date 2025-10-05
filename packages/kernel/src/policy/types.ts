@@ -16,17 +16,15 @@
  * @module @geekist/wp-kernel/policy/types
  */
 
+import type { Reporter } from '../reporter';
+
 /**
  * Reporter interface used for structured diagnostics from the policy runtime.
- * Mirrors the reporter surface used by actions but is defined locally to avoid
- * circular type dependencies.
+ *
+ * Aliased from the shared reporter module to ensure policy and actions emit
+ * consistent log metadata.
  */
-export interface PolicyReporter {
-	info: (message: string, context?: Record<string, unknown>) => void;
-	warn: (message: string, context?: Record<string, unknown>) => void;
-	error: (message: string, context?: Record<string, unknown>) => void;
-	debug?: (message: string, context?: Record<string, unknown>) => void;
-}
+export type PolicyReporter = Reporter;
 
 /**
  * Policy rule signature.

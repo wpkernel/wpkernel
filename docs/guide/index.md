@@ -61,6 +61,14 @@ Actions are the only sanctioned write path. They call resources, wrap permission
 
 Events publish what happened in language the rest of the platform understands. Names follow `wpk.{domain}.{verb}` and remain stable across major versions. Extensions listen to them, telemetry records them, and the PHP bridge mirrors a curated subset for legacy integrations. [Read the full guide →](/guide/events)
 
+### Reporting
+
+Reporters centralise logging, route errors to `core/notices`, and expose hook-friendly payloads for observability. [Read the full guide →](/guide/reporting)
+
+### WordPress data integration
+
+Helpers for wiring kernel middleware into `@wordpress/data` registries and stores, including automatic notice bridging. [Read the full guide →](/guide/data)
+
 ### Block bindings
 
 Bindings connect WordPress blocks to your data. Instead of hard-coded `InnerBlocks` or custom blocks, you register sources that map store selectors to block attributes. Editors and front-end users see consistent content without juggling bespoke APIs. [Read the full guide →](/guide/block-bindings)
