@@ -15,6 +15,7 @@
  */
 
 import type { CacheKeyPattern } from '../resource/cache';
+import type { PolicyHelpers } from '../policy/types';
 
 /**
  * Configuration options controlling action event propagation and bridging.
@@ -154,11 +155,6 @@ export interface ActionJobs {
  * }
  * ```
  */
-export interface ActionPolicy {
-	assert: (capability: string) => void;
-	can: (capability: string) => boolean;
-}
-
 /**
  * Base metadata shared across all action lifecycle events.
  *
@@ -296,7 +292,10 @@ export interface ActionContext {
 	/** Background job helpers. */
 	readonly jobs: ActionJobs;
 	/** Policy enforcement helpers. */
-	readonly policy: ActionPolicy;
+	readonly policy: Pick<
+		PolicyHelpers<Record<string, unknown>>,
+		'assert' | 'can'
+	>;
 	/** Structured logging surface. */
 	readonly reporter: Reporter;
 	/** Resolved namespace of the current action. */
@@ -407,7 +406,7 @@ export type ReduxMiddleware<TState = unknown> = (
 export interface ActionRuntime {
 	reporter?: Reporter;
 	jobs?: ActionJobs;
-	policy?: Partial<ActionPolicy>;
+	policy?: Partial<PolicyHelpers<Record<string, unknown>>>;
 	bridge?: {
 		emit: (
 			eventName: string,

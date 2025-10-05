@@ -164,7 +164,7 @@ describe('Action Flow Integration', () => {
 			{ id: number; updates: { title: string } },
 			{ id: number; title: string }
 		>('Thing.Update', async (ctx, { id, updates }) => {
-			ctx.policy.assert('edit_things');
+			ctx.policy.assert('edit_things', undefined);
 			const result = await resource.update!(id, updates);
 			ctx.invalidate([`thing:${id}`, 'list']);
 			return result;

@@ -15,6 +15,7 @@
 import { KernelError } from '../error/KernelError';
 import { invalidate as invalidateCache } from '../resource/cache';
 import { getNamespace } from '../namespace/detect';
+import { createPolicyProxy } from '../policy/context';
 import type {
 	ActionContext,
 	ActionLifecycleEvent,
@@ -228,35 +229,6 @@ function createReporter(runtime?: ActionRuntime): Reporter {
  * await policy.check('edit_posts'); // Always succeeds
  * ```
  */
-function createPolicy(actionName: string, runtime?: ActionRuntime) {
-	const policy = runtime?.policy;
-	let warned = false;
-
-	return {
-		assert(capability: string) {
-			if (policy?.assert) {
-				policy.assert(capability);
-				return;
-			}
-			throw new KernelError('DeveloperError', {
-				message: `Action \"${actionName}\" attempted to assert capability \"${capability}\" without a policy runtime configured.`,
-			});
-		},
-		can(capability: string) {
-			if (policy?.can) {
-				return policy.can(capability);
-			}
-			if (!warned && process.env.NODE_ENV !== 'production') {
-				console.warn(
-					`Action "${actionName}" called policy.can('${capability}') but no policy runtime is configured.`
-				);
-				warned = true;
-			}
-			return false;
-		},
-	};
-}
-
 /**
  * Create background job integration helpers for asynchronous work.
  *
@@ -516,7 +488,13 @@ export function createActionContext(
 	};
 
 	const reporter = createReporter(runtime);
-	const policy = createPolicy(actionName, runtime);
+	const policy = createPolicyProxy({
+		actionName,
+		requestId,
+		namespace,
+		scope: options.scope,
+		bridged: options.bridged,
+	});
 	const jobs = createJobs(actionName, runtime);
 
 	return {

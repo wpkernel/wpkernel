@@ -8,6 +8,10 @@ Complete API documentation for WP Kernel.
 
 Define typed REST resources with automatic client generation, store integration, and cache management.
 
+### [Policies](/api/policy)
+
+Declarative capability rules with caching, denial events, and React helpers for UI gating.
+
 ### [Errors](/api/generated/error/README)
 
 Error types and handling primitives.

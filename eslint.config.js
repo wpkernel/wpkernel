@@ -12,6 +12,7 @@ import tsParser from '@typescript-eslint/parser';
 import globals from 'globals';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import noManualTestGlobals from './eslint-rules/no-manual-test-globals.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -150,7 +151,7 @@ export default [
 				},
 			],
 			'@typescript-eslint/consistent-type-imports': [
-				'warn',
+				'error',
 				{
 					prefer: 'type-imports',
 					fixStyle: 'inline-type-imports',
@@ -159,7 +160,7 @@ export default [
 		},
 	},
 
-	// Test files - more relaxed rules
+	// Test files - more relaxed rules + enforce test patterns
 	{
 		files: [
 			'**/*.test.ts',
@@ -168,7 +169,15 @@ export default [
 			'**/*.spec.tsx',
 			'**/test/**',
 			'**/tests/**',
+			'**/__tests__/**',
 		],
+		plugins: {
+			'@kernel': {
+				rules: {
+					'no-manual-test-globals': noManualTestGlobals,
+				},
+			},
+		},
 		rules: {
 			'no-console': 'off',
 			'@typescript-eslint/no-explicit-any': 'off',
@@ -176,6 +185,8 @@ export default [
 			// Disable extraneous dependencies rule for test files
 			// In a monorepo with centralized dependency management, this rule is more harmful than helpful
 			'import/no-extraneous-dependencies': 'off',
+			// Enforce centralized test patterns
+			'@kernel/no-manual-test-globals': 'error',
 		},
 	},
 

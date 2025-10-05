@@ -287,7 +287,7 @@ describe('extractFromPluginHeader edge cases', () => {
 
 	it('should skip DOM queries when wp is undefined', () => {
 		// Ensure no wp object
-		delete (window as any).wp;
+		// window.wp is reset by setup-jest.ts afterEach
 
 		const result = detectNamespace({ mode: 'heuristic' });
 		expect(result.source).toBe('fallback');

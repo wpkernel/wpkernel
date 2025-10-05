@@ -55,8 +55,8 @@ describe('defineAction', () => {
 				expect(args).toEqual({ title: 'Example' });
 				expect(ctx.requestId).toMatch(/^act_/);
 				expect(ctx.namespace).toBe('wpk');
-				expect(ctx.policy.can('things.manage')).toBe(true);
-				ctx.policy.assert('things.manage');
+				expect(ctx.policy.can('things.manage', undefined)).toBe(true);
+				ctx.policy.assert('things.manage', undefined);
 				await ctx.jobs.enqueue('IndexThing', { id: 1 });
 				await ctx.jobs.wait('IndexThing', { id: 1 });
 				ctx.reporter.info('creating thing');
@@ -93,7 +93,10 @@ describe('defineAction', () => {
 		expect(runtime.jobs?.wait).toHaveBeenCalledWith('IndexThing', {
 			id: 1,
 		});
-		expect(runtime.policy?.assert).toHaveBeenCalledWith('things.manage');
+		expect(runtime.policy?.assert).toHaveBeenCalledWith(
+			'things.manage',
+			undefined
+		);
 
 		invalidateSpy.mockRestore();
 	});

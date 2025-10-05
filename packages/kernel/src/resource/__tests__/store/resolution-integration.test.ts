@@ -57,7 +57,7 @@ describe('resource store resolution', () => {
 			// The store may already be unregistered; ignore errors
 		}
 
-		delete (window as WordPressWindow).wp;
+		// window.wp is reset by setup-jest.ts afterEach
 	});
 
 	it('marks resolution as finished after fetchList resolves', async () => {

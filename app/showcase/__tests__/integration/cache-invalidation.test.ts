@@ -56,10 +56,8 @@ describe('Job resource cache invalidation', () => {
 		} catch (_error) {
 			// Ignore errors
 		}
-
-		delete (window as WordPressWindow).wp;
+		// window.wp is reset by setup-jest.ts afterEach
 	});
-
 	it('should clear cached list data when invalidate.list() is called', () => {
 		// 1. Manually populate store with some data (simulating a successful fetch)
 		const dispatch = wpData.dispatch(storeKey) as any;

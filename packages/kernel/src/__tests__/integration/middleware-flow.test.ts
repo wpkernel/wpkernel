@@ -56,7 +56,7 @@ describe('Redux Middleware Integration', () => {
 
 	afterEach(() => {
 		jest.clearAllMocks();
-		delete (window as any).wp;
+		// window.wp is reset by setup-jest.ts afterEach
 	});
 
 	it('intercepts and executes action envelopes', async () => {

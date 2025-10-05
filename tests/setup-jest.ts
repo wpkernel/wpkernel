@@ -88,16 +88,112 @@ beforeEach(() => {
 		global.process.env = { NODE_ENV: 'test' };
 	}
 
-	// Implement getWPData globally (imported from kernel implementation)
-	// The actual implementation is provided by packages/kernel/src/index.ts
-	// which gets loaded during module resolution
-
 	// Set up WordPress globals with proper typing
 	// Thanks to ambient declarations in test-globals.d.ts, window.wp is properly typed
 	window.wp = {
 		data: wpDataStub,
 		hooks: wpHooksStub,
 	};
+
+	// Mock BroadcastChannel since jsdom doesn't provide it
+	// This is a minimal spy-able implementation for testing cross-tab events
+	if (
+		typeof (global as { BroadcastChannel?: unknown }).BroadcastChannel ===
+		'undefined'
+	) {
+		(
+			global as { BroadcastChannel?: typeof BroadcastChannel }
+		).BroadcastChannel = class MockBroadcastChannel {
+			// --- Static registry so instances with the same name can talk to each other
+			private static registry: Map<string, Set<MockBroadcastChannel>> =
+				new Map();
+
+			public messages: unknown[] = [];
+			public name: string;
+			public onmessage: ((event: MessageEvent) => void) | null = null;
+			public onmessageerror: ((event: unknown) => void) | null = null;
+
+			private listeners = new Set<(ev: MessageEvent) => void>();
+			private closed = false;
+
+			public constructor(name: string) {
+				this.name = name;
+				const set =
+					MockBroadcastChannel.registry.get(name) ??
+					new Set<MockBroadcastChannel>();
+				set.add(this);
+				MockBroadcastChannel.registry.set(name, set);
+			}
+
+			public postMessage(message: unknown) {
+				if (this.closed) {
+					return;
+				}
+
+				this.messages.push(message);
+
+				// Fan-out to all channels with the same name
+				const peers = MockBroadcastChannel.registry.get(this.name);
+				if (!peers) {
+					return;
+				}
+
+				// Use a minimal event object compatible with typical listeners
+				const ev = { data: message } as MessageEvent;
+
+				for (const ch of peers) {
+					try {
+						// onmessage handler
+						if (typeof ch.onmessage === 'function') {
+							ch.onmessage(ev);
+						}
+						// addEventListener('message', fn)
+						ch.listeners.forEach((fn) => fn(ev));
+					} catch (err) {
+						// onmessageerror handler
+						if (typeof ch.onmessageerror === 'function') {
+							ch.onmessageerror(err);
+						}
+					}
+				}
+			}
+
+			public addEventListener(
+				type: string,
+				fn: (ev: MessageEvent) => void
+			) {
+				if (type === 'message') {
+					this.listeners.add(fn);
+				}
+			}
+
+			public removeEventListener(
+				type: string,
+				fn: (ev: MessageEvent) => void
+			) {
+				if (type === 'message') {
+					this.listeners.delete(fn);
+				}
+			}
+
+			public close() {
+				if (this.closed) {
+					return;
+				}
+				this.closed = true;
+				this.listeners.clear();
+				this.messages = [];
+
+				const set = MockBroadcastChannel.registry.get(this.name);
+				if (set) {
+					set.delete(this);
+					if (set.size === 0) {
+						MockBroadcastChannel.registry.delete(this.name);
+					}
+				}
+			}
+		} as unknown as typeof BroadcastChannel;
+	}
 
 	// Implement getWPData globally for tests
 	// This provides the same implementation as packages/kernel/src/index.ts
@@ -117,6 +213,12 @@ beforeEach(() => {
  * Runs after each test to clean up any remaining state
  */
 afterEach(() => {
+	// Reset window.wp to initial state
+	window.wp = {
+		data: wpDataStub,
+		hooks: wpHooksStub,
+	};
+
 	// Reset to real timers if any tests used fake timers
 	jest.useRealTimers();
 

@@ -53,6 +53,7 @@ export * as resource from './resource/index.js';
 export * as error from './error/index.js';
 export * as namespace from './namespace/index.js';
 export * as actions from './actions/index.js';
+export * as policy from './policy/index.js';
 
 // ============================================================================
 // Flat Exports (Convenience aliases)
@@ -135,9 +136,24 @@ export type {
 	ResolvedActionOptions,
 	Reporter,
 	ActionJobs,
-	ActionPolicy,
 	WaitOptions,
 } from './actions/types';
+
+// Policy system
+export { definePolicy, createPolicyProxy, usePolicy } from './policy/index.js';
+export type {
+	PolicyRule,
+	PolicyMap,
+	PolicyHelpers,
+	PolicyOptions,
+	PolicyContext,
+	PolicyCache,
+	PolicyCacheOptions,
+	PolicyDeniedEvent,
+	PolicyReporter,
+	UsePolicyResult,
+	ParamsOf,
+} from './policy/index.js';
 
 // Namespace detection
 export {

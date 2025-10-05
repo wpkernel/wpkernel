@@ -36,7 +36,7 @@ describe('WordPress data generator behavior', () => {
 			// Store may not exist
 		}
 
-		delete (window as TestWindow).wp;
+		// window.wp is reset by setup-jest.ts afterEach
 	});
 
 	it('should understand how generators work in WordPress data', async () => {

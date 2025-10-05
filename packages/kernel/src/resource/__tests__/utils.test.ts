@@ -182,7 +182,7 @@ describe('defineResource - resource object structure', () => {
 describe('utils - getWPData', () => {
 	beforeEach(() => {
 		// Clear any existing wp.data
-		delete window.wp;
+		// window.wp is reset by setup-jest.ts afterEach
 	});
 
 	it('should return wp.data when available', () => {
@@ -214,7 +214,8 @@ describe('utils - getWPData', () => {
 	});
 
 	it('should return undefined when wp is not available', () => {
-		delete window.wp;
+		// Set to undefined to test unavailability (avoiding delete per lint rules)
+		(window as Window & { wp?: unknown }).wp = undefined;
 
 		const result = getWPData();
 		expect(result).toBeUndefined();

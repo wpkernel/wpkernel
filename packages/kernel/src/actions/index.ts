@@ -21,6 +21,5 @@ export type {
 	ResolvedActionOptions,
 	Reporter,
 	ActionJobs,
-	ActionPolicy,
 	WaitOptions,
 } from './types';

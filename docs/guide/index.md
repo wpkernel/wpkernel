@@ -43,11 +43,15 @@ WP Kernel revolves around a handful of primitives that cooperate rather than com
 
 The diagram mirrors the way WordPress ships features today. Views render blocks backed by bindings and Interactivity controllers. Actions coordinate writes. Resources speak REST to WordPress, while events and jobs make the system observable and resilient.
 
-## The five primitives
+## The core primitives
 
 ### Resources
 
 A resource turns a REST contract into a typed client, data store, and cache keys from a single definition. Reach for one whenever the UI needs to read or write data. Because the schema drives both TypeScript and PHP validation, the documentation you write here stays true across the stack. [Read the full guide →](/guide/resources)
+
+### Policies
+
+Policies define capability gates that sit between resources and Actions. They provide synchronous hints to the UI while Actions enforce them at runtime, emit denial events, and keep cache state in sync across tabs. [Read the full guide →](/guide/policy)
 
 ### Actions
 

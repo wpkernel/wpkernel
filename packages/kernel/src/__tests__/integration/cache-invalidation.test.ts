@@ -65,7 +65,7 @@ describe('Resource cache invalidation integration', () => {
 			// Ignore errors
 		}
 
-		delete (window as WordPressWindow).wp;
+		// window.wp is reset by setup-jest.ts afterEach
 	});
 
 	it('should clear cached list data when invalidate.list() is called', () => {
