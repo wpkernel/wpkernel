@@ -11,6 +11,7 @@ export {
 	WPK_NAMESPACE,
 	WPK_SUBSYSTEM_NAMESPACES,
 	WPK_INFRASTRUCTURE,
+	WPK_EVENTS,
 	type WPKSubsystemNamespace,
 	type WPKInfrastructureConstant,
 } from './constants.js';

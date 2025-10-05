@@ -222,11 +222,11 @@ describe('Action Context', () => {
 				const result1 = ctx.policy.can('test.capability', undefined);
 				expect(result1).toBe(false);
 				expect(consoleWarnSpy).toHaveBeenCalledWith(
-					'[kernel.policy]',
+					'[wpk.policy]',
 					'Action "Test.Action" called policy.can(\'test.capability\') but no policy runtime is configured.'
 				);
 				expect(console as any).toHaveWarnedWith(
-					'[kernel.policy]',
+					'[wpk.policy]',
 					'Action "Test.Action" called policy.can(\'test.capability\') but no policy runtime is configured.'
 				);
 

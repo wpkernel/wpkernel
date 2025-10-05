@@ -17,6 +17,7 @@
 import { KernelError } from '../error/KernelError';
 import type { ActionRuntime } from '../actions/types';
 import { createReporter } from '../reporter';
+import { WPK_SUBSYSTEM_NAMESPACES } from '../namespace/constants';
 import type { PolicyHelpers } from './types';
 
 export interface PolicyProxyOptions {
@@ -31,7 +32,7 @@ type PolicyRequestContext = PolicyProxyOptions;
 
 let currentContext: PolicyRequestContext | undefined;
 const policyContextReporter = createReporter({
-	namespace: 'kernel.policy',
+	namespace: WPK_SUBSYSTEM_NAMESPACES.POLICY,
 	channel: 'console',
 	level: 'warn',
 });

@@ -1,5 +1,5 @@
 import { createReporter } from '../reporter';
-import { WPK_SUBSYSTEM_NAMESPACES } from '../namespace/constants';
+import { WPK_EVENTS, WPK_SUBSYSTEM_NAMESPACES } from '../namespace/constants';
 
 /**
  * Internal state shape exposed by the __getInternalState selector.
@@ -621,7 +621,7 @@ function emitCacheInvalidatedEvent(keys: string[]): void {
 	).wp;
 
 	if (wp?.hooks?.doAction) {
-		wp.hooks.doAction('wpk.cache.invalidated', { keys });
+		wp.hooks.doAction(WPK_EVENTS.CACHE_INVALIDATED, { keys });
 	}
 }
 

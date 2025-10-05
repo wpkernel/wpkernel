@@ -11,6 +11,7 @@
  */
 
 import { KernelError } from '../error/KernelError';
+import { WPK_EVENTS } from '../namespace/constants';
 import type {
 	TransportRequest,
 	TransportResponse,
@@ -194,7 +195,7 @@ export async function fetch<T = unknown>(
 			query: request.query,
 			timestamp: Date.now(),
 		};
-		hooks.doAction('wpk.resource.request', requestEvent);
+		hooks.doAction(WPK_EVENTS.RESOURCE_REQUEST, requestEvent);
 	}
 
 	try {
@@ -259,9 +260,8 @@ export async function fetch<T = unknown>(
 				duration,
 				timestamp: Date.now(),
 			};
-			hooks.doAction('wpk.resource.response', responseEvent);
+			hooks.doAction(WPK_EVENTS.RESOURCE_RESPONSE, responseEvent);
 		}
-
 		return response;
 	} catch (error) {
 		const duration = performance.now() - startTime;
@@ -287,9 +287,8 @@ export async function fetch<T = unknown>(
 				duration,
 				timestamp: Date.now(),
 			};
-			hooks.doAction('wpk.resource.error', errorEvent);
+			hooks.doAction(WPK_EVENTS.RESOURCE_ERROR, errorEvent);
 		}
-
 		throw kernelError;
 	}
 }

@@ -17,6 +17,7 @@ import { invalidate as invalidateCache } from '../resource/cache';
 import { getNamespace } from '../namespace/detect';
 import { createPolicyProxy } from '../policy/context';
 import { createReporter as createKernelReporter } from '../reporter';
+import { WPK_INFRASTRUCTURE, WPK_EVENTS } from '../namespace/constants';
 import type {
 	ActionContext,
 	ActionLifecycleEvent,
@@ -35,7 +36,7 @@ import type {
  *
  * @internal
  */
-const BROADCAST_CHANNEL_NAME = 'wpk.actions';
+const BROADCAST_CHANNEL_NAME = WPK_INFRASTRUCTURE.ACTIONS_CHANNEL;
 
 let broadcastChannel: BroadcastChannel | null | undefined;
 
@@ -289,12 +290,28 @@ function createJobs(actionName: string, runtime?: ActionRuntime) {
 export function emitLifecycleEvent(event: ActionLifecycleEvent): void {
 	const hooks = getHooks();
 	if (hooks?.doAction) {
-		hooks.doAction(`wpk.action.${event.phase}`, event);
+		let eventName: string;
+		if (event.phase === 'start') {
+			eventName = WPK_EVENTS.ACTION_START;
+		} else if (event.phase === 'complete') {
+			eventName = WPK_EVENTS.ACTION_COMPLETE;
+		} else {
+			eventName = WPK_EVENTS.ACTION_ERROR;
+		}
+		hooks.doAction(eventName, event);
 	}
 
 	const runtime = getRuntime();
 	if (event.bridged && runtime?.bridge?.emit) {
-		runtime.bridge.emit(`wpk.action.${event.phase}`, event, event);
+		let eventName: string;
+		if (event.phase === 'start') {
+			eventName = WPK_EVENTS.ACTION_START;
+		} else if (event.phase === 'complete') {
+			eventName = WPK_EVENTS.ACTION_COMPLETE;
+		} else {
+			eventName = WPK_EVENTS.ACTION_ERROR;
+		}
+		runtime.bridge.emit(eventName, event, event);
 	}
 
 	if (event.scope === 'crossTab') {
