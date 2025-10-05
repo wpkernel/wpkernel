@@ -6,26 +6,21 @@ STAGED_FILES=$(git diff --cached --name-only)
 # Run lint-staged (formats and lints staged files)
 pnpm lint-staged
 
+# TypeCheck source code (always - matches CI)
+echo "🔍 Type checking source code..."
+pnpm typecheck
+
+# TypeCheck test files (always - matches CI)
+echo "🔍 Type checking test files..."
+pnpm typecheck:tests
+
+# Run tests with coverage (always - matches CI)
+echo "🧪 Running tests with coverage..."
+pnpm test:coverage
+
 # Detect what changed
 HAS_SRC_CHANGES=$(echo "$STAGED_FILES" | grep -E 'packages/.*/src/.*\.(ts|tsx)' || true)
-HAS_TEST_CHANGES=$(echo "$STAGED_FILES" | grep -E '\.(test|spec)\.(ts|tsx)$' || true)
 HAS_DOC_CHANGES=$(echo "$STAGED_FILES" | grep -E '(docs/|typedoc\.json)' || true)
-
-# TypeCheck tests only if test files changed
-if [ -n "$HAS_TEST_CHANGES" ]; then
-  echo "🔍 Type checking test files..."
-  pnpm typecheck:tests || {
-    echo ""
-    echo "❌ TypeScript errors in test files. Please fix before committing."
-    echo "💡 Run: pnpm typecheck:tests"
-    echo ""
-    exit 1
-  }
-fi
-
-# Enforce test coverage before allowing commit (unchanged from original)
-echo "🧪 Running tests with coverage threshold..."
-pnpm test:coverage
 
 # Build docs only if API or docs changed (using fast mode)
 if [ -n "$HAS_SRC_CHANGES" ] || [ -n "$HAS_DOC_CHANGES" ]; then
@@ -61,7 +56,3 @@ case "$BRANCH" in
     fi
     ;;
 esac
-
-# Clean up TypeScript build artifacts (but keep intentional .d.ts like global.d.ts)
-find packages \( -path '*/src/*.d.ts' -o -path '*/src/**/*.d.ts' \) -type f -delete 2>/dev/null || true
-find packages -name '.tsbuildinfo' -type f -delete 2>/dev/null || true

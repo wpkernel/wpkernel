@@ -9,7 +9,7 @@
 		"noEmit": true,
 		"jsx": "react-jsx",
 		"jsxImportSource": "react",
-		"types": ["jest", "node", "@wordpress/element"],
+		"types": ["jest", "node"],
 		"resolveJsonModule": true,
 		"skipLibCheck": true,
 		"strict": false

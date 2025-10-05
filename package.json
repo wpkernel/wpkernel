@@ -27,8 +27,6 @@
 		"format:check": "prettier --check '**/*.{js,ts,tsx,json,md,yml,yaml}'",
 		"typecheck": "pnpm --recursive --filter './packages/*' --filter './app/*' run typecheck",
 		"typecheck:tests": "pnpm --recursive --filter './packages/*' --filter './app/*' run typecheck:tests",
-		"types:build": "tsc -b packages/*/tsconfig.build.json",
-		"types:clean": "tsc -b packages/*/tsconfig.build.json --clean",
 		"test": "jest --passWithNoTests",
 		"test:watch": "jest --watch",
 		"test:coverage": "jest --coverage",
