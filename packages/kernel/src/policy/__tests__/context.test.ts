@@ -16,6 +16,12 @@ describe('policy context', () => {
 		bridged: false,
 	};
 
+	const createProxy = () =>
+		createPolicyProxy(baseOptions) as {
+			assert: (key: string, value?: unknown) => void | Promise<void>;
+			can: (key: string, value?: unknown) => boolean | Promise<boolean>;
+		};
+
 	afterEach(() => {
 		delete global.__WP_KERNEL_ACTION_RUNTIME__;
 		jest.restoreAllMocks();
@@ -28,6 +34,16 @@ describe('policy context', () => {
 		});
 
 		expect(result).toBe('done');
+		expect(getPolicyRequestContext()).toBeUndefined();
+	});
+
+	it('restores request context when synchronous execution throws', () => {
+		expect(() =>
+			withPolicyRequestContext(baseOptions, () => {
+				expect(getPolicyRequestContext()).toEqual(baseOptions);
+				throw new Error('boom');
+			})
+		).toThrow('boom');
 		expect(getPolicyRequestContext()).toBeUndefined();
 	});
 
@@ -53,7 +69,7 @@ describe('policy context', () => {
 
 	it('throws when no runtime policy is configured for assert', () => {
 		delete global.__WP_KERNEL_ACTION_RUNTIME__;
-		const proxy = createPolicyProxy(baseOptions);
+		const proxy = createProxy();
 		expect(() => proxy.assert('tasks.manage', undefined)).toThrow(
 			KernelError
 		);
@@ -66,7 +82,7 @@ describe('policy context', () => {
 		global.__WP_KERNEL_ACTION_RUNTIME__ = {
 			policy: { assert },
 		} as ActionRuntime;
-		const proxy = createPolicyProxy(baseOptions);
+		const proxy = createProxy();
 		proxy.assert('tasks.manage', { id: 1 });
 		expect(assert).toHaveBeenCalledWith('tasks.manage', { id: 1 });
 	});
@@ -76,28 +92,34 @@ describe('policy context', () => {
 		global.__WP_KERNEL_ACTION_RUNTIME__ = {
 			policy: { assert },
 		} as ActionRuntime;
-		const proxy = createPolicyProxy(baseOptions);
-		proxy.assert('tasks.manage', undefined);
+		const proxy = createProxy();
+		proxy.assert('tasks.manage');
 		expect(assert).toHaveBeenCalledWith('tasks.manage', undefined);
 	});
 
-	it('falls back to can() when assert is unavailable', async () => {
-		const can = jest
-			.fn()
-			.mockReturnValueOnce(false)
-			.mockResolvedValueOnce(false);
+	it('falls back to can() when assert is unavailable', () => {
+		const can = jest.fn().mockReturnValue(false);
 		global.__WP_KERNEL_ACTION_RUNTIME__ = {
 			policy: { can },
 		} as ActionRuntime;
-		const proxy = createPolicyProxy(baseOptions);
+		const proxy = createProxy();
 
+		expect(() => proxy.assert('tasks.manage')).toThrow(KernelError);
 		expect(() => proxy.assert('tasks.manage', undefined)).toThrow(
 			KernelError
 		);
-		await expect(proxy.assert('tasks.manage', undefined)).rejects.toThrow(
-			KernelError
-		);
 		expect(can).toHaveBeenCalledTimes(2);
+	});
+
+	it('rejects when fallback can() resolves to false asynchronously', async () => {
+		const can = jest.fn().mockResolvedValue(false);
+		global.__WP_KERNEL_ACTION_RUNTIME__ = {
+			policy: { can },
+		} as ActionRuntime;
+		const proxy = createProxy();
+
+		await expect(proxy.assert('tasks.manage')).rejects.toThrow(KernelError);
+		expect(can).toHaveBeenCalledWith('tasks.manage');
 	});
 
 	it('resolves when fallback can() returns true', () => {
@@ -105,13 +127,22 @@ describe('policy context', () => {
 		global.__WP_KERNEL_ACTION_RUNTIME__ = {
 			policy: { can },
 		} as ActionRuntime;
-		const proxy = createPolicyProxy(baseOptions);
-		expect(() => proxy.assert('tasks.manage', undefined)).not.toThrow();
+		const proxy = createProxy();
+		expect(() => proxy.assert('tasks.manage')).not.toThrow();
+	});
+
+	it('resolves when fallback can() resolves to true asynchronously', async () => {
+		const can = jest.fn().mockResolvedValue(true);
+		global.__WP_KERNEL_ACTION_RUNTIME__ = {
+			policy: { can },
+		} as ActionRuntime;
+		const proxy = createProxy();
+		await expect(proxy.assert('tasks.manage')).resolves.toBeUndefined();
 	});
 
 	it('throws developer error when runtime lacks assertion surface', () => {
 		global.__WP_KERNEL_ACTION_RUNTIME__ = { policy: {} } as ActionRuntime;
-		const proxy = createPolicyProxy(baseOptions);
+		const proxy = createProxy();
 		expect(() => proxy.assert('tasks.manage', undefined)).toThrow(
 			'does not expose assert()'
 		);
@@ -122,10 +153,23 @@ describe('policy context', () => {
 			.spyOn(console, 'warn')
 			.mockImplementation(() => undefined);
 		delete global.__WP_KERNEL_ACTION_RUNTIME__;
-		const proxy = createPolicyProxy(baseOptions);
-		expect(proxy.can('tasks.manage', undefined)).toBe(false);
-		expect(proxy.can('tasks.manage', undefined)).toBe(false);
+		const proxy = createProxy();
+		expect(proxy.can('tasks.manage')).toBe(false);
+		expect(proxy.can('tasks.manage')).toBe(false);
 		expect(warn).toHaveBeenCalledTimes(1);
+	});
+
+	it('skips warnings in production when runtime is missing', () => {
+		const originalEnv = process.env.NODE_ENV;
+		process.env.NODE_ENV = 'production';
+		const warn = jest
+			.spyOn(console, 'warn')
+			.mockImplementation(() => undefined);
+		delete global.__WP_KERNEL_ACTION_RUNTIME__;
+		const proxy = createProxy();
+		expect(proxy.can('tasks.manage')).toBe(false);
+		expect(warn).not.toHaveBeenCalled();
+		process.env.NODE_ENV = originalEnv;
 	});
 
 	it('delegates can() calls with parameters to the runtime', () => {
@@ -133,7 +177,7 @@ describe('policy context', () => {
 		global.__WP_KERNEL_ACTION_RUNTIME__ = {
 			policy: { can },
 		} as ActionRuntime;
-		const proxy = createPolicyProxy(baseOptions);
+		const proxy = createProxy();
 		expect(proxy.can('tasks.manage', true)).toBe(true);
 		expect(can).toHaveBeenCalledWith('tasks.manage', true);
 	});
@@ -143,8 +187,8 @@ describe('policy context', () => {
 		global.__WP_KERNEL_ACTION_RUNTIME__ = {
 			policy: { can },
 		} as ActionRuntime;
-		const proxy = createPolicyProxy(baseOptions);
-		expect(proxy.can('tasks.manage', undefined)).toBe(true);
-		expect(can).toHaveBeenCalledWith('tasks.manage', undefined);
+		const proxy = createProxy();
+		expect(proxy.can('tasks.manage')).toBe(true);
+		expect(can).toHaveBeenCalledWith('tasks.manage');
 	});
 });
