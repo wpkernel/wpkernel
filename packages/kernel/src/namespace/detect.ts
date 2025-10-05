@@ -196,8 +196,9 @@ function extractFromModuleId(moduleId: string): string | null {
 
 	try {
 		// Handle wpk/namespace pattern
-		if (moduleId.startsWith('wpk/')) {
-			return moduleId.slice(4); // Remove 'wpk/' prefix
+		const wpkPrefix = `${WPK_NAMESPACE}/`;
+		if (moduleId.startsWith(wpkPrefix)) {
+			return moduleId.slice(wpkPrefix.length); // Remove 'wpk/' prefix
 		}
 
 		// Handle other patterns - extract last segment

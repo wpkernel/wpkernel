@@ -14,6 +14,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import noManualTestGlobals from './eslint-rules/no-manual-test-globals.js';
 import noConsoleInKernel from './eslint-rules/no-console-in-kernel.js';
+import noHardcodedNamespaceStrings from './eslint-rules/no-hardcoded-namespace-strings.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -22,6 +23,7 @@ const kernelPlugin = {
 	rules: {
 		'no-manual-test-globals': noManualTestGlobals,
 		'no-console-in-kernel': noConsoleInKernel,
+		'no-hardcoded-namespace-strings': noHardcodedNamespaceStrings,
 	},
 };
 
@@ -125,10 +127,9 @@ export default [
 			],
 
 			'@kernel/no-console-in-kernel': 'error',
+			'@kernel/no-hardcoded-namespace-strings': 'error',
 		},
-	},
-
-	// WordPress Script Modules - runtime-resolved imports
+	}, // WordPress Script Modules - runtime-resolved imports
 	{
 		files: ['app/*/src/**/*.js', 'app/*/src/**/*.jsx'],
 		rules: {

@@ -10,7 +10,7 @@
 function fetch<T>(request): Promise<TransportResponse<T>>;
 ```
 
-Defined in: [http/fetch.ts:178](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/http/fetch.ts#L178)
+Defined in: [http/fetch.ts:179](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/http/fetch.ts#L179)
 
 Fetch data from WordPress REST API
 

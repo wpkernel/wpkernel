@@ -2,7 +2,7 @@ import { KernelError } from '../../error/KernelError';
 import type { ActionErrorEvent, ReduxMiddleware } from '../../actions/types';
 import type { Reporter } from '../../reporter';
 import type { KernelRegistry } from '../types';
-import { WPK_INFRASTRUCTURE } from '../../namespace/constants';
+import { WPK_EVENTS, WPK_INFRASTRUCTURE } from '../../namespace/constants';
 
 export type NoticeStatus = 'success' | 'info' | 'warning' | 'error';
 
@@ -126,11 +126,10 @@ export function kernelEventsPlugin({
 				});
 			};
 
-			hooks.addAction('wpk.action.error', pluginNamespace, handler);
+			hooks.addAction(WPK_EVENTS.ACTION_ERROR, pluginNamespace, handler);
 			detach = () =>
-				hooks.removeAction?.('wpk.action.error', pluginNamespace);
+				hooks.removeAction?.(WPK_EVENTS.ACTION_ERROR, pluginNamespace);
 		}
-
 		return (next) => (action) => next(action);
 	};
 
