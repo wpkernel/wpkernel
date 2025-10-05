@@ -3,6 +3,10 @@ import { createTransports } from '../transports';
 import { WPK_NAMESPACE } from '../../namespace/constants';
 import { ensureWpData } from '@test-utils/wp';
 
+type TransportWithShipToLogger = {
+	shipToLogger: (p: LogLayerTransportParams) => unknown[];
+};
+
 describe('reporter transports', () => {
 	const originalConsole = {
 		info: console.info,
@@ -56,17 +60,16 @@ describe('reporter transports', () => {
 	it('disables console transport when running in production', () => {
 		process.env.NODE_ENV = 'production';
 
-		const transport = createTransports('console', 'info');
+		const transport = createTransports(
+			'console',
+			'info'
+		) as TransportWithShipToLogger;
 		const params = createParams({
 			context: { namespace: 'acme' },
 			messages: ['should not log'],
 		});
 
-		const result = (
-			transport as {
-				shipToLogger: (p: LogLayerTransportParams) => unknown[];
-			}
-		).shipToLogger(params);
+		const result = transport.shipToLogger(params);
 
 		expect(result).toEqual([]);
 		expect(console.info).not.toHaveBeenCalled();
@@ -75,7 +78,10 @@ describe('reporter transports', () => {
 	it('emits console output with fallback namespace', () => {
 		const dateSpy = jest.spyOn(Date, 'now').mockReturnValue(1234);
 
-		const transport = createTransports('console', 'debug');
+		const transport = createTransports(
+			'console',
+			'debug'
+		) as TransportWithShipToLogger;
 		const params = createParams({
 			logLevel: 'debug',
 			messages: ['hello world'],
@@ -83,11 +89,7 @@ describe('reporter transports', () => {
 			context: {},
 		});
 
-		const output = (
-			transport as {
-				shipToLogger: (p: LogLayerTransportParams) => unknown[];
-			}
-		).shipToLogger(params);
+		const output = transport.shipToLogger(params);
 
 		expect(console.debug).toHaveBeenCalledWith(
 			`[${WPK_NAMESPACE}]`,
@@ -109,7 +111,10 @@ describe('reporter transports', () => {
 		const doAction = window.wp?.hooks?.doAction as jest.Mock | undefined;
 		const dateSpy = jest.spyOn(Date, 'now').mockReturnValue(4321);
 
-		const transport = createTransports('hooks', 'error');
+		const transport = createTransports(
+			'hooks',
+			'error'
+		) as TransportWithShipToLogger;
 		const params = createParams({
 			logLevel: 'error',
 			messages: ['failed to fetch'],
@@ -117,11 +122,7 @@ describe('reporter transports', () => {
 			metadata: { context: { requestId: '123' } },
 		});
 
-		const payloads = (
-			transport as {
-				shipToLogger: (p: LogLayerTransportParams) => unknown[];
-			}
-		).shipToLogger(params);
+		const payloads = transport.shipToLogger(params);
 
 		expect(doAction).toHaveBeenCalledWith('demo.reporter.error', {
 			message: 'failed to fetch',
@@ -146,12 +147,11 @@ describe('reporter transports', () => {
 				undefined as unknown as typeof window.wp.hooks.doAction;
 		}
 
-		const transport = createTransports('hooks', 'info');
-		const result = (
-			transport as {
-				shipToLogger: (p: LogLayerTransportParams) => unknown[];
-			}
-		).shipToLogger(createParams());
+		const transport = createTransports(
+			'hooks',
+			'info'
+		) as TransportWithShipToLogger;
+		const result = transport.shipToLogger(createParams());
 
 		expect(result).toEqual([]);
 
@@ -163,9 +163,10 @@ describe('reporter transports', () => {
 
 	it('creates combined transports when using the "all" channel', () => {
 		const dateSpy = jest.spyOn(Date, 'now').mockReturnValue(9876);
-		const transports = createTransports('all', 'warn') as {
-			shipToLogger: (p: LogLayerTransportParams) => unknown[];
-		}[];
+		const transports = createTransports(
+			'all',
+			'warn'
+		) as TransportWithShipToLogger[];
 
 		const params = createParams({
 			logLevel: 'warn',

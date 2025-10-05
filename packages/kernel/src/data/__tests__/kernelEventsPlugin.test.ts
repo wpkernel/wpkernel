@@ -13,6 +13,23 @@ function createRegistryMock(): KernelRegistry & { createNotice: jest.Mock } {
 	} as unknown as KernelRegistry & { createNotice: jest.Mock };
 }
 
+function createActionErrorEvent(
+	overrides: Partial<ActionErrorEvent> = {}
+): ActionErrorEvent {
+	return {
+		phase: 'error',
+		error: new KernelError('ValidationError', { message: 'test error' }),
+		actionName: 'TestAction',
+		requestId: 'test-req-id',
+		namespace: 'test',
+		durationMs: 10,
+		scope: 'crossTab',
+		bridged: false,
+		timestamp: Date.now(),
+		...overrides,
+	};
+}
+
 describe('kernelEventsPlugin', () => {
 	beforeEach(() => {
 		(window.wp?.hooks?.addAction as jest.Mock | undefined)?.mockReset?.();
@@ -106,17 +123,15 @@ describe('kernelEventsPlugin', () => {
 			type: 'IGNORE',
 		});
 
-		eventHandler?.({
-			error: new KernelError('PolicyDenied', { message: 'denied' }),
-			actionName: 'CheckPolicy',
-			requestId: 'act_warning',
-			namespace: 'acme',
-			phase: 'error',
-			durationMs: 5,
-			scope: 'crossTab',
-			bridged: true,
-			timestamp: Date.now(),
-		} as ActionErrorEvent);
+		eventHandler?.(
+			createActionErrorEvent({
+				error: new KernelError('PolicyDenied', { message: 'denied' }),
+				actionName: 'CheckPolicy',
+				requestId: 'act_warning',
+				namespace: 'acme',
+				bridged: true,
+			})
+		);
 
 		expect(registry.createNotice).toHaveBeenNthCalledWith(
 			1,
@@ -125,17 +140,17 @@ describe('kernelEventsPlugin', () => {
 			expect.objectContaining({ id: 'act_warning' })
 		);
 
-		eventHandler?.({
-			error: new KernelError('ValidationError', { message: 'invalid' }),
-			actionName: 'Validate',
-			requestId: 'act_info',
-			namespace: 'acme',
-			phase: 'error',
-			durationMs: 5,
-			scope: 'crossTab',
-			bridged: true,
-			timestamp: Date.now(),
-		} as ActionErrorEvent);
+		eventHandler?.(
+			createActionErrorEvent({
+				error: new KernelError('ValidationError', {
+					message: 'invalid',
+				}),
+				actionName: 'Validate',
+				requestId: 'act_info',
+				namespace: 'acme',
+				bridged: true,
+			})
+		);
 
 		expect(registry.createNotice).toHaveBeenNthCalledWith(
 			2,

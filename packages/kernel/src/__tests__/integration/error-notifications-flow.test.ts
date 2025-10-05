@@ -6,6 +6,23 @@ import type { KernelRegistry } from '../../data/types';
 import { ensureWpData } from '@test-utils/wp';
 import type { ActionErrorEvent } from '../../actions/types';
 
+function createActionErrorEvent(
+	overrides: Partial<ActionErrorEvent> = {}
+): ActionErrorEvent {
+	return {
+		phase: 'error',
+		error: new KernelError('ValidationError', { message: 'test error' }),
+		actionName: 'TestAction',
+		requestId: 'test-req-id',
+		namespace: 'test',
+		durationMs: 10,
+		scope: 'crossTab',
+		bridged: false,
+		timestamp: Date.now(),
+		...overrides,
+	};
+}
+
 describe('Integration: Kernel error reporting flow', () => {
 	let createNotice: jest.Mock;
 	let recordedHooks: Record<string, unknown[]>;
@@ -126,19 +143,15 @@ describe('Integration: Kernel error reporting flow', () => {
 			type: 'INIT',
 		});
 
-		const event: ActionErrorEvent = {
+		const event = createActionErrorEvent({
 			error: new KernelError('ValidationError', {
 				message: 'Invalid input',
 			}),
 			actionName: 'SavePost',
 			requestId: 'req-123',
 			namespace: 'integration',
-			phase: 'error',
 			durationMs: 42,
-			scope: 'crossTab',
-			bridged: false,
-			timestamp: Date.now(),
-		};
+		});
 
 		window.wp?.hooks?.doAction?.('wpk.action.error', event);
 
