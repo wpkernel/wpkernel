@@ -1,8 +1,8 @@
 /**
- * Global Type Declarations for WP Kernel
+ * Global Type Declarations for WP Kernel Monorepo
  *
  * Runtime type declarations for WordPress integration.
- * These types are available globally without imports.
+ * These types are available globally across all packages without imports.
  */
 import type * as WPData from '@wordpress/data';
 import type * as WPApiFetch from '@wordpress/api-fetch';

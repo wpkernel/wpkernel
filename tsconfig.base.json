@@ -57,8 +57,13 @@
 
 		// Project References
 		"composite": true,
-		"incremental": true
+		"incremental": true,
+
+		// Global Types
+		"types": ["node"],
+		"typeRoots": ["./node_modules/@types", "./types"]
 	},
+	"include": ["types/**/*.d.ts"],
 	"exclude": [
 		"**/node_modules",
 		"**/dist",

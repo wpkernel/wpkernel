@@ -6,10 +6,9 @@
 		"outDir": "./dist",
 		"composite": true,
 		"jsx": "react-jsx",
-		"jsxImportSource": "react",
-		"types": ["@wordpress/element"]
+		"jsxImportSource": "react"
 	},
-	"include": ["src/**/*"],
+	"include": ["src/**/*", "../../types/**/*.d.ts"],
 	"exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.test.tsx"],
 	"references": [
 		{ "path": "../../packages/kernel" },

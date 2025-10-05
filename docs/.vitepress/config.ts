@@ -1,6 +1,10 @@
 import { defineConfig } from 'vitepress';
 import { withMermaid } from 'vitepress-plugin-mermaid';
 
+// Fast mode for pre-commit hooks (MPA mode + no minification)
+// MPA is experimental but safe for pre-commit validation (CI uses full build)
+const FAST = process.env.DOCS_FAST === '1';
+
 // https://vitepress.dev/reference/site-config
 export default withMermaid(
 	defineConfig({
@@ -10,10 +14,30 @@ export default withMermaid(
 		base: '/wp-kernel/',
 		lastUpdated: true,
 		sitemap: { hostname: 'https://thegeekist.github.io' },
+		// Strict link checking always on so it still fails locally if links break
 		ignoreDeadLinks: [
 			// Ignore localhost URLs (environment-specific)
 			/^http:\/\/localhost:\d+/,
 		],
+
+		// Fast path: no client hydration, less bundling (experimental but faster)
+		// Only used in pre-commit for speed; CI uses full SPA build
+		mpa: FAST,
+
+		vite: {
+			// Persist caches so repeated builds are faster
+			cacheDir: 'node_modules/.vite-docs',
+			// Minify is expensive; disable in fast mode for pre-commit speed
+			build: FAST
+				? {
+						minify: false, // Skip terser/esbuild minification
+						cssMinify: false, // Skip CSS minification
+						reportCompressedSize: false, // Skip gzip size calculation
+						sourcemap: false, // Skip sourcemap generation
+					}
+				: {},
+		},
+
 		themeConfig: {
 			// https://vitepress.dev/reference/default-theme-config
 			logo: '/logo.png',
