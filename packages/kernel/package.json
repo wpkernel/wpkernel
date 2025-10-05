@@ -52,6 +52,16 @@
 			"import": "./dist/actions/index.js",
 			"default": "./dist/actions/index.js"
 		},
+		"./data": {
+			"types": "./dist/data/index.d.ts",
+			"import": "./dist/data/index.js",
+			"default": "./dist/data/index.js"
+		},
+		"./reporter": {
+			"types": "./dist/reporter/index.d.ts",
+			"import": "./dist/reporter/index.js",
+			"default": "./dist/reporter/index.js"
+		},
 		"./package.json": "./package.json"
 	},
 	"files": [
@@ -81,5 +91,10 @@
 	},
 	"publishConfig": {
 		"access": "public"
+	},
+	"dependencies": {
+		"@loglayer/shared": "^2.4.0",
+		"@loglayer/transport": "^2.3.0",
+		"loglayer": "^6.7.2"
 	}
 }

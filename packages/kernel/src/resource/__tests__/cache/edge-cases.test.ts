@@ -4,6 +4,7 @@
  */
 
 import { invalidate, invalidateAll, normalizeCacheKey } from '../../cache';
+import { WPK_SUBSYSTEM_NAMESPACES } from '../../../namespace/constants';
 
 // Use global types for window.wp
 
@@ -94,10 +95,10 @@ describe('invalidate edge cases', () => {
 			}).not.toThrow();
 
 			expect(consoleWarnSpy).toHaveBeenCalledWith(
-				expect.stringContaining(
-					'does not expose __getInternalState selector'
-				)
+				`[${WPK_SUBSYSTEM_NAMESPACES.CACHE}]`,
+				'Store wpk/thing does not expose __getInternalState selector'
 			);
+			expect(console as any).toHaveWarned();
 		});
 
 		it('should log warning when invalidateAll fails in development', () => {
@@ -117,9 +118,11 @@ describe('invalidate edge cases', () => {
 			}).not.toThrow();
 
 			expect(consoleWarnSpy).toHaveBeenCalledWith(
+				`[${WPK_SUBSYSTEM_NAMESPACES.CACHE}]`,
 				expect.stringContaining('Failed to invalidate all caches'),
 				expect.any(Error)
 			);
+			expect(console as any).toHaveWarned();
 		});
 
 		it('should not log warning when invalidate fails in production', () => {

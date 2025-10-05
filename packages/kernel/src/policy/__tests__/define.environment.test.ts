@@ -4,6 +4,7 @@ import type * as WPData from '@wordpress/data';
 import type * as WPHooks from '@wordpress/hooks';
 import type { PolicyDeniedError } from '../../error/PolicyDeniedError';
 import type { PolicyContext } from '../types';
+import { WPK_SUBSYSTEM_NAMESPACES } from '../../namespace/constants';
 
 type PolicyModuleType = typeof PolicyModule;
 
@@ -75,13 +76,17 @@ describe('policy environment edge cases', () => {
 
 		expect(broadcastSpy).toHaveBeenCalled();
 		expect(warnSpy).toHaveBeenCalledWith(
-			'[wp-kernel] Failed to create BroadcastChannel for policy cache.',
+			`[${WPK_SUBSYSTEM_NAMESPACES.POLICY_CACHE}]`,
+			'Failed to create BroadcastChannel for policy cache.',
 			broadcastError
 		);
+		expect(console as any).toHaveWarned();
 		expect(warnSpy).toHaveBeenCalledWith(
-			'[wp-kernel] Failed to create BroadcastChannel for policy events.',
-			broadcastError
+			`[${WPK_SUBSYSTEM_NAMESPACES.POLICY}]`,
+			'Failed to create BroadcastChannel for policy events.',
+			{ error: broadcastError }
 		);
+		expect(console as any).toHaveWarned();
 		warnSpy.mockRestore();
 	});
 
@@ -134,11 +139,13 @@ describe('policy environment edge cases', () => {
 			});
 
 			expect(warnSpy).toHaveBeenCalledWith(
-				'[wp-kernel][policy] Failed to invoke wp.data.select("core").canUser',
+				'[acme]',
+				'Failed to invoke wp.data.select("core").canUser',
 				{
 					error: failure,
 				}
 			);
+			expect(console as any).toHaveWarned();
 		});
 		warnSpy.mockRestore();
 	});
@@ -290,16 +297,16 @@ describe('policy environment edge cases', () => {
 			expect(policy.can('tasks.reporter')).toBe(true);
 		});
 
-		expect(infoSpy).toHaveBeenCalledWith('[wp-kernel][policy] inform', {
+		expect(infoSpy).toHaveBeenCalledWith('[wpk]', 'inform', {
 			id: 1,
 		});
-		expect(warnSpy).toHaveBeenCalledWith('[wp-kernel][policy] warn', {
+		expect(warnSpy).toHaveBeenCalledWith('[wpk]', 'warn', {
 			id: 2,
 		});
-		expect(errorSpy).toHaveBeenCalledWith('[wp-kernel][policy] error', {
+		expect(errorSpy).toHaveBeenCalledWith('[wpk]', 'error', {
 			id: 3,
 		});
-		expect(debugSpy).toHaveBeenCalledWith('[wp-kernel][policy] debug', {
+		expect(debugSpy).toHaveBeenCalledWith('[wpk]', 'debug', {
 			id: 4,
 		});
 		infoSpy.mockRestore();

@@ -15,11 +15,22 @@
  */
 
 import { getNamespace } from '../namespace/detect';
+import { createReporter } from '../reporter';
+import {
+	WPK_SUBSYSTEM_NAMESPACES,
+	WPK_INFRASTRUCTURE,
+} from '../namespace/constants';
 import type { PolicyCache, PolicyCacheOptions } from './types';
 
 const DEFAULT_TTL_MS = 60_000;
-const STORAGE_KEY_PREFIX = 'wpk.policy.cache';
-const BROADCAST_CHANNEL_NAME = 'wpk.policy.cache';
+const STORAGE_KEY_PREFIX = WPK_INFRASTRUCTURE.POLICY_CACHE_STORAGE;
+const BROADCAST_CHANNEL_NAME = WPK_INFRASTRUCTURE.POLICY_CACHE_CHANNEL;
+
+const policyCacheReporter = createReporter({
+	namespace: WPK_SUBSYSTEM_NAMESPACES.POLICY_CACHE,
+	channel: 'console',
+	level: 'warn',
+});
 
 type Listener = () => void;
 
@@ -112,8 +123,8 @@ function getStorage(options: PolicyCacheOptions | undefined): Storage | null {
 		try {
 			return window.sessionStorage;
 		} catch (error) {
-			console.warn(
-				'[wp-kernel] sessionStorage is not available for policy cache.',
+			policyCacheReporter.warn(
+				'sessionStorage is not available for policy cache.',
 				error
 			);
 			return null;
@@ -145,8 +156,8 @@ function readPersisted(
 		}
 		return parsed;
 	} catch (error) {
-		console.warn(
-			'[wp-kernel] Failed to parse persisted policy cache.',
+		policyCacheReporter.warn(
+			'Failed to parse persisted policy cache.',
 			error
 		);
 		return {};
@@ -167,7 +178,7 @@ function persist(
 		const serialized = JSON.stringify(Object.fromEntries(store.entries()));
 		storage.setItem(`${STORAGE_KEY_PREFIX}.${namespace}`, serialized);
 	} catch (error) {
-		console.warn('[wp-kernel] Failed to persist policy cache.', error);
+		policyCacheReporter.warn('Failed to persist policy cache.', error);
 	}
 }
 
@@ -189,8 +200,8 @@ function createBroadcastChannel(
 	try {
 		return new window.BroadcastChannel(BROADCAST_CHANNEL_NAME);
 	} catch (error) {
-		console.warn(
-			'[wp-kernel] Failed to create BroadcastChannel for policy cache.',
+		policyCacheReporter.warn(
+			'Failed to create BroadcastChannel for policy cache.',
 			error
 		);
 		return null;

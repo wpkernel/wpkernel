@@ -8,6 +8,14 @@
  */
 
 export {
+	WPK_NAMESPACE,
+	WPK_SUBSYSTEM_NAMESPACES,
+	WPK_INFRASTRUCTURE,
+	type WPKSubsystemNamespace,
+	type WPKInfrastructureConstant,
+} from './constants.js';
+
+export {
 	detectNamespace,
 	getNamespace,
 	isValidNamespace,

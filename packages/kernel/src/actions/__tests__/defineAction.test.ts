@@ -28,6 +28,7 @@ describe('defineAction', () => {
 				warn: jest.fn(),
 				error: jest.fn(),
 				debug: jest.fn(),
+				child: jest.fn(),
 			},
 			policy: {
 				assert: jest.fn(),

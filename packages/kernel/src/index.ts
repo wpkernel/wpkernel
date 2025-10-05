@@ -54,6 +54,7 @@ export * as error from './error/index.js';
 export * as namespace from './namespace/index.js';
 export * as actions from './actions/index.js';
 export * as policy from './policy/index.js';
+export * as data from './data/index.js';
 
 // ============================================================================
 // Flat Exports (Convenience aliases)
@@ -134,7 +135,6 @@ export type {
 	ActionErrorEvent,
 	DefinedAction,
 	ResolvedActionOptions,
-	Reporter,
 	ActionJobs,
 	WaitOptions,
 } from './actions/types';
@@ -154,6 +154,18 @@ export type {
 	UsePolicyResult,
 	ParamsOf,
 } from './policy/index.js';
+
+// Data integration
+export { useKernel, registerKernelStore } from './data/index.js';
+export type { KernelRegistryOptions, NoticeStatus } from './data/index.js';
+
+// Reporter
+export { createReporter, createNoopReporter } from './reporter/index.js';
+export type {
+	Reporter,
+	ReporterOptions,
+	ReporterLevel,
+} from './reporter/index.js';
 
 // Namespace detection
 export {

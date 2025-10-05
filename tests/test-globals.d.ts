@@ -60,4 +60,13 @@ declare global {
 	 * @return WordPress data package or undefined if not available
 	 */
 	function getWPData(): typeof WPData | undefined;
+
+	namespace jest {
+		interface Matchers<R> {
+			toHaveWarned(): R;
+			toHaveWarnedWith(...expected: unknown[]): R;
+			toHaveErroredWith(...expected: unknown[]): R;
+			toHaveInformedWith(...expected: unknown[]): R;
+		}
+	}
 }

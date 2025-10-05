@@ -16,6 +16,7 @@
 
 import { KernelError } from '../error/KernelError';
 import type { ActionRuntime } from '../actions/types';
+import { createReporter } from '../reporter';
 import type { PolicyHelpers } from './types';
 
 export interface PolicyProxyOptions {
@@ -29,6 +30,11 @@ export interface PolicyProxyOptions {
 type PolicyRequestContext = PolicyProxyOptions;
 
 let currentContext: PolicyRequestContext | undefined;
+const policyContextReporter = createReporter({
+	namespace: 'kernel.policy',
+	channel: 'console',
+	level: 'warn',
+});
 
 export function getPolicyRuntime(): ActionRuntime | undefined {
 	return globalThis.__WP_KERNEL_ACTION_RUNTIME__;
@@ -147,7 +153,7 @@ export function createPolicyProxy(
 			const runtimePolicy = getPolicyRuntime()?.policy;
 			if (!runtimePolicy?.can) {
 				if (!warned && process.env.NODE_ENV !== 'production') {
-					console.warn(
+					policyContextReporter.warn(
 						`Action "${options.actionName}" called policy.can('${key}') but no policy runtime is configured.`
 					);
 					warned = true;

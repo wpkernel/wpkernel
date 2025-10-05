@@ -10,6 +10,7 @@ import {
 	resolveOptions,
 } from '../context';
 import { KernelError } from '../../error/KernelError';
+import type { Reporter } from '../../reporter';
 
 describe('Action Context', () => {
 	let originalRuntime: typeof global.__WP_KERNEL_ACTION_RUNTIME__;
@@ -67,7 +68,9 @@ describe('Action Context', () => {
 					warn: jest.fn(),
 					error: jest.fn(),
 					debug: jest.fn(),
-				};
+					child: jest.fn(),
+				} as jest.Mocked<Reporter>;
+				mockReporter.child.mockReturnValue(mockReporter);
 				global.__WP_KERNEL_ACTION_RUNTIME__ = {
 					reporter: mockReporter,
 				};
@@ -109,20 +112,46 @@ describe('Action Context', () => {
 				ctx.reporter.debug!('debug message', { data: 'test' });
 
 				expect(consoleInfoSpy).toHaveBeenCalledWith(
-					'[wp-kernel] info message',
+					'[wpk]',
+					'info message',
 					{ data: 'test' }
 				);
 				expect(consoleWarnSpy).toHaveBeenCalledWith(
-					'[wp-kernel] warn message',
+					'[wpk]',
+					'warn message',
 					{ data: 'test' }
 				);
 				expect(consoleErrorSpy).toHaveBeenCalledWith(
-					'[wp-kernel] error message',
+					'[wpk]',
+					'error message',
 					{ data: 'test' }
 				);
 				expect(consoleDebugSpy).toHaveBeenCalledWith(
-					'[wp-kernel] debug message',
+					'[wpk]',
+					'debug message',
 					{ data: 'test' }
+				);
+
+				expect(console as any).toHaveInformedWith(
+					'[wpk]',
+					'info message',
+					{
+						data: 'test',
+					}
+				);
+				expect(console as any).toHaveWarnedWith(
+					'[wpk]',
+					'warn message',
+					{
+						data: 'test',
+					}
+				);
+				expect(console as any).toHaveErroredWith(
+					'[wpk]',
+					'error message',
+					{
+						data: 'test',
+					}
 				);
 
 				consoleInfoSpy.mockRestore();
@@ -193,7 +222,12 @@ describe('Action Context', () => {
 				const result1 = ctx.policy.can('test.capability', undefined);
 				expect(result1).toBe(false);
 				expect(consoleWarnSpy).toHaveBeenCalledWith(
-					expect.stringContaining('no policy runtime is configured')
+					'[kernel.policy]',
+					'Action "Test.Action" called policy.can(\'test.capability\') but no policy runtime is configured.'
+				);
+				expect(console as any).toHaveWarnedWith(
+					'[kernel.policy]',
+					'Action "Test.Action" called policy.can(\'test.capability\') but no policy runtime is configured.'
 				);
 
 				// Second call should not warn again (warned = true)

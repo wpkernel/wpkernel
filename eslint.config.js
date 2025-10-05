@@ -13,9 +13,17 @@ import globals from 'globals';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import noManualTestGlobals from './eslint-rules/no-manual-test-globals.js';
+import noConsoleInKernel from './eslint-rules/no-console-in-kernel.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+const kernelPlugin = {
+	rules: {
+		'no-manual-test-globals': noManualTestGlobals,
+		'no-console-in-kernel': noConsoleInKernel,
+	},
+};
 
 const compat = new FlatCompat({
 	baseDirectory: __dirname,
@@ -70,6 +78,10 @@ export default [
 			},
 		},
 
+		plugins: {
+			'@kernel': kernelPlugin,
+		},
+
 		// Custom rules for WP Kernel
 		rules: {
 			// Disable problematic rule (ESLint 9 compatibility issue)
@@ -107,9 +119,12 @@ export default [
 						'^@wordpress/',
 						'^@kernel/',
 						'^@geekist/wp-kernel',
+						'^@loglayer/',
 					],
 				},
 			],
+
+			'@kernel/no-console-in-kernel': 'error',
 		},
 	},
 
@@ -172,11 +187,7 @@ export default [
 			'**/__tests__/**',
 		],
 		plugins: {
-			'@kernel': {
-				rules: {
-					'no-manual-test-globals': noManualTestGlobals,
-				},
-			},
+			'@kernel': kernelPlugin,
 		},
 		rules: {
 			'no-console': 'off',

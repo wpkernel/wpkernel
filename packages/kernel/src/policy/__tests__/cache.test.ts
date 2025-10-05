@@ -1,4 +1,5 @@
 import { createPolicyCache, createPolicyCacheKey } from '../cache';
+import { WPK_SUBSYSTEM_NAMESPACES } from '../../namespace/constants';
 
 jest.mock('../../namespace/detect', () => ({
 	getNamespace: () => 'acme',
@@ -97,9 +98,11 @@ describe('createPolicyCache', () => {
 		const cache = createPolicyCache({ storage: 'session' }, 'acme');
 		expect(cache.keys()).toEqual([]);
 		expect(warn).toHaveBeenCalledWith(
-			'[wp-kernel] Failed to parse persisted policy cache.',
+			`[${WPK_SUBSYSTEM_NAMESPACES.POLICY_CACHE}]`,
+			'Failed to parse persisted policy cache.',
 			expect.any(SyntaxError)
 		);
+		expect(console as any).toHaveWarned();
 	});
 
 	it('persists values and surfaces storage errors', () => {
@@ -129,9 +132,11 @@ describe('createPolicyCache', () => {
 			.mockImplementation(() => undefined);
 		cache.set('policy::void', false);
 		expect(warn).toHaveBeenCalledWith(
-			'[wp-kernel] Failed to persist policy cache.',
+			`[${WPK_SUBSYSTEM_NAMESPACES.POLICY_CACHE}]`,
+			'Failed to persist policy cache.',
 			error
 		);
+		expect(console as any).toHaveWarned();
 	});
 
 	it('handles session storage access failures gracefully', () => {
@@ -148,9 +153,11 @@ describe('createPolicyCache', () => {
 		const cache = createPolicyCache({ storage: 'session' }, 'acme');
 		expect(cache.keys()).toEqual([]);
 		expect(warn).toHaveBeenCalledWith(
-			'[wp-kernel] sessionStorage is not available for policy cache.',
+			`[${WPK_SUBSYSTEM_NAMESPACES.POLICY_CACHE}]`,
+			'sessionStorage is not available for policy cache.',
 			expect.any(Error)
 		);
+		expect(console as any).toHaveWarned();
 	});
 
 	it('evicts expired entries based on ttl', () => {
@@ -275,9 +282,11 @@ describe('createPolicyCache', () => {
 			.mockImplementation(() => undefined);
 		const cache = createPolicyCache({}, 'acme');
 		expect(warn).toHaveBeenCalledWith(
-			'[wp-kernel] Failed to create BroadcastChannel for policy cache.',
+			`[${WPK_SUBSYSTEM_NAMESPACES.POLICY_CACHE}]`,
+			'Failed to create BroadcastChannel for policy cache.',
 			expect.any(Error)
 		);
+		expect(console as any).toHaveWarned();
 		cache.set('policy::void', true);
 	});
 

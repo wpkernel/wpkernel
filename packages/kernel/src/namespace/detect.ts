@@ -1,3 +1,6 @@
+import { createReporter } from '../reporter';
+import { WPK_NAMESPACE, WPK_SUBSYSTEM_NAMESPACES } from './constants';
+
 /**
  * Namespace Detection Module
  *
@@ -11,7 +14,7 @@
  * 3. Module ID (if available)
  * 4. WordPress plugin header 'Text Domain'
  * 5. package.json 'name' field
- * 6. Fallback to 'wpk'
+ * 6. Fallback to WPK_NAMESPACE constant ('wpk')
  *
  * @package
  */
@@ -61,6 +64,12 @@ const RESERVED_NAMESPACES = [
 	'www',
 ] as const;
 
+const namespaceReporter = createReporter({
+	namespace: WPK_SUBSYSTEM_NAMESPACES.NAMESPACE,
+	channel: 'all',
+	level: 'warn',
+});
+
 /**
  * Check if we're in development mode
  * @return True if in development environment
@@ -89,11 +98,11 @@ function emitDevWarning(source: string, namespace: string): void {
 	}
 
 	if (source === 'fallback') {
-		console.warn(
+		namespaceReporter.warn(
 			`🔧 WP Kernel: Using fallback namespace "${namespace}". For deterministic behavior, set __WPK_NAMESPACE__ (build-time) or wpKernelData.textDomain (runtime). See: https://github.com/theGeekist/wp-kernel/docs/namespace-detection`
 		);
 	} else if (source === 'package-json') {
-		console.warn(
+		namespaceReporter.warn(
 			`📦 WP Kernel: Using package.json name for namespace "${namespace}". For WordPress-native behavior, set wpKernelData.textDomain or __WPK_NAMESPACE__. See: https://github.com/theGeekist/wp-kernel/docs/namespace-detection`
 		);
 	}
@@ -483,7 +492,7 @@ export function detectNamespace(
 	const {
 		explicit,
 		validate = true,
-		fallback = 'wpk',
+		fallback = WPK_NAMESPACE,
 		mode = 'wp',
 		runtime,
 		moduleId,
@@ -611,7 +620,7 @@ export function detectNamespace(
 
 	// Priority 6: Fallback
 	const finalFallback = validate
-		? sanitizeNamespace(fallback) || 'wpk'
+		? sanitizeNamespace(fallback) || WPK_NAMESPACE
 		: fallback;
 	return createResult(finalFallback, 'fallback', fallback);
 }

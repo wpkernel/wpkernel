@@ -10,7 +10,7 @@
 function matchesCacheKey(key, pattern): boolean;
 ```
 
-Defined in: [resource/cache.ts:288](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/cache.ts#L288)
+Defined in: [resource/cache.ts:297](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/cache.ts#L297)
 
 Check if a cache key matches a pattern.
 Supports prefix matching: pattern ['thing', 'list'] matches keys starting with 'thing:list'.
