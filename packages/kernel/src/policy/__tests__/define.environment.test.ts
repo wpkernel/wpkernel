@@ -4,6 +4,7 @@ import type * as WPData from '@wordpress/data';
 import type * as WPHooks from '@wordpress/hooks';
 import type { PolicyDeniedError } from '../../error/PolicyDeniedError';
 import type { PolicyContext } from '../types';
+import { WPK_SUBSYSTEM_NAMESPACES } from '../../namespace/constants';
 
 type PolicyModuleType = typeof PolicyModule;
 
@@ -75,13 +76,13 @@ describe('policy environment edge cases', () => {
 
 		expect(broadcastSpy).toHaveBeenCalled();
 		expect(warnSpy).toHaveBeenCalledWith(
-			'[kernel.policy.cache]',
+			`[${WPK_SUBSYSTEM_NAMESPACES.POLICY_CACHE}]`,
 			'Failed to create BroadcastChannel for policy cache.',
 			broadcastError
 		);
 		expect(console as any).toHaveWarned();
 		expect(warnSpy).toHaveBeenCalledWith(
-			'[kernel.policy]',
+			`[${WPK_SUBSYSTEM_NAMESPACES.POLICY}]`,
 			'Failed to create BroadcastChannel for policy events.',
 			{ error: broadcastError }
 		);

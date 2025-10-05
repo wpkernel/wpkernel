@@ -4,6 +4,7 @@
  */
 
 import { invalidate, registerStoreKey } from '../../cache';
+import { WPK_SUBSYSTEM_NAMESPACES } from '../../../namespace/constants';
 
 // Use global types for window.wp
 
@@ -643,7 +644,7 @@ describe('invalidate', () => {
 
 			// Should log warning in development
 			expect(consoleWarnSpy).toHaveBeenCalledWith(
-				'[kernel.cache]',
+				`[${WPK_SUBSYSTEM_NAMESPACES.CACHE}]`,
 				expect.stringContaining('Failed to invalidate cache for store'),
 				expect.any(Error)
 			);

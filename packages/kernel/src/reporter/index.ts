@@ -2,8 +2,9 @@ import { LogLayer } from 'loglayer';
 import type { LogLevelType } from '@loglayer/shared';
 import { createTransports } from './transports';
 import type { Reporter, ReporterLevel, ReporterOptions } from './types';
+import { WPK_NAMESPACE } from '../namespace/constants';
 
-const DEFAULT_NAMESPACE = 'kernel';
+const DEFAULT_NAMESPACE = WPK_NAMESPACE;
 const DEFAULT_CHANNEL = 'console';
 const DEFAULT_LEVEL: ReporterLevel = 'info';
 

@@ -1,4 +1,5 @@
 import { createReporter } from '../reporter';
+import { WPK_SUBSYSTEM_NAMESPACES } from '../namespace/constants';
 
 /**
  * Internal state shape exposed by the __getInternalState selector.
@@ -26,7 +27,7 @@ interface DispatchWithInvalidate {
  * @param patterns
  */
 const cacheReporter = createReporter({
-	namespace: 'kernel.cache',
+	namespace: WPK_SUBSYSTEM_NAMESPACES.CACHE,
 	channel: 'console',
 	level: 'warn',
 });

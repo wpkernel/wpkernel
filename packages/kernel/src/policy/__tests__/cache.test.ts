@@ -1,4 +1,5 @@
 import { createPolicyCache, createPolicyCacheKey } from '../cache';
+import { WPK_SUBSYSTEM_NAMESPACES } from '../../namespace/constants';
 
 jest.mock('../../namespace/detect', () => ({
 	getNamespace: () => 'acme',
@@ -97,7 +98,7 @@ describe('createPolicyCache', () => {
 		const cache = createPolicyCache({ storage: 'session' }, 'acme');
 		expect(cache.keys()).toEqual([]);
 		expect(warn).toHaveBeenCalledWith(
-			'[kernel.policy.cache]',
+			`[${WPK_SUBSYSTEM_NAMESPACES.POLICY_CACHE}]`,
 			'Failed to parse persisted policy cache.',
 			expect.any(SyntaxError)
 		);
@@ -131,7 +132,7 @@ describe('createPolicyCache', () => {
 			.mockImplementation(() => undefined);
 		cache.set('policy::void', false);
 		expect(warn).toHaveBeenCalledWith(
-			'[kernel.policy.cache]',
+			`[${WPK_SUBSYSTEM_NAMESPACES.POLICY_CACHE}]`,
 			'Failed to persist policy cache.',
 			error
 		);
@@ -152,7 +153,7 @@ describe('createPolicyCache', () => {
 		const cache = createPolicyCache({ storage: 'session' }, 'acme');
 		expect(cache.keys()).toEqual([]);
 		expect(warn).toHaveBeenCalledWith(
-			'[kernel.policy.cache]',
+			`[${WPK_SUBSYSTEM_NAMESPACES.POLICY_CACHE}]`,
 			'sessionStorage is not available for policy cache.',
 			expect.any(Error)
 		);
@@ -281,7 +282,7 @@ describe('createPolicyCache', () => {
 			.mockImplementation(() => undefined);
 		const cache = createPolicyCache({}, 'acme');
 		expect(warn).toHaveBeenCalledWith(
-			'[kernel.policy.cache]',
+			`[${WPK_SUBSYSTEM_NAMESPACES.POLICY_CACHE}]`,
 			'Failed to create BroadcastChannel for policy cache.',
 			expect.any(Error)
 		);

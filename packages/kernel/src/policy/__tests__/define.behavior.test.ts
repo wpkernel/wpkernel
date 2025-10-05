@@ -2,6 +2,7 @@ import { type PolicyDeniedError } from '../../error/PolicyDeniedError';
 import { withPolicyRequestContext } from '../context';
 import type { ActionRuntime } from '../../actions/types';
 import type { definePolicy as definePolicyFn } from '../define';
+import { WPK_SUBSYSTEM_NAMESPACES } from '../../namespace/constants';
 
 type DefinePolicy = typeof definePolicyFn;
 
@@ -267,7 +268,7 @@ describe('definePolicy behaviour', () => {
 			expect((error as { code?: string }).code).toBe('PolicyDenied');
 		}
 		expect(warn).toHaveBeenCalledWith(
-			'[kernel.policy]',
+			`[${WPK_SUBSYSTEM_NAMESPACES.POLICY}]`,
 			'Failed to create BroadcastChannel for policy events.',
 			{ error: expect.any(Error) }
 		);
@@ -284,7 +285,7 @@ describe('definePolicy behaviour', () => {
 
 		policy.extend({ allow: () => false });
 		expect(warn).toHaveBeenCalledWith(
-			'[kernel.policy]',
+			`[${WPK_SUBSYSTEM_NAMESPACES.POLICY}]`,
 			'Policy "allow" is being overridden via extend().',
 			{ policyKey: 'allow' }
 		);

@@ -16,14 +16,18 @@
 
 import { getNamespace } from '../namespace/detect';
 import { createReporter } from '../reporter';
+import {
+	WPK_SUBSYSTEM_NAMESPACES,
+	WPK_INFRASTRUCTURE,
+} from '../namespace/constants';
 import type { PolicyCache, PolicyCacheOptions } from './types';
 
 const DEFAULT_TTL_MS = 60_000;
-const STORAGE_KEY_PREFIX = 'wpk.policy.cache';
-const BROADCAST_CHANNEL_NAME = 'wpk.policy.cache';
+const STORAGE_KEY_PREFIX = WPK_INFRASTRUCTURE.POLICY_CACHE_STORAGE;
+const BROADCAST_CHANNEL_NAME = WPK_INFRASTRUCTURE.POLICY_CACHE_CHANNEL;
 
 const policyCacheReporter = createReporter({
-	namespace: 'kernel.policy.cache',
+	namespace: WPK_SUBSYSTEM_NAMESPACES.POLICY_CACHE,
 	channel: 'console',
 	level: 'warn',
 });

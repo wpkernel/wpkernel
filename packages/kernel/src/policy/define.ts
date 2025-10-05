@@ -19,6 +19,10 @@ import { KernelError } from '../error/KernelError';
 import { PolicyDeniedError } from '../error/PolicyDeniedError';
 import { getNamespace } from '../namespace/detect';
 import {
+	WPK_SUBSYSTEM_NAMESPACES,
+	WPK_INFRASTRUCTURE,
+} from '../namespace/constants';
+import {
 	createReporter as createKernelReporter,
 	createNoopReporter,
 } from '../reporter';
@@ -40,12 +44,12 @@ import type {
 	PolicyDeniedEvent,
 } from './types';
 
-const POLICY_EVENT_CHANNEL = 'wpk.policy.events';
+const POLICY_EVENT_CHANNEL = WPK_INFRASTRUCTURE.POLICY_EVENT_CHANNEL;
 const POLICY_DENIED_EVENT = 'policy.denied';
 const BRIDGE_POLICY_DENIED_EVENT = 'bridge.policy.denied';
 
 const policyModuleReporter = createKernelReporter({
-	namespace: 'kernel.policy',
+	namespace: WPK_SUBSYSTEM_NAMESPACES.POLICY,
 	channel: 'all',
 	level: 'warn',
 });

@@ -1,4 +1,5 @@
 import { createReporter } from '../reporter';
+import { WPK_NAMESPACE, WPK_SUBSYSTEM_NAMESPACES } from './constants';
 
 /**
  * Namespace Detection Module
@@ -13,7 +14,7 @@ import { createReporter } from '../reporter';
  * 3. Module ID (if available)
  * 4. WordPress plugin header 'Text Domain'
  * 5. package.json 'name' field
- * 6. Fallback to 'wpk'
+ * 6. Fallback to WPK_NAMESPACE constant ('wpk')
  *
  * @package
  */
@@ -64,7 +65,7 @@ const RESERVED_NAMESPACES = [
 ] as const;
 
 const namespaceReporter = createReporter({
-	namespace: 'kernel.namespace',
+	namespace: WPK_SUBSYSTEM_NAMESPACES.NAMESPACE,
 	channel: 'all',
 	level: 'warn',
 });
@@ -491,7 +492,7 @@ export function detectNamespace(
 	const {
 		explicit,
 		validate = true,
-		fallback = 'wpk',
+		fallback = WPK_NAMESPACE,
 		mode = 'wp',
 		runtime,
 		moduleId,
@@ -619,7 +620,7 @@ export function detectNamespace(
 
 	// Priority 6: Fallback
 	const finalFallback = validate
-		? sanitizeNamespace(fallback) || 'wpk'
+		? sanitizeNamespace(fallback) || WPK_NAMESPACE
 		: fallback;
 	return createResult(finalFallback, 'fallback', fallback);
 }
