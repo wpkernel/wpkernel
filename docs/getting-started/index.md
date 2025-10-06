@@ -71,14 +71,7 @@ Developers get a single mental model across the editor, front end, and admin. Ag
 
 ## What it enables
 
-```
-
-## Next steps
-
-Follow the [installation guide](/getting-started/installation) to prepare your tooling, then move on to the [Quick Start](/getting-started/quick-start) to build a feature end to end.
-
-For deeper exploration, see the [Core Concepts](/guide/) section and tour the [Showcase plugin](/guide/showcase) to see a complete real-world implementation.
-
+Imagine the kickoff task: "Add an Apply button that creates an application, shows a toast, and moves a card on the admin board." With WP Kernel you scaffold an `application` resource, implement an `Application.Submit` Action that handles permissions and emits the canonical event, bind a button to the Action in the block editor, and-if required-mirror the event in PHP so downstream systems can react. The boring decisions are already made, which shortens time to value from days to minutes.
 
 ## How it fits with WordPress Core
 
@@ -91,4 +84,7 @@ Actions remain the only sanctioned write path. JavaScript hooks are the authorit
 ## Next steps
 
 When you are ready to dive in, start with the [installation guide](/getting-started/installation) to prepare your tooling. Move on to the [Quick Start](/getting-started/quick-start) to build a feature end to end. The [Repository Handbook](/guide/repository-handbook) points you to project-level documents like `DEVELOPMENT.md`, and the broader [Core Concepts](/guide/) section unpacks Actions, resources, events, bindings, and jobs in depth.
+
+```
+
 ```
