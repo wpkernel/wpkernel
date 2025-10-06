@@ -75,10 +75,10 @@ index.ts     # plugin entrypoint
 
 ## What NOT to do
 
-- ❌ Hide framework fixes inside showcase (upstream them to kernel).
-- ❌ Break alignment with Example Plugin Requirements/Specifications.
-- ❌ Commit symlinked docs (they live outside repo; symlinks only).
-- ❌ Rely on showcase for unit tests - kernel coverage belongs in `packages/wp-kernel`.
+- ✗ Hide framework fixes inside showcase (upstream them to kernel).
+- ✗ Break alignment with Example Plugin Requirements/Specifications.
+- ✗ Commit symlinked docs (they live outside repo; symlinks only).
+- ✗ Rely on showcase for unit tests - kernel coverage belongs in `packages/wp-kernel`.
 
 ---
 

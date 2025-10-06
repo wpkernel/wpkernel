@@ -1,6 +1,6 @@
 # Resources
 
-> **Status**: ✅ Core API implemented in Sprint 1 (A2: defineResource, A3: Store & Transport, A4: Cache Invalidation)
+> **Status**: ✓ Core API implemented in Sprint 1 (A2: defineResource, A3: Store & Transport, A4: Cache Invalidation)
 
 Resources define your typed REST contracts. One definition gives you:
 
@@ -58,11 +58,11 @@ export const enterpriseTestimonial = defineResource<TestimonialPost>({
 });
 console.log(enterpriseTestimonial.events.created); // 'enterprise-suite.testimonial.created'
 
-// ✅ Use in Actions (write path - orchestrated)
+// ✓ Use in Actions (write path - orchestrated)
 import { CreateTestimonial } from '@/actions/Testimonial/Create';
 await CreateTestimonial({ data: { title: 'Great service!', rating: 5 } });
 
-// ✅ Use React hooks (read path)
+// ✓ Use React hooks (read path)
 function TestimonialList() {
 	const { data, isLoading } = testimonial.useList({ rating: 5 });
 
@@ -84,12 +84,12 @@ Unique resource name (lowercase, kebab-case recommended).
 - Must match `/^[a-z][a-z0-9-]*$/`
 
 ```typescript
-// ✅ Good
+// ✓ Good
 name: 'testimonial';
 name: 'team-member';
 name: 'portfolio-item';
 
-// ❌ Bad - throws DeveloperError
+// ✗ Bad - throws DeveloperError
 name: 'Testimonial'; // uppercase
 name: 'my_testimonial'; // underscores
 name: 'my testimonial'; // spaces
@@ -198,8 +198,8 @@ interface TestimonialQuery {
 const testimonial = defineResource<TestimonialPost, TestimonialQuery>({ ... });
 
 // Query types are enforced
-await testimonial.fetchList({ search: 'great', page: 1 }); // ✅
-await testimonial.fetchList({ invalid: 'param' });          // ❌ TypeScript error
+await testimonial.fetchList({ search: 'great', page: 1 }); // ✓
+await testimonial.fetchList({ invalid: 'param' });          // ✗ TypeScript error
 ```
 
 ### Validation
@@ -207,19 +207,19 @@ await testimonial.fetchList({ invalid: 'param' });          // ❌ TypeScript er
 `defineResource` validates configuration at dev-time and throws `DeveloperError` for issues:
 
 ```typescript
-// ❌ Missing name
+// ✗ Missing name
 defineResource({ routes: { ... } });
 // DeveloperError: Resource config must have a valid "name" property
 
-// ❌ Invalid name format
+// ✗ Invalid name format
 defineResource({ name: 'My_Testimonial', routes: { ... } });
 // DeveloperError: Resource name must be lowercase with hyphens only
 
-// ❌ No routes
+// ✗ No routes
 defineResource({ name: 'testimonial', routes: {} });
 // DeveloperError: Resource "testimonial" must define at least one route
 
-// ❌ Invalid HTTP method
+// ✗ Invalid HTTP method
 defineResource({ name: 'testimonial', routes: { list: { path: '/api', method: 'FETCH' } } });
 // DeveloperError: Invalid HTTP method "FETCH"
 ```
@@ -227,7 +227,7 @@ defineResource({ name: 'testimonial', routes: { list: { path: '/api', method: 'F
 defineResource({ name: 'My_Thing', routes: { ... } });
 // DeveloperError: Resource name must be lowercase with hyphens only
 
-// ❌ No routes
+// ✗ No routes
 
 ## Thin-Flat API (Recommended)
 
@@ -239,12 +239,12 @@ The thin-flat API provides direct access to common operations without nesting. T
 **Never call write methods (`create`, `update`, `remove`) directly from UI components.** Always route through Actions for proper event emission, cache invalidation, and job orchestration.
 
 ```typescript
-// ❌ BAD - Direct write from UI
+// ✗ BAD - Direct write from UI
 async function handleSubmit() {
 	await testimonial.create(formData); // Bypasses Actions layer!
 }
 
-// ✅ GOOD - Route through Action
+// ✓ GOOD - Route through Action
 import { CreateTestimonial } from '@/actions/Testimonial/Create';
 async function handleSubmit() {
 	await CreateTestimonial({ data: formData });
@@ -620,7 +620,7 @@ export function TestimonialList() {
 }
 
 async function handleCreate(formData: Partial<TestimonialPost>) {
-	// ✅ CORRECT - Route through Action
+	// ✓ CORRECT - Route through Action
 	await CreateTestimonial({ data: formData });
 }
 ```
@@ -632,10 +632,10 @@ async function handleCreate(formData: Partial<TestimonialPost>) {
 **Never call write methods directly from UI components.** Always route through Actions.
 
 ```typescript
-// ❌ BAD - Direct write from UI
+// ✗ BAD - Direct write from UI
 await testimonial.create(data);
 
-// ✅ GOOD - Route through Action
+// ✓ GOOD - Route through Action
 await CreateTestimonial({ data });
 ```
 
@@ -674,12 +674,12 @@ name: 'post';
 More specific keys = better invalidation control:
 
 ```typescript
-// ❌ Too broad - invalidates ALL lists
+// ✗ Too broad - invalidates ALL lists
 cacheKeys: {
 	list: () => ['testimonial', 'list'];
 }
 
-// ✅ Granular - invalidate by rating/featured status
+// ✓ Granular - invalidate by rating/featured status
 cacheKeys: {
 	list: (q) => ['testimonial', 'list', q?.rating, q?.featured, q?.page];
 }
@@ -688,17 +688,17 @@ cacheKeys: {
 ### 5. Always Type Your Queries
 
 ```typescript
-// ✅ Typed - enforces query parameters
+// ✓ Typed - enforces query parameters
 defineResource<TestimonialPost, TestimonialQuery>({ ... })
 
-// ❌ Untyped - accepts any query
+// ✗ Untyped - accepts any query
 defineResource<TestimonialPost>({ ... })
 ```
 
 ### 6. Use React Hooks, Not Direct Calls
 
 ```typescript
-// ❌ Don't fetch directly in components
+// ✗ Don't fetch directly in components
 function MyComponent() {
 	const [items, setItems] = useState([]);
 	useEffect(() => {
@@ -706,7 +706,7 @@ function MyComponent() {
 	}, []);
 }
 
-// ✅ Use hooks (auto-caching, auto-loading)
+// ✓ Use hooks (auto-caching, auto-loading)
 function MyComponent() {
 	const { data, isLoading } = testimonial.useList();
 }
@@ -742,8 +742,8 @@ const testimonial = defineResource<TestimonialPost>({
 });
 
 // Write methods are undefined
-testimonial.fetchList(); // ✅ Available
-testimonial.fetch(1); // ✅ Available
+testimonial.fetchList(); // ✓ Available
+testimonial.fetch(1); // ✓ Available
 testimonial.create; // undefined
 ```
 

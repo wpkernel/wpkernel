@@ -30,7 +30,11 @@ information/            # product spec, example plugin specs, roadmap, event tax
 
 ## Environment & Tooling
 
-- **Node**: v22.x (LTS). **pnpm** workspace.
+- **Node**: v20.x LTS or higher (minimum for Vite 7). **pnpm** workspace.
+- **WordPress**: 6.8+ required (Script Modules API is core to framework).
+- **Development environments**: wp-env (Docker + PHP 8.1+) OR WordPress Playground (WASM, no Docker).
+- **E2E testing**: Optional. Only needed if writing/running E2E tests (uses Playwright + `@geekist/wp-kernel-e2e-utils`).
+
 - **Commands** (always use exactly these):
     - Install: `pnpm install`
     - Format/lint: `pnpm lint --fix` (or `pnpm format`)
@@ -101,6 +105,7 @@ await CreateThing({ data: formData });
 
 ## Test Strategy
 
+- **E2E tests are optional** for framework users - only needed if contributing or writing E2E tests for your own project.
 - Target e2e realism. `@geekist/wp-kernel-e2e-utils` is validated **via** `app/showcase` e2e; do not unit-test `e2e-utils` in isolation.
 - Flaky tests: prefer serial mode or better selectors/cleanup over sleeps.
 
@@ -160,9 +165,9 @@ await CreateThing({ data: formData });
 
 ## What NOT to do
 
-- ❌ Call transport from UI components
-- ❌ Create ad-hoc event names
-- ❌ Deep-import across packages (`packages/*/src/**`)
-- ❌ Use `any` or throw plain `Error`
-- ❌ Skip cache invalidation after writes
-- ❌ Ignore TS errors or coverage regressions
+- ✗ Call transport from UI components
+- ✗ Create ad-hoc event names
+- ✗ Deep-import across packages (`packages/*/src/**`)
+- ✗ Use `any` or throw plain `Error`
+- ✗ Skip cache invalidation after writes
+- ✗ Ignore TS errors or coverage regressions

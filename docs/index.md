@@ -27,8 +27,8 @@ features:
       details: Bind core WordPress blocks to your data. Add behavior with the Interactivity API. No custom blocks needed for most use cases.
 
     - icon: 🎪
-      title: Canonical Event Taxonomy
-      details: Stable, versioned event system. JS hooks are canonical, PHP bridge mirrors selected events only. No ad-hoc event names.
+      title: Stable Event Registry
+      details: Versioned event system with predefined names. JS hooks are authoritative, PHP bridge mirrors selected events only. No ad-hoc strings.
 
     - icon: ⚡
       title: Background Jobs
@@ -38,6 +38,14 @@ features:
       title: Type-Safe & Tested
       details: TypeScript strict mode, JSON Schema validation, structured error handling (KernelError), and comprehensive E2E tests.
 ---
+
+## Why WP Kernel?
+
+WordPress already gives us powerful primitives-blocks, Interactivity, script modules, and a reliable REST API. What teams still lack is a shared frame for turning those primitives into products without re-solving the same architecture on every build. WP Kernel steps in as that frame. It keeps JavaScript in the driver's seat while asking PHP to focus on capabilities and transport, so you deliver features faster without forking away from Core.
+
+### Built for people shipping features
+
+## Developers get consistent patterns for data fetching, mutation, and error handling. Product teams see shorter feedback loops because the guardrails prevent accidental tight coupling. Business stakeholders gain confidence that every feature emits versioned, registry-backed events, making analytics, integrations, and audits first-class rather than afterthoughts.
 
 ## Why WP Kernel?
 

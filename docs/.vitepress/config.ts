@@ -70,16 +70,34 @@ export default withMermaid(
 								link: '/getting-started/',
 							},
 							{
-								text: 'Why WP Kernel?',
-								link: '/getting-started/why',
-							},
-							{
 								text: 'Installation',
 								link: '/getting-started/installation',
 							},
 							{
 								text: 'Quick Start',
 								link: '/getting-started/quick-start',
+							},
+						],
+					},
+					{
+						text: 'Next Steps',
+						collapsed: true,
+						items: [
+							{
+								text: 'Core Concepts',
+								link: '/guide/',
+							},
+							{
+								text: 'Repository Handbook',
+								link: '/guide/repository-handbook',
+							},
+							{
+								text: 'Showcase Plugin',
+								link: '/guide/showcase',
+							},
+							{
+								text: 'Roadmap',
+								link: '/contributing/roadmap',
 							},
 						],
 					},

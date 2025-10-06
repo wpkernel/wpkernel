@@ -1,6 +1,6 @@
 # @geekist/wp-kernel-e2e-utils
 
-> End-to-end testing utilities for WordPress + WP Kernel applications
+> End-to-end testing utilities for WordPress + WP Kernel applications (Optional)
 
 ## Overview
 
@@ -11,7 +11,7 @@ Playwright-based testing utilities designed for WordPress environments:
 - **Flexible imports** - Scoped, namespaced, or flat import patterns
 - **Real environment testing** - Validated via showcase app E2E tests
 
-Built for testing WordPress plugins and themes with modern patterns.
+**Note**: This package is **optional** - only needed if you want to write E2E tests for your WP Kernel project.
 
 ## Quick Start
 
@@ -40,8 +40,6 @@ test('admin can create posts', async ({ page }) => {
 ```
 
 ## Key Features
-
-**📖 [Complete Documentation →](../../docs/packages/e2e-utils.md)**
 
 ### Import Patterns
 
@@ -91,111 +89,24 @@ await events.captureEmitted(page, 'wpk.resource.user.created');
 
 **Real-world validation** - This package is tested through actual usage in the showcase app's E2E tests rather than isolated unit tests, ensuring utilities work correctly in live WordPress environments.
 
-**🧪 [Testing Patterns →](../../docs/packages/e2e-utils.md#testing-patterns)**
+## Documentation
 
-- 🚧 Performance testing helpers
+- **[E2E Testing Guide](https://thegeekist.github.io/wp-kernel/guide/testing)** - Testing patterns and best practices
+- **[API Reference](https://thegeekist.github.io/wp-kernel/api/e2e-utils)** - Complete utility documentation
 
 ## Requirements
 
-- WordPress 6.8+
-- Playwright 1.45+
-- `@geekist/wp-kernel` for fixturesutilities for WP Kernel projects
+- **WordPress**: 6.8+
+- **Playwright**: 1.45+
+- **@geekist/wp-kernel**: For kernel-aware fixtures
 
-## What is this?
+## Contributing
 
-Comprehensive E2E testing toolkit built on `@wordpress/e2e-test-utils-playwright` with kernel-specific helpers:
+See the [main repository](https://github.com/theGeekist/wp-kernel) for contribution guidelines.
 
-- **Playwright fixture** with kernel-aware utilities
-- **Resource testing** for CRUD operations and validation
-- **Action testing** with event capture and verification
-- **Store testing** for cache invalidation and state management
-- **WordPress integration** with wp-env and seeding utilities
+## License
 
-Validates complete user workflows in real WordPress environments.
-
-## Installation
-
-```bash
-npm install -D @geekist/wp-kernel-e2e-utils
-# or
-pnpm add -D @geekist/wp-kernel-e2e-utils
-```
-
-**Peer Dependencies**: `@playwright/test`, `@wordpress/e2e-test-utils-playwright`
-
-## Quick Example
-
-```typescript
-import { test } from './test-utils';
-
-test('user can create post', async ({ page, kernel }) => {
-  // Setup test data
-  await kernel.auth.loginAsAdmin(page);
-
-  // Test user workflow
-  await page.goto('/wp-admin/post-new.php');
-  await page.fill('#title', 'E2E Test Post');
-  await page.click('#publish');
-
-  // Verify with kernel utilities
-  const post = await kernel.db.getPostByTitle('E2E Test Post');
-  expect(post.status).toBe('publish');
-
-  // Verify events were emitted
-  const events = await kernel.events.getEvents();
-  expect(events).toContainEventType('wpk.resource.post.created');
-});
-	await page.goto('/wp-login.php');
-	await page.fill('input[name="log"]', 'admin');
-	await page.fill('input[name="pwd"]', 'password');
-	await page.click('input[name="wp-submit"]');
-	await page.waitForURL('**/wp-admin/**');
-}
-
-// Manual error tracking (duplicated)
-async function setupConsoleErrorTracking(page: Page) {
-	const errors: string[] = [];
-	page.on('console', (msg) => {
-		if (msg.type() === 'error') errors.push(msg.text());
-	});
-	return () => errors;
-}
-
-test('WordPress admin loads', async ({ page }) => {
-	await loginToWordPress(page); // Manual implementation
-	await expect(page.locator('#wpadminbar')).toBeVisible();
-});
-```
-
-#### What's Missing
-
-Despite having `@wordpress/e2e-test-utils-playwright@^1.31.0` installed:
-
-1. **No fixture pattern** - Tests don't use `admin`, `editor`, `requestUtils`, `pageUtils` fixtures
-2. **Manual login** - `loginToWordPress()` helper duplicated instead of using `admin.visitAdminPage()`
-3. **No REST utilities** - No `requestUtils.rest()` for seeding data via API
-4. **Manual error tracking** - Console error tracking implemented per-test instead of using WordPress fixtures
-5. **No kernel-specific helpers** - No utilities for resources, stores, or events
-
-#### Example Current Test
-
-```typescript
-// app/showcase/__tests__/e2e/sprint-1-resources.spec.ts
-test.describe('Sprint 1 - Resources', () => {
-	test.beforeEach(async ({ page }) => {
-		await loginToWordPress(page); // Manual helper
-	});
-
-	test('Jobs admin page renders with store data', async ({ page }) => {
-		await page.goto('/wp-admin/admin.php?page=wpk-jobs');
-		await page.waitForSelector('.wpk-jobs-list');
-
-		// No store utilities - just waiting for DOM
-		const jobCards = page.locator('.wpk-job-card');
-		await expect(jobCards).toHaveCount(5);
-	});
-});
-```
+EUPL-1.2 © [The Geekist](https://github.com/theGeekist)
 
 ### Sprint 2 Goals
 
@@ -232,10 +143,10 @@ After Sprint 2 implementation, tests will use the single factory pattern:
 import { test, expect } from '@geekist/wp-kernel-e2e-utils';
 
 test('should load jobs', async ({ page, admin, kernel }) => {
-	// ✅ Use WordPress fixture for login
+	// ✓ Use WordPress fixture for login
 	await admin.visitAdminPage('admin.php', 'page=wpk-jobs');
 
-	// ✅ Use kernel resource helper for seeding
+	// ✓ Use kernel resource helper for seeding
 	const job = kernel.resource({
 		name: 'job',
 		routes: {
@@ -245,11 +156,11 @@ test('should load jobs', async ({ page, admin, kernel }) => {
 	});
 	await job.seed({ title: 'Software Engineer', salary: 100000 });
 
-	// ✅ Use kernel store helper to wait for data
+	// ✓ Use kernel store helper to wait for data
 	const jobStore = kernel.store('wpk/job');
 	await jobStore.wait((state) => state.getList());
 
-	// ✅ Use kernel events helper to capture emissions
+	// ✓ Use kernel events helper to capture emissions
 	const recorder = await kernel.events({ pattern: /^wpk\.job\./ });
 
 	// Assertions
@@ -412,14 +323,14 @@ test('jobs page works', async ({ page }) => {
 import { test, expect } from '@geekist/wp-kernel-e2e-utils';
 
 test('jobs page works', async ({ admin, page, kernel }) => {
-	// ✅ Use WordPress fixture (no manual login)
+	// ✓ Use WordPress fixture (no manual login)
 	await admin.visitAdminPage('admin.php', 'page=wpk-jobs');
 
-	// ✅ Use kernel store helper to wait for data (instead of DOM selector)
+	// ✓ Use kernel store helper to wait for data (instead of DOM selector)
 	const jobStore = kernel.store('wpk/job');
 	await jobStore.wait((state) => state.getList());
 
-	// ✅ Assert on store state instead of DOM count
+	// ✓ Assert on store state instead of DOM count
 	const data = await jobStore.getState();
 	expect(data.list).toHaveLength(5);
 

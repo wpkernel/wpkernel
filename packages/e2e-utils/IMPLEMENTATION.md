@@ -8,7 +8,7 @@ A complete E2E testing utilities package that extends `@wordpress/e2e-test-utils
 
 ### Single Consolidated Factory Pattern
 
-✅ **One file, three internal helpers** (`createKernelUtils.ts`):
+✓ **One file, three internal helpers** (`createKernelUtils.ts`):
 
 - `createResourceHelper<T>()` - Internal function for REST operations
 - `createStoreHelper<T>()` - Internal function for store state testing
@@ -17,7 +17,7 @@ A complete E2E testing utilities package that extends `@wordpress/e2e-test-utils
 
 ### Extended Test Fixture Pattern
 
-✅ **WordPress fixture extension** (`test.ts`):
+✓ **WordPress fixture extension** (`test.ts`):
 
 ```typescript
 import { test as base } from '@wordpress/e2e-test-utils-playwright';
@@ -123,9 +123,9 @@ packages/e2e-utils/
 
 ## Files Deleted (Consolidated)
 
-- ❌ `createResourceUtils.ts` → Moved to internal function
-- ❌ `createStoreUtils.ts` → Moved to internal function
-- ❌ `createEventUtils.ts` → Moved to internal function
+- ✗ `createResourceUtils.ts` → Moved to internal function
+- ✗ `createStoreUtils.ts` → Moved to internal function
+- ✗ `createEventUtils.ts` → Moved to internal function
 
 ## Next Steps
 
@@ -136,12 +136,12 @@ packages/e2e-utils/
 
 ## Success Criteria
 
-✅ Single consolidated factory (not multiple files)  
-✅ Follows WordPress E2E utils pattern (extended fixture)  
-✅ Primary usage: `import { test, expect }`  
-✅ Advanced usage: `import { createKernelUtils }`  
-✅ Build passes  
-✅ Documentation complete  
+✓ Single consolidated factory (not multiple files)  
+✓ Follows WordPress E2E utils pattern (extended fixture)  
+✓ Primary usage: `import { test, expect }`  
+✓ Advanced usage: `import { createKernelUtils }`  
+✓ Build passes  
+✓ Documentation complete  
 ⏳ Unit tests (pending)
 
 ## Why This Matters

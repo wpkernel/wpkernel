@@ -26,10 +26,10 @@ Always use TypeScript strict mode:
 Never use `any`. Use proper types or `unknown`:
 
 ```typescript
-// ❌ WRONG
+// ✗ WRONG
 function process(data: any) {}
 
-// ✅ CORRECT
+// ✓ CORRECT
 function process(data: Thing) {}
 function processUnknown(data: unknown) {
 	if (isThing(data)) {
@@ -43,16 +43,16 @@ function processUnknown(data: unknown) {
 Use `interface` for objects, `type` for unions/intersections:
 
 ```typescript
-// ✅ Objects: use interface
+// ✓ Objects: use interface
 interface Thing {
 	id: number;
 	title: string;
 }
 
-// ✅ Unions: use type
+// ✓ Unions: use type
 type Status = 'pending' | 'approved' | 'rejected';
 
-// ✅ Intersections: use type
+// ✓ Intersections: use type
 type ThingWithMeta = Thing & { meta: Record<string, unknown> };
 ```
 
@@ -61,10 +61,10 @@ type ThingWithMeta = Thing & { meta: Record<string, unknown> };
 Use descriptive generic names:
 
 ```typescript
-// ❌ WRONG
+// ✗ WRONG
 function map<T, U>(items: T[], fn: (item: T) => U): U[] {}
 
-// ✅ CORRECT
+// ✓ CORRECT
 function mapThings<Thing, Result>(
 	things: Thing[],
 	transformer: (thing: Thing) => Result
@@ -178,10 +178,10 @@ import type { Thing } from './types';
 Use configured path aliases:
 
 ```typescript
-// ❌ WRONG
+// ✗ WRONG
 import { thing } from '../../../resources/Thing';
 
-// ✅ CORRECT
+// ✓ CORRECT
 import { thing } from '@/app/resources/Thing';
 ```
 
@@ -249,7 +249,7 @@ Kernel packages ship custom rules. Notably, `@kernel/no-console-in-kernel` forbi
 Always use semicolons:
 
 ```typescript
-// ✅ CORRECT
+// ✓ CORRECT
 const thing = getThing();
 ```
 
@@ -258,7 +258,7 @@ const thing = getThing();
 Use single quotes for strings:
 
 ```typescript
-// ✅ CORRECT
+// ✓ CORRECT
 const message = 'Hello world';
 
 // Template literals for interpolation
@@ -270,7 +270,7 @@ const greeting = `Hello, ${name}`;
 Use trailing commas in multi-line:
 
 ```typescript
-// ✅ CORRECT
+// ✓ CORRECT
 const config = {
 	name: 'thing',
 	routes: {
@@ -313,11 +313,11 @@ export function defineResource<T, Q = unknown>(
 Use sparingly, only for non-obvious logic:
 
 ```typescript
-// ✅ Good: explains why
+// ✓ Good: explains why
 // Retry with exponential backoff to handle transient network errors
 const retry = async () => { ... };
 
-// ❌ Bad: explains what (obvious from code)
+// ✗ Bad: explains what (obvious from code)
 // Get the thing by ID
 const thing = getThing(id);
 ```
@@ -336,13 +336,13 @@ const thing = getThing(id);
 ```typescript
 import { KernelError } from '@geekist/wp-kernel/error';
 
-// ✅ CORRECT
+// ✓ CORRECT
 throw new KernelError('ValidationError', {
 	field: 'title',
 	message: 'Title is required',
 });
 
-// ❌ WRONG
+// ✗ WRONG
 throw new Error('Validation failed');
 ```
 
@@ -368,12 +368,12 @@ try {
 ### 1. Actions-First (Enforced)
 
 ```typescript
-// ❌ WRONG
+// ✗ WRONG
 const handleSubmit = async () => {
 	await thing.create(formData); // Lint error
 };
 
-// ✅ CORRECT
+// ✓ CORRECT
 const handleSubmit = async () => {
 	await CreateThing({ data: formData });
 };
@@ -384,31 +384,31 @@ const handleSubmit = async () => {
 ```typescript
 import { events } from '@geekist/wp-kernel/events';
 
-// ✅ CORRECT
+// ✓ CORRECT
 action.emit(events.thing.created, { id });
 
-// ❌ WRONG
+// ✗ WRONG
 action.emit('thing:created', { id }); // Lint error
 ```
 
 ### 3. Explicit Cache Invalidation
 
 ```typescript
-// ✅ CORRECT
+// ✓ CORRECT
 invalidate(['thing', 'list']);
 invalidate(['thing', 'get', id]);
 
-// ❌ WRONG
+// ✗ WRONG
 // (no automatic invalidation)
 ```
 
 ### 4. No Deep Imports
 
 ```typescript
-// ❌ WRONG
+// ✗ WRONG
 import { foo } from '@geekist/wp-kernel/src/internal/foo';
 
-// ✅ CORRECT
+// ✓ CORRECT
 import { foo } from '@geekist/wp-kernel';
 ```
 

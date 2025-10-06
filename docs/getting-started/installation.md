@@ -1,22 +1,77 @@
 # Installation
 
-This guide covers setting up a development environment for WP Kernel.
+This guide covers installing WP Kernel for **plugin development** or **contributing to the framework**.
 
-## Prerequisites
+---
 
-Before you begin, make sure you have:
+## Compatibility Requirements
 
-- **Node.js**: v22.20.0 LTS ([nvm recommended](https://github.com/nvm-sh/nvm))
-- **pnpm**: v9.12.3 or later (`npm install -g pnpm`)
-- **Docker**: For local WordPress environment ([Docker Desktop](https://www.docker.com/products/docker-desktop))
+### Minimum Versions
+
+| Component     | Plugin Developers | Framework Contributors |
+| ------------- | ----------------- | ---------------------- |
+| **WordPress** | 6.8+              | 6.8+                   |
+| **Node.js**   | 20.x LTS+         | 20.x LTS+              |
+| **pnpm**      | 9.0+              | 9.0+                   |
+| **PHP**       | N/A               | 8.1+ (wp-env only)     |
+| **Docker**    | N/A               | Optional (wp-env)      |
+
+> **Why WordPress 6.8+?** WP Kernel relies on the [Script Modules API](https://make.wordpress.org/core/2024/03/04/script-modules-in-6-5/), which provides native ESM support. This is fundamental to the framework's architecture.
+
+> **Why Node 20+?** Our build system uses [Vite 7](https://vitejs.dev/), which requires Node 18+ as a minimum. We recommend Node 20 LTS for long-term stability (Node 22 LTS also supported).
+
+### Browser Support
+
+Modern evergreen browsers with:
+
+- ✓ ES2020+ support
+- ✓ Native ESM (`import`/`export`)
+- ✓ BroadcastChannel API (for cross-tab events)
+
+Tested on: Chrome 90+, Firefox 88+, Safari 14+, Edge 90+
+
+---
+
+## For Plugin Developers
+
+To use WP Kernel in your WordPress plugin:
+
+**Requirements:**
+
+- Node.js 20.x LTS+ ([nvm recommended](https://github.com/nvm-sh/nvm))
+- pnpm 9+ or npm
+- WordPress 6.8+
+
+**Install:**
+
+```bash
+# In your plugin directory
+npm install @geekist/wp-kernel
+# or
+pnpm add @geekist/wp-kernel
+```
+
+See the [Quick Start guide](/getting-started/quick-start) to build your first feature.
+
+---
+
+## For Framework Contributors
+
+To contribute to WP Kernel itself or run the showcase plugin:
+
+### Prerequisites
+
+- **Node.js**: 20.x LTS+ ([nvm recommended](https://github.com/nvm-sh/nvm))
+- **pnpm**: 9+ (`npm install -g pnpm`)
+- **Docker**: For wp-env ([Docker Desktop](https://www.docker.com/products/docker-desktop)) OR WordPress Playground (no Docker)
 - **Git**: For version control
 
 ### Verify Prerequisites
 
 ```bash
-node --version  # Should show v22.20.0 or compatible LTS
-pnpm --version  # Should show 9.12.3 or later
-docker --version # Should show Docker version 20.10+
+node --version  # Should show v20.x or higher
+pnpm --version  # Should show 9.x or higher
+docker --version # Should show Docker 20.10+ (if using wp-env)
 ```
 
 ## Clone the Repository
@@ -38,14 +93,14 @@ This installs dependencies for:
 
 - Core packages (`@geekist/wp-kernel`, `@geekist/wp-kernel-ui`)
 - E2E testing utilities
-- Example showcase plugin
+- Showcase plugin
 - Development tooling
 
 ## Start WordPress Environment
 
-WP Kernel includes two WordPress environments:
+WP Kernel includes two WordPress test environments:
 
-- **Development** (localhost:8888) - For manual testing and development
+- **Development** (localhost:8888) - For manual testing
 - **Testing** (localhost:8889) - For E2E tests with clean fixtures
 
 ### Quick Start (Recommended)

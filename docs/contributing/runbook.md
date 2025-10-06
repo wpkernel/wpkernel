@@ -681,7 +681,7 @@ grep -r "@wordpress" dist/
 
 # Check for violations (static mode)
 if grep -r "apiFetch\|kernel.fetch" dist/public/ ; then
-	echo "❌ Static mode violation detected"
+	echo "✗ Static mode violation detected"
 	exit 1
 fi
 

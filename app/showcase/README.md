@@ -65,11 +65,11 @@ pnpm build  # Runs types:generate first
 
 The schema includes comprehensive validation tests in `__tests__/job-schema.test.ts`:
 
-- ✅ Schema structure validation
-- ✅ Required fields enforcement
-- ✅ Enum value validation (status, seniority, job_type, etc.)
-- ✅ Format validation (dates, slugs, etc.)
-- ✅ Type generation verification
+- ✓ Schema structure validation
+- ✓ Required fields enforcement
+- ✓ Enum value validation (status, seniority, job_type, etc.)
+- ✓ Format validation (dates, slugs, etc.)
+- ✓ Type generation verification
 
 **Run schema tests:**
 

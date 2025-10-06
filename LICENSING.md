@@ -22,14 +22,14 @@ WP Kernel uses a **dual licensing structure** to balance business needs with Wor
 
 ### What This Means for Your Product
 
-✅ You **CAN**:
+✓ You **CAN**:
 
 - Build commercial WordPress products using WP Kernel
 - Keep your product code under your chosen license (MIT, GPL, proprietary)
 - Sell your products without sharing your business logic
 - Use WP Kernel in SaaS products
 
-❌ You **MUST**:
+✗ You **MUST**:
 
 - Keep the WP Kernel framework code under EUPL-1.2
 - Share modifications to the framework itself
@@ -67,14 +67,14 @@ your-plugin/
 
 ### What This Means
 
-✅ The showcase app:
+✓ The showcase app:
 
 - Can be published to wordpress.org
 - Can be freely copied and modified
 - Serves as GPL-licensed example code
 - Shows how to use EUPL-1.2 framework in GPL products
 
-❌ This does NOT mean:
+✗ This does NOT mean:
 
 - Your products must be GPL
 - You must open-source your business logic

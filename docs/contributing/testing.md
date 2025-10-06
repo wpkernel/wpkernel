@@ -315,11 +315,11 @@ pnpm e2e --grep "should create"
 #### 1. Use Semantic Selectors
 
 ```typescript
-// ✅ GOOD - semantic, stable
+// ✓ GOOD - semantic, stable
 await page.click('button[aria-label="Add new thing"]');
 await page.click('text=Submit');
 
-// ❌ BAD - brittle, implementation-dependent
+// ✗ BAD - brittle, implementation-dependent
 await page.click('.wp-button-1234');
 await page.click('#submit-btn');
 ```

@@ -150,11 +150,11 @@ List any breaking changes and migration steps.
 
 All PRs must pass CI:
 
-- ✅ Lint
-- ✅ TypeScript
-- ✅ Build
-- ✅ Unit Tests
-- ✅ E2E Tests
+- ✓ Lint
+- ✓ TypeScript
+- ✓ Build
+- ✓ Unit Tests
+- ✓ E2E Tests
 
 ### Code Review
 

@@ -8,18 +8,18 @@ E2E tests validate complete user workflows in a real WordPress environment using
 
 ### When to Use E2E Tests
 
-- ✅ **Full user workflows** - Login → Create → View → Delete
-- ✅ **Integration points** - Resources + Store + UI interactions
-- ✅ **Event flow validation** - Ensure events emit correctly
-- ✅ **Cross-browser behavior** - Chrome, Firefox, Safari
-- ✅ **Admin + Frontend** - Test both surfaces
+- ✓ **Full user workflows** - Login → Create → View → Delete
+- ✓ **Integration points** - Resources + Store + UI interactions
+- ✓ **Event flow validation** - Ensure events emit correctly
+- ✓ **Cross-browser behavior** - Chrome, Firefox, Safari
+- ✓ **Admin + Frontend** - Test both surfaces
 
 ### When to Use Unit Tests Instead
 
-- ❌ Individual functions/utilities
-- ❌ Business logic in isolation
-- ❌ Error handling paths
-- ❌ Fast feedback loops
+- ✗ Individual functions/utilities
+- ✗ Business logic in isolation
+- ✗ Error handling paths
+- ✗ Fast feedback loops
 
 See [Testing Guide](/contributing/testing) for unit test patterns.
 
@@ -650,7 +650,7 @@ jobs:
 
 ## Best Practices
 
-### ✅ DO
+### ✓ DO
 
 - **Use fixtures** - Leverage the `kernel` fixture for all utilities
 - **Seed data** - Create test data via REST, not database manipulation
@@ -659,7 +659,7 @@ jobs:
 - **Restore database** - Use `kernel.db.restore()` for test isolation
 - **Capture events** - Validate event emission for critical actions
 
-### ❌ DON'T
+### ✗ DON'T
 
 - **Direct database access** - Use REST utilities instead
 - **Hardcoded waits** - Use `waitForSelector` or store waiting

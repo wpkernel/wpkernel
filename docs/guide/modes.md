@@ -16,10 +16,10 @@ Different deployment targets have different constraints:
 
 Building for the wrong mode can cause:
 
-- ❌ Runtime errors (REST calls failing in static builds)
-- ❌ Bundle bloat (shipping unused code)
-- ❌ SEO issues (content not indexed)
-- ❌ Performance problems (unnecessary hydration)
+- ✗ Runtime errors (REST calls failing in static builds)
+- ✗ Bundle bloat (shipping unused code)
+- ✗ SEO issues (content not indexed)
+- ✗ Performance problems (unnecessary hydration)
 
 **Solution**: Declare your mode upfront. Kernel validates at compile-time, build-time, and runtime.
 
@@ -33,11 +33,11 @@ Full WordPress runtime with server-side rendering, blocks, bindings, and REST AP
 
 **Characteristics:**
 
-- ✅ Blocks with bindings (client + server)
-- ✅ Interactivity API for front-end behavior
-- ✅ REST API available at runtime
-- ✅ Actions can run in admin + front-end
-- ✅ Server bindings for SSR
+- ✓ Blocks with bindings (client + server)
+- ✓ Interactivity API for front-end behavior
+- ✓ REST API available at runtime
+- ✓ Actions can run in admin + front-end
+- ✓ Server bindings for SSR
 
 **Use cases:**
 
@@ -61,12 +61,12 @@ WordPress as a backend API. External frontend (React, Next.js, Vue, etc.) consum
 
 **Characteristics:**
 
-- ✅ REST API consumed by external app
-- ✅ Resources work with custom `rootURL`
-- ✅ No WordPress rendering
-- ✅ Actions run in external client
-- ❌ No blocks or bindings
-- ❌ No server-side rendering from WP
+- ✓ REST API consumed by external app
+- ✓ Resources work with custom `rootURL`
+- ✓ No WordPress rendering
+- ✓ Actions run in external client
+- ✗ No blocks or bindings
+- ✗ No server-side rendering from WP
 
 **Use cases:**
 
@@ -112,12 +112,12 @@ Pre-rendered HTML served from CDN. No runtime REST API calls. Content generated 
 
 **Characteristics:**
 
-- ✅ Pre-rendered HTML (build time)
-- ✅ Server bindings for content (SSR only)
-- ✅ Interactivity for pure UI behavior (no API calls)
-- ❌ No runtime REST calls
-- ❌ No Actions in front-end bundles
-- ❌ No dynamic data fetching
+- ✓ Pre-rendered HTML (build time)
+- ✓ Server bindings for content (SSR only)
+- ✓ Interactivity for pure UI behavior (no API calls)
+- ✗ No runtime REST calls
+- ✗ No Actions in front-end bundles
+- ✗ No dynamic data fetching
 
 **Use cases:**
 
@@ -147,12 +147,12 @@ export default defineKernelConfig({
 **Allowed patterns:**
 
 ```typescript
-// ✅ Server bindings (rendered at build time)
+// ✓ Server bindings (rendered at build time)
 registerBindingSource('wpk-server', {
 	'job.title': (attrs) => get_the_title(attrs.id),
 });
 
-// ✅ Pure UI interactivity (no API)
+// ✓ Pure UI interactivity (no API)
 defineInteraction('wpk/menu-toggle', {
 	state: () => ({ open: false }),
 	actions: {
@@ -162,7 +162,7 @@ defineInteraction('wpk/menu-toggle', {
 	},
 });
 
-// ❌ Runtime REST calls (blocked at build)
+// ✗ Runtime REST calls (blocked at build)
 const jobs = await job.list(); // Build error!
 ```
 
@@ -253,10 +253,10 @@ Kernel automatically detects runtime context to enable/disable features:
 
 **Behavior:**
 
-- ✅ All Actions available
-- ✅ Resources can call REST
-- ✅ Admin surfaces mount
-- ✅ Policy checks active
+- ✓ All Actions available
+- ✓ Resources can call REST
+- ✓ Admin surfaces mount
+- ✓ Policy checks active
 
 ### Front-End (Dynamic WP)
 
@@ -268,9 +268,9 @@ Kernel automatically detects runtime context to enable/disable features:
 
 **Behavior:**
 
-- ✅ Bindings work (client + server)
-- ✅ Interactivity runs
-- ✅ Resources can fetch (when appropriate)
+- ✓ Bindings work (client + server)
+- ✓ Interactivity runs
+- ✓ Resources can fetch (when appropriate)
 - ⚠️ Actions restricted in static mode
 
 ### Headless Client
@@ -283,10 +283,10 @@ Kernel automatically detects runtime context to enable/disable features:
 
 **Behavior:**
 
-- ✅ Resources work with custom root
-- ✅ Actions orchestrate writes
-- ❌ No blocks or bindings
-- ❌ No WordPress rendering
+- ✓ Resources work with custom root
+- ✓ Actions orchestrate writes
+- ✗ No blocks or bindings
+- ✗ No WordPress rendering
 
 ### Static Export
 
@@ -298,10 +298,10 @@ Kernel automatically detects runtime context to enable/disable features:
 
 **Behavior:**
 
-- ✅ Server bindings rendered
-- ✅ Pure UI interactivity
-- ❌ REST calls blocked
-- ❌ Actions blocked in front-end
+- ✓ Server bindings rendered
+- ✓ Pure UI interactivity
+- ✗ REST calls blocked
+- ✗ Actions blocked in front-end
 
 ---
 
@@ -330,15 +330,15 @@ module.exports = {
 **Static mode violations:**
 
 ```typescript
-// ❌ ESLint error: No REST calls in front-end bundles
+// ✗ ESLint error: No REST calls in front-end bundles
 const jobs = await job.list();
 // Fix: Move to admin or use server bindings
 
-// ❌ ESLint error: No Actions in front-end
+// ✗ ESLint error: No Actions in front-end
 await CreateJob({ title: 'Test' });
 // Fix: Actions only in admin context
 
-// ✅ OK: Pure UI interactivity
+// ✓ OK: Pure UI interactivity
 this.state.open = !this.state.open;
 ```
 
@@ -364,10 +364,10 @@ export default defineConfig({
 
 **Checks:**
 
-- ✅ No `apiFetch` in public bundles (static mode)
-- ✅ No `kernel.fetch` in static front-end
-- ✅ No REST imports in wrong contexts
-- ✅ Bundle size within limits
+- ✓ No `apiFetch` in public bundles (static mode)
+- ✓ No `kernel.fetch` in static front-end
+- ✓ No REST imports in wrong contexts
+- ✓ Bundle size within limits
 
 **Example error:**
 
@@ -663,7 +663,7 @@ configure({ rootURL: 'https://cms.example.com' });
 
 ## Best Practices
 
-### ✅ DO
+### ✓ DO
 
 - **Declare mode upfront** in `wpk.config.ts`
 - **Use server bindings for SEO** in static mode
@@ -671,7 +671,7 @@ configure({ rootURL: 'https://cms.example.com' });
 - **Test in target environment** before deployment
 - **Leverage build checks** to catch violations early
 
-### ❌ DON'T
+### ✗ DON'T
 
 - **Mix modes without guards** - Declare support clearly
 - **Ship dev guards to production** - Stripped automatically
