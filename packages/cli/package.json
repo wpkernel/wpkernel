@@ -1,6 +1,6 @@
 {
 	"name": "@geekist/wp-kernel-cli",
-	"version": "2.0.0",
+	"version": "0.1.1",
 	"description": "CLI for scaffolding and managing WP Kernel projects",
 	"license": "EUPL-1.2",
 	"type": "module",

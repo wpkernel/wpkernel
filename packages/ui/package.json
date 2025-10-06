@@ -1,6 +1,6 @@
 {
 	"name": "@geekist/wp-kernel-ui",
-	"version": "2.0.0",
+	"version": "0.1.1",
 	"description": "UI component library for WP Kernel",
 	"license": "EUPL-1.2",
 	"type": "module",
