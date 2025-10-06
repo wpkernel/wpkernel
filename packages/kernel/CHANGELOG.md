@@ -1,5 +1,12 @@
 # @geekist/wp-kernel
 
+## [0.1.2](https://github.com/theGeekist/wp-kernel/compare/kernel@v0.1.1...kernel@v0.1.2) (2025-10-06)
+
+
+### Features
+
+* improve test coverage across kernel modules ([e258ae9](https://github.com/theGeekist/wp-kernel/commit/e258ae9194faaa2d031627b50eb740bed5db87c2))
+
 ## 0.1.1
 
 ### Patch Changes
