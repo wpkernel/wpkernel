@@ -13,6 +13,23 @@ function createRegistryMock(): KernelRegistry & { createNotice: jest.Mock } {
 	} as unknown as KernelRegistry & { createNotice: jest.Mock };
 }
 
+function createActionErrorEvent(
+	overrides: Partial<ActionErrorEvent> = {}
+): ActionErrorEvent {
+	return {
+		phase: 'error',
+		error: new KernelError('ValidationError', { message: 'test error' }),
+		actionName: 'TestAction',
+		requestId: 'test-req-id',
+		namespace: 'test',
+		durationMs: 10,
+		scope: 'crossTab',
+		bridged: false,
+		timestamp: Date.now(),
+		...overrides,
+	};
+}
+
 describe('kernelEventsPlugin', () => {
 	beforeEach(() => {
 		(window.wp?.hooks?.addAction as jest.Mock | undefined)?.mockReset?.();
@@ -106,17 +123,15 @@ describe('kernelEventsPlugin', () => {
 			type: 'IGNORE',
 		});
 
-		eventHandler?.({
-			error: new KernelError('PolicyDenied', { message: 'denied' }),
-			actionName: 'CheckPolicy',
-			requestId: 'act_warning',
-			namespace: 'acme',
-			phase: 'error',
-			durationMs: 5,
-			scope: 'crossTab',
-			bridged: true,
-			timestamp: Date.now(),
-		} as ActionErrorEvent);
+		eventHandler?.(
+			createActionErrorEvent({
+				error: new KernelError('PolicyDenied', { message: 'denied' }),
+				actionName: 'CheckPolicy',
+				requestId: 'act_warning',
+				namespace: 'acme',
+				bridged: true,
+			})
+		);
 
 		expect(registry.createNotice).toHaveBeenNthCalledWith(
 			1,
@@ -125,17 +140,17 @@ describe('kernelEventsPlugin', () => {
 			expect.objectContaining({ id: 'act_warning' })
 		);
 
-		eventHandler?.({
-			error: new KernelError('ValidationError', { message: 'invalid' }),
-			actionName: 'Validate',
-			requestId: 'act_info',
-			namespace: 'acme',
-			phase: 'error',
-			durationMs: 5,
-			scope: 'crossTab',
-			bridged: true,
-			timestamp: Date.now(),
-		} as ActionErrorEvent);
+		eventHandler?.(
+			createActionErrorEvent({
+				error: new KernelError('ValidationError', {
+					message: 'invalid',
+				}),
+				actionName: 'Validate',
+				requestId: 'act_info',
+				namespace: 'acme',
+				bridged: true,
+			})
+		);
 
 		expect(registry.createNotice).toHaveBeenNthCalledWith(
 			2,
@@ -201,5 +216,149 @@ describe('kernelEventsPlugin', () => {
 		capturedNamespaces.forEach((ns) => {
 			expect(ns).toMatch(/^wpk\/notices\/\d+$/);
 		});
+	});
+
+	it('handles registries that cannot dispatch notices', () => {
+		const reporter = {
+			info: jest.fn(),
+			warn: jest.fn(),
+			error: jest.fn(),
+			debug: jest.fn(),
+			child: jest.fn(),
+		} as jest.Mocked<Reporter>;
+		reporter.child.mockReturnValue(reporter);
+
+		const addAction = window.wp?.hooks?.addAction as jest.Mock;
+		let eventHandler: ((event: ActionErrorEvent) => void) | undefined;
+		addAction.mockImplementation((hookName, _namespace, handler) => {
+			if (hookName === 'wpk.action.error') {
+				eventHandler = handler as (event: ActionErrorEvent) => void;
+			}
+		});
+
+		const middleware = kernelEventsPlugin({
+			reporter,
+			registry: undefined,
+		});
+
+		middleware({ dispatch: jest.fn(), getState: jest.fn() })(jest.fn())({
+			type: 'IGNORE',
+		});
+
+		eventHandler?.({
+			error: { reason: 'totally-unknown' },
+			actionName: 'UnknownAction',
+			requestId: 'fallback_1',
+			namespace: 'acme',
+			phase: 'error',
+			durationMs: 5,
+			scope: 'crossTab',
+			bridged: false,
+			timestamp: Date.now(),
+		} as ActionErrorEvent);
+
+		expect(reporter.error).toHaveBeenCalledWith(
+			'An unexpected error occurred',
+			expect.objectContaining({
+				action: 'UnknownAction',
+				requestId: 'fallback_1',
+				status: 'error',
+			})
+		);
+	});
+
+	it('swallows registry dispatch errors when notices cannot be resolved', () => {
+		const reporter = {
+			info: jest.fn(),
+			warn: jest.fn(),
+			error: jest.fn(),
+			debug: jest.fn(),
+			child: jest.fn(),
+		} as jest.Mocked<Reporter>;
+		reporter.child.mockReturnValue(reporter);
+
+		const dispatch = jest.fn(() => {
+			throw new Error('dispatch failed');
+		});
+
+		const registry = { dispatch } as unknown as KernelRegistry;
+
+		const addAction = window.wp?.hooks?.addAction as jest.Mock;
+		let eventHandler: ((event: ActionErrorEvent) => void) | undefined;
+		addAction.mockImplementation((hookName, _namespace, handler) => {
+			if (hookName === 'wpk.action.error') {
+				eventHandler = handler as (event: ActionErrorEvent) => void;
+			}
+		});
+
+		const middleware = kernelEventsPlugin({ reporter, registry });
+		middleware({ dispatch: jest.fn(), getState: jest.fn() })(jest.fn())({
+			type: 'IGNORE',
+		});
+
+		expect(() =>
+			eventHandler?.({
+				error: new KernelError('UnknownError', { message: 'uh oh' }),
+				actionName: 'FailingAction',
+				requestId: 'fallback_2',
+				namespace: 'acme',
+				phase: 'error',
+				durationMs: 12,
+				scope: 'crossTab',
+				bridged: false,
+				timestamp: Date.now(),
+			} as ActionErrorEvent)
+		).not.toThrow();
+
+		expect(dispatch).toHaveBeenCalledWith('core/notices');
+		expect(reporter.error).toHaveBeenCalledWith(
+			'uh oh',
+			expect.any(Object)
+		);
+	});
+
+	it('ignores registry responses without createNotice helpers', () => {
+		const reporter = {
+			info: jest.fn(),
+			warn: jest.fn(),
+			error: jest.fn(),
+			debug: jest.fn(),
+			child: jest.fn(),
+		} as jest.Mocked<Reporter>;
+		reporter.child.mockReturnValue(reporter);
+
+		const dispatch = jest.fn().mockReturnValue({});
+		const registry = { dispatch } as unknown as KernelRegistry;
+
+		const addAction = window.wp?.hooks?.addAction as jest.Mock;
+		let eventHandler: ((event: ActionErrorEvent) => void) | undefined;
+		addAction.mockImplementation((hookName, _namespace, handler) => {
+			if (hookName === 'wpk.action.error') {
+				eventHandler = handler as (event: ActionErrorEvent) => void;
+			}
+		});
+
+		const middleware = kernelEventsPlugin({ reporter, registry });
+		middleware({ dispatch: jest.fn(), getState: jest.fn() })(jest.fn())({
+			type: 'IGNORE',
+		});
+
+		eventHandler?.({
+			error: new KernelError('PolicyDenied', { message: 'denied' }),
+			actionName: 'DeniedAction',
+			requestId: 'fallback_3',
+			namespace: 'acme',
+			phase: 'error',
+			durationMs: 8,
+			scope: 'crossTab',
+			bridged: true,
+			timestamp: Date.now(),
+		} as ActionErrorEvent);
+
+		expect(dispatch).toHaveBeenCalledWith('core/notices');
+		expect(reporter.error).toHaveBeenCalledWith(
+			'denied',
+			expect.any(Object)
+		);
 	});
 });
