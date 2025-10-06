@@ -13,6 +13,5 @@
 	"linked": [],
 	"access": "public",
 	"baseBranch": "main",
-	"updateInternalDependencies": "patch",
-	"ignore": ["app/showcase"]
+	"updateInternalDependencies": "patch"
 }
