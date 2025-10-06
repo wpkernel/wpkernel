@@ -45,6 +45,14 @@ function PostDashboard() {
 
 **📖 [Complete Documentation →](../../docs/packages/ui.md)**
 
+## React Hooks
+
+- `useKernel(registry, options)` – register kernel middleware inside a WordPress data registry.
+- `usePolicy()` – subscribe to policy results with hydration-safe loading states.
+- `attachResourceHooks(resource)` – attach `useGet`/`useList` hooks to kernel resources.
+
+> Importing `@geekist/wp-kernel-ui` once in your app bootstrap automatically registers resource hooks for all defined resources.
+
 ### Admin Interfaces
 
 ```typescript

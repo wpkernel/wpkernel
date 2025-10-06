@@ -1,17 +1,24 @@
-import { createActionMiddleware } from '../actions/middleware';
-import type { ReduxMiddleware } from '../actions/types';
-import { getNamespace } from '../namespace/detect';
-import { createReporter } from '../reporter';
-import type { Reporter } from '../reporter';
-import { kernelEventsPlugin } from './plugins/events';
-import type { KernelRegistry } from './types';
+import {
+	createActionMiddleware,
+	createReporter,
+	getNamespace,
+	kernelEventsPlugin,
+} from '@geekist/wp-kernel';
+import type {
+	KernelRegistry,
+	KernelRegistryOptions,
+} from '@geekist/wp-kernel/data';
 
-export interface KernelRegistryOptions {
-	middleware?: ReduxMiddleware[];
-	reporter?: Reporter;
-	namespace?: string;
-}
-
+/**
+ * Register WP Kernel middleware within a WordPress data registry.
+ *
+ * Mirrors the historical `useKernel()` helper that lived inside
+ * `@geekist/wp-kernel`, but is now part of the UI integration surface.
+ *
+ * @param registry - WordPress data registry instance
+ * @param options  - Optional middleware configuration
+ * @return Cleanup function to detach middleware
+ */
 export function useKernel(
 	registry: KernelRegistry,
 	options: KernelRegistryOptions = {}
@@ -56,3 +63,8 @@ export function useKernel(
 		}
 	};
 }
+
+export type {
+	KernelRegistry,
+	KernelRegistryOptions,
+} from '@geekist/wp-kernel/data';

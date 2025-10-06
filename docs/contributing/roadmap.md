@@ -29,7 +29,7 @@ Write-path orchestration with `defineAction()`, middleware layer, lifecycle even
 
 ### WordPress Data Integration (Sprint 4)
 
-`useKernel()` registry plugin, `registerKernelStore()` wrapper, `kernelEventsPlugin()` error bridge.
+`useKernel()` registry plugin (now in `@geekist/wp-kernel-ui`), `registerKernelStore()` wrapper, `kernelEventsPlugin()` error bridge.
 
 ### Unified Reporting (Sprint 4.5)
 

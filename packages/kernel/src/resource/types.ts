@@ -343,6 +343,7 @@ export interface ResourceObject<T = unknown, TQuery = unknown>
 	 *
 	 * Uses @wordpress/data's useSelect under the hood.
 	 * Automatically handles loading states and re-fetching.
+	 * Requires the `@geekist/wp-kernel-ui` package to register hooks.
 	 *
 	 * @param id - Item identifier
 	 * @return Hook result with data, isLoading, error
@@ -367,6 +368,7 @@ export interface ResourceObject<T = unknown, TQuery = unknown>
 	 *
 	 * Uses @wordpress/data's useSelect under the hood.
 	 * Automatically handles loading states and re-fetching.
+	 * Requires the `@geekist/wp-kernel-ui` package to register hooks.
 	 *
 	 * @param query - Query parameters
 	 * @return Hook result with data, isLoading, error

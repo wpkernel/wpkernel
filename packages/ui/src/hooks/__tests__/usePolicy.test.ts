@@ -1,12 +1,14 @@
 import React, { act, useEffect, useRef } from 'react';
 import { createRoot } from 'react-dom/client';
-import { usePolicy } from '../hooks';
-import { createPolicyCache, createPolicyCacheKey } from '../cache';
-import type { ActionRuntime } from '../../actions/types';
-import type { PolicyHelpers, UsePolicyResult } from '../types';
-import { KernelError } from '../../error/KernelError';
+import { usePolicy } from '../usePolicy';
+import {
+	createPolicyCache,
+	createPolicyCacheKey,
+} from '@geekist/wp-kernel/policy';
+import type { PolicyHelpers, UsePolicyResult } from '@geekist/wp-kernel/policy';
+import { KernelError } from '@geekist/wp-kernel/error';
 
-jest.mock('../../namespace/detect', () => ({
+jest.mock('@geekist/wp-kernel/namespace', () => ({
 	getNamespace: () => 'acme',
 }));
 
@@ -16,7 +18,7 @@ type RuntimePolicy =
 			cache?: PolicyHelpers<Record<string, unknown>>['cache'];
 	  });
 
-describe('usePolicy hook', () => {
+describe('usePolicy hook (UI integration)', () => {
 	beforeAll(() => {
 		(
 			globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }
@@ -29,7 +31,8 @@ describe('usePolicy hook', () => {
 	});
 
 	afterEach(() => {
-		delete global.__WP_KERNEL_ACTION_RUNTIME__;
+		delete (globalThis as { __WP_KERNEL_ACTION_RUNTIME__?: unknown })
+			.__WP_KERNEL_ACTION_RUNTIME__;
 		jest.restoreAllMocks();
 	});
 
@@ -94,9 +97,11 @@ describe('usePolicy hook', () => {
 			keys: () => ['tasks.manage'],
 			cache,
 		};
-		global.__WP_KERNEL_ACTION_RUNTIME__ = {
-			policy: runtime,
-		} as ActionRuntime;
+		(
+			globalThis as {
+				__WP_KERNEL_ACTION_RUNTIME__?: { policy?: RuntimePolicy };
+			}
+		).__WP_KERNEL_ACTION_RUNTIME__ = { policy: runtime };
 
 		const results: UsePolicyResult<Record<string, unknown>>[] = [];
 		const { cleanup } = renderTestComponent(results);
@@ -120,9 +125,11 @@ describe('usePolicy hook', () => {
 			keys: () => ['tasks.manage'],
 			cache: createPolicyCache({ crossTab: false }, 'acme'),
 		};
-		global.__WP_KERNEL_ACTION_RUNTIME__ = {
-			policy: runtime,
-		} as ActionRuntime;
+		(
+			globalThis as {
+				__WP_KERNEL_ACTION_RUNTIME__?: { policy?: RuntimePolicy };
+			}
+		).__WP_KERNEL_ACTION_RUNTIME__ = { policy: runtime };
 
 		const results: UsePolicyResult<Record<string, unknown>>[] = [];
 		const { cleanup } = renderTestComponent(results);
@@ -152,9 +159,11 @@ describe('usePolicy hook', () => {
 			keys: () => ['tasks.manage'],
 			cache: createPolicyCache({ crossTab: false }, 'acme'),
 		};
-		global.__WP_KERNEL_ACTION_RUNTIME__ = {
-			policy: runtime,
-		} as ActionRuntime;
+		(
+			globalThis as {
+				__WP_KERNEL_ACTION_RUNTIME__?: { policy?: RuntimePolicy };
+			}
+		).__WP_KERNEL_ACTION_RUNTIME__ = { policy: runtime };
 
 		const results: UsePolicyResult<Record<string, unknown>>[] = [];
 		const { cleanup } = renderTestComponent(results);
@@ -185,9 +194,11 @@ describe('usePolicy hook', () => {
 			keys: () => ['tasks.manage'],
 			cache: createPolicyCache({ crossTab: false }, 'acme'),
 		};
-		global.__WP_KERNEL_ACTION_RUNTIME__ = {
-			policy: runtime,
-		} as ActionRuntime;
+		(
+			globalThis as {
+				__WP_KERNEL_ACTION_RUNTIME__?: { policy?: RuntimePolicy };
+			}
+		).__WP_KERNEL_ACTION_RUNTIME__ = { policy: runtime };
 
 		const results: UsePolicyResult<Record<string, unknown>>[] = [];
 		const { cleanup } = renderTestComponent(results);

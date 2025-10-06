@@ -113,7 +113,7 @@ Policies double as UI hints through the `usePolicy()` hook. The hook subscribes
 to the shared cache so components stay in sync with Action checks.
 
 ```tsx
-import { usePolicy } from '@geekist/wp-kernel/policy';
+import { usePolicy } from '@geekist/wp-kernel-ui';
 
 type PolicyKeys = Parameters<typeof policy.can>[0];
 

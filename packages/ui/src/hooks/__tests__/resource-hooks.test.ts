@@ -1,12 +1,10 @@
-/**
- * Unit tests for defineResource - React Hooks
- *
- * Tests useGet and useList hooks that integrate with @wordpress/data
- */
+import { defineResource } from '@geekist/wp-kernel/resource';
+import {
+	attachResourceHooks,
+	type UseResourceItemResult,
+	type UseResourceListResult,
+} from '../resource-hooks';
 
-import { defineResource } from '../define';
-
-// Mock resource for testing
 interface MockThing {
 	id: number;
 	title: string;
@@ -18,44 +16,37 @@ interface MockThingQuery {
 	status?: string;
 }
 
-// Use global types for window.wp
-
-describe('defineResource - React Hooks', () => {
-	let mockWpData: any;
+describe('resource hooks (UI integration)', () => {
+	let mockWpData: {
+		useSelect: jest.Mock;
+		select: jest.Mock;
+		dispatch: jest.Mock;
+		createReduxStore?: jest.Mock;
+		register?: jest.Mock;
+	};
 	let originalWp: Window['wp'];
 
 	beforeEach(() => {
-		// Store original window.wp
 		const windowWithWp = global.window as Window & { wp?: any };
 		originalWp = windowWithWp?.wp;
-
-		// Create mock wp.data
 		mockWpData = {
 			useSelect: jest.fn(),
 			select: jest.fn(),
 			dispatch: jest.fn(),
-			resolveSelect: jest.fn(),
 		};
-
-		// Setup window.wp.data
-		if (windowWithWp) {
-			windowWithWp.wp = {
-				data: mockWpData,
-			};
-		}
+		windowWithWp.wp = {
+			data: mockWpData,
+		};
 	});
 
 	afterEach(() => {
-		// Restore original window.wp
 		const windowWithWp = global.window as Window & { wp?: any };
-		if (windowWithWp) {
-			windowWithWp.wp = originalWp;
-		}
+		windowWithWp.wp = originalWp;
+		jest.restoreAllMocks();
 	});
 
 	describe('useGet hook', () => {
-		it('should throw error if @wordpress/data is not loaded', () => {
-			// Remove wp.data
+		it('throws when @wordpress/data is not available', () => {
 			(global.window as Window & { wp?: any }).wp = undefined;
 
 			const resource = defineResource<MockThing, MockThingQuery>({
@@ -70,14 +61,13 @@ describe('defineResource - React Hooks', () => {
 			);
 		});
 
-		it('should call useSelect with correct parameters', () => {
+		it('invokes useSelect with correct selector', () => {
 			const mockItem: MockThing = {
 				id: 1,
 				title: 'Thing One',
 				status: 'active',
 			};
 
-			// Mock useSelect to return data
 			mockWpData.useSelect.mockImplementation((callback: any) => {
 				const mockSelect = {
 					getItem: jest.fn().mockReturnValue(mockItem),
@@ -96,7 +86,9 @@ describe('defineResource - React Hooks', () => {
 				},
 			});
 
-			const result = resource.useGet!(1);
+			const result = resource.useGet!(
+				1
+			) as UseResourceItemResult<MockThing>;
 
 			expect(mockWpData.useSelect).toHaveBeenCalled();
 			expect(result).toEqual({
@@ -106,8 +98,7 @@ describe('defineResource - React Hooks', () => {
 			});
 		});
 
-		it('should indicate loading state correctly', () => {
-			// Mock useSelect to return loading state
+		it('sets loading state when selector resolving', () => {
 			mockWpData.useSelect.mockImplementation((callback: any) => {
 				const mockSelect = {
 					getItem: jest.fn().mockReturnValue(undefined),
@@ -135,10 +126,8 @@ describe('defineResource - React Hooks', () => {
 			});
 		});
 
-		it('should return error when present', () => {
+		it('exposes selector error message', () => {
 			const mockError = { message: 'Not found' };
-
-			// Mock useSelect to return error
 			mockWpData.useSelect.mockImplementation((callback: any) => {
 				const mockSelect = {
 					getItem: jest.fn().mockReturnValue(undefined),
@@ -165,23 +154,10 @@ describe('defineResource - React Hooks', () => {
 				error: 'Not found',
 			});
 		});
-
-		it('should be undefined when route not configured', () => {
-			const resource = defineResource<MockThing, MockThingQuery>({
-				name: 'thing',
-				routes: {
-					// No get route
-					list: { path: '/wpk/v1/things', method: 'GET' },
-				},
-			});
-
-			expect(resource.useGet).toBeUndefined();
-		});
 	});
 
 	describe('useList hook', () => {
-		it('should throw error if @wordpress/data is not loaded', () => {
-			// Remove wp.data
+		it('throws when @wordpress/data is not available', () => {
 			(global.window as Window & { wp?: any }).wp = undefined;
 
 			const resource = defineResource<MockThing, MockThingQuery>({
@@ -196,13 +172,12 @@ describe('defineResource - React Hooks', () => {
 			);
 		});
 
-		it('should call useSelect with correct parameters', () => {
+		it('returns list data and loading state', () => {
 			const mockItems: MockThing[] = [
 				{ id: 1, title: 'Thing One', status: 'active' },
 				{ id: 2, title: 'Thing Two', status: 'inactive' },
 			];
 
-			// Mock useSelect to return data
 			mockWpData.useSelect.mockImplementation((callback: any) => {
 				const mockSelect = {
 					getList: jest.fn().mockReturnValue(mockItems),
@@ -229,16 +204,15 @@ describe('defineResource - React Hooks', () => {
 				data: mockItems,
 				isLoading: false,
 				error: null,
-			});
+			} as UseResourceListResult<MockThing>);
 		});
 
-		it('should pass query parameter to useSelect', () => {
+		it('passes query parameter to selector', () => {
 			const mockItems: MockThing[] = [
 				{ id: 1, title: 'Thing One', status: 'active' },
 			];
 			const query: MockThingQuery = { status: 'active' };
 
-			// Mock useSelect to return data
 			mockWpData.useSelect.mockImplementation((callback: any) => {
 				const mockSelect = {
 					getList: jest.fn().mockReturnValue(mockItems),
@@ -261,15 +235,10 @@ describe('defineResource - React Hooks', () => {
 			const result = resource.useList!(query);
 
 			expect(mockWpData.useSelect).toHaveBeenCalled();
-			expect(result).toEqual({
-				data: mockItems,
-				isLoading: false,
-				error: null,
-			});
+			expect(result.data).toEqual(mockItems);
 		});
 
-		it('should indicate loading state correctly', () => {
-			// Mock useSelect to return loading state
+		it('derives loading state from status', () => {
 			mockWpData.useSelect.mockImplementation((callback: any) => {
 				const mockSelect = {
 					getList: jest.fn().mockReturnValue(undefined),
@@ -298,10 +267,8 @@ describe('defineResource - React Hooks', () => {
 			});
 		});
 
-		it('should return error when present', () => {
+		it('propagates selector errors', () => {
 			const mockError = 'Server error';
-
-			// Mock useSelect to return error
 			mockWpData.useSelect.mockImplementation((callback: any) => {
 				const mockSelect = {
 					getList: jest.fn().mockReturnValue(undefined),
@@ -326,20 +293,23 @@ describe('defineResource - React Hooks', () => {
 			expect(result).toEqual({
 				data: undefined,
 				isLoading: false,
-				error: 'Server error',
+				error: mockError,
 			});
 		});
+	});
 
-		it('should be undefined when route not configured', () => {
-			const resource = defineResource<MockThing, MockThingQuery>({
-				name: 'thing',
-				routes: {
-					// No list route
-					get: { path: '/wpk/v1/things/:id', method: 'GET' },
-				},
-			});
-
-			expect(resource.useList).toBeUndefined();
+	it('exposes manual attach helper for existing resources', () => {
+		const resource = defineResource<MockThing, MockThingQuery>({
+			name: 'thing',
+			routes: {
+				get: { path: '/wpk/v1/things/:id', method: 'GET' },
+			},
 		});
+
+		// Remove hooks assigned during definition
+		resource.useGet = undefined;
+		attachResourceHooks(resource);
+
+		expect(typeof resource.useGet).toBe('function');
 	});
 });

@@ -10,7 +10,7 @@ tearing down tests or hot reloading modules.
 
 ```typescript
 import { createRegistry } from '@wordpress/data';
-import { useKernel } from '@geekist/wp-kernel/data';
+import { useKernel } from '@geekist/wp-kernel-ui';
 import { createReporter } from '@geekist/wp-kernel/reporter';
 
 const registry = createRegistry();
@@ -39,8 +39,8 @@ Cleanup removes both middleware registrations and unsubscribes the hook listener
 ## `kernelEventsPlugin`
 
 You rarely call this directly; `useKernel()` wires it in automatically. The plugin bridges action failures to `core/notices` and
-structured logging. Hook listeners receive payloads with `message`, `context`, and `timestamp` so WordPress plugins can subscribe
-to `wpk.action.error` without reverse engineering the payload.
+structured logging. Hook listeners receive payloads with `message`, `context`, and `timestamp` so WordPress plugins can
+subscribe to `wpk.action.error` without reverse engineering the payload. The React helper now lives in `@geekist/wp-kernel-ui`.
 
 ## `registerKernelStore(key, config)`
 
@@ -64,7 +64,7 @@ kernel actions dispatched through the store.
 ## Putting it together
 
 1. Define stores with `registerKernelStore()`.
-2. Register the kernel middleware once per registry with `useKernel()`.
+2. Register the kernel middleware once per registry with `useKernel()` from `@geekist/wp-kernel-ui`.
 3. Dispatch actions through `invokeAction()` envelopes-errors become notices and the reporter receives structured context.
 
 The end result is parity with Redux integrations while keeping all error reporting, logging, and capability enforcement inside

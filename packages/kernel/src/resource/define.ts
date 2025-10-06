@@ -26,33 +26,7 @@ import {
 	createStoreApiGetter,
 	createEventsGetter,
 } from './grouped-api';
-import type {
-	CacheKeys,
-	ResourceConfig,
-	ResourceObject,
-	ListResponse,
-	ResourceListStatus,
-} from './types';
-
-/**
- * Interface for WordPress data store selectors used in useSelect hooks
- */
-interface WordPressStoreSelector<T, TQuery = unknown> {
-	getItem?: (id: string | number) => T | undefined;
-	getList?: (query?: TQuery) => ListResponse<T> | undefined;
-	getListStatus?: (query?: TQuery) => ResourceListStatus | undefined;
-	isResolving?: (method: string, args: unknown[]) => boolean;
-	hasFinishedResolution?: (method: string, args: unknown[]) => boolean;
-	getItemError?: (id: string | number) => Error | undefined;
-	getListError?: (query?: TQuery) => string | undefined;
-}
-
-/**
- * Type for the select function passed to useSelect
- */
-type WordPressSelectFunction<T, TQuery = unknown> = (
-	storeKey: string
-) => WordPressStoreSelector<T, TQuery>;
+import type { CacheKeys, ResourceConfig, ResourceObject } from './types';
 
 /**
  * Parse namespace:name syntax from a string
@@ -238,116 +212,6 @@ export function defineResource<T = unknown, TQuery = unknown>(
 			return _store;
 		},
 
-		// Thin-flat API: React hooks
-		useGet: config.routes.get
-			? (id: string | number) => {
-					// Check if we're in a React context (useSelect available)
-					const globalWp =
-						typeof window !== 'undefined'
-							? (window as WPGlobal).wp
-							: undefined;
-					if (!globalWp?.data?.useSelect) {
-						throw new KernelError('DeveloperError', {
-							message:
-								'useGet requires @wordpress/data to be loaded',
-							context: {
-								resource: config.name,
-								method: 'useGet',
-							},
-						});
-					}
-
-					// Use @wordpress/data useSelect to watch store
-					const result = globalWp.data.useSelect(
-						(select: WordPressSelectFunction<T>) => {
-							// Trigger lazy store registration
-							void resource.store;
-
-							const storeSelect = select(resource.storeKey);
-							const data = storeSelect?.getItem?.(id);
-							const isResolving = storeSelect?.isResolving?.(
-								'getItem',
-								[id]
-							);
-							const hasResolved =
-								storeSelect?.hasFinishedResolution?.(
-									'getItem',
-									[id]
-								);
-							const error = storeSelect?.getItemError?.(id);
-
-							return {
-								data,
-								isLoading: isResolving || !hasResolved,
-								error: error?.message,
-							};
-						},
-						[id]
-					);
-
-					return result;
-				}
-			: undefined,
-
-		useList: config.routes.list
-			? (query?: TQuery) => {
-					// Check if we're in a React context (useSelect available)
-					const globalWp =
-						typeof window !== 'undefined'
-							? (window as WPGlobal).wp
-							: undefined;
-					if (!globalWp?.data?.useSelect) {
-						throw new KernelError('DeveloperError', {
-							message:
-								'useList requires @wordpress/data to be loaded',
-							context: {
-								resource: config.name,
-								method: 'useList',
-							},
-						});
-					}
-
-					// Use @wordpress/data useSelect to watch store
-					const result = globalWp.data.useSelect(
-						(select: WordPressSelectFunction<T, TQuery>) => {
-							// Trigger lazy store registration
-							void resource.store;
-
-							const storeSelect = select(resource.storeKey);
-							const data = storeSelect?.getList?.(query);
-							const status =
-								storeSelect?.getListStatus?.(query) ?? 'idle';
-							const isResolving =
-								storeSelect?.isResolving?.('getList', [
-									query,
-								]) ?? false;
-							const hasResolved =
-								storeSelect?.hasFinishedResolution?.(
-									'getList',
-									[query]
-								);
-							const error = storeSelect?.getListError?.(query);
-
-							const resolvedByStatus =
-								status === 'success' || status === 'error';
-							const isLoading =
-								status === 'loading' ||
-								((hasResolved === false || status === 'idle') &&
-									!resolvedByStatus);
-
-							return {
-								data,
-								isLoading: isLoading || isResolving,
-								error,
-							};
-						},
-						[query]
-					);
-
-					return result;
-				}
-			: undefined,
-
 		// Thin-flat API: Prefetch methods
 		prefetchGet: config.routes.get
 			? async (id: string | number) => {
@@ -489,6 +353,16 @@ export function defineResource<T = unknown, TQuery = unknown>(
 			}).call(this);
 		},
 	};
+
+	const attachHooks = (
+		globalThis as {
+			__WP_KERNEL_UI_ATTACH_RESOURCE_HOOKS__?: <HookEntity, HookQuery>(
+				resource: ResourceObject<HookEntity, HookQuery>
+			) => void;
+		}
+	).__WP_KERNEL_UI_ATTACH_RESOURCE_HOOKS__;
+
+	attachHooks?.(resource as ResourceObject<T, TQuery>);
 
 	return resource;
 }

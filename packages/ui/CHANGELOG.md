@@ -1,5 +1,11 @@
 # @geekist/wp-kernel-ui
 
+## Unreleased
+
+### Added
+
+- Introduced React hook integrations (`useKernel`, `usePolicy`, `attachResourceHooks`) for kernel resources and policies.
+
 ## 0.1.1
 
 ### Patch Changes

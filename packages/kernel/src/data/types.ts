@@ -1,5 +1,6 @@
 import type { WPDataRegistry } from '@wordpress/data/build-types/registry';
 import type { ReduxMiddleware } from '../actions/types';
+import type { Reporter } from '../reporter';
 
 export type KernelRegistry = WPDataRegistry & {
 	__experimentalUseMiddleware?: (
@@ -7,3 +8,9 @@ export type KernelRegistry = WPDataRegistry & {
 	) => (() => void) | void;
 	dispatch: (storeName: string) => unknown;
 };
+
+export interface KernelRegistryOptions {
+	middleware?: ReduxMiddleware[];
+	reporter?: Reporter;
+	namespace?: string;
+}

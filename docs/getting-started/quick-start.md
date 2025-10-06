@@ -122,7 +122,7 @@ The planned file captures three responsibilities in plain English: send the writ
 
 ## Step 4: Bind data to the UI
 
-Views consume the generated hooks and call Actions; they never talk to transport directly. A small form is enough to demonstrate the pattern. Create `app/views/Thing/Form.tsx` and start with imports and local state:
+Views consume the generated hooks and call Actions; they never talk to transport directly. Import `@geekist/wp-kernel-ui` once in your bootstrap code to register the hooks before rendering. A small form is enough to demonstrate the pattern. Create `app/views/Thing/Form.tsx` and start with imports and local state:
 
 ```tsx
 import { useState } from '@wordpress/element';

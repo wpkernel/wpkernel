@@ -1,9 +1,7 @@
-import type { ReduxMiddleware } from '../../actions/types';
-import type { Reporter } from '../../reporter';
-import { useKernel } from '../registry';
-import type { KernelRegistry } from '../types';
+import { useKernel } from '../useKernel';
+import type { KernelRegistry } from '@geekist/wp-kernel/data';
 
-describe('useKernel', () => {
+describe('useKernel (UI integration)', () => {
 	beforeEach(() => {
 		(window.wp?.hooks?.addAction as jest.Mock | undefined)?.mockReset?.();
 		(
@@ -30,14 +28,16 @@ describe('useKernel', () => {
 			error: jest.fn(),
 			debug: jest.fn(),
 			child: jest.fn(),
-		} as jest.Mocked<Reporter>;
-		reporter.child.mockReturnValue(reporter);
-		const customMiddleware: ReduxMiddleware = () => (next) => (action) =>
-			next(action);
+		} as const;
+		(reporter.child as unknown as jest.Mock).mockReturnValue(reporter);
+
+		const customMiddleware = jest.fn(
+			() => (next: any) => (action: any) => next(action)
+		);
 
 		const cleanup = useKernel(registry, {
-			reporter,
-			middleware: [customMiddleware],
+			reporter: reporter as unknown as ReturnType<typeof reporter.child>,
+			middleware: [customMiddleware as unknown as () => void],
 			namespace: 'acme',
 		});
 
