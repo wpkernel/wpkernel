@@ -1,7 +1,7 @@
 # WP Kernel Roadmap
 
 **Status**: Active development toward v1.0  
-**Latest Release**: v0.1.1
+**Latest Release**: v0.2
 
 ---
 
@@ -58,7 +58,7 @@ Block Bindings for resource data, Interactivity API integration, client-side sta
 | Phase             | Target  | Status         |
 | ----------------- | ------- | -------------- |
 | Alpha (v0.1.x)    | Q4 2024 | ✓ Complete     |
-| **Beta** (v0.5.x) | Q3 2025 | 🚧 In Progress |
+| **Beta** (v0.3.x) | Q3 2025 | 🚧 In Progress |
 | **RC** (v0.9.x)   | Q4 2025 | Planned        |
 | **v1.0**          | Q4 2025 | Planned        |
 

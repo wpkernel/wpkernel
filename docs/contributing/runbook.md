@@ -2,6 +2,11 @@
 
 Common tasks and commands for WP Kernel development.
 
+> **📖 For release workflow and changesets**, see `RELEASING.md` in project root.  
+> **For PR flow and sprint process**, see [Pull Requests](./pull-requests.md).
+
+---
+
 ## WordPress Environment
 
 ### Start WordPress
@@ -177,11 +182,11 @@ pnpm lint:fix
 ### Format Code
 
 ```bash
-# Check formatting
+# Auto-format all files
 pnpm format
 
-# Auto-format
-pnpm format:fix
+# Check formatting only
+pnpm format:check
 ```
 
 ## Type Checking
@@ -289,29 +294,20 @@ Launches WordPress in a WebAssembly environment (no Docker required).
 
 ## Changesets
 
-### Create Changeset
+### Create Sprint Changeset
 
 ```bash
-pnpm changeset
+# Feature sprint (default)
+pnpm cs:new:minor "Sprint 5: Bindings & Interactivity"
+
+# Alignment/patch sprint
+pnpm cs:new:patch "Sprint 5.5: Performance & Polish"
+
+# Breaking change (rare pre-1.0)
+pnpm cs:new:major "Sprint 9: PHP Bridge (breaking API)"
 ```
 
-Follow the prompts to select packages, bump type, and write summary.
-
-### View Pending Changesets
-
-```bash
-ls .changeset/*.md
-```
-
-### Consume Changesets (Maintainers Only)
-
-```bash
-# Update package versions
-pnpm changeset version
-
-# Publish to npm
-pnpm changeset publish
-```
+> Direct commits to `main` (infra/docs only) do **not** trigger releases.
 
 ## Git Workflows
 
@@ -541,9 +537,9 @@ docker exec -it <container-id> tail -f /var/www/html/wp-content/debug.log
 
 ## Deployment Modes
 
-WP Kernel supports three deployment modes: Dynamic WordPress, Headless, and Static Export. Each mode has specific build and deployment requirements.
+> **🚧 Roadmap**: Sprints 10-13 • See [Modes Guide](../guide/modes.md) for complete specification
 
-> **See [Modes Guide](/guide/modes)** for complete mode documentation, patterns, and troubleshooting.
+WP Kernel supports three deployment modes: Dynamic WordPress, Headless, and Static Export. Each mode has specific build and deployment requirements.
 
 ### Dynamic WordPress (Default)
 
@@ -562,6 +558,8 @@ pnpm build
 - No special configuration needed
 
 ### Headless WordPress
+
+> **🚧 Requires**: `configure()` API • Sprint 12
 
 WordPress as backend API, external frontend.
 
@@ -610,6 +608,8 @@ add_action('rest_api_init', function () {
 ```
 
 ### Static Export (CDN)
+
+> **🚧 Requires**: `defineKernelConfig()` API, build guards • Sprints 12-13
 
 Pre-rendered HTML for CDN deployment.
 

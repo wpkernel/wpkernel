@@ -1,16 +1,16 @@
 # WP Kernel
 
-> A Rails-like,Built on WordPress Core primitives: Script Modules, Block Bindings, Interactivity API, @wordpress/data.
+> A Rails-like, opinionated framework for building modern WordPress products. Built on WordPress Core primitives: Script Modules, Block Bindings, Interactivity API, @wordpress/data.
 
 **[Read the documentation](https://theGeekist.github.io/wp-kernel/)** to get started and understand the philosophy.
 
----ionated framework for building modern WordPress prod**Using wp-env (Docker)?** Visit [http://localhost:8888/wp-admin](http://localhost:8888/wp-admin) - Login: `admin` / `password`
+**Using wp-env (Docker)?** Visit [http://localhost:8888/wp-admin](http://localhost:8888/wp-admin) - Login: `admin` / `password`
 
 **Using Playground?** Opens automatically in your browser
 
 **📖 Read [DEVELOPMENT.md](DEVELOPMENT.md)** for the complete contributor workflow, testing infrastructure, and troubleshooting.
 
----e JavaScript is the source of truth and PHP is a thin contract.
+The JavaScript is the source of truth and PHP is a thin contract.
 
 [![CI Status](https://github.com/theGeekist/wp-kernel/workflows/CI/badge.svg)](https://github.com/theGeekist/wp-kernel/actions)
 [![License](https://img.shields.io/badge/license-EUPL--1.2-blue.svg)](LICENSE)
@@ -31,8 +31,6 @@ WP Kernel provides a **Golden Path** for WordPress development in 2025+:
 - **Single PHP contract**: REST + capabilities + optional server bindings
 
 Built on WordPress Core primitives: Script Modules, Block Bindings, Interactivity API, @wordpress/data.
-
-**[Read the documentation](https://theGeekist.github.io/wp-kernel/)** to get started, or see **[Why WP Kernel?](https://theGeekist.github.io/wp-kernel/getting-started/why)** to understand the philosophy.
 
 ---
 

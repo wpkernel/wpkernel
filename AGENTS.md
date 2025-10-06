@@ -121,7 +121,10 @@ await CreateThing({ data: formData });
 ## Commit, PR, and Review Protocol
 
 - Small, cohesive commits. One concern per commit.
-- PR title: `[pkg|app] short imperative summary`.
+- **ALWAYS use the PR template** (`.github/PULL_REQUEST_TEMPLATE.md`) - never create ad-hoc PRs
+- PR title format: Sprint headline (e.g., "Sprint 5: Bindings & Interactivity")
+- Link to Roadmap section and Sprint doc/spec in PR description
+- Include changeset unless labelled `no-release` (see [RELEASING.md](./RELEASING.md))
 - Before requesting review: run `pnpm lint --fix && pnpm typecheck && pnpm typecheck:tests && pnpm test`.
 - Respond to all review feedback; avoid duplication; extract interfaces when suggested.
 
@@ -132,8 +135,10 @@ await CreateThing({ data: formData });
 - **Approval mode**: default to read/write in workspace. Ask before:
     - Writing outside workspace, changing dotfiles, or enabling network access.
     - Installing new dev dependencies.
+    - Creating or modifying PRs (always use PR template)
 
 - **Never**: run destructive commands, alter Git history, or publish artefacts.
+- **PR creation**: Always use `.github/PULL_REQUEST_TEMPLATE.md` - no ad-hoc PRs
 - Always show plan, then diffs, then run checks. Close task only after DoD passes.
 
 ---

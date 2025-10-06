@@ -5,7 +5,7 @@
  * Description: Demonstrates WP Kernel framework features using Script Modules and modern WordPress APIs
  * Version: 0.3.0
  * Requires at least: 6.8
- * Requires PHP: 8.3
+ * Requires PHP: 8.1
  * Author: Geekist
  * Author URI: https://github.com/theGeekist
  * License: GPL-2.0-or-later

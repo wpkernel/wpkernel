@@ -57,6 +57,11 @@
 			"import": "./dist/data/index.js",
 			"default": "./dist/data/index.js"
 		},
+		"./policy": {
+			"types": "./dist/policy/index.d.ts",
+			"import": "./dist/policy/index.js",
+			"default": "./dist/policy/index.js"
+		},
 		"./reporter": {
 			"types": "./dist/reporter/index.d.ts",
 			"import": "./dist/reporter/index.js",

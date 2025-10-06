@@ -3,8 +3,7 @@ layout: home
 
 hero:
     name: 'WP Kernel'
-    text: 'Modern WordPress Framework'
-    tagline: A Rails-like, opinionated framework for building WordPress products where JavaScript is the source of truth
+    tagline: Modern WordPress Framework - A Rails-like, opinionated framework for building WordPress products where JavaScript is the source of truth
     actions:
         - theme: brand
           text: Get Started
@@ -42,14 +41,6 @@ features:
 ## Why WP Kernel?
 
 WordPress already gives us powerful primitives-blocks, Interactivity, script modules, and a reliable REST API. What teams still lack is a shared frame for turning those primitives into products without re-solving the same architecture on every build. WP Kernel steps in as that frame. It keeps JavaScript in the driver's seat while asking PHP to focus on capabilities and transport, so you deliver features faster without forking away from Core.
-
-### Built for people shipping features
-
-## Developers get consistent patterns for data fetching, mutation, and error handling. Product teams see shorter feedback loops because the guardrails prevent accidental tight coupling. Business stakeholders gain confidence that every feature emits versioned, registry-backed events, making analytics, integrations, and audits first-class rather than afterthoughts.
-
-## Why WP Kernel?
-
-WordPress already gives us powerful primitives-blocks, Interactivity, script modules, and a reliable REST API. What teams still lack is a shared frame for turning those primitives into products without re-solving the same architecture on every build. WP Kernel steps in as that frame. It keeps JavaScript in the driver’s seat while asking PHP to focus on capabilities and transport, so you deliver features faster without forking away from Core.
 
 ### Built for people shipping features
 

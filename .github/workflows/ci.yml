@@ -320,7 +320,7 @@ jobs:
                   # Check if there are any changesets
                   if [ -z "$(ls .changeset/*.md 2>/dev/null | grep -v README)" ]; then
                     echo "⚠️ No changeset found. Please add a changeset for your changes."
-                    echo "Run: pnpm changeset"
+                    echo "Add a changeset with: pnpm cs:new:patch \"<summary>\""
                     exit 1
                   else
                     echo "✅ Changeset found"
