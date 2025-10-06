@@ -57,17 +57,10 @@
 		"docs:build": "pnpm docs:api && pnpm docs:site",
 		"docs:build:fast": "pnpm docs:api && pnpm docs:site:fast",
 		"docs:preview": "vitepress preview docs",
-		"cs": "changeset",
-		"cs:new:patch": "node scripts/new-changeset.mjs patch",
-		"cs:new:minor": "node scripts/new-changeset.mjs minor",
-		"cs:new:major": "node scripts/new-changeset.mjs major",
-		"cs:version": "changeset version",
-		"cs:publish": "pnpm -w build && changeset publish",
 		"preinstall": "npx only-allow pnpm"
 	},
 	"devDependencies": {
 		"@braintree/sanitize-url": "^7.1.1",
-		"@changesets/cli": "^2.29.7",
 		"@eslint/eslintrc": "^3.3.1",
 		"@eslint/js": "^9.36.0",
 		"@kucrut/vite-for-wp": "^0.12.0",

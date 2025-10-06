@@ -5,83 +5,60 @@ on:
         branches:
             - main
 
-# Cancel concurrent runs for the same ref
-concurrency: ${{ github.workflow }}-${{ github.ref }}
-
-# Reuse the same versions & caching approach as CI
-env:
-    NODE_VERSION: '22.20.0'
-    PNPM_VERSION: '10.17.1'
+permissions:
+    contents: write
+    pull-requests: write
 
 jobs:
-    release:
-        name: Release
+    release-please:
+        runs-on: ubuntu-latest
+        outputs:
+            releases_created: ${{ steps.release.outputs.releases_created }}
+            paths_released: ${{ steps.release.outputs.paths_released }}
+        steps:
+            - uses: googleapis/release-please-action@v4
+              id: release
+              with:
+                  token: ${{ secrets.GITHUB_TOKEN }}
+                  config-file: release-please-config.json
+                  manifest-file: .release-please-manifest.json
+
+    publish:
+        needs: release-please
+        if: ${{ needs.release-please.outputs.releases_created == 'true' }}
         runs-on: ubuntu-latest
         permissions:
-            contents: write
-            pull-requests: write
-            issues: write
+            contents: read
             id-token: write
-
         steps:
-            - name: Checkout
-              uses: actions/checkout@v4
+            - uses: actions/checkout@v4
 
-            - name: Setup pnpm
-              uses: pnpm/action-setup@v4
+            - uses: pnpm/action-setup@v4
               with:
-                  version: ${{ env.PNPM_VERSION }}
+                  version: 10.17.1
 
-            - name: Setup Node.js
-              uses: actions/setup-node@v4
+            - uses: actions/setup-node@v4
               with:
-                  node-version: ${{ env.NODE_VERSION }}
-                  cache: pnpm
-
-            # Restore/install dependencies like CI
-            - name: Cache node_modules
-              id: cache-node-modules
-              uses: actions/cache@v4
-              with:
-                  path: |
-                      node_modules
-                      packages/*/node_modules
-                      app/*/node_modules
-                  key: node-modules-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
-                  restore-keys: |
-                      node-modules-${{ runner.os }}-
+                  node-version: '22.20.0'
+                  cache: 'pnpm'
+                  registry-url: 'https://registry.npmjs.org'
 
             - name: Install dependencies
-              if: steps.cache-node-modules.outputs.cache-hit != 'true'
               run: pnpm install --frozen-lockfile
 
-            # Restore/build dist like CI
-            - name: Cache build outputs
-              id: cache-build
-              uses: actions/cache@v4
-              with:
-                  path: |
-                      packages/*/dist
-                      packages/*/*.tsbuildinfo
-                      app/*/build
-                      app/*/dist
-                  key: build-${{ runner.os }}-${{ hashFiles('packages/*/src/**', 'app/*/src/**', 'tsconfig*.json', 'pnpm-lock.yaml') }}
-                  restore-keys: |
-                      build-${{ runner.os }}-
-
             - name: Build packages
-              if: steps.cache-build.outputs.cache-hit != 'true'
               run: pnpm build
 
-            # Changesets: create/advance Version PR or publish on merge
-            - name: Create Release PR or Publish
-              uses: changesets/action@v1
-              with:
-                  version: pnpm cs:version
-                  publish: pnpm cs:publish
-                  commit: 'chore: version packages'
-                  title: 'Version Packages'
-                  createGithubReleases: false
+            - name: Publish to npm
+              run: |
+                  PATHS=$(echo '${{ needs.release-please.outputs.paths_released }}' | jq -r '.[]')
+                  for path in $PATHS; do
+                    if [[ "$path" == packages/* ]]; then
+                      echo "Publishing $path"
+                      cd "$path"
+                      pnpm publish --no-git-checks --access public
+                      cd -
+                    fi
+                  done
               env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                  NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+                  NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

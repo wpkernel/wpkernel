@@ -1,0 +1,49 @@
+{
+	"bootstrap-sha": "1370297e52409fc346b6d5f81633c1859c7982ff",
+	"packages": {
+		"packages/kernel": {
+			"package-name": "@geekist/wp-kernel",
+			"component": "kernel",
+			"changelog-path": "CHANGELOG.md"
+		},
+		"packages/cli": {
+			"package-name": "@geekist/wp-kernel-cli",
+			"component": "cli",
+			"changelog-path": "CHANGELOG.md"
+		},
+		"packages/ui": {
+			"package-name": "@geekist/wp-kernel-ui",
+			"component": "ui",
+			"changelog-path": "CHANGELOG.md"
+		},
+		"packages/e2e-utils": {
+			"package-name": "@geekist/wp-kernel-e2e-utils",
+			"component": "e2e-utils",
+			"changelog-path": "CHANGELOG.md"
+		}
+	},
+	"release-type": "node",
+	"bump-minor-pre-major": true,
+	"bump-patch-for-minor-pre-major": false,
+	"versioning": "always-bump-patch",
+	"changelog-sections": [
+		{ "type": "feat", "section": "Features", "hidden": false },
+		{ "type": "fix", "section": "Bug Fixes", "hidden": false },
+		{
+			"type": "perf",
+			"section": "Performance Improvements",
+			"hidden": false
+		},
+		{ "type": "revert", "section": "Reverts", "hidden": false },
+		{ "type": "docs", "section": "Documentation", "hidden": false },
+		{ "type": "style", "section": "Styles", "hidden": true },
+		{ "type": "chore", "section": "Miscellaneous Chores", "hidden": true },
+		{ "type": "refactor", "section": "Code Refactoring", "hidden": true },
+		{ "type": "test", "section": "Tests", "hidden": true },
+		{ "type": "build", "section": "Build System", "hidden": true },
+		{ "type": "ci", "section": "Continuous Integration", "hidden": true }
+	],
+	"group-pull-request-title-pattern": "chore: release ${version}",
+	"separate-pull-requests": false,
+	"tag-separator": "@"
+}
