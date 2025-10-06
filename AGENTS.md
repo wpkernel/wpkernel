@@ -50,8 +50,6 @@ information/            # product spec, example plugin specs, roadmap, event tax
 
 **When in doubt**: run install → typecheck → tests → lint fix → tests again.
 
----
-
 ## Definition of Done (DoD)
 
 1. `pnpm typecheck` and `pnpm typecheck:tests` pass.
@@ -72,15 +70,11 @@ jobs/       # defineJob()
 
 ```
 
----
-
 ## File & Refactor Guards
 
 - Keep modules/tests under **500 lines**. If approaching the limit:
 - Extract utilities/interfaces or split modules.
 - Before large refactors, open a planning comment and summarise the split.
-
----
 
 ## Action & Resource Patterns (enforced)
 
@@ -94,14 +88,10 @@ await CreateThing({ data: formData });
 - **Resources**: one `defineResource()` defines client, store, cache keys, events.
 - **Events**: import from the canonical registry only.
 
----
-
 ## PHP Bridge
 
 - Treat PHP as a strict transport/capability contract. No business logic drift.
 - If changing types across PHP/JS, stop and raise a comment with a migration note.
-
----
 
 ## Test Strategy
 
@@ -109,14 +99,10 @@ await CreateThing({ data: formData });
 - Target e2e realism. `@geekist/wp-kernel-e2e-utils` is validated **via** `app/showcase` e2e; do not unit-test `e2e-utils` in isolation.
 - Flaky tests: prefer serial mode or better selectors/cleanup over sleeps.
 
----
-
 ## Coverage Hotspots
 
 - Keep `error`, `http`, and `resource` core near **100%**.
 - Defensive branches that are genuinely hard to reach are acceptable if documented.
-
----
 
 ## Commit, PR, and Review Protocol
 
@@ -127,8 +113,6 @@ await CreateThing({ data: formData });
 - Include changeset unless labelled `no-release` (see [RELEASING.md](./RELEASING.md))
 - Before requesting review: run `pnpm lint --fix && pnpm typecheck && pnpm typecheck:tests && pnpm test`.
 - Respond to all review feedback; avoid duplication; extract interfaces when suggested.
-
----
 
 ## Agent Execution Policy (Codex)
 
@@ -141,15 +125,11 @@ await CreateThing({ data: formData });
 - **PR creation**: Always use `.github/PULL_REQUEST_TEMPLATE.md` - no ad-hoc PRs
 - Always show plan, then diffs, then run checks. Close task only after DoD passes.
 
----
-
 ## Package-specific Notes
 
 - `wp-kernel-e2e-utils`: treated as a support lib; validated by showcase e2e only.
 - `wp-kernel-ui`: respect design tokens and component boundaries; add stories if created.
 - `wp-kernel-cli`: keep scaffolds idempotent; snapshot tests preferred.
-
----
 
 ## Typical Flows
 
@@ -165,8 +145,6 @@ await CreateThing({ data: formData });
 1. Add/extend Actions and Resources first; wire Views via bindings.
 2. Emit canonical events; update cache invalidation.
 3. Add tests; update docs if API changed.
-
----
 
 ## What NOT to do
 

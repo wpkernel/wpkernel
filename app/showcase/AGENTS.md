@@ -6,8 +6,6 @@
 **Purpose**: This app is a **real-world WordPress plugin demo** that exercises WP Kernel and e2e-utils.  
 It is **not** the kernel itself. Use it to validate features, integration flows, and alignment with the Example Plugin Specifications.
 
----
-
 ## Role in the Monorepo
 
 - Provides **proof of concept** for new kernel features as they land.
@@ -15,16 +13,12 @@ It is **not** the kernel itself. Use it to validate features, integration flows,
 - Mirrors the **Example Plugin Requirements** and **Specifications** (symlinked from Obsidian).  
   → These are the _source of truth_ for intended plugin behaviour.
 
----
-
 ## Environment
 
 - Depends directly on `@geekist/wp-kernel` and `@geekist/wp-kernel-ui` (`workspace:*`).
 - Dev-only dependency: `@geekist/wp-kernel-e2e-utils` for e2e tests.
 - Seeds (`./seeds/*.sh`) bootstrap jobs, users, media, and content.  
   Run them whenever you need a clean demo dataset.
-
----
 
 ## Definition of Done (for showcase work)
 
@@ -40,8 +34,6 @@ It is **not** the kernel itself. Use it to validate features, integration flows,
     - All showcase flows must pass (public + admin).
 4. **Seeds updated** if new data requirements appear.
 5. **No hidden kernel logic** - don’t let framework fixes live only in showcase.
-
----
 
 ## Patterns
 
@@ -61,8 +53,6 @@ index.ts     # plugin entrypoint
 - `includes/` contains PHP bridge code. Keep PHP thin: just REST controllers + wiring.
 - Build artefacts (`build/`, `dist-tests/`) should never be hand-edited.
 
----
-
 ## Tests
 
 - Showcase has **two kinds of tests**:
@@ -71,16 +61,12 @@ index.ts     # plugin entrypoint
 - Coverage is less critical here than in kernel, but **all major flows** (job listing, application, admin pipeline) must be tested end-to-end.
 - `dist-tests/` exists only for generated/compiled test output - do not edit manually.
 
----
-
 ## What NOT to do
 
 - ✗ Hide framework fixes inside showcase (upstream them to kernel).
 - ✗ Break alignment with Example Plugin Requirements/Specifications.
 - ✗ Commit symlinked docs (they live outside repo; symlinks only).
 - ✗ Rely on showcase for unit tests - kernel coverage belongs in `packages/wp-kernel`.
-
----
 
 **Agent policy**:  
 Use showcase to **prove and pressure-test**. When kernel gaps are discovered, upstream the fix. Showcase is the **integration battlefield**, not a side-channel fork of the framework.
