@@ -32,8 +32,6 @@ WP Kernel provides a **Golden Path** for WordPress development in 2025+:
 
 Built on WordPress Core primitives: Script Modules, Block Bindings, Interactivity API, @wordpress/data.
 
-**[Read the documentation](https://theGeekist.github.io/wp-kernel/)** to get started, or see **[Why WP Kernel?](https://theGeekist.github.io/wp-kernel/getting-started/why)** to understand the philosophy.
-
 ---
 
 ## 🚀 Quick Start
