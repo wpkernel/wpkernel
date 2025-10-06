@@ -9,12 +9,12 @@ All stubs are centralized in `tests/setup-jest.ts` and utilities in `tests/test-
 
 ---
 
-## ✅ Correct Patterns
+## ✓ Correct Patterns
 
 ### WordPress Globals
 
 ```typescript
-// ✅ CORRECT: Use pre-configured window.wp
+// ✓ CORRECT: Use pre-configured window.wp
 import { ensureWpData } from '../../../tests/test-utils/wp';
 
 const wpData = ensureWpData();
@@ -22,14 +22,14 @@ wpData.select.mockReturnValue({ getItems: () => [...] });
 ```
 
 ```typescript
-// ✅ CORRECT: Mock wp.hooks through existing stub
+// ✓ CORRECT: Mock wp.hooks through existing stub
 window.wp!.hooks!.doAction = jest.fn();
 ```
 
 ### Namespace Detection
 
 ```typescript
-// ✅ CORRECT: Use test utilities
+// ✓ CORRECT: Use test utilities
 import {
 	setKernelPackage,
 	setWpPluginData,
@@ -42,7 +42,7 @@ setWpPluginData({ name: 'acme-plugin', slug: 'acme' });
 ### BroadcastChannel
 
 ```typescript
-// ✅ CORRECT: Use centralized mock from setup-jest.ts
+// ✓ CORRECT: Use centralized mock from setup-jest.ts
 const channel = new BroadcastChannel('test-channel');
 channel.postMessage({ type: 'event', data: {} });
 
@@ -51,7 +51,7 @@ expect((channel as any).messages).toContainEqual({ type: 'event', data: {} });
 ```
 
 ```typescript
-// ✅ CORRECT: Test unavailability (SSR scenarios)
+// ✓ CORRECT: Test unavailability (SSR scenarios)
 const original = global.BroadcastChannel;
 global.BroadcastChannel = undefined;
 // ... test code ...
@@ -61,25 +61,25 @@ global.BroadcastChannel = original; // Restore
 ### Storage APIs
 
 ```typescript
-// ✅ CORRECT: Use jsdom's built-in storage
+// ✓ CORRECT: Use jsdom's built-in storage
 sessionStorage.setItem('key', 'value');
 localStorage.clear();
 ```
 
 ---
 
-## ❌ Anti-Patterns (Will Fail Lint)
+## ✗ Anti-Patterns (Will Fail Lint)
 
 ### Manual WordPress Mocking
 
 ```typescript
-// ❌ WRONG: Manual wp global assignment
+// ✗ WRONG: Manual wp global assignment
 window.wp = { hooks: { doAction: jest.fn() } };
 
-// ❌ WRONG: Type assertions for wp
+// ✗ WRONG: Type assertions for wp
 (window as typeof window & { wp?: unknown }).wp = {};
 
-// ❌ WRONG: Recreating wpData stub
+// ✗ WRONG: Recreating wpData stub
 global.window.wp = {
 	data: {
 		select: jest.fn(),
@@ -91,7 +91,7 @@ global.window.wp = {
 ### Manual BroadcastChannel Mocking
 
 ```typescript
-// ❌ WRONG: Recreating BroadcastChannel implementation (already in setup-jest.ts)
+// ✗ WRONG: Recreating BroadcastChannel implementation (already in setup-jest.ts)
 (global as { BroadcastChannel?: typeof BroadcastChannel }).BroadcastChannel =
 	class {
 		messages = [];
@@ -100,7 +100,7 @@ global.window.wp = {
 		}
 	} as unknown as typeof BroadcastChannel;
 
-// ✅ CORRECT: Setting to undefined/restoring is OK (testing unavailability)
+// ✓ CORRECT: Setting to undefined/restoring is OK (testing unavailability)
 global.BroadcastChannel = undefined; // OK
 global.BroadcastChannel = originalBroadcastChannel; // OK (restoring)
 ```
@@ -108,7 +108,7 @@ global.BroadcastChannel = originalBroadcastChannel; // OK (restoring)
 ### Manual Storage Mocking
 
 ```typescript
-// ❌ WRONG: Custom storage implementation
+// ✗ WRONG: Custom storage implementation
 global.sessionStorage = {
 	getItem: jest.fn(),
 	setItem: jest.fn(),
@@ -122,7 +122,7 @@ global.sessionStorage = {
 ### Testing Policy Events
 
 ```typescript
-// ✅ CORRECT
+// ✓ CORRECT
 import { ensureWpData } from '../../../tests/test-utils/wp';
 
 const doAction = jest.fn();
@@ -139,7 +139,7 @@ expect(doAction).toHaveBeenCalledWith(
 ### Testing Cross-Tab Communication
 
 ```typescript
-// ✅ CORRECT: Use built-in BroadcastChannel
+// ✓ CORRECT: Use built-in BroadcastChannel
 const channel = new BroadcastChannel('wpk.policy.events');
 const listener = jest.fn();
 channel.onmessage = listener;
@@ -153,7 +153,7 @@ channel.close();
 ### Testing with @wordpress/data Selectors
 
 ```typescript
-// ✅ CORRECT
+// ✓ CORRECT
 import { ensureWpData } from '../../../tests/test-utils/wp';
 
 const mockCanUser = jest.fn().mockReturnValue(true);
@@ -169,7 +169,7 @@ expect(mockCanUser).toHaveBeenCalledWith('update', 'posts', 123);
 ### Testing Unavailability Scenarios
 
 ```typescript
-// ✅ CORRECT: Set to undefined (not delete)
+// ✓ CORRECT: Set to undefined (not delete)
 it('handles missing wp', () => {
 	(window as Window & { wp?: unknown }).wp = undefined;
 
@@ -177,7 +177,7 @@ it('handles missing wp', () => {
 	expect(result).toBeUndefined();
 });
 
-// ✅ CORRECT: Test BroadcastChannel unavailability (SSR)
+// ✓ CORRECT: Test BroadcastChannel unavailability (SSR)
 it('handles missing BroadcastChannel', () => {
 	const original = global.BroadcastChannel;
 	global.BroadcastChannel = undefined;

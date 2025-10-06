@@ -11,7 +11,7 @@
 	},
 	"packageManager": "pnpm@10.17.1",
 	"engines": {
-		"node": ">=22.20.0",
+		"node": ">=20.0.0",
 		"pnpm": ">=9.0.0"
 	},
 	"scripts": {
@@ -57,9 +57,12 @@
 		"docs:build": "pnpm docs:api && pnpm docs:site",
 		"docs:build:fast": "pnpm docs:api && pnpm docs:site:fast",
 		"docs:preview": "vitepress preview docs",
-		"changeset": "changeset",
-		"changeset:version": "changeset version",
-		"changeset:publish": "pnpm build && changeset publish",
+		"cs": "changeset",
+		"cs:new:patch": "node scripts/new-changeset.mjs patch",
+		"cs:new:minor": "node scripts/new-changeset.mjs minor",
+		"cs:new:major": "node scripts/new-changeset.mjs major",
+		"cs:version": "changeset version",
+		"cs:publish": "pnpm -w build && changeset publish",
 		"preinstall": "npx only-allow pnpm"
 	},
 	"devDependencies": {

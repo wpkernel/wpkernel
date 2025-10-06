@@ -30,7 +30,11 @@ information/            # product spec, example plugin specs, roadmap, event tax
 
 ## Environment & Tooling
 
-- **Node**: v22.x (LTS). **pnpm** workspace.
+- **Node**: v20.x LTS or higher (minimum for Vite 7). **pnpm** workspace.
+- **WordPress**: 6.8+ required (Script Modules API is core to framework).
+- **Development environments**: wp-env (Docker + PHP 8.1+) OR WordPress Playground (WASM, no Docker).
+- **E2E testing**: Optional. Only needed if writing/running E2E tests (uses Playwright + `@geekist/wp-kernel-e2e-utils`).
+
 - **Commands** (always use exactly these):
     - Install: `pnpm install`
     - Format/lint: `pnpm lint --fix` (or `pnpm format`)
@@ -101,6 +105,7 @@ await CreateThing({ data: formData });
 
 ## Test Strategy
 
+- **E2E tests are optional** for framework users - only needed if contributing or writing E2E tests for your own project.
 - Target e2e realism. `@geekist/wp-kernel-e2e-utils` is validated **via** `app/showcase` e2e; do not unit-test `e2e-utils` in isolation.
 - Flaky tests: prefer serial mode or better selectors/cleanup over sleeps.
 
@@ -116,7 +121,10 @@ await CreateThing({ data: formData });
 ## Commit, PR, and Review Protocol
 
 - Small, cohesive commits. One concern per commit.
-- PR title: `[pkg|app] short imperative summary`.
+- **ALWAYS use the PR template** (`.github/PULL_REQUEST_TEMPLATE.md`) - never create ad-hoc PRs
+- PR title format: Sprint headline (e.g., "Sprint 5: Bindings & Interactivity")
+- Link to Roadmap section and Sprint doc/spec in PR description
+- Include changeset unless labelled `no-release` (see [RELEASING.md](./RELEASING.md))
 - Before requesting review: run `pnpm lint --fix && pnpm typecheck && pnpm typecheck:tests && pnpm test`.
 - Respond to all review feedback; avoid duplication; extract interfaces when suggested.
 
@@ -127,8 +135,10 @@ await CreateThing({ data: formData });
 - **Approval mode**: default to read/write in workspace. Ask before:
     - Writing outside workspace, changing dotfiles, or enabling network access.
     - Installing new dev dependencies.
+    - Creating or modifying PRs (always use PR template)
 
 - **Never**: run destructive commands, alter Git history, or publish artefacts.
+- **PR creation**: Always use `.github/PULL_REQUEST_TEMPLATE.md` - no ad-hoc PRs
 - Always show plan, then diffs, then run checks. Close task only after DoD passes.
 
 ---
@@ -160,9 +170,9 @@ await CreateThing({ data: formData });
 
 ## What NOT to do
 
-- ❌ Call transport from UI components
-- ❌ Create ad-hoc event names
-- ❌ Deep-import across packages (`packages/*/src/**`)
-- ❌ Use `any` or throw plain `Error`
-- ❌ Skip cache invalidation after writes
-- ❌ Ignore TS errors or coverage regressions
+- ✗ Call transport from UI components
+- ✗ Create ad-hoc event names
+- ✗ Deep-import across packages (`packages/*/src/**`)
+- ✗ Use `any` or throw plain `Error`
+- ✗ Skip cache invalidation after writes
+- ✗ Ignore TS errors or coverage regressions

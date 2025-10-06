@@ -104,10 +104,10 @@ gh pr create \
 Implements KernelError base class with TransportError and ServerError subclasses.
 
 ## Changes
-- ✅ Base error class with code, message, data, context
-- ✅ TransportError for HTTP/network errors
-- ✅ ServerError for WordPress REST errors
-- ✅ Unit tests for serialization
+- ✓ Base error class with code, message, data, context
+- ✓ TransportError for HTTP/network errors
+- ✓ ServerError for WordPress REST errors
+- ✓ Unit tests for serialization
 
 ## Testing
 - [x] Unit tests pass (\`pnpm test\`)
@@ -142,8 +142,8 @@ git push --force-with-lease
 
 **Via GitHub UI**:
 
-1. Ensure CI is green ✅
-2. Ensure 1+ approvals ✅
+1. Ensure CI is green ✓
+2. Ensure 1+ approvals ✓
 3. Click "Squash and merge"
 4. Edit squash commit message if needed
 5. Confirm merge
@@ -246,9 +246,9 @@ Brief description of what this PR does.
 
 ## Changes
 
-- ✅ Change 1
-- ✅ Change 2
-- ✅ Change 3
+- ✓ Change 1
+- ✓ Change 2
+- ✓ Change 3
 
 ## Testing
 
@@ -432,19 +432,19 @@ gh release create v0.2.0 \
 
 **Required**:
 
-- ✅ Require pull request before merging
-    - ✅ Require 1 approval
-    - ✅ Dismiss stale reviews when new commits pushed
-    - ✅ Require review from Code Owners (future)
-- ✅ Require status checks to pass
-    - ✅ Build
-    - ✅ Lint
-    - ✅ Unit Tests
-    - ✅ E2E Tests
-    - ✅ Changeset Check
-- ✅ Require branches to be up to date before merging
-- ✅ Require conversation resolution before merging
-- ✅ Do not allow bypassing the above settings
+- ✓ Require pull request before merging
+    - ✓ Require 1 approval
+    - ✓ Dismiss stale reviews when new commits pushed
+    - ✓ Require review from Code Owners (future)
+- ✓ Require status checks to pass
+    - ✓ Build
+    - ✓ Lint
+    - ✓ Unit Tests
+    - ✓ E2E Tests
+    - ✓ Changeset Check
+- ✓ Require branches to be up to date before merging
+- ✓ Require conversation resolution before merging
+- ✓ Do not allow bypassing the above settings
 
 **Optional** (can enable later):
 

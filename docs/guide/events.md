@@ -4,9 +4,9 @@
 
 > **Status**: 🚧 Foundation implemented in Sprint 1. Full event system (Actions, Policies, Jobs, PHP Bridge) coming in Sprints 3-9.
 
-Canonical event taxonomy with stable names.
+Stable, versioned event registry with predictable names. All events come from a central registry-no ad-hoc strings.
 
-JS hooks are canonical; PHP bridge mirrors selected events only.
+JavaScript hooks are the authoritative source-events fire here first. The PHP bridge mirrors only selected events for legacy integrations.
 
 ## What's Implemented Now (Sprint 1)
 
@@ -89,7 +89,7 @@ export const post = defineResource<Post>({
 	},
 });
 
-console.log(post.events.created); // 'acme-blog.post.created' ✅
+console.log(post.events.created); // 'acme-blog.post.created' ✓
 
 // Override namespace when needed
 export const customPost = defineResource<Post>({
@@ -100,7 +100,7 @@ export const customPost = defineResource<Post>({
 	},
 });
 
-console.log(customPost.events.created); // 'enterprise.post.created' ✅
+console.log(customPost.events.created); // 'enterprise.post.created' ✓
 ```
 
 ## Quick Examples

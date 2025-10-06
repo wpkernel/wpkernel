@@ -33,12 +33,12 @@ Move through the materials in that order: orient yourself, set up the environmen
 User interfaces never call transport directly. Every mutation passes through an Action that can validate permissions, coordinate retries, emit events, and invalidate caches. Compare the two approaches below; the first creates invisible data debt, the second leaves a clear audit trail.
 
 ```typescript
-// ❌ WRONG - UI calling resource directly
+// ✗ WRONG - UI calling resource directly
 const handleSubmit = async () => {
 	await thing.create(formData); // Lint error + runtime warning
 };
 
-// ✅ CORRECT - UI calls Action
+// ✓ CORRECT - UI calls Action
 import { CreateThing } from '@/app/actions/Thing/Create';
 const handleSubmit = async () => {
 	await CreateThing({ data: formData });
@@ -47,7 +47,7 @@ const handleSubmit = async () => {
 
 ### Read path vs write path
 
-On the read side, views ask bindings for data, bindings reach into the store, and resources populate the cache. On the write side, the same views trigger Actions, which call resources, emit canonical events, and handle invalidation. Keeping the paths distinct is what allows WP Kernel to add logging, retries, and job queues without touching your components.
+On the read side, views ask bindings for data, bindings reach into the store, and resources populate the cache. On the write side, the same views trigger Actions, which call resources, emit events from a stable registry (so integrations know what to expect), and handle invalidation. Keeping the paths distinct is what allows WP Kernel to add logging, retries, and job queues without touching your components.
 
 ```typescript
 // Client-side binding
@@ -71,7 +71,14 @@ Developers get a single mental model across the editor, front end, and admin. Ag
 
 ## What it enables
 
-Imagine the kickoff task: “Add an Apply button that creates an application, shows a toast, and moves a card on the admin board.” With WP Kernel you scaffold an `application` resource, implement an `Application.Submit` Action that handles permissions and emits the canonical event, bind a button to the Action in the block editor, and-if required-mirror the event in PHP so downstream systems can react. The boring decisions are already made, which shortens time to value from days to minutes.
+```
+
+## Next steps
+
+Follow the [installation guide](/getting-started/installation) to prepare your tooling, then move on to the [Quick Start](/getting-started/quick-start) to build a feature end to end.
+
+For deeper exploration, see the [Core Concepts](/guide/) section and tour the [Showcase plugin](/guide/showcase) to see a complete real-world implementation.
+
 
 ## How it fits with WordPress Core
 
@@ -79,8 +86,9 @@ Nothing here fights core WordPress. WP Kernel leans on Script Modules for ESM, `
 
 ## Key guarantees
 
-Actions remain the only sanctioned write path. JavaScript hooks are the canonical source of truth and the PHP bridge mirrors only selected events. Resources derive their types from JSON Schema, which keeps the contracts honest. Event names stay stable across major versions, cache invalidation is explicit, and every error extends `KernelError` so logging and telemetry see a consistent structure.
+Actions remain the only sanctioned write path. JavaScript hooks are the authoritative source of truth-events fire here first and propagate everywhere-while the PHP bridge mirrors only selected events for legacy integrations. Resources derive their types from JSON Schema, which keeps the contracts honest. Event names stay stable across major versions, cache invalidation is explicit, and every error extends `KernelError` so logging and telemetry see a consistent structure.
 
 ## Next steps
 
 When you are ready to dive in, start with the [installation guide](/getting-started/installation) to prepare your tooling. Move on to the [Quick Start](/getting-started/quick-start) to build a feature end to end. The [Repository Handbook](/guide/repository-handbook) points you to project-level documents like `DEVELOPMENT.md`, and the broader [Core Concepts](/guide/) section unpacks Actions, resources, events, bindings, and jobs in depth.
+```

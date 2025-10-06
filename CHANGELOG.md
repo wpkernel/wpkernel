@@ -13,6 +13,225 @@ _No unreleased changes yet._
 
 ---
 
+## [0.5.0] - 2025-10-06
+
+### 🎉 Sprints 0-4.5 Complete: Production-Ready Core Framework
+
+This release marks the completion of the foundation, resources, E2E utilities, policies, actions, WordPress data integration, and unified reporting systems. The framework is now production-ready for early adopters.
+
+**Completed Sprints:**
+
+- ✓ Sprint 0: Foundation & Monorepo Infrastructure
+- ✓ Sprint 1: Resources & Stores (V1)
+- ✓ Sprint 1.5: Build Tooling & Resources Refactor
+- ✓ Sprint 2: E2E Utils (Kernel-Aware Test Harness)
+- ✓ Sprint 3: Policies (Complete Implementation)
+- ✓ Sprint 4: Actions & WordPress Data Integration
+- ✓ Sprint 4.5: Unified Reporting & Data Consolidation
+
+**Test Coverage:** 58+ test files, 900+ tests, ≥95% statements/lines, ≥98% functions
+
+---
+
+### Added - Sprint 4.5: Unified Reporting
+
+#### Reporter System (`@geekist/wp-kernel`)
+
+- **`createReporter()`** - Pluggable transport system for logging and monitoring
+- **Consolidated logging** - Single reporter interface used across all packages
+- **Request/response tracking** - Automatic correlation IDs for debugging
+- **Reporter context** - Per-request metadata and tags
+- **Policy integration** - Policy events flow through reporter
+- **Noop reporter** - Zero-overhead production mode
+- **Development transport** - Console logging with grouping and color coding
+- **Type safety** - Full TypeScript definitions for reporters and transports
+
+#### Package Updates
+
+- All packages now use unified reporter for logging
+- HTTP transport includes request/response/error tracking
+- Actions emit lifecycle events through reporter
+- Policy system reports denied/granted checks
+- Resource operations tracked with correlation IDs
+
+---
+
+### Added - Sprint 4: Actions & WordPress Data Integration
+
+#### Actions System (`@geekist/wp-kernel/actions`)
+
+- **`defineAction()`** - Write-path orchestration with typed handlers
+- **Action middleware** - `createActionMiddleware()` for @wordpress/data stores
+- **`invokeAction()`** - Dispatch actions through store middleware
+- **Lifecycle events** - `wpk.action.start`, `wpk.action.complete`, `wpk.action.error`
+- **ActionContext runtime** - Helper methods: `ctx.emit()`, `ctx.invalidate()`, `ctx.jobs`
+- **Error handling** - Structured error context and correlation
+- **Cache invalidation** - Automatic coordination after mutations
+- **Event emission** - Domain events (resource.events.created/updated/removed)
+- **Job integration** - Background work queuing from actions
+
+#### WordPress Data Integration (`@geekist/wp-kernel/data`)
+
+- **`useKernel(registry)`** - Registry plugin with kernel middleware
+- **`registerKernelStore()`** - Store wrapper with actions DSL
+- **`kernelEventsPlugin()`** - Automatic error → WordPress notices bridge
+- **Full @wordpress/data parity** - Actions work in block editor environments
+- **Middleware chain** - Integrates with existing Redux middleware
+- **Type safety** - Full TypeScript support for kernel-enhanced stores
+
+#### Documentation
+
+- Complete Actions guide with patterns and examples
+- Actions API reference with all functions documented
+- WordPress Data Integration guide
+- Event flow diagrams and coordination patterns
+
+---
+
+### Added - Sprint 3: Policies (Complete Implementation)
+
+#### Policy System (`@geekist/wp-kernel/policy`)
+
+- **`definePolicy()`** - Capability checking with WordPress integration
+- **`can()` / `assert()`** - Helper functions for policy checks
+- **`usePolicy()`** - React hook for component-level capability gates
+- **PolicyContext** - Runtime context management for policy evaluation
+- **PolicyCache** - Caching layer for policy results
+- **Automatic UI gating** - Components hide/disable based on policies
+- **`wpk.policy.denied` events** - Emitted when capability checks fail
+- **Policy reporter integration** - All policy checks logged
+- **WordPress capability provider** - Integration with WP's cap system
+- **24 policy files** - Complete implementation with 6 test suites
+
+#### Type Safety
+
+- Full TypeScript definitions for all policy APIs
+- Type-safe policy keys and context
+- Compile-time checking for policy usage
+
+---
+
+### Added - Sprint 2: E2E Utils Package
+
+#### Test Utilities (`@geekist/wp-kernel-e2e-utils`)
+
+- **Namespaced API** - `auth`, `rest`, `store`, `events`, `db`, `project` modules
+- **Three import styles** - Scoped (`/auth`), namespace (`{ auth }`), flat (`{ login }`)
+- **Playwright fixture** - `kernel` helper with clean API surface
+- **Authentication** - `kernel.auth.login()`, `kernel.auth.logout()`
+- **REST seeding** - `kernel.rest.seed()`, `kernel.rest.seedMany()`
+- **Store coordination** - `kernel.store.wait()` for @wordpress/data resolvers
+- **Event capture** - `kernel.events.capture()` for testing event flows
+- **Database management** - `kernel.db.restore()` for test isolation
+- **Project setup** - `kernel.project.setup()` for environment bootstrap
+- **Escape hatch** - Direct `requestUtils` access when needed
+
+#### Testing Infrastructure
+
+- Unit tests for utilities (separate from domain E2E tests)
+- Integration tests with Playwright
+- CI validation against WordPress 6.8+
+- Full fixture integration examples
+
+---
+
+### Added - Sprint 1.5: Build Tooling & Resources Refactor
+
+#### Build System
+
+- **Vite 7 migration** - Library mode for all packages
+- **WordPress externals** - `@kucrut/vite-for-wp` plugin integration
+- **Tree-shaking verified** - @wordpress/\* packages properly externalized
+- **Script Modules support** - Native ESM output for WordPress 6.8+
+
+#### Resources Package Refactor
+
+- **Package reorganization** - `transport/` → `http/`, `errors/` → `error/`, consolidated `resource/store/`
+- **Dual-surface API** - 11 thin-flat methods + 7 grouped namespaces
+- **Three import patterns** - Scoped, namespace, and flat (all equivalent)
+- **Cache utilities** - Consolidated `invalidate()`, `prefetch()`, surgical control
+- **Improved ergonomics** - Simpler method names, better TypeScript inference
+
+#### Documentation
+
+- Complete Resources guide with import patterns
+- API surface documentation
+- Migration notes for cache API changes
+
+---
+
+### Added - Sprint 1: Resources & Stores (V1)
+
+#### Resource System (`@geekist/wp-kernel/resource`)
+
+- **`defineResource()`** - Typed REST contracts with automatic store generation
+- **Dual-surface API** - Thin-flat methods + grouped namespaces (select, use, fetch, mutate, cache, store, events)
+- **React hooks** - `useGet()`, `useList()`, `usePrefetch()`
+- **Cache management** - `invalidate()`, `invalidateAll()`, cache key matching
+- **Client methods** - `fetch()`, `create()`, `update()`, `remove()`, `list()`
+- **@wordpress/data stores** - Automatic store registration and resolver integration
+- **Event emission** - Resource lifecycle events (created, updated, removed)
+- **Type generation** - From JSON Schema contracts
+
+#### HTTP Transport (`@geekist/wp-kernel/http`)
+
+- **`fetch()` wrapper** - Standardized REST calls with error handling
+- **@wordpress/api-fetch integration** - WordPress nonce and rootURL middleware
+- **Correlation IDs** - Request tracking with `requestId`
+- **Retry logic** - Automatic exponential backoff for transient failures
+- **Error standardization** - All errors extend `KernelError`
+
+#### Error System (`@geekist/wp-kernel/error`)
+
+- **`KernelError` base class** - Structured errors with serialization
+- **`TransportError`** - Network/fetch failures
+- **`ServerError`** - WordPress WP_Error responses
+- **`PolicyDeniedError`** - Capability check failures
+- **`ValidationError`** - Schema validation errors
+- **Type safety** - Full TypeScript definitions for all error types
+
+---
+
+### Added - Sprint 0: Foundation (Baseline)
+
+See [0.1.0] release notes for complete Sprint 0 details including:
+
+- Monorepo infrastructure (pnpm workspaces)
+- TypeScript strict mode configuration
+- ESLint 9 flat config migration
+- Package scaffolding (kernel, ui, cli, e2e-utils)
+- Testing harness (Jest + Playwright)
+- CI/CD pipelines
+- Documentation site (VitePress)
+- wp-env + Playground environments
+
+---
+
+### Documentation
+
+- **[NEW] API Contracts Reference** - One-page reference for events, errors, cache keys
+- **[NEW] VERSIONING.md** - Semver policy, deprecation process, back-compat guarantees
+- **[NEW] Compatibility Matrix** - WordPress, Node, PHP, browser requirements
+- **Updated ROADMAP.md** - Reflects Sprint 0-4.5 completion
+- **Updated Product Specification** - Marked implemented features
+- **Updated internal roadmap** - Sprint status and completion markers
+
+### Changed
+
+- **Node.js requirement**: 22.20.0 → 20.x LTS+ (Vite 7 constraint)
+- **pnpm requirement**: 9.12.3+ → 9.0+ (minimum)
+- **PHP requirement**: 8.3 → 8.1+ (wp-env only)
+- **WordPress requirement**: 6.8+ (Script Modules API required)
+
+### Developer Experience
+
+- **Clear separation**: Plugin developers vs framework contributors
+- **Optional tooling**: E2E testing, Docker/wp-env, Playground as alternatives
+- **Updated badges**: Node version, compatibility matrix
+- **Installation guides**: Split by audience (users vs contributors)
+
+---
+
 ## [0.1.1] - 2025-10-01
 
 ### Added - Sprint 1 A3: @wordpress/data Store Integration
@@ -63,7 +282,7 @@ _No unreleased changes yet._
 
 ### Added - Sprint 0 Foundation (All Phases Complete)
 
-#### Phase 1: Repository Foundation ✅
+#### Phase 1: Repository Foundation ✓
 
 - Monorepo structure with pnpm workspaces
 - TypeScript 5.9.2 strict configuration with composite builds
@@ -72,7 +291,7 @@ _No unreleased changes yet._
 - Node.js 22.20.0 LTS requirement (`.nvmrc`)
 - Comprehensive `.gitignore` for WordPress, Node, build artifacts
 
-#### Phase 2: Package Scaffolding ✅
+#### Phase 2: Package Scaffolding ✓
 
 - `@geekist/wp-kernel` - Core framework package with Resource, Action, Event, Job APIs
 - `@geekist/wp-kernel-ui` - UI components package
@@ -87,7 +306,7 @@ All packages:
 - Build outputs to `dist/` with declarations
 - README with API documentation
 
-#### Phase 2.5: Developer Experience & Tooling ✅
+#### Phase 2.5: Developer Experience & Tooling ✓
 
 - **VS Code workspace** with 25+ tasks for all workflows
 - Debug configurations for Jest and CLI
@@ -98,7 +317,7 @@ All packages:
 - Complete script documentation (`docs/SCRIPTS.md`, `docs/SCRIPTS_AUDIT.md`)
 - `.vscode/README.md` - VS Code usage guide
 
-#### Phase 3: Changesets & Versioning ✅
+#### Phase 3: Changesets & Versioning ✓
 
 - `@changesets/cli` installed and configured
 - Pre-1.0 versioning strategy (0.x.y releases)
@@ -106,7 +325,7 @@ All packages:
 - All packages versioned at 0.1.0
 - Changeset workflow documented
 
-#### Phase 4: WordPress Environments ✅
+#### Phase 4: WordPress Environments ✓
 
 - **wp-env configuration** with dev (:8888) and tests (:8889) sites
 - Showcase plugin with Script Modules integration (857 bytes minified)
@@ -126,7 +345,7 @@ All packages:
 - WordPress 6.8.2 boots successfully with plugin activation
 - All Phase 4 acceptance criteria met (4/4 tasks complete)
 
-#### Phase 5: Testing Infrastructure ✅
+#### Phase 5: Testing Infrastructure ✓
 
 - **Jest** configured with `@wordpress/jest-preset-default`
 - 4 passing unit tests for kernel package (VERSION export validation)
@@ -145,7 +364,7 @@ All packages:
 - Targets tests site (:8889)
 - All Phase 5 acceptance criteria met (3/3 tasks complete)
 
-#### Phase 6: CI/CD Pipeline ✅
+#### Phase 6: CI/CD Pipeline ✓
 
 - **GitHub Actions workflow** (`.github/workflows/ci.yml`)
 - Jobs: setup → [lint, build, unit-test, e2e-test, changesets-check] → all-checks
@@ -157,7 +376,7 @@ All packages:
 - **License change**: MIT → EUPL-1.2 (stronger copyleft protection)
 - All Phase 6 acceptance criteria met (2/2 tasks complete)
 
-#### Phase 7: Documentation ✅
+#### Phase 7: Documentation ✓
 
 - **VitePress documentation site** (https://theGeekist.github.io/wp-kernel/)
 - 24 comprehensive documentation pages (5,746+ lines)
@@ -219,7 +438,7 @@ Result: **Zero deprecated subdependencies, zero peer warnings**
 
 ### Documentation
 
-#### VitePress Documentation Site ✅
+#### VitePress Documentation Site ✓
 
 - Complete documentation site with 24 pages (5,746+ lines)
 - Auto-deploy workflow to GitHub Pages
@@ -257,18 +476,18 @@ Result: **Zero deprecated subdependencies, zero peer warnings**
 
 **All Phases Complete:**
 
-- ✅ Phase 1: Repository Foundation (3/3 tasks)
-- ✅ Phase 2: Package Scaffolding (4/4 tasks)
-- ✅ Phase 2.5: Developer Experience (1/1 task)
-- ✅ Phase 3: Changesets & Versioning (2/2 tasks)
-- ✅ Phase 4: WordPress Environments (4/4 tasks)
-- ✅ Phase 5: Testing Infrastructure (3/3 tasks)
-- ✅ Phase 6: CI/CD Pipeline (2/2 tasks)
-- ✅ Phase 7: Documentation (2/2 tasks)
+- ✓ Phase 1: Repository Foundation (3/3 tasks)
+- ✓ Phase 2: Package Scaffolding (4/4 tasks)
+- ✓ Phase 2.5: Developer Experience (1/1 task)
+- ✓ Phase 3: Changesets & Versioning (2/2 tasks)
+- ✓ Phase 4: WordPress Environments (4/4 tasks)
+- ✓ Phase 5: Testing Infrastructure (3/3 tasks)
+- ✓ Phase 6: CI/CD Pipeline (2/2 tasks)
+- ✓ Phase 7: Documentation (2/2 tasks)
 
 **Ready for Sprint 1**: Resources + Actions + Events implementation
 
-#### Quality Gates - All Passing ✅
+#### Quality Gates - All Passing ✓
 
 - **Zero** deprecated subdependencies (eliminated 8)
 - **Zero** peer dependency warnings
@@ -298,7 +517,7 @@ Result: **Zero deprecated subdependencies, zero peer warnings**
 - TypeScript composite builds with project references
 - ESM output with Script Modules compatibility
 
-#### Testing Infrastructure ✅
+#### Testing Infrastructure ✓
 
 - Jest 29 with `@wordpress/jest-preset-default`
 - 4 unit tests passing (kernel package)
@@ -348,7 +567,7 @@ _Will be added as breaking changes are introduced during 0.x.x development_
 
 **Sprint 0 Foundation Release** - Complete Development Environment
 
-**Infrastructure** ✅
+**Infrastructure** ✓
 
 - Monorepo with pnpm workspaces
 - TypeScript 5.9.2 strict mode
@@ -356,7 +575,7 @@ _Will be added as breaking changes are introduced during 0.x.x development_
 - Prettier with WordPress code style
 - Build system with parallel watch mode
 
-**Development Environment** ✅
+**Development Environment** ✓
 
 - CI/CD with GitHub Actions (optimized caching)
 - Commit hooks (lint-staged + Husky)
@@ -367,14 +586,14 @@ _Will be added as breaking changes are introduced during 0.x.x development_
 - Script Modules API integration
 - Showcase plugin (857 bytes minified)
 
-**Testing** ✅
+**Testing** ✓
 
 - Jest with 4 unit tests (25% coverage)
 - Playwright with 5 E2E tests (3 browsers)
 - CI pipeline with GitHub Actions
 - All quality gates passing
 
-**Documentation** ✅
+**Documentation** ✓
 
 - VitePress site (24 pages, 5,746+ lines)
 - Auto-deploy to GitHub Pages
@@ -382,7 +601,7 @@ _Will be added as breaking changes are introduced during 0.x.x development_
 - Contributing workflow
 - API reference placeholders
 
-**Developer Experience** ✅
+**Developer Experience** ✓
 
 - VS Code workspace (25+ tasks)
 - 50+ validated pnpm scripts
@@ -390,7 +609,7 @@ _Will be added as breaking changes are introduced during 0.x.x development_
 - PR template and contributor license
 - GitHub Copilot instructions
 
-**Quality Gates** ✅
+**Quality Gates** ✓
 
 - Zero deprecated dependencies
 - Zero peer warnings

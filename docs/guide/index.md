@@ -55,7 +55,7 @@ Policies define capability gates that sit between resources and Actions. They pr
 
 ### Actions
 
-Actions are the only sanctioned write path. They call resources, wrap permission checks, emit canonical events, invalidate caches, and schedule jobs. When you trace a bug or audit a change, Actions form the timeline. [Read the full guide →](/guide/actions)
+Actions are the only sanctioned write path. They call resources, wrap permission checks, emit registered events from the stable event registry, invalidate caches, and schedule jobs. When you trace a bug or audit a change, Actions form the timeline. [Read the full guide →](/guide/actions)
 
 ### Events
 
@@ -88,12 +88,12 @@ Jobs handle long-running work-imports, exports, background synchronisation-while
 Every write flows through an Action. The rule is enforced by linting and, soon, runtime guards. It keeps permission checks, retries, cache invalidation, and analytics in one place.
 
 ```typescript
-// ❌ WRONG
+// ✗ WRONG
 const handleSubmit = async () => {
 	await thing.create(formData); // ESLint error + runtime warning
 };
 
-// ✅ CORRECT
+// ✓ CORRECT
 const handleSubmit = async () => {
 	await CreateThing({ data: formData });
 };
@@ -105,7 +105,7 @@ Read operations travel from views to bindings to store selectors and finally to 
 
 ### Event stability
 
-Events are part of the public contract. Use the canonical registry:
+Events are part of the public contract. Use the versioned registry to ensure names stay stable:
 
 ```typescript
 import { events } from '@geekist/wp-kernel/events';
@@ -115,9 +115,9 @@ CreateThing.emit(events.thing.created, { id });
 
 Avoid ad-hoc strings; linting will remind you, and future integrations will thank you.
 
-### JavaScript hooks are canonical
+### JavaScript hooks are authoritative
 
-The JavaScript event registry is the source of truth. The PHP bridge mirrors only the events needed for server-side integrations, which prevents drift and double-bookkeeping.
+The JavaScript event registry fires first-it's the source of truth. The PHP bridge mirrors only the events needed for server-side integrations, which prevents drift and double-bookkeeping.
 
 ### Explicit cache lifecycle
 

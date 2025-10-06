@@ -71,7 +71,7 @@ graph TD
     B --> E[Cache Invalidation]
     B --> F[Job Queueing]
 
-    A -.->|❌ Never Direct| C
+    A -.->|✗ Never Direct| C
 
     style A fill:#e1f5fe
     style B fill:#f3e5f5
@@ -89,14 +89,14 @@ graph TD
 **Example**:
 
 ```typescript
-// ❌ WRONG - UI calling transport directly
+// ✗ WRONG - UI calling transport directly
 function SaveButton() {
 	const handleSave = async () => {
 		await postResource.update(id, data); // Direct call
 	};
 }
 
-// ✅ CORRECT - UI triggering action
+// ✓ CORRECT - UI triggering action
 function SaveButton() {
 	const handleSave = async () => {
 		await UpdatePost({ id, data }); // Action orchestrates everything
@@ -104,9 +104,11 @@ function SaveButton() {
 }
 ```
 
-### 2. Canonical Event Taxonomy
+### 2. Stable Event Registry
 
-**Rule**: All events use canonical names from a stable registry.
+**Rule**: All events use registered names from a stable, versioned registry-no ad-hoc strings.
+
+> **What "canonical" means here**: Event names are predefined and versioned in a central registry. Instead of components inventing event names like `"post-saved"` or `"cache-cleared"`, they import stable identifiers from `@geekist/wp-kernel/events`. This guarantees integrations won't break when event names change, and makes the event contract discoverable.
 
 ```mermaid
 graph TD
@@ -130,11 +132,11 @@ graph TD
 **Example**:
 
 ```typescript
-// ✅ Canonical event names
+// ✓ Registered event names from stable registry
 events.emit('wpk.resource.post.created', payload);
 events.emit('wpk.cache.invalidated', { keys: ['post', 'list'] });
 
-// ❌ Ad-hoc event names
+// ✗ Ad-hoc event names (breaks when refactored)
 events.emit('post-saved', payload);
 events.emit('cache-cleared', payload);
 ```
@@ -173,7 +175,7 @@ const post = defineResource({
 	// Everything else generated automatically
 });
 
-// ✅ Get typed client, cache keys, events, etc.
+// ✓ Get typed client, cache keys, events, etc.
 const posts = await post.list();
 const cacheKey = post.cacheKeys.list({ status: 'publish' });
 events.on('wpk.resource.post.created', handler);

@@ -72,26 +72,33 @@ import { AdminTable } from '@geekist/wp-kernel-ui';
 />
 ```
 
-### WordPress Version Support
+## Development Status (Sprint 5 - Bindings & Interactivity)
 
-- **WordPress 6.5+** - Core components with graceful degradation
-- **WordPress 6.8+** - Full DataViews and modern features
-- **Feature detection** - Automatic fallbacks for compatibility
+- ✓ Component architecture designed
+- ✓ Core hooks specified
+- 🚧 `useAction()` hook implementation (Sprint 5)
+- 🚧 `useEvents()` hook implementation (Sprint 5)
+- ⏳ Layout components (Sprint 6+)
+- ⏳ Block components (Sprint 6+)
+- ⏳ Admin CRUD patterns (Sprint 6+)
 
-**🎨 [Implementation Patterns →](../../docs/packages/ui.md#admin-crud-patterns)**
-
-- **[Getting Started](https://thegeekist.github.io/wp-kernel/getting-started/)** - Basic setup
-- **[Component Reference](https://thegeekist.github.io/wp-kernel/api/ui-components/)** - Complete API docs
-
-## Development Status
-
-- ✅ Component architecture designed
-- ✅ Core hooks implemented
-- 🚧 Layout components in progress
-- 🚧 Block components in progress
+**Current Status**: Specification complete, implementation starting in Sprint 5
 
 ## Requirements
 
-- WordPress 6.8+
-- React 18+
-- `@geekist/wp-kernel` installed
+- **WordPress**: 6.8+
+- **React**: 18+
+- **@geekist/wp-kernel**: Latest version
+
+## Documentation
+
+- **[Getting Started](https://thegeekist.github.io/wp-kernel/getting-started/)** - Basic setup
+- **[Component Patterns](https://thegeekist.github.io/wp-kernel/guide/ui-patterns)** - Planned component patterns
+
+## Contributing
+
+See the [main repository](https://github.com/theGeekist/wp-kernel) for contribution guidelines.
+
+## License
+
+EUPL-1.2 © [The Geekist](https://github.com/theGeekist)

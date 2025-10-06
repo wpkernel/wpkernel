@@ -1,6 +1,6 @@
 {
 	"core": "WordPress/WordPress#6.8",
-	"phpVersion": "8.3",
+	"phpVersion": "8.1",
 	"plugins": ["./app/showcase"],
 	"themes": [
 		"https://downloads.wordpress.org/theme/twentytwentyfour.1.3.zip"

@@ -19,11 +19,11 @@ WP Kernel Actions bring **predictability and coordination** to this process:
 ```typescript
 // Coordinated, predictable, testable
 await CreatePost({ title: 'Hello World', content: 'First post!' });
-// ✅ Resource called
-// ✅ Events emitted
-// ✅ Cache invalidated
-// ✅ Jobs queued
-// ✅ All side effects handled
+// ✓ Resource called
+// ✓ Events emitted
+// ✓ Cache invalidated
+// ✓ Jobs queued
+// ✓ All side effects handled
 ```
 
 ## The Actions-First Philosophy
@@ -422,15 +422,15 @@ function PostEditor() {
 
 **When to use Redux middleware**:
 
-- ✅ WordPress block editor environments (Gutenberg)
-- ✅ Complex admin UIs with existing Redux state
-- ✅ Apps needing Redux DevTools integration for debugging
+- ✓ WordPress block editor environments (Gutenberg)
+- ✓ Complex admin UIs with existing Redux state
+- ✓ Apps needing Redux DevTools integration for debugging
 
 **When to call actions directly**:
 
-- ✅ Simple components: `await CreatePost(args)`
-- ✅ Non-Redux state management (Zustand, MobX, etc.)
-- ✅ Server-side contexts or React Server Components
+- ✓ Simple components: `await CreatePost(args)`
+- ✓ Non-Redux state management (Zustand, MobX, etc.)
+- ✓ Server-side contexts or React Server Components
 
 ## Why This Pattern Works
 

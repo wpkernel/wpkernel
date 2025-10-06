@@ -23,17 +23,17 @@ During Sprint 4.5, we discovered hardcoded namespace strings scattered across th
 
 ## What It Catches
 
-### ✅ Detects
+### ✓ Detects
 
 **Event Names (Public API):**
 
 ```typescript
-// ❌ BAD
+// ✗ BAD
 hooks.doAction('wpk.action.start', event);
 hooks.doAction('wpk.resource.response', data);
 hooks.doAction('wpk.cache.invalidated', { keys });
 
-// ✅ GOOD
+// ✓ GOOD
 import { WPK_EVENTS } from '../namespace/constants';
 hooks.doAction(WPK_EVENTS.ACTION_START, event);
 hooks.doAction(WPK_EVENTS.RESOURCE_RESPONSE, data);
@@ -43,11 +43,11 @@ hooks.doAction(WPK_EVENTS.CACHE_INVALIDATED, { keys });
 **Subsystem Namespaces:**
 
 ```typescript
-// ❌ BAD
+// ✗ BAD
 const reporter = createReporter({ namespace: 'wpk.policy' });
 const logger = createReporter({ namespace: 'kernel.policy' }); // Legacy
 
-// ✅ GOOD
+// ✓ GOOD
 import { WPK_SUBSYSTEM_NAMESPACES } from '../namespace/constants';
 const reporter = createReporter({
 	namespace: WPK_SUBSYSTEM_NAMESPACES.POLICY,
@@ -57,11 +57,11 @@ const reporter = createReporter({
 **Infrastructure Identifiers:**
 
 ```typescript
-// ❌ BAD
+// ✗ BAD
 const channel = new BroadcastChannel('wpk.actions');
 channel.postMessage({ type: 'wpk.action.lifecycle', event });
 
-// ✅ GOOD
+// ✓ GOOD
 import { WPK_INFRASTRUCTURE } from '../namespace/constants';
 const channel = new BroadcastChannel(WPK_INFRASTRUCTURE.ACTIONS_CHANNEL);
 channel.postMessage({
@@ -73,12 +73,12 @@ channel.postMessage({
 **Namespace Prefixes:**
 
 ```typescript
-// ❌ BAD
+// ✗ BAD
 if (moduleId.startsWith('wpk/')) {
 	return moduleId.slice(4); // Magic number!
 }
 
-// ✅ GOOD
+// ✓ GOOD
 import { WPK_NAMESPACE } from '../namespace/constants';
 const prefix = `${WPK_NAMESPACE}/`;
 if (moduleId.startsWith(prefix)) {
@@ -146,12 +146,12 @@ Use `${WPK_NAMESPACE}/` or WPK_NAMESPACE constant from namespace/constants.ts in
 The rule checks if string literals fall within comment ranges and skips them:
 
 ```typescript
-// ✅ Allowed in comments
+// ✓ Allowed in comments
 /**
  * Emits wpk.action.start event before execution
  */
 
-// ❌ Not allowed in code
+// ✗ Not allowed in code
 hooks.doAction('wpk.action.start', event);
 ```
 

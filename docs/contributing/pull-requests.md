@@ -2,11 +2,14 @@
 
 Guide to submitting pull requests to WP Kernel.
 
+> **📖 For release workflow, versioning, and changesets**, see `RELEASING.md` in project root (canonical source).
+
 ## Before You Start
 
 - Read the [Contributing Guide](/contributing/)
 - Check [existing issues](https://github.com/theGeekist/wp-kernel/issues) for related work
 - Discuss large changes in an issue first
+- **Review `RELEASING.md`** in project root for sprint-driven release workflow
 
 ## Creating a Pull Request
 
@@ -46,21 +49,24 @@ pnpm typecheck
 
 ### 3. Add Changeset
 
+**For Sprint PRs**, use the non-interactive helper scripts to create changesets:
+
 ```bash
-pnpm changeset
+# Feature sprint (default)
+pnpm cs:new:minor "Sprint 5: Bindings & Interactivity (Block Bindings, Interactivity API, Providers)"
+
+# Alignment/patch sprint
+pnpm cs:new:patch "Sprint 5.5: Polish & Performance"
+
+# Breaking change (rare)
+pnpm cs:new:major "Sprint 9: PHP Bridge (breaking refactor)"
 ```
 
-Select affected packages, bump type, and write a clear summary:
+> **Note:** Do not run `pnpm changeset` interactively for sprint PRs. The above scripts handle changeset creation automatically.
 
-```markdown
----
-'@geekist/wp-kernel': minor
----
+**Direct commits to `main`** (infra/docs only) do **not** trigger releases.
 
-Add custom cache invalidation strategies.
-
-Resources can now define `shouldInvalidate` functions to control when cache keys are invalidated based on the action and payload.
-```
+> **See `RELEASING.md`** in project root for the canonical sprint PR workflow and changeset guidelines.
 
 ### 4. Commit Changes
 
@@ -77,72 +83,54 @@ git commit -m "feat(resources): add custom cache invalidation"
 git push origin feature/my-feature
 ```
 
-Then open a PR on GitHub.
+Then open a PR on GitHub **using the PR template** (`.github/PULL_REQUEST_TEMPLATE.md`).
+
+**✗ Never create ad-hoc PRs without the template!**
+
+---
 
 ## PR Template
 
-Use this template when creating your PR:
+**Always use** `.github/PULL_REQUEST_TEMPLATE.md` when creating PRs. The template includes:
 
-```markdown
-## What
+- Sprint/scope identification
+- Roadmap and sprint doc links (please include)
+- Release type selection (minor/patch/major)
+- Changeset confirmation checklist
+- Testing and verification steps
 
-Brief description of what this PR does.
+### Required Sections
 
-## Why
+1. **Sprint Metadata** – Sprint number, type (feature/alignment/norms)
+2. **Scope** – Brief description of changes
+3. **Context** – Links to roadmap, sprint doc, and related PRs/issues
+4. **Testing** – How to test the changes
+5. **Release** – Bump type and changeset confirmation
 
-Problem or use case this solves. Link to related issues.
-
-Fixes #123
-
-## How
-
-High-level overview of the implementation approach.
-
-## Testing
-
-How to test this change:
-
-1. Step one
-2. Step two
-3. Expected result
-
-## Screenshots (if applicable)
-
-## Breaking Changes
-
-List any breaking changes and migration steps.
-
-## Checklist
-
-- [ ] Tests pass (`pnpm test` and `pnpm e2e`)
-- [ ] Code is linted (`pnpm lint`)
-- [ ] Changeset added (`pnpm changeset`)
-- [ ] Documentation updated
-- [ ] Examples updated (if API changed)
-```
+See `RELEASING.md` in project root for the canonical sprint PR workflow.
 
 ## PR Requirements
 
 ### Must Have
 
-- [ ] **All tests pass** - Unit and E2E tests must be green
-- [ ] **Lint passes** - Zero ESLint errors
-- [ ] **Changeset** - Unless docs-only change
-- [ ] **Conventional commits** - Proper commit message format
-- [ ] **Description** - Clear what/why/how
+- [ ] **All tests pass** – Unit and E2E tests must be green.
+- [ ] **Lint passes** – Zero ESLint errors.
+- [ ] **Changeset** – Unless docs-only change.
+- [ ] **Conventional commits** – Proper commit message format.
+- [ ] **Description** – Clear what/why/how.
 
 ### Should Have
 
-- [ ] **Tests for new code** - Unit tests for new functionality
-- [ ] **E2E tests** - For user-facing features
-- [ ] **Documentation** - Update docs for API changes
-- [ ] **Examples** - Update examples if relevant
+- [ ] **Tests for new code** – Unit tests for new functionality.
+- [ ] **E2E tests** – For user-facing features.
+- [ ] **Documentation** – Update docs for API changes.
+- [ ] **Examples** – Update examples if relevant.
 
 ### Nice to Have
 
-- [ ] **Performance tests** - For performance-critical code
-- [ ] **Screenshots** - For UI changes
-- [ ] **Migration guide** - For breaking changes
+- [ ] **Performance tests** – For performance-critical code.
+- [ ] **Screenshots** – For UI changes.
+- [ ] **Migration guide** – For breaking changes.
 
 ## Review Process
 
@@ -150,24 +138,24 @@ List any breaking changes and migration steps.
 
 All PRs must pass CI:
 
-- ✅ Lint
-- ✅ TypeScript
-- ✅ Build
-- ✅ Unit Tests
-- ✅ E2E Tests
+- ✓ Lint
+- ✓ TypeScript
+- ✓ Build
+- ✓ Unit Tests
+- ✓ E2E Tests
 
 ### Code Review
 
-1. **Automated review** - CI checks run automatically
-2. **Maintainer review** - One approval required
-3. **Changes requested** - Address feedback and push updates
-4. **Approved** - PR is ready to merge
+1. **Automated review** – CI checks run automatically.
+2. **Maintainer review** – One approval required.
+3. **Changes requested** – Address feedback and push updates.
+4. **Approved** – PR is ready to merge.
 
 ### Merge Strategy
 
-- **Squash merge** - All PRs are squashed into one commit
-- **Commit message** - Should follow Conventional Commits
-- **Branch deletion** - Feature branch is deleted after merge
+- **Squash merge** – All PRs are squashed into one commit.
+- **Commit message** – Should follow Conventional Commits.
+- **Branch deletion** – Feature branch is deleted after merge.
 
 ## Common Scenarios
 
@@ -224,7 +212,7 @@ git push origin feature/my-feature --force-with-lease
 # Remove old changeset
 rm .changeset/<old-changeset-id>.md
 
-# Create new changeset
+# Create new changeset (use sprint scripts for sprint PRs)
 pnpm changeset
 
 # Commit
@@ -432,11 +420,11 @@ git push origin main
 
 Releases are automated:
 
-1. **Maintainer merges PRs** with changesets
-2. **Changesets bot** opens "Version Packages" PR
-3. **Maintainer reviews** version changes and changelog
-4. **Maintainer merges** version PR
-5. **GitHub Actions** publishes to npm automatically
+1. **Maintainer merges PRs** with changesets.
+2. **Changesets bot** opens "Version Packages" PR.
+3. **Maintainer reviews** version changes and changelog.
+4. **Maintainer merges** version PR.
+5. **GitHub Actions** publishes to npm automatically.
 
 ## Questions?
 
@@ -453,7 +441,7 @@ git checkout -b feature/my-feature
 # While working
 pnpm test
 pnpm lint
-pnpm changeset
+pnpm cs:new:minor "Sprint X: Description"
 
 # Before pushing
 git add .

@@ -24,7 +24,7 @@ The Jobs & Applications showcase plugin is a comprehensive example of building m
 
 ### Public (Front-End)
 
-✅ **Job Listings** (`/jobs`)
+✓ **Job Listings** (`/jobs`)
 
 - Browse all open positions
 - Filter by department, location, seniority, job type
@@ -32,7 +32,7 @@ The Jobs & Applications showcase plugin is a comprehensive example of building m
 - Pagination with deep-linkable URLs
 - SEO-optimized with XML sitemaps
 
-✅ **Job Detail** (`/jobs/{slug}`)
+✓ **Job Detail** (`/jobs/{slug}`)
 
 - Complete job information
 - Salary range, location, remote policy
@@ -40,7 +40,7 @@ The Jobs & Applications showcase plugin is a comprehensive example of building m
 - JSON-LD JobPosting structured data
 - Server-side rendering for SEO
 
-✅ **Application Flow**
+✓ **Application Flow**
 
 - Multi-field form with validation
 - CV upload (PDF/DOC/DOCX, 10MB max)
@@ -50,14 +50,14 @@ The Jobs & Applications showcase plugin is a comprehensive example of building m
 
 ### Admin (Back-End)
 
-✅ **Jobs Management**
+✓ **Jobs Management**
 
 - Standard WordPress list table
 - Publish, close, duplicate jobs
 - Bulk operations
 - Custom columns (department, location, status)
 
-✅ **Application Pipeline (Kanban)**
+✓ **Application Pipeline (Kanban)**
 
 - Visual board with status columns
 - Drag-and-drop stage changes
@@ -66,7 +66,7 @@ The Jobs & Applications showcase plugin is a comprehensive example of building m
 - Send email templates per stage
 - Keyboard navigation support
 
-✅ **Settings & Configuration**
+✓ **Settings & Configuration**
 
 - Application form fields
 - Stage labels and order
@@ -74,7 +74,7 @@ The Jobs & Applications showcase plugin is a comprehensive example of building m
 - Privacy & retention settings
 - Integration webhooks (Slack, custom)
 
-✅ **Reporting**
+✓ **Reporting**
 
 - Applications by stage dashboard
 - Time-to-hire metrics
@@ -764,31 +764,31 @@ pnpm wp-env run cli wp eval-file app/showcase/seeds/applications.php
 
 ### Patterns to Reuse
 
-✅ **One resource = one definition** - Everything else is generated
+✓ **One resource = one definition** - Everything else is generated
 
-✅ **Actions orchestrate writes** - Never call REST directly from UI
+✓ **Actions orchestrate writes** - Never call REST directly from UI
 
-✅ **Events for extensibility** - Emit canonical events for every important action
+✓ **Events for extensibility** - Emit canonical events for every important action
 
-✅ **Bindings for reads** - No custom blocks needed for data display
+✓ **Bindings for reads** - No custom blocks needed for data display
 
-✅ **Jobs for slow work** - Background processing with status/retry
+✓ **Jobs for slow work** - Background processing with status/retry
 
-✅ **Policies mirror capabilities** - Client hints, server enforces
+✓ **Policies mirror capabilities** - Client hints, server enforces
 
-✅ **Store selectors for derived data** - Fast, memoized, testable
+✓ **Store selectors for derived data** - Fast, memoized, testable
 
 ### Common Gotchas
 
-❌ **Forgetting cache invalidation** - Actions must invalidate affected queries
+✗ **Forgetting cache invalidation** - Actions must invalidate affected queries
 
-❌ **Not waiting for store state** - Use `useGet(id)` or selectors, not direct access
+✗ **Not waiting for store state** - Use `useGet(id)` or selectors, not direct access
 
-❌ **Mixing concerns** - Keep Actions for writes, Interactivity for view state
+✗ **Mixing concerns** - Keep Actions for writes, Interactivity for view state
 
-❌ **Skipping server bindings for SEO** - Critical content needs SSR
+✗ **Skipping server bindings for SEO** - Critical content needs SSR
 
-❌ **Not using TypeScript** - Types prevent runtime errors
+✗ **Not using TypeScript** - Types prevent runtime errors
 
 ### Performance Considerations
 

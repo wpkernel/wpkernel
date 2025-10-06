@@ -1,10 +1,20 @@
 # WP Kernel
 
-> A Rails-like, opinionated framework for building modern WordPress products where JavaScript is the source of truth and PHP is a thin contract.
+> A Rails-like,Built on WordPress Core primitives: Script Modules, Block Bindings, Interactivity API, @wordpress/data.
+
+**[Read the documentation](https://theGeekist.github.io/wp-kernel/)** to get started and understand the philosophy.
+
+---ionated framework for building modern WordPress prod**Using wp-env (Docker)?** Visit [http://localhost:8888/wp-admin](http://localhost:8888/wp-admin) - Login: `admin` / `password`
+
+**Using Playground?** Opens automatically in your browser
+
+**📖 Read [DEVELOPMENT.md](DEVELOPMENT.md)** for the complete contributor workflow, testing infrastructure, and troubleshooting.
+
+---e JavaScript is the source of truth and PHP is a thin contract.
 
 [![CI Status](https://github.com/theGeekist/wp-kernel/workflows/CI/badge.svg)](https://github.com/theGeekist/wp-kernel/actions)
 [![License](https://img.shields.io/badge/license-EUPL--1.2-blue.svg)](LICENSE)
-[![Node Version](https://img.shields.io/badge/node-22.20.0%20LTS-brightgreen.svg)](.nvmrc)
+[![Node Version](https://img.shields.io/badge/node-20.x%20LTS+-brightgreen.svg)](.nvmrc)
 [![Documentation](https://img.shields.io/badge/docs-VitePress-42b883.svg)](https://theGeekist.github.io/wp-kernel/)
 
 ---
@@ -28,18 +38,43 @@ Built on WordPress Core primitives: Script Modules, Block Bindings, Interactivit
 
 ## 🚀 Quick Start
 
-### Prerequisites
+### For Plugin Developers (Using WP Kernel)
 
-- **Node.js**: 22.20.0 LTS ([nvm](https://github.com/nvm-sh/nvm) recommended)
-- **pnpm**: 9.12.3+ (`npm install -g pnpm`)
-- **Docker**: For local WordPress via wp-env
-- **PHP**: 8.3+ (for wp-env)
-- **WordPress**: 6.8+ (Script Modules API)
+To **build your WordPress plugin** with WP Kernel:
 
-### Installation
+- **Node.js**: 20.x LTS or higher ([nvm](https://github.com/nvm-sh/nvm) recommended)
+- **pnpm**: 9.x or higher (`npm install -g pnpm`) or npm
+- **WordPress**: 6.8+ (required for [Script Modules API](https://make.wordpress.org/core/2024/03/04/script-modules-in-6-5/) - core to the framework architecture)
+
+> **Why WordPress 6.8+?** WP Kernel builds on WordPress Core primitives (Script Modules, Block Bindings, Interactivity API). Script Modules enable native ESM support, which is fundamental to the framework's design.
+
+**Installation:**
 
 ```bash
-# Clone the repository
+# In your plugin directory
+npm install @geekist/wp-kernel
+# or
+pnpm add @geekist/wp-kernel
+```
+
+**See the [Getting Started Guide](https://theGeekist.github.io/wp-kernel/getting-started/)** for creating your first WP Kernel plugin.
+
+---
+
+### For Contributors (Working on WP Kernel Itself)
+
+To **contribute to the WP Kernel framework** or run the showcase demo locally:
+
+**Requirements:**
+
+- All of the above, plus:
+- **Docker** (for wp-env) OR **WordPress Playground** (WASM, no Docker needed)
+- **PHP**: 8.1+ (only if using wp-env/Docker)
+
+**Setup:**
+
+```bash
+# Clone this repository
 git clone https://github.com/theGeekist/wp-kernel.git
 cd wp-kernel
 
@@ -52,20 +87,62 @@ pnpm install
 # Build all packages
 pnpm build
 
-# Start WordPress (dev:8888, tests:8889) + seed test data
-pnpm wp:fresh
+# Option 1: Start WordPress with wp-env (Docker required)
+pnpm wp:fresh  # Starts dev:8888, tests:8889 + seeds test data
+
+# Option 2: Start WordPress Playground (no Docker)
+pnpm playground  # Launches WASM-based WordPress in browser
 ```
 
-Visit [http://localhost:8888/wp-admin](http://localhost:8888/wp-admin)  
-Login: `admin` / `password`
+**Using wp-env (Docker)?** Visit [http://localhost:8888/wp-admin](http://localhost:8888/wp-admin) - Login: `admin` / `password`
 
-### 🚨 New to this monorepo?
+**Using Playground?** Opens automatically in your browser
+
+**� Read [DEVELOPMENT.md](DEVELOPMENT.md)** for the complete contributor workflow, testing infrastructure, and troubleshooting.
 
 **[📖 Read the Development Guide](DEVELOPMENT.md)** - Essential workflow, testing infrastructure, and troubleshooting.
 
 ---
 
-## 📦 Import Patterns
+## � Compatibility Matrix
+
+### Supported Environments
+
+| Component     | Minimum Version | Recommended      | Notes                                           |
+| ------------- | --------------- | ---------------- | ----------------------------------------------- |
+| **WordPress** | 6.8+            | Latest stable    | Script Modules API required                     |
+| **Node.js**   | 20.x LTS        | 22.x LTS         | Vite 7 constraint                               |
+| **pnpm**      | 9.0+            | Latest           | Monorepo workspace manager                      |
+| **PHP**       | 8.1+            | 8.2+             | wp-env/Docker only, not a framework requirement |
+| **Browsers**  | ES2020+         | Modern evergreen | Native ESM, BroadcastChannel API                |
+
+### WordPress Version Support
+
+✓ **6.8+**: Full support (Script Modules, Block Bindings, Interactivity API)  
+⚠️ **6.5-6.7**: Not supported (missing Script Modules API)  
+✗ **< 6.5**: Not supported
+
+### CI/CD Test Matrix
+
+We test against multiple combinations to ensure compatibility:
+
+| WordPress | PHP | Node   | Status                                                                                                                                                  |
+| --------- | --- | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 6.8       | 8.1 | 20 LTS | [![CI](https://img.shields.io/github/actions/workflow/status/theGeekist/wp-kernel/ci.yml?branch=main)](https://github.com/theGeekist/wp-kernel/actions) |
+| 6.8       | 8.2 | 22 LTS | [![CI](https://img.shields.io/github/actions/workflow/status/theGeekist/wp-kernel/ci.yml?branch=main)](https://github.com/theGeekist/wp-kernel/actions) |
+| Latest    | 8.3 | Latest | [![CI](https://img.shields.io/github/actions/workflow/status/theGeekist/wp-kernel/ci.yml?branch=main)](https://github.com/theGeekist/wp-kernel/actions) |
+
+### Development Environment Options
+
+| Option                   | Requirements     | Best For                               |
+| ------------------------ | ---------------- | -------------------------------------- |
+| **wp-env**               | Docker, PHP 8.1+ | Contributors, full WP testing          |
+| **WordPress Playground** | None (WASM)      | Quick demos, no Docker                 |
+| **npm/pnpm only**        | Node 20+         | Plugin developers (no local WP needed) |
+
+---
+
+## �📦 Import Patterns
 
 WP Kernel supports three flexible import patterns. Choose what fits your project:
 
@@ -105,42 +182,41 @@ All patterns work identically - pick what you prefer. The framework doesn't care
 
 ## 📦 Packages
 
-| Package                                            | Description                                            | Version |
-| -------------------------------------------------- | ------------------------------------------------------ | ------- |
-| [@geekist/wp-kernel](packages/kernel)              | Core framework (Resources, Actions, Events, Jobs)      | 0.1.0   |
-| [@geekist/wp-kernel-ui](packages/ui)               | Accessible UI components (wraps @wordpress/components) | 0.1.0   |
-| [@geekist/wp-kernel-cli](packages/cli)             | Scaffolding CLI (generators)                           | 0.1.0   |
-| [@geekist/wp-kernel-e2e-utils](packages/e2e-utils) | Playwright test utilities                              | 0.1.0   |
+| Package                                            | Description                                              | Version |
+| -------------------------------------------------- | -------------------------------------------------------- | ------- |
+| [@geekist/wp-kernel](packages/kernel)              | Core framework (Resources, Actions, Events, Jobs)        | 0.1.0   |
+| [@geekist/wp-kernel-ui](packages/ui)               | Accessible UI components (wraps @wordpress/components)   | 0.1.0   |
+| [@geekist/wp-kernel-cli](packages/cli)             | Scaffolding CLI (generators)                             | 0.1.0   |
+| [@geekist/wp-kernel-e2e-utils](packages/e2e-utils) | Playwright test utilities _(optional - for E2E testing)_ | 0.1.0   |
 
 ---
 
-## 🛠️ Development Commands
+## 🛠️ Contributor Commands
+
+> **Note**: These commands are for contributing to WP Kernel itself. If you're building a plugin with WP Kernel, see the [Getting Started Guide](https://theGeekist.github.io/wp-kernel/getting-started/).
 
 ```bash
-# Development
+# Build & Watch
 pnpm dev            # Watch mode for all packages
 pnpm build          # Production build
 pnpm clean          # Clean build artifacts
 
-# WordPress
-pnpm wp:start       # Start wp-env (dev + tests sites)
+# WordPress Test Environment
+pnpm wp:start       # Start wp-env (Docker required)
 pnpm wp:stop        # Stop wp-env
 pnpm wp:seed        # Seed test data
 pnpm wp:fresh       # Start + seed in one command
-pnpm wp:seed:reset  # Reset database
+pnpm playground     # Launch WordPress Playground (WASM, no Docker)
 
-# Testing
+# Testing (for framework contributors)
 pnpm test           # Unit tests (Jest)
-pnpm e2e            # E2E tests (Playwright)
+pnpm e2e            # E2E tests (Playwright - requires wp-env or Playground)
 pnpm test:watch     # Watch mode for unit tests
 
-# Quality
+# Code Quality
 pnpm lint           # ESLint
 pnpm format         # Prettier
 pnpm typecheck      # TypeScript check
-
-# Playground
-pnpm playground     # Launch WordPress Playground (WASM)
 ```
 
 ---
@@ -155,14 +231,13 @@ pnpm playground     # Launch WordPress Playground (WASM)
 - **[Core Concepts](https://theGeekist.github.io/wp-kernel/guide/)** - Resources, Actions, Events, Bindings, Interactivity, Jobs
 - **[API Reference](https://theGeekist.github.io/wp-kernel/api/)** - Type definitions and interfaces
 - **[Contributing Guide](https://theGeekist.github.io/wp-kernel/contributing/)** - Development workflow and standards
+- **[Roadmap](https://thegeekist.github.io/wp-kernel/contributing/roadmap)** - Project progress and upcoming features
 
-### Project Documentation
+### Developer Resources
 
 - **[Foreword](information/Foreword.md)** - Why WP Kernel exists, mental model
-- **[Product Specification](information/Product%20Specification%20PO%20Draft%20•%20v1.0.md)** - Complete API contracts and guarantees
-- **[Code Primitives](information/Code%20Primitives%20%26%20Dev%20Tooling%20PO%20Draft%20•%20v1.0.md)** - Error model, network strategy, testing approach
-- **[Sprint 0 Tasks](information/SPRINT_0_TASKS.md)** - Sprint 0 completion status (100% ✅)
-- **[Event Taxonomy](information/REFERENCE%20-%20Event%20Taxonomy%20Quick%20Card.md)** - All events and payloads
+- **[Product Specification](information/Product%20Specification%20PO%20•%20v1.0.md)** - Complete API contracts and guarantees
+- **[Event Taxonomy](information/Event%20Taxonomy%20Quick%20Reference.md)** - All events and payloads
 
 ---
 
@@ -219,33 +294,20 @@ export const thing = defineResource<Thing>({
 
 This gives you:
 
-- ✅ Typed client methods (`thing.fetchList()`, `thing.fetch()`, `thing.create()`)
-- ✅ @wordpress/data store with selectors
-- ✅ Automatic cache management
-- ✅ Request/response events (using your plugin's namespace automatically)
+- ✓ Typed client methods (`thing.fetchList()`, `thing.fetch()`, `thing.create()`)
+- ✓ @wordpress/data store with selectors
+- ✓ Automatic cache management
+- ✓ Request/response events (using your plugin's namespace automatically)
 
 **See [Product Spec § 4.1](information/Product%20Specification%20PO%20Draft%20•%20v1.0.md#41-resources-model--client) for details.**
 
 ---
 
-## 📋 Current Status
+## 📋 Project Status
 
-**Sprint 0**: ✅ **Complete** (100%, 18/18 tasks)  
-**Next Sprint**: Sprint 1 - Resources, Actions & Events implementation
+WP Kernel is in **active development** progressing toward v1.0. Core primitives (Resources, Actions, Data Integration, Reporting) are complete and stable.
 
-### Sprint 0 Achievements
-
-- ✅ Monorepo with pnpm workspaces + TypeScript strict mode
-- ✅ ESLint 9 flat config + Prettier (zero deprecated dependencies)
-- ✅ WordPress environments: wp-env + Playground
-- ✅ Testing: Jest (4 tests) + Playwright (5 E2E tests across 3 browsers)
-- ✅ CI/CD: GitHub Actions with caching and quality gates
-- ✅ Documentation: VitePress site with 24 pages (5,746+ lines)
-- ✅ Developer Experience: VS Code workspace with 25+ tasks
-- ✅ Seed scripts: 5 users, 5 jobs, 10 applications, 4 media files
-- ✅ Changesets configured for semantic versioning
-
-See **[Sprint 0 Tasks](information/SPRINT_0_TASKS.md)** for complete breakdown.
+**See the [Roadmap](https://thegeekist.github.io/wp-kernel/contributing/roadmap)** for detailed progress, completed features, and upcoming work.
 
 ---
 
@@ -282,10 +344,10 @@ pnpm e2e            # Run E2E tests
 The WP Kernel framework (packages: `@geekist/wp-kernel`, `@geekist/wp-kernel-ui`, `@geekist/wp-kernel-cli`, `@geekist/wp-kernel-e2e-utils`) is licensed under **EUPL-1.2** (European Union Public License v1.2).
 
 **This means you CAN**:
-✅ Build commercial plugins and themes  
-✅ Build SaaS products  
-✅ Keep your application code proprietary  
-✅ Sell products built with WP Kernel
+✓ Build commercial plugins and themes  
+✓ Build SaaS products  
+✓ Keep your application code proprietary  
+✓ Sell products built with WP Kernel
 
 **You only need to share**:
 

@@ -91,11 +91,10 @@ const SendWelcomeEmail = defineJob({
 
 ## WordPress Integration
 
-- **WordPress 6.5+** - Core feature compatibility
-- **WordPress 6.8+** - Full DataViews and Script Modules support
-- **PHP Bridge** - Automatic REST endpoint and capability integration
+- **WordPress 6.8+** - Required (Script Modules API)
+- **PHP Bridge** - Automatic REST endpoint and capability integration (Sprint 9)
 
-**📚 [Integration Guide →](../../docs/guide/getting-started.md)**
+**📚 [Integration Guide](https://thegeekist.github.io/wp-kernel/guide/getting-started)**
 
 ## Import Patterns
 
@@ -114,16 +113,15 @@ import { defineResource } from '@geekist/wp-kernel';
 
 ## Documentation
 
-- **[Complete Documentation](https://thegeekist.github.io/wp-kernel/packages/kernel/)** - Comprehensive guides and examples
 - **[Getting Started](https://thegeekist.github.io/wp-kernel/getting-started/)** - Your first resource and action
-- **[Philosophy](https://thegeekist.github.io/wp-kernel/guide/philosophy/)** - Why WP Kernel works this way
 - **[API Reference](https://thegeekist.github.io/wp-kernel/api/)** - Complete API documentation
+- **[Contracts Reference](https://thegeekist.github.io/wp-kernel/reference/contracts)** - Events, errors, cache keys
 
 ## Requirements
 
-- WordPress 6.8+ (Script Modules API)
-- Node.js 22+ (development)
-- TypeScript support recommended
+- **WordPress**: 6.8+ (Script Modules API required)
+- **Node.js**: 20+ LTS (development)
+- **TypeScript**: Recommended for type safety
 
 ````
 
@@ -148,10 +146,10 @@ const PostForm = () => {
 UI components **never** call transport directly. Always route writes through Actions.
 
 ```typescript
-// ❌ WRONG
+// ✗ WRONG
 const handleClick = () => post.create(data);
 
-// ✅ CORRECT
+// ✓ CORRECT
 const handleClick = () => CreatePost({ data });
 ```
 
@@ -237,18 +235,10 @@ try {
 }
 ```
 
-## Documentation
-
-For complete documentation, see:
-
-- [Product Specification](../../information/Product%20Specification%20PO%20Draft%20%E2%80%A2%20v1.0.md)
-- [Code Primitives & Dev Tooling](../../information/Code%20Primitives%20%26%20Dev%20Tooling%20PO%20Draft%20%E2%80%A2%20v1.0.md)
-- [Event Taxonomy Reference](../../information/REFERENCE%20-%20Event%20Taxonomy%20Quick%20Card.md)
-
 ## Contributing
 
 See the [main repository](https://github.com/theGeekist/wp-kernel) for contribution guidelines.
 
 ## License
 
-MIT © [The Geekist](https://github.com/theGeekist)
+EUPL-1.2 © [The Geekist](https://github.com/theGeekist)

@@ -20,7 +20,7 @@ export const useTestimonialForm = defineInteraction('wpk/testimonial-form', {
 			this.state.error = null;
 
 			try {
-				// ✅ Route through Action
+				// ✓ Route through Action
 				await CreateTestimonial({ data: formData });
 			} catch (e) {
 				this.state.error = e.message;

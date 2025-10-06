@@ -35,7 +35,7 @@ wp-kernel/
 ### 1. **First Setup**
 
 ```bash
-# Install Node 22 LTS
+# Install Node 20+ LTS (20.x or higher)
 nvm use
 
 # Install dependencies (centralized in root)
@@ -69,7 +69,7 @@ pnpm wp:start
 pnpm test
 
 # E2E tests (Playwright) - requires wp-env running
-# ✅ Can run from root OR app/showcase directory
+# ✓ Can run from root OR app/showcase directory
 pnpm e2e
 
 # E2E with UI for debugging

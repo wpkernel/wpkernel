@@ -1,35 +1,84 @@
-## What
+## Summary
 
-Brief description of what this PR does.
+Concise headline. Example: “Sprint 5: Bindings & Interactivity — Block Bindings, Interactivity API, Providers”.
+
+**Sprint:** 5 (Bindings & Interactivity) / 5.5 (Alignment) / Norms (check docs/contributing/roadmap.md for guidance)
+**Scope:** actions · policy · resource · data · reporter · ui · cli · e2e
+
+## Links
+
+- Roadmap section: <!-- link to the section in your docs site or repo -->
+- Sprint doc / spec: <!-- link to sprint notes/spec for this PR -->
+- Related issues: <!-- #123, #456 -->
+- Demo/preview (if any): <!-- URL -->
 
 ## Why
 
-Problem or use case this solves. Link to related issues.
+Problem/use-case. What changes for users (devs)?
 
-Fixes #
+## What
+
+Top-level bullets of what’s shipped in this PR.
 
 ## How
 
-High-level overview of the implementation approach.
+High-level approach. Note any trade-offs, alternatives considered, or TODOs deferred.
 
 ## Testing
 
-How to test this change:
+How reviewers test locally:
 
-1. Step one
-2. Step two
-3. Expected result
+1. …
+2. …
+   **Expected:** …
 
-## Screenshots (if applicable)
+### Test Matrix (tick what’s covered)
+
+- [ ] Unit (pnpm test)
+- [ ] E2E (pnpm e2e)
+- [ ] Types (pnpm typecheck)
+- [ ] Docs examples (build/run)
+- [ ] WordPress playground / wp-env sanity
+
+## Screenshots / Recordings (if applicable)
+
+Attach visuals for UI-facing changes.
 
 ## Breaking Changes
 
-List any breaking changes and migration steps.
+- [ ] None  
+       If any, list migration steps with code snippets.
+
+## Affected Packages
+
+Tick any public packages this PR changes functionally.
+
+- [ ] `@geekist/wp-kernel`
+- [ ] `@geekist/wp-kernel-ui`
+- [ ] `@geekist/wp-kernel-cli`
+- [ ] `@geekist/wp-kernel-e2e-utils`
+
+## Release
+
+Choose one and include a changeset summary (edit if scope grows).
+
+- [ ] **patch** — bugfixes / alignment
+- [ ] **minor** — feature sprint (default)
+- [ ] **major** — breaking API
+
+> Create/update changeset:
+>
+> ```bash
+> pnpm cs:new:minor "Sprint 5: Bindings & Interactivity (Block Bindings, Interactivity API, providers)"
+> ```
+>
+> _If infra/docs-only, add label **no-release**._
 
 ## Checklist
 
-- [ ] Tests pass (`pnpm test` and `pnpm e2e`)
-- [ ] Code is linted (`pnpm lint`)
-- [ ] Changeset added (`pnpm changeset`)
-- [ ] Documentation updated
+- [ ] Tests pass (`pnpm test`, where relevant: `pnpm e2e`)
+- [ ] Lint passes (`pnpm lint`)
+- [ ] Types pass (`pnpm typecheck`, `pnpm typecheck:tests`)
+- [ ] Changeset added/updated (or PR labelled `no-release`)
+- [ ] Docs updated (site/README)
 - [ ] Examples updated (if API changed)

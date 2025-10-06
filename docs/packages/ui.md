@@ -522,11 +522,11 @@ mountAdmin('#wpk-admin-root', JobsAdminTable, {
 
 ## WordPress Compatibility Matrix
 
-| WordPress Version | DataViews        | Script Modules | Interactivity API |
-| ----------------- | ---------------- | -------------- | ----------------- |
-| 6.8+              | ✅ Stable        | ✅ Full        | ✅ Full           |
-| 6.6               | ⚠️ Experimental  | ✅ Basic       | ✅ Basic          |
-| 6.5               | ❌ Not Available | ⚠️ Limited     | ⚠️ Limited        |
+| WordPress Version | DataViews       | Script Modules | Interactivity API |
+| ----------------- | --------------- | -------------- | ----------------- |
+| 6.8+              | ✓ Stable        | ✓ Full         | ✓ Full            |
+| 6.6               | ⚠️ Experimental | ✓ Basic        | ✓ Basic           |
+| 6.5               | ✗ Not Available | ⚠️ Limited     | ⚠️ Limited        |
 
 ### Feature Detection & Graceful Degradation
 
@@ -572,9 +572,9 @@ Components use WordPress design tokens and CSS custom properties:
 
 This package is under active development. Current status:
 
-- ✅ Component architecture designed
-- ✅ Core hooks implemented
-- ✅ DataViews integration patterns defined
+- ✓ Component architecture designed
+- ✓ Core hooks implemented
+- ✓ DataViews integration patterns defined
 - 🚧 Layout components in progress
 - 🚧 Block components in progress
 - ⏳ Styling system planned
