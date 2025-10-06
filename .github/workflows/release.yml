@@ -20,6 +20,8 @@ jobs:
         permissions:
             contents: write
             pull-requests: write
+            issues: write
+            id-token: write
 
         steps:
             - name: Checkout
@@ -79,6 +81,7 @@ jobs:
                   publish: pnpm cs:publish
                   commit: 'chore: version packages'
                   title: 'Version Packages'
+                  createGithubReleases: false
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                   NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
