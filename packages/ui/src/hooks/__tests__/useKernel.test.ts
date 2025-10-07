@@ -22,22 +22,26 @@ describe('useKernel (UI integration)', () => {
 			__experimentalUseMiddleware: jest.Mock;
 		};
 
-		const reporter = {
+		// Create a proper Reporter mock that matches the Reporter interface
+		const mockReporter = {
 			info: jest.fn(),
 			warn: jest.fn(),
 			error: jest.fn(),
 			debug: jest.fn(),
-			child: jest.fn(),
-		} as const;
-		(reporter.child as unknown as jest.Mock).mockReturnValue(reporter);
+			child: jest.fn(function (this: any) {
+				return this;
+			}),
+		};
 
-		const customMiddleware = jest.fn(
-			() => (next: any) => (action: any) => next(action)
-		);
-
+		// Create a proper ReduxMiddleware mock
+		const customMiddleware =
+			(_store: unknown) =>
+			(next: (action: unknown) => unknown) =>
+			(action: unknown) =>
+				next(action);
 		const cleanup = useKernel(registry, {
-			reporter: reporter as unknown as ReturnType<typeof reporter.child>,
-			middleware: [customMiddleware as unknown as () => void],
+			reporter: mockReporter,
+			middleware: [customMiddleware],
 			namespace: 'acme',
 		});
 

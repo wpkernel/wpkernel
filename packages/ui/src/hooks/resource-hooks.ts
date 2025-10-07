@@ -142,11 +142,13 @@ export function attachResourceHooks<T, TQuery>(
 	return resource;
 }
 
+// Register the hook attachment function on globalThis
+// Type defined in types/global.d.ts as GlobalThis.__WP_KERNEL_UI_ATTACH_RESOURCE_HOOKS__
 if (typeof globalThis !== 'undefined') {
 	(
-		globalThis as {
-			__WP_KERNEL_UI_ATTACH_RESOURCE_HOOKS__?: <HookEntity, HookQuery>(
-				resource: ResourceObject<HookEntity, HookQuery>
+		globalThis as typeof globalThis & {
+			__WP_KERNEL_UI_ATTACH_RESOURCE_HOOKS__?: <T, TQuery>(
+				resource: ResourceObject<T, TQuery>
 			) => void;
 		}
 	).__WP_KERNEL_UI_ATTACH_RESOURCE_HOOKS__ = <HookEntity, HookQuery>(

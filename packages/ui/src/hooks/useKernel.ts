@@ -1,13 +1,11 @@
-import {
-	createActionMiddleware,
-	createReporter,
-	getNamespace,
-} from '@geekist/wp-kernel';
+import { createActionMiddleware } from '@geekist/wp-kernel/actions';
 import { kernelEventsPlugin } from '@geekist/wp-kernel/data';
 import type {
 	KernelRegistry,
 	KernelRegistryOptions,
 } from '@geekist/wp-kernel/data';
+import { getNamespace } from '@geekist/wp-kernel/namespace';
+import { createReporter } from '@geekist/wp-kernel/reporter';
 
 /**
  * Wire the WP Kernel runtime into a given `@wordpress/data` registry.

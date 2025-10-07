@@ -178,18 +178,24 @@ describe('resource hooks (UI integration)', () => {
 				{ id: 2, title: 'Thing Two', status: 'inactive' },
 			];
 
+			const mockListResponse = {
+				items: mockItems,
+				total: mockItems.length,
+				page: 1,
+				perPage: 10,
+			};
+
 			mockWpData.useSelect.mockImplementation((callback: any) => {
 				const mockSelect = {
-					getList: jest.fn().mockReturnValue(mockItems),
+					getList: jest.fn().mockReturnValue(mockListResponse),
 					getListStatus: jest.fn().mockReturnValue('success'),
 					isResolving: jest.fn().mockReturnValue(false),
 					hasFinishedResolution: jest.fn().mockReturnValue(true),
-					getListError: jest.fn().mockReturnValue(null),
+					getListError: jest.fn().mockReturnValue(undefined),
 				};
 
 				return callback(() => mockSelect);
 			});
-
 			const resource = defineResource<MockThing, MockThingQuery>({
 				name: 'thing',
 				routes: {
@@ -201,12 +207,11 @@ describe('resource hooks (UI integration)', () => {
 
 			expect(mockWpData.useSelect).toHaveBeenCalled();
 			expect(result).toEqual({
-				data: mockItems,
+				data: mockListResponse,
 				isLoading: false,
-				error: null,
+				error: undefined,
 			} as UseResourceListResult<MockThing>);
 		});
-
 		it('passes query parameter to selector', () => {
 			const mockItems: MockThing[] = [
 				{ id: 1, title: 'Thing One', status: 'active' },

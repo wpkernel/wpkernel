@@ -11,6 +11,7 @@
  */
 export const VERSION = '0.1.1';
 
+// Hooks migrated from kernel
 export { useKernel } from './hooks/useKernel';
 export { usePolicy } from './hooks/usePolicy';
 export {
@@ -18,3 +19,10 @@ export {
 	type UseResourceItemResult,
 	type UseResourceListResult,
 } from './hooks/resource-hooks';
+
+// New Sprint 5 hooks
+export { usePrefetcher } from './hooks/usePrefetcher';
+export { useHoverPrefetch } from './hooks/useHoverPrefetch';
+export { useVisiblePrefetch } from './hooks/useVisiblePrefetch';
+export { useNextPagePrefetch } from './hooks/useNextPagePrefetch';
+export { useAction } from './hooks/useAction';

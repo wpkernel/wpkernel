@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+# Minimal stub to disable real watchman usage in sandboxed environments.
+# Always respond with an empty sockname so clients fall back to node watchers.
+if [[ "$1" == "--no-pretty" && "$2" == "get-sockname" ]]; then
+	printf '{ "version": "stub", "sockname": "" }\n'
+	exit 0
+fi
+
+# Return failure for any other commands to avoid unexpected behaviour.
+printf 'watchman stub: command not supported\n' >&2
+exit 1

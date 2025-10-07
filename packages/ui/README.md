@@ -92,6 +92,16 @@ import { AdminTable } from '@geekist/wp-kernel-ui';
 
 **Current Status**: Specification complete, implementation starting in Sprint 5
 
+## Actions in React
+
+`useAction` wraps kernel Actions with a React-friendly state machine and the
+same middleware pipeline used everywhere else. You get predictable status
+transitions, optional dedupe, concurrency controls, and automatic cache
+invalidation hooks. Pair it with `useKernel()` so the data registry is wired up.
+
+- [Guide – Actions](/guide/actions)
+- [API reference – `useAction`](/api/useAction)
+
 ## Requirements
 
 - **WordPress**: 6.8+

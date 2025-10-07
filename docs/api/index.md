@@ -27,6 +27,19 @@ Error types and handling primitives.
 
 ### [HTTP Transport](/api/generated/http/README)
 
+## UI Hooks
+
+### [`usePrefetcher`](/api/usePrefetcher)
+
+React adapters around resource prefetching helpers (`prefetchGet` /
+`prefetchList`) plus utility hooks for hover, visibility, and pagination
+prefetch flows.
+
+### [`useAction`](/api/useAction)
+
+Thin React wrapper over kernel Actions with concurrency controls, deduping,
+and automatic cache invalidation.
+
 ## Coming Soon
 
 The following modules are planned for future sprints:

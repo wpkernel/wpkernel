@@ -6,8 +6,10 @@
 		"rootDir": "../../",
 		"outDir": "./dist-tests",
 		"composite": true,
-		"types": ["jest", "node"]
+		"types": ["jest", "node"],
+		"jsx": "react-jsx"
 	},
-	"include": ["src/**/*", "../../tests/**/*"],
-	"exclude": ["node_modules", "dist", "dist-tests"]
+	"include": ["src/**/*", "../../tests/**/*", "../../types/**/*.d.ts"],
+	"exclude": ["node_modules", "dist", "dist-tests"],
+	"references": [{ "path": "../kernel" }]
 }
