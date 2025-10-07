@@ -73,9 +73,8 @@ describe('resource hooks (UI integration)', () => {
 					getItem: jest.fn().mockReturnValue(mockItem),
 					isResolving: jest.fn().mockReturnValue(false),
 					hasFinishedResolution: jest.fn().mockReturnValue(true),
-					getItemError: jest.fn().mockReturnValue(null),
+					getItemError: jest.fn().mockReturnValue(undefined),
 				};
-
 				return callback(() => mockSelect);
 			});
 
@@ -104,9 +103,8 @@ describe('resource hooks (UI integration)', () => {
 					getItem: jest.fn().mockReturnValue(undefined),
 					isResolving: jest.fn().mockReturnValue(true),
 					hasFinishedResolution: jest.fn().mockReturnValue(false),
-					getItemError: jest.fn().mockReturnValue(null),
+					getItemError: jest.fn().mockReturnValue(undefined),
 				};
-
 				return callback(() => mockSelect);
 			});
 
@@ -127,7 +125,7 @@ describe('resource hooks (UI integration)', () => {
 		});
 
 		it('exposes selector error message', () => {
-			const mockError = { message: 'Not found' };
+			const mockError = 'Not found';
 			mockWpData.useSelect.mockImplementation((callback: any) => {
 				const mockSelect = {
 					getItem: jest.fn().mockReturnValue(undefined),
@@ -154,7 +152,6 @@ describe('resource hooks (UI integration)', () => {
 				error: 'Not found',
 			});
 		});
-
 		it('keeps items loading until resolution completes', () => {
 			mockWpData.useSelect.mockImplementation((callback: any) => {
 				const mockSelect = {
@@ -298,6 +295,48 @@ describe('resource hooks (UI integration)', () => {
 				data: undefined,
 				isLoading: true,
 				error: null,
+			});
+		});
+
+		it('trusts success status over hasFinishedResolution (regression test)', () => {
+			const mockItems: MockThing[] = [
+				{ id: 1, title: 'Thing One', status: 'active' },
+			];
+			const mockListResponse = {
+				items: mockItems,
+				total: mockItems.length,
+				page: 1,
+				perPage: 10,
+			};
+
+			// This is the WordPress quirk: status is 'success' but hasFinishedResolution is false
+			mockWpData.useSelect.mockImplementation((callback: any) => {
+				const mockSelect = {
+					getList: jest.fn().mockReturnValue(mockListResponse),
+					getListStatus: jest.fn().mockReturnValue('success'),
+					isResolving: jest.fn().mockReturnValue(false),
+					hasFinishedResolution: jest.fn().mockReturnValue(false), // WordPress quirk!
+					getListError: jest.fn().mockReturnValue(undefined),
+				};
+
+				return callback(() => mockSelect);
+			});
+
+			const resource = defineResource<MockThing, MockThingQuery>({
+				name: 'thing',
+				routes: {
+					list: { path: '/wpk/v1/things', method: 'GET' },
+				},
+			});
+
+			const result = resource.useList!();
+
+			// Should NOT be loading despite hasFinishedResolution being false
+			// because status explicitly says 'success'
+			expect(result).toEqual({
+				data: mockListResponse,
+				isLoading: false, // This is the critical assertion!
+				error: undefined,
 			});
 		});
 

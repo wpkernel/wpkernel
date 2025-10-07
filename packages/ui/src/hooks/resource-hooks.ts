@@ -24,7 +24,7 @@ type WordPressStoreSelector<T, TQuery = unknown> = {
 	getListStatus?: (query?: TQuery) => string | undefined;
 	isResolving?: (method: string, args: unknown[]) => boolean;
 	hasFinishedResolution?: (method: string, args: unknown[]) => boolean;
-	getItemError?: (id: string | number) => Error | undefined;
+	getItemError?: (id: string | number) => string | undefined;
 	getListError?: (query?: TQuery) => string | undefined;
 };
 
@@ -126,7 +126,7 @@ function createUseGet<T, TQuery>(resource: ResourceObject<T, TQuery>) {
 
 				const storeSelect = select(resource.storeKey);
 				const data = storeSelect?.getItem?.(id);
-				const error = storeSelect?.getItemError?.(id)?.message;
+				const error = storeSelect?.getItemError?.(id);
 				const isLoading = computeItemLoading(storeSelect, id);
 
 				return { data, isLoading, error };

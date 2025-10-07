@@ -751,11 +751,10 @@ function evaluateCandidates(
 			const fallbackResult = evaluate(
 				fallback,
 				'fallback',
-				candidate.original ?? fallback
+				candidate.original ?? value ?? undefined
 			);
 			return fallbackResult ?? createFallback();
 		}
-
 		if (candidate.onInvalid === 'default') {
 			return createFallback();
 		}
