@@ -150,10 +150,31 @@ if (typeof globalThis !== 'undefined') {
 			__WP_KERNEL_UI_ATTACH_RESOURCE_HOOKS__?: <T, TQuery>(
 				resource: ResourceObject<T, TQuery>
 			) => void;
+			__WP_KERNEL_UI_PROCESS_PENDING_RESOURCES__?: () => ResourceObject<
+				unknown,
+				unknown
+			>[];
 		}
 	).__WP_KERNEL_UI_ATTACH_RESOURCE_HOOKS__ = <HookEntity, HookQuery>(
 		resource: ResourceObject<HookEntity, HookQuery>
 	) => {
 		attachResourceHooks(resource);
 	};
+
+	// Process any resources that were created before this UI bundle loaded
+	const processPending = (
+		globalThis as typeof globalThis & {
+			__WP_KERNEL_UI_PROCESS_PENDING_RESOURCES__?: () => ResourceObject<
+				unknown,
+				unknown
+			>[];
+		}
+	).__WP_KERNEL_UI_PROCESS_PENDING_RESOURCES__;
+
+	if (processPending) {
+		const pending = processPending();
+		pending.forEach((resource) => {
+			attachResourceHooks(resource);
+		});
+	}
 }

@@ -28,6 +28,10 @@ import {
 } from './grouped-api';
 import type { CacheKeys, ResourceConfig, ResourceObject } from './types';
 
+// Module-level queue for resources created before UI bundle loads
+const pendingResources: ResourceObject<unknown, unknown>[] = [];
+let uiHooksAttached = false;
+
 /**
  * Parse namespace:name syntax from a string
  *
@@ -359,10 +363,33 @@ export function defineResource<T = unknown, TQuery = unknown>(
 			__WP_KERNEL_UI_ATTACH_RESOURCE_HOOKS__?: <HookEntity, HookQuery>(
 				resource: ResourceObject<HookEntity, HookQuery>
 			) => void;
+			__WP_KERNEL_UI_PROCESS_PENDING_RESOURCES__?: () => void;
 		}
 	).__WP_KERNEL_UI_ATTACH_RESOURCE_HOOKS__;
 
-	attachHooks?.(resource as ResourceObject<T, TQuery>);
+	if (attachHooks) {
+		// UI is loaded, attach hooks immediately
+		attachHooks(resource as ResourceObject<T, TQuery>);
+		uiHooksAttached = true;
+	} else if (!uiHooksAttached) {
+		// UI not loaded yet, queue the resource
+		pendingResources.push(resource as ResourceObject<unknown, unknown>);
+
+		// Expose a function for UI to process pending resources
+		if (typeof globalThis !== 'undefined') {
+			(
+				globalThis as typeof globalThis & {
+					__WP_KERNEL_UI_PROCESS_PENDING_RESOURCES__?: () => ResourceObject<
+						unknown,
+						unknown
+					>[];
+				}
+			).__WP_KERNEL_UI_PROCESS_PENDING_RESOURCES__ = () => {
+				uiHooksAttached = true;
+				return pendingResources.splice(0); // Return and clear the queue
+			};
+		}
+	}
 
 	return resource;
 }

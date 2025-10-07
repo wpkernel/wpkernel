@@ -55,6 +55,10 @@ declare global {
 		>(
 			resource: ResourceObject<T, TQuery>
 		) => void;
+		__WP_KERNEL_UI_PROCESS_PENDING_RESOURCES__?: () => ResourceObject<
+			unknown,
+			unknown
+		>[];
 	}
 
 	/**
