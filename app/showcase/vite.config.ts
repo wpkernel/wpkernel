@@ -55,28 +55,36 @@ export default defineConfig(async (_env): Promise<UserConfig> => {
 
 		// Resolve workspace packages
 		resolve: {
-			alias: {
-				'@geekist/wp-kernel': resolve(
-					__dirname,
-					'../../packages/kernel/src/index.ts'
-				),
-				'@geekist/wp-kernel/http': resolve(
-					__dirname,
-					'../../packages/kernel/src/http/index.ts'
-				),
-				'@geekist/wp-kernel/resource': resolve(
-					__dirname,
-					'../../packages/kernel/src/resource/index.ts'
-				),
-				'@geekist/wp-kernel/error': resolve(
-					__dirname,
-					'../../packages/kernel/src/error/index.ts'
-				),
-				'@geekist/wp-kernel-ui': resolve(
-					__dirname,
-					'../../packages/ui/src/index.ts'
-				),
-			},
+			alias: [
+				{
+					find: /^@geekist\/wp-kernel$/,
+					replacement: resolve(
+						__dirname,
+						'../../packages/kernel/src/index.ts'
+					),
+				},
+				{
+					find: /^@geekist\/wp-kernel\//,
+					replacement: `${resolve(
+						__dirname,
+						'../../packages/kernel/src'
+					)}/`,
+				},
+				{
+					find: /^@geekist\/wp-kernel-ui$/,
+					replacement: resolve(
+						__dirname,
+						'../../packages/ui/src/index.ts'
+					),
+				},
+				{
+					find: /^@geekist\/wp-kernel-ui\//,
+					replacement: `${resolve(
+						__dirname,
+						'../../packages/ui/src'
+					)}/`,
+				},
+			],
 		},
 
 		optimizeDeps: {

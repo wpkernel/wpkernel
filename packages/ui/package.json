@@ -30,6 +30,41 @@
 			"import": "./dist/index.js",
 			"default": "./dist/index.js"
 		},
+		"./hooks/useAction": {
+			"types": "./dist/hooks/useAction.d.ts",
+			"import": "./dist/hooks/useAction.js",
+			"default": "./dist/hooks/useAction.js"
+		},
+		"./hooks/usePolicy": {
+			"types": "./dist/hooks/usePolicy.d.ts",
+			"import": "./dist/hooks/usePolicy.js",
+			"default": "./dist/hooks/usePolicy.js"
+		},
+		"./hooks/resource-hooks": {
+			"types": "./dist/hooks/resource-hooks.d.ts",
+			"import": "./dist/hooks/resource-hooks.js",
+			"default": "./dist/hooks/resource-hooks.js"
+		},
+		"./hooks/usePrefetcher": {
+			"types": "./dist/hooks/usePrefetcher.d.ts",
+			"import": "./dist/hooks/usePrefetcher.js",
+			"default": "./dist/hooks/usePrefetcher.js"
+		},
+		"./hooks/useHoverPrefetch": {
+			"types": "./dist/hooks/useHoverPrefetch.d.ts",
+			"import": "./dist/hooks/useHoverPrefetch.js",
+			"default": "./dist/hooks/useHoverPrefetch.js"
+		},
+		"./hooks/useVisiblePrefetch": {
+			"types": "./dist/hooks/useVisiblePrefetch.d.ts",
+			"import": "./dist/hooks/useVisiblePrefetch.js",
+			"default": "./dist/hooks/useVisiblePrefetch.js"
+		},
+		"./hooks/useNextPagePrefetch": {
+			"types": "./dist/hooks/useNextPagePrefetch.d.ts",
+			"import": "./dist/hooks/useNextPagePrefetch.js",
+			"default": "./dist/hooks/useNextPagePrefetch.js"
+		},
 		"./package.json": "./package.json"
 	},
 	"files": [
