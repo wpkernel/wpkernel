@@ -176,7 +176,7 @@ export function useAction<TInput, TResult>(
 	const requestsRef = useRef<Map<number, RequestRecord<TResult>>>(new Map());
 	const dedupeMapRef = useRef<Map<string, RequestRecord<TResult>>>(new Map());
 	const queueTailRef = useRef<Promise<void> | null>(null);
-	const queueCancelledRef = useRef(false);
+	const queueGenerationRef = useRef(0);
 	const idCounterRef = useRef(0);
 
 	const markRequestCancelled = useCallback(
@@ -191,7 +191,7 @@ export function useAction<TInput, TResult>(
 
 	const clearQueue = useCallback(() => {
 		queueTailRef.current = null;
-		queueCancelledRef.current = true;
+		queueGenerationRef.current += 1;
 	}, []);
 
 	const cancelAll = useCallback(
@@ -370,13 +370,14 @@ export function useAction<TInput, TResult>(
 					return start();
 				}
 				case 'queue': {
+					const generation = queueGenerationRef.current;
 					const tail =
 						queueTailRef.current ?? Promise.resolve(undefined);
 					const next = tail
 						.catch(() => undefined)
 						.then(() => {
-							// Check if queue was cancelled before executing this queued call
-							if (queueCancelledRef.current) {
+							// Check if queue was cancelled (generation changed) before executing this queued call
+							if (queueGenerationRef.current !== generation) {
 								throw new KernelError('DeveloperError', {
 									message:
 										'Queued action cancelled before execution in queue concurrency mode',
@@ -387,8 +388,6 @@ export function useAction<TInput, TResult>(
 					queueTailRef.current = next
 						.then(() => undefined)
 						.catch(() => undefined);
-					// Reset cancellation flag when queue starts (not when cleared)
-					queueCancelledRef.current = false;
 					return next;
 				}
 				default:

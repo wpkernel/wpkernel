@@ -21,16 +21,13 @@ function parseRootMargin(input: string): MarginBox {
 
 	const tokens = input.trim().split(/\s+/).filter(Boolean);
 
-	const values = tokens.length === 0 ? ['0px'] : tokens;
+	const values = tokens;
 	const toPx = (token: string): number => {
 		const match = token.match(/(-?\d+(\.\d+)?)/);
-		if (!match) {
+		if (!match || !match[1]) {
 			return 0;
 		}
 		const value = match[1];
-		if (value === undefined) {
-			return 0;
-		}
 		const parsed = Number.parseFloat(value);
 		return Number.isNaN(parsed) ? 0 : parsed;
 	};
