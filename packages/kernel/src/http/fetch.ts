@@ -167,7 +167,7 @@ function resolveApiFetch(
 	if (typeof window === 'undefined') {
 		throw new KernelError('DeveloperError', {
 			message:
-				'@wordpress/api-fetch is not available. Ensure it is loaded as a dependency.',
+				'Cannot execute fetch during server-side rendering (SSR).',
 			context: { requestId, method, path: fullPath },
 		});
 	}
