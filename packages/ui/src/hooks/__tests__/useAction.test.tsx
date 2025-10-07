@@ -573,6 +573,7 @@ describe('useAction', () => {
 			__WP_KERNEL_UI_ACTION_DISPATCH__?: DispatchFunction;
 			__WP_KERNEL_UI_ACTION_STORE__?: boolean;
 		};
+		// Intentionally throw a primitive string (not an Error) to test error normalization
 		globalCache.__WP_KERNEL_UI_ACTION_DISPATCH__ = (() => {
 			throw 'primitive failure';
 		}) as unknown as DispatchFunction;

@@ -94,12 +94,18 @@ function ensureDispatch(): DispatchFunction {
 		});
 	}
 
+	// Type guard ensures invoke exists and has correct signature after check above
+	const invokeMethod = dispatcher.invoke;
+
 	const dispatchFn: DispatchFunction = <TArgs, TResult>(
 		envelope: ActionEnvelope<TArgs, TResult>
-	) =>
-		dispatcher.invoke!(
+	): Promise<TResult> => {
+		// Safe cast: we know invokeMethod exists and returns Promise<unknown>
+		// The generic return type TResult is the caller's responsibility
+		return invokeMethod(
 			envelope as ActionEnvelope<unknown, unknown>
-		) as Promise<unknown> as Promise<TResult>;
+		) as Promise<TResult>;
+	};
 
 	globalObj.__WP_KERNEL_UI_ACTION_DISPATCH__ = dispatchFn;
 	return dispatchFn;
