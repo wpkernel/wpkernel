@@ -379,7 +379,7 @@ export function useAction<TInput, TResult>(
 							if (queueCancelledRef.current) {
 								throw new KernelError('DeveloperError', {
 									message:
-										'Queued action cancelled before execution',
+										'Queued action cancelled before execution in queue concurrency mode',
 								});
 							}
 							return start();
