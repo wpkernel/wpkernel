@@ -320,7 +320,7 @@ We welcome contributions! Please read our **[Contributing Guide](https://theGeek
 3. Make your changes
 4. Run `pnpm lint && pnpm test && pnpm e2e`
 5. Commit using conventional commits
-6. Create a changeset (`pnpm changeset`)
+6. Update CHANGELOG.md in affected packages
 7. Push and open a PR
 
 **Development Setup**:

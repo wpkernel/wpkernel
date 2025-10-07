@@ -208,10 +208,16 @@ pnpm e2e
     pnpm lint:fix    # Auto-fix
     ```
 
-7. **Add changeset**:
+7. **Update CHANGELOG.md**:
 
-    ```bash
-    pnpm changeset
+    Add entry to affected packages' CHANGELOG.md:
+
+    ```markdown
+    ## 0.x.0 [Unreleased]
+
+    ### Added
+
+    - Custom invalidation support for resources
     ```
 
 8. **Commit**:

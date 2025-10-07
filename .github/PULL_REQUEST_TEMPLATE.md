@@ -60,17 +60,13 @@ Tick any public packages this PR changes functionally.
 
 ## Release
 
-Choose one and include a changeset summary (edit if scope grows).
+Choose one and document in CHANGELOG.md files.
 
-- [ ] **patch** — bugfixes / alignment
-- [ ] **minor** — feature sprint (default)
-- [ ] **major** — breaking API
+- [ ] **patch** — bugfixes / alignment (0.x.1)
+- [ ] **minor** — feature sprint (default) (0.x.0)
+- [ ] **major** — breaking API (x.0.0)
 
-> Create/update changeset:
->
-> ```bash
-> pnpm cs:new:minor "Sprint 5: Bindings & Interactivity (Block Bindings, Interactivity API, providers)"
-> ```
+> Update CHANGELOG.md files in affected packages with summary of changes.
 >
 > _If infra/docs-only, add label **no-release**._
 
@@ -79,6 +75,6 @@ Choose one and include a changeset summary (edit if scope grows).
 - [ ] Tests pass (`pnpm test`, where relevant: `pnpm e2e`)
 - [ ] Lint passes (`pnpm lint`)
 - [ ] Types pass (`pnpm typecheck`, `pnpm typecheck:tests`)
-- [ ] Changeset added/updated (or PR labelled `no-release`)
+- [ ] CHANGELOG.md updated in affected packages (or PR labelled `no-release`)
 - [ ] Docs updated (site/README)
 - [ ] Examples updated (if API changed)

@@ -1,18 +1,60 @@
 # @geekist/wp-kernel-ui
 
-## Unreleased
+## 0.3.0 [Unreleased]
 
-### Added
+### Major Changes
 
-- Introduced React hook integrations (`useKernel`, `usePolicy`, `attachResourceHooks`) for kernel resources and policies.
+- **Sprint 5: Complete React Hooks Integration for WordPress Data**
 
-## 0.1.1
+### New Hooks
+
+- **`useAction()`** - Complete action dispatch system with WordPress data integration
+    - 4 concurrency modes: `parallel`, `switch`, `queue`, `drop`
+    - Automatic cache invalidation and deduplication
+    - Cancellation support with proper queue handling
+    - 427 lines with comprehensive JSDoc
+- **`useGet()` & `useList()`** - Resource data fetching hooks
+    - Lazy attachment mechanism for resources defined before UI loads
+    - WordPress data store integration
+    - 266 lines with full documentation
+- **`useKernel()`** - Bootstrap kernel runtime on WordPress data registry
+    - Installs action middleware and events plugin
+    - Automatic cleanup and teardown
+    - 73 lines
+- **`usePolicy()`** - Capability checks in UI (migrated from kernel)
+    - Reactive policy cache with `can()` helper
+    - Loading and error states
+    - 130 lines
+- **Prefetching Hooks**:
+    - `usePrefetcher()` - Generic prefetching orchestrator with debouncing (43 lines)
+    - `useVisiblePrefetch()` - IntersectionObserver-based viewport prefetching (168 lines)
+    - `useHoverPrefetch()` - Hover-triggered prefetching (75 lines)
+    - `useNextPagePrefetch()` - Pagination-aware prefetching (46 lines)
+
+### Critical Fixes
+
+- **P1: Resource Hook Timing** - Implemented module-level queue to handle resources defined before UI loads
+- **P1: Queue Cancellation** - Fixed queue concurrency mode to properly prevent cancelled actions from executing
+
+### Testing
+
+- Added 28 new test cases across 9 test files
+- Achieved 89.73% branch coverage (970 tests passing)
+- Comprehensive coverage of all new hooks and edge cases
+
+### Technical Details
+
+- Global hooks: `__WP_KERNEL_UI_ATTACH_RESOURCE_HOOKS__`, `__WP_KERNEL_UI_PROCESS_PENDING_RESOURCES__`
+- All hooks include comprehensive JSDoc documentation
+- TypeScript strict mode with full type safety
+
+## 0.2.0
 
 ### Patch Changes
 
 - Internal monorepo improvements
 - Updated dependencies
-    - @geekist/wp-kernel@0.1.1
+    - @geekist/wp-kernel@0.2.0
 
 ## 0.1.0
 
