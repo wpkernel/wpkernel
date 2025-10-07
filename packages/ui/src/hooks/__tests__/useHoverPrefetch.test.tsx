@@ -151,4 +151,83 @@ describe('useHoverPrefetch', () => {
 			});
 		}).not.toThrow();
 	});
+
+	it('cancels hover timeout on unmount', () => {
+		const { element, callback, unmount } = setupHover({
+			delayMs: 200,
+		});
+
+		act(() => {
+			element.dispatchEvent(
+				new MouseEvent('mouseenter', { bubbles: true })
+			);
+		});
+
+		// Unmount before timeout completes
+		unmount();
+
+		act(() => {
+			jest.advanceTimersByTime(300);
+		});
+
+		// Callback should not fire after unmount
+		expect(callback).not.toHaveBeenCalled();
+	});
+
+	it('handles repeated hover before timeout completes', () => {
+		const { element, callback, unmount } = setupHover({
+			delayMs: 100,
+			once: false,
+		});
+
+		// First hover - start timer
+		act(() => {
+			element.dispatchEvent(
+				new MouseEvent('mouseenter', { bubbles: true })
+			);
+			jest.advanceTimersByTime(50); // 50ms elapsed
+		});
+
+		// Second hover before timeout - should restart timer
+		act(() => {
+			element.dispatchEvent(
+				new MouseEvent('mouseleave', { bubbles: true })
+			);
+			element.dispatchEvent(
+				new MouseEvent('mouseenter', { bubbles: true })
+			);
+			jest.advanceTimersByTime(50); // Another 50ms
+		});
+
+		// First timeout would have fired now, but it was cancelled
+		expect(callback).not.toHaveBeenCalled();
+
+		// Complete the second timeout
+		act(() => {
+			jest.advanceTimersByTime(50);
+		});
+
+		expect(callback).toHaveBeenCalledTimes(1);
+		unmount();
+	});
+
+	it('cleans up event listeners on unmount', () => {
+		const { element, unmount } = setupHover({ delayMs: 50 });
+
+		const removeEventListenerSpy = jest.spyOn(
+			element,
+			'removeEventListener'
+		);
+
+		unmount();
+
+		expect(removeEventListenerSpy).toHaveBeenCalledWith(
+			'mouseenter',
+			expect.any(Function)
+		);
+		expect(removeEventListenerSpy).toHaveBeenCalledWith(
+			'mouseleave',
+			expect.any(Function)
+		);
+	});
 });

@@ -83,4 +83,74 @@ describe('useKernel (UI integration)', () => {
 		const cleanup = useKernel(registry);
 		expect(cleanup()).toBeUndefined();
 	});
+
+	it('handles missing applyMiddleware function gracefully', () => {
+		const registry = {
+			__experimentalUseMiddleware: null,
+			dispatch: jest.fn(),
+		} as unknown as KernelRegistry;
+
+		const cleanup = useKernel(registry);
+		expect(cleanup()).toBeUndefined();
+	});
+
+	it('handles non-function applyMiddleware', () => {
+		const registry = {
+			__experimentalUseMiddleware: 'not-a-function',
+			dispatch: jest.fn(),
+		} as unknown as KernelRegistry;
+
+		const cleanup = useKernel(registry);
+		expect(cleanup()).toBeUndefined();
+	});
+
+	it('cleans up middleware when cleanup is called', () => {
+		const detachAction = jest.fn();
+		const detachEvents = jest.fn();
+		const registry = {
+			__experimentalUseMiddleware: jest
+				.fn()
+				.mockReturnValueOnce(detachAction)
+				.mockReturnValueOnce(detachEvents),
+			dispatch: jest.fn().mockReturnValue({ createNotice: jest.fn() }),
+		} as unknown as KernelRegistry & {
+			__experimentalUseMiddleware: jest.Mock;
+		};
+
+		const mockReporter = {
+			info: jest.fn(),
+			warn: jest.fn(),
+			error: jest.fn(),
+			debug: jest.fn(),
+			child: jest.fn(function (this: any) {
+				return this;
+			}),
+		};
+
+		const cleanup = useKernel(registry, {
+			reporter: mockReporter,
+			namespace: 'test',
+		});
+
+		// Call cleanup
+		cleanup();
+
+		// Verify both detach functions were called
+		expect(detachAction).toHaveBeenCalledTimes(1);
+		expect(detachEvents).toHaveBeenCalledTimes(1);
+	});
+
+	it('handles cleanup with no middleware registered', () => {
+		const registry = {
+			__experimentalUseMiddleware: jest.fn().mockReturnValue(() => {}),
+			dispatch: jest.fn().mockReturnValue({ createNotice: jest.fn() }),
+		} as unknown as KernelRegistry & {
+			__experimentalUseMiddleware: jest.Mock;
+		};
+
+		const cleanup = useKernel(registry);
+
+		// Should not throw
+		expect(() => cleanup()).not.toThrow();
+	});
 });

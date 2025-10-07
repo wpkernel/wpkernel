@@ -1,6 +1,23 @@
+/**
+ * Resource React Hooks Attachment
+ *
+ * Provides React hooks (useGet, useList) for kernel resources by integrating
+ * with WordPress data stores. Hooks are attached to ResourceObject instances
+ * at module load time or queued for late attachment if resources are defined
+ * before this UI bundle loads.
+ *
+ * @see Product Specification § 4.1 Resources
+ * @module resource-hooks
+ */
 import { KernelError } from '@geekist/wp-kernel/error';
 import type { ResourceObject, ListResponse } from '@geekist/wp-kernel/resource';
 
+/**
+ * WordPress data store selector shape
+ * Internal type representing the store selectors we expect from wp.data
+ *
+ * @internal
+ */
 type WordPressStoreSelector<T, TQuery = unknown> = {
 	getItem?: (id: string | number) => T | undefined;
 	getList?: (query?: TQuery) => ListResponse<T> | undefined;
@@ -11,22 +28,50 @@ type WordPressStoreSelector<T, TQuery = unknown> = {
 	getListError?: (query?: TQuery) => string | undefined;
 };
 
+/**
+ * WordPress select function shape
+ * Internal type for wp.data.useSelect callback signature
+ *
+ * @internal
+ */
 type WordPressSelectFunction<T, TQuery = unknown> = (
 	storeKey: string
 ) => WordPressStoreSelector<T, TQuery> | undefined;
 
+/**
+ * Result shape for single-item resource hooks
+ *
+ * @template T - Entity type returned by the resource
+ */
 export interface UseResourceItemResult<T> {
+	/** The fetched entity, or undefined if not yet loaded */
 	data: T | undefined;
+	/** True if the data is currently being fetched or resolved */
 	isLoading: boolean;
+	/** Error message if the fetch failed, undefined otherwise */
 	error: string | undefined;
 }
 
+/**
+ * Result shape for list resource hooks
+ *
+ * @template T - Entity type in the list
+ */
 export interface UseResourceListResult<T> {
+	/** The fetched list response with items and metadata, or undefined if not yet loaded */
 	data: ListResponse<T> | undefined;
+	/** True if the data is currently being fetched or resolved */
 	isLoading: boolean;
+	/** Error message if the fetch failed, undefined otherwise */
 	error: string | undefined;
 }
 
+/**
+ * Resolve WordPress global in a SSR-safe way
+ *
+ * @internal
+ * @return WordPress global object or undefined if not available
+ */
 function resolveWpGlobal(): WPGlobal['wp'] | undefined {
 	if (typeof window === 'undefined') {
 		return undefined;
@@ -35,6 +80,15 @@ function resolveWpGlobal(): WPGlobal['wp'] | undefined {
 	return (window as Window & WPGlobal).wp;
 }
 
+/**
+ * Ensure WordPress data useSelect hook is available
+ *
+ * @internal
+ * @param resource - The resource requiring useSelect
+ * @param method   - The hook method name for error messaging
+ * @throws When @wordpress/data is not loaded
+ * @return WordPress data module
+ */
 function ensureUseSelect<T, TQuery>(
 	resource: ResourceObject<T, TQuery>,
 	method: 'useGet' | 'useList'
@@ -53,6 +107,15 @@ function ensureUseSelect<T, TQuery>(
 	return wp.data;
 }
 
+/**
+ * Create a React hook for fetching single entities from a resource
+ *
+ * @internal
+ * @template T - Entity type
+ * @template TQuery - Query parameter type
+ * @param    resource - The resource object to create hook for
+ * @return Hook function that accepts an entity ID and returns loading state + data
+ */
 function createUseGet<T, TQuery>(resource: ResourceObject<T, TQuery>) {
 	return (id: string | number): UseResourceItemResult<T> => {
 		const wpData = ensureUseSelect(resource, 'useGet');
@@ -81,6 +144,15 @@ function createUseGet<T, TQuery>(resource: ResourceObject<T, TQuery>) {
 	};
 }
 
+/**
+ * Create a React hook for fetching entity lists from a resource
+ *
+ * @internal
+ * @template T - Entity type in the list
+ * @template TQuery - Query parameter type
+ * @param    resource - The resource object to create hook for
+ * @return Hook function that accepts query params and returns loading state + list data
+ */
 function createUseList<T, TQuery>(resource: ResourceObject<T, TQuery>) {
 	return (query?: TQuery): UseResourceListResult<T> => {
 		const wpData = ensureUseSelect(resource, 'useList');
@@ -126,7 +198,10 @@ function createUseList<T, TQuery>(resource: ResourceObject<T, TQuery>) {
  * demand when the UI bundle is evaluated so resource modules remain tree-shake
  * friendly for non-React contexts.
  *
- * @param resource - Resource definition to augment with hooks
+ * @template T - Entity type
+ * @template TQuery - Query parameter type
+ * @param    resource - Resource definition to augment with hooks
+ * @return The same resource object with hooks attached
  */
 export function attachResourceHooks<T, TQuery>(
 	resource: ResourceObject<T, TQuery>
@@ -142,8 +217,19 @@ export function attachResourceHooks<T, TQuery>(
 	return resource;
 }
 
-// Register the hook attachment function on globalThis
-// Type defined in types/global.d.ts as GlobalThis.__WP_KERNEL_UI_ATTACH_RESOURCE_HOOKS__
+/**
+ * Global hook registration and pending resource processing
+ *
+ * When this module loads, it registers the hook attachment function on globalThis
+ * and processes any resources that were defined before the UI bundle loaded.
+ *
+ * This enables late binding of React hooks to resources, ensuring that resources
+ * defined in data modules (before React UI is imported) still receive useGet/useList
+ * when the UI package eventually loads.
+ *
+ * @see types/global.d.ts for __WP_KERNEL_UI_ATTACH_RESOURCE_HOOKS__ type definition
+ * @see packages/kernel/src/resource/define.ts for resource queuing logic
+ */
 if (typeof globalThis !== 'undefined') {
 	(
 		globalThis as typeof globalThis & {

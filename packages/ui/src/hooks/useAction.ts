@@ -100,8 +100,11 @@ function ensureDispatch(): DispatchFunction {
 	const dispatchFn: DispatchFunction = <TArgs, TResult>(
 		envelope: ActionEnvelope<TArgs, TResult>
 	): Promise<TResult> => {
-		// Safe cast: we know invokeMethod exists and returns Promise<unknown>
-		// The generic return type TResult is the caller's responsibility
+		// Type assertions required here due to WordPress data store's untyped API:
+		// 1. invokeMethod is typed as (envelope: ActionEnvelope<unknown, unknown>) => Promise<unknown>
+		// 2. We cast the envelope to match invokeMethod's signature
+		// 3. We cast the result Promise<unknown> to Promise<TResult> based on caller's generic type
+		// The type safety contract is maintained by the action envelope system, not by WordPress data types
 		return invokeMethod(
 			envelope as ActionEnvelope<unknown, unknown>
 		) as Promise<TResult>;
@@ -177,6 +180,7 @@ export function useAction<TInput, TResult>(
 	const requestsRef = useRef<Map<number, RequestRecord<TResult>>>(new Map());
 	const dedupeMapRef = useRef<Map<string, RequestRecord<TResult>>>(new Map());
 	const queueTailRef = useRef<Promise<void> | null>(null);
+	const queueCancelledRef = useRef(false);
 	const idCounterRef = useRef(0);
 
 	const markRequestCancelled = useCallback(
@@ -191,6 +195,7 @@ export function useAction<TInput, TResult>(
 
 	const clearQueue = useCallback(() => {
 		queueTailRef.current = null;
+		queueCancelledRef.current = true;
 	}, []);
 
 	const cancelAll = useCallback(
@@ -373,10 +378,21 @@ export function useAction<TInput, TResult>(
 						queueTailRef.current ?? Promise.resolve(undefined);
 					const next = tail
 						.catch(() => undefined)
-						.then(() => start());
+						.then(() => {
+							// Check if queue was cancelled before executing this queued call
+							if (queueCancelledRef.current) {
+								throw new KernelError('DeveloperError', {
+									message:
+										'Queued action cancelled before execution',
+								});
+							}
+							return start();
+						});
 					queueTailRef.current = next
 						.then(() => undefined)
 						.catch(() => undefined);
+					// Reset cancellation flag when queue starts (not when cleared)
+					queueCancelledRef.current = false;
 					return next;
 				}
 				default:

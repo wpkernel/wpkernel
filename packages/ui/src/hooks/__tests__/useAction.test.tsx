@@ -620,4 +620,194 @@ describe('useAction', () => {
 		expect(invalidateSpy).not.toHaveBeenCalled();
 		registerSpy.mockRestore();
 	});
+
+	it('queue concurrency respects cancellation and prevents queued calls from executing', async () => {
+		const first = createDeferred<string>();
+		const second = createDeferred<string>();
+		const third = createDeferred<string>();
+		prepareWpData((envelope) =>
+			envelope.payload.action(envelope.payload.args)
+		);
+
+		let call = 0;
+		const action = makeDefinedAction(async () => {
+			call += 1;
+			if (call === 1) {
+				return first.promise;
+			}
+			if (call === 2) {
+				return second.promise;
+			}
+			return third.promise;
+		});
+
+		const { result } = renderHook(() =>
+			useAction(action, { concurrency: 'queue' })
+		);
+
+		// Start first call
+		let firstRun!: Promise<string>;
+		act(() => {
+			firstRun = result.current.run('first');
+		});
+		await act(async () => {
+			await Promise.resolve(); // Allow state update
+		});
+		expect(result.current.inFlight).toBe(1);
+
+		// Queue second and third calls
+		let secondRun!: Promise<string>;
+		let thirdRun!: Promise<string>;
+		act(() => {
+			secondRun = result.current.run('second');
+			thirdRun = result.current.run('third');
+		});
+
+		// Cancel before first completes
+		act(() => {
+			result.current.cancel();
+		});
+		expect(result.current.inFlight).toBe(0);
+		expect(result.current.status).toBe('idle');
+
+		// Complete first call - it was already running so it finishes
+		await act(async () => {
+			first.resolve('first-value');
+			await firstRun;
+		});
+
+		// Queued calls (second and third) should have been cancelled and never execute
+		expect(call).toBe(1); // Only first call executed
+
+		// Resolve the remaining deferreds to clean up
+		second.resolve('second-value');
+		third.resolve('third-value');
+
+		// Ensure secondRun and thirdRun reject with cancellation error
+		await expect(secondRun).rejects.toMatchObject({
+			name: 'KernelError',
+			code: 'DeveloperError',
+			message: expect.stringContaining('cancelled'),
+		});
+		await expect(thirdRun).rejects.toMatchObject({
+			name: 'KernelError',
+			code: 'DeveloperError',
+			message: expect.stringContaining('cancelled'),
+		});
+	});
+
+	it('throws when WordPress data is missing entirely', () => {
+		const windowWithWp = global.window as Window & { wp?: any };
+		const originalWp = windowWithWp.wp;
+		windowWithWp.wp = undefined;
+
+		const action = makeDefinedAction(async () => 'noop');
+		const { result } = renderHook(() => useAction(action));
+
+		expect(() => {
+			result.current.run({} as never);
+		}).toThrow(
+			expect.objectContaining({
+				name: 'KernelError',
+				code: 'DeveloperError',
+				message: expect.stringContaining(
+					'useAction requires the WordPress data registry'
+				),
+			})
+		);
+
+		windowWithWp.wp = originalWp;
+	});
+
+	it('throws when getGlobalObject returns object without window', () => {
+		const descriptor = Object.getOwnPropertyDescriptor(
+			globalThis,
+			'window'
+		);
+		if (!descriptor?.configurable) {
+			expect(descriptor?.configurable).toBe(false);
+			return;
+		}
+
+		const originalWindow = globalThis.window;
+		Object.defineProperty(globalThis, 'window', {
+			configurable: true,
+			value: undefined,
+		});
+
+		// Clear cached dispatch
+		const globalCache = globalThis as {
+			__WP_KERNEL_UI_ACTION_DISPATCH__?: unknown;
+			__WP_KERNEL_UI_ACTION_STORE__?: boolean;
+		};
+		delete globalCache.__WP_KERNEL_UI_ACTION_DISPATCH__;
+		delete globalCache.__WP_KERNEL_UI_ACTION_STORE__;
+
+		const action = makeDefinedAction(async () => 'noop');
+		const { result } = renderHook(() => useAction(action));
+
+		expect(() => {
+			result.current.run({} as never);
+		}).toThrow(
+			expect.objectContaining({
+				name: 'KernelError',
+				code: 'DeveloperError',
+				message: expect.stringContaining('cannot run during SSR'),
+			})
+		);
+
+		Object.defineProperty(globalThis, 'window', {
+			...descriptor,
+			value: originalWindow,
+		});
+	});
+
+	it('handles Error instances in normaliseToKernelError', async () => {
+		const consoleErrorSpy = jest
+			.spyOn(console, 'error')
+			.mockImplementation(() => {});
+
+		const regularError = new Error('Regular error message');
+		prepareWpData(() => {
+			throw regularError;
+		});
+
+		const action = makeDefinedAction(async () => 'value');
+		const { result } = renderHook(() => useAction(action));
+
+		await act(async () => {
+			try {
+				await result.current.run({} as never);
+			} catch (error) {
+				expect(error).toMatchObject({
+					name: 'KernelError',
+					message: expect.stringContaining('Regular error message'),
+				});
+			}
+		});
+
+		expect(result.current.status).toBe('error');
+		consoleErrorSpy.mockRestore();
+	});
+
+	it('autoInvalidate returns false to skip invalidation', async () => {
+		prepareWpData((envelope) =>
+			envelope.payload.action(envelope.payload.args)
+		);
+		const action = makeDefinedAction(async () => ({ id: 10 }));
+		const spy = jest.spyOn(kernel, 'invalidate');
+
+		const { result } = renderHook(() =>
+			useAction(action, {
+				autoInvalidate: () => false,
+			})
+		);
+
+		await act(async () => {
+			await result.current.run({ id: 10 });
+		});
+
+		expect(spy).not.toHaveBeenCalled();
+		spy.mockRestore();
+	});
 });

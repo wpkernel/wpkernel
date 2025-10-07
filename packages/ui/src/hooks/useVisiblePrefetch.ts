@@ -36,10 +36,10 @@ function parseRootMargin(input: string): MarginBox {
 	};
 
 	const [top, right, bottom, left] = [
-		toPx(values[0]!),
-		toPx(values[1] ?? values[0]!),
-		toPx(values[2] ?? values[0]!),
-		toPx(values[3] ?? values[1] ?? values[0]!),
+		toPx(values[0] ?? '0px'),
+		toPx(values[1] ?? values[0] ?? '0px'),
+		toPx(values[2] ?? values[0] ?? '0px'),
+		toPx(values[3] ?? values[1] ?? values[0] ?? '0px'),
 	];
 
 	return { top, right, bottom, left };

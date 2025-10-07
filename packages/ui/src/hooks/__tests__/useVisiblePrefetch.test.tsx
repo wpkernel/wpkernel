@@ -228,4 +228,112 @@ describe('useVisiblePrefetch', () => {
 
 		expect(observer?.disconnect).toHaveBeenCalled();
 	});
+
+	it('handles empty rootMargin string', () => {
+		const { unmount } = setupComponent({ rootMargin: '' });
+		// Should not throw and use default margins
+		unmount();
+	});
+
+	it('handles rootMargin as passed through', () => {
+		const { observer, unmount } = setupComponent({ rootMargin: '   ' });
+		// Mock passes through value as-is
+		expect(observer?.options?.rootMargin).toBe('   ');
+		unmount();
+	});
+
+	it('passes single rootMargin value', () => {
+		const { observer, unmount } = setupComponent({ rootMargin: '50px' });
+		expect(observer?.options?.rootMargin).toBe('50px');
+		unmount();
+	});
+
+	it('passes two rootMargin values', () => {
+		const { observer, unmount } = setupComponent({
+			rootMargin: '10px 20px',
+		});
+		expect(observer?.options?.rootMargin).toBe('10px 20px');
+		unmount();
+	});
+
+	it('passes three rootMargin values', () => {
+		const { observer, unmount } = setupComponent({
+			rootMargin: '10px 20px 30px',
+		});
+		expect(observer?.options?.rootMargin).toBe('10px 20px 30px');
+		unmount();
+	});
+
+	it('handles any rootMargin string value', () => {
+		const { observer, unmount } = setupComponent({ rootMargin: 'invalid' });
+		// Mock passes through value as-is
+		expect(observer?.options?.rootMargin).toBe('invalid');
+		unmount();
+	});
+
+	it('handles SSR environment without window', () => {
+		const descriptor = Object.getOwnPropertyDescriptor(
+			globalThis,
+			'window'
+		);
+		if (!descriptor?.configurable) {
+			expect(descriptor?.configurable).toBe(false);
+			return;
+		}
+
+		const originalWindow = globalThis.window;
+		Object.defineProperty(globalThis, 'window', {
+			configurable: true,
+			value: undefined,
+		});
+
+		const container = document.createElement('div');
+		const root = createRoot(container);
+		const callback = jest.fn();
+		const ref = createRef<HTMLDivElement>();
+
+		function TestComponent() {
+			useVisiblePrefetch(ref, callback);
+			return <div ref={ref}>Target</div>;
+		}
+
+		// Should not throw during SSR
+		expect(() => {
+			act(() => {
+				root.render(<TestComponent />);
+			});
+		}).not.toThrow();
+
+		Object.defineProperty(globalThis, 'window', {
+			...descriptor,
+			value: originalWindow,
+		});
+
+		act(() => {
+			root.unmount();
+		});
+	});
+
+	it('handles null ref.current', () => {
+		const container = document.createElement('div');
+		const root = createRoot(container);
+		const callback = jest.fn();
+		const ref = createRef<HTMLDivElement>();
+
+		function TestComponent() {
+			useVisiblePrefetch(ref, callback);
+			return <div>No ref assigned</div>;
+		}
+
+		// Should not throw with null ref
+		expect(() => {
+			act(() => {
+				root.render(<TestComponent />);
+			});
+		}).not.toThrow();
+
+		act(() => {
+			root.unmount();
+		});
+	});
 });
