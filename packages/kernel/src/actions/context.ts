@@ -287,40 +287,44 @@ function createJobs(actionName: string, runtime?: ActionRuntime) {
  * // - broadcastChannel.postMessage(event) [if scope='crossTab']
  * ```
  */
-export function emitLifecycleEvent(event: ActionLifecycleEvent): void {
+const LIFECYCLE_EVENT_MAP: Record<ActionLifecycleEvent['phase'], string> = {
+	start: WPK_EVENTS.ACTION_START,
+	complete: WPK_EVENTS.ACTION_COMPLETE,
+	error: WPK_EVENTS.ACTION_ERROR,
+};
+
+function emitToHooks(eventName: string, payload: unknown): void {
 	const hooks = getHooks();
-	if (hooks?.doAction) {
-		let eventName: string;
-		if (event.phase === 'start') {
-			eventName = WPK_EVENTS.ACTION_START;
-		} else if (event.phase === 'complete') {
-			eventName = WPK_EVENTS.ACTION_COMPLETE;
-		} else {
-			eventName = WPK_EVENTS.ACTION_ERROR;
-		}
-		hooks.doAction(eventName, event);
-	}
+	hooks?.doAction?.(eventName, payload);
+}
 
+function emitLifecycleThroughBridge(
+	eventName: string,
+	event: ActionLifecycleEvent
+): void {
+	if (!event.bridged) {
+		return;
+	}
 	const runtime = getRuntime();
-	if (event.bridged && runtime?.bridge?.emit) {
-		let eventName: string;
-		if (event.phase === 'start') {
-			eventName = WPK_EVENTS.ACTION_START;
-		} else if (event.phase === 'complete') {
-			eventName = WPK_EVENTS.ACTION_COMPLETE;
-		} else {
-			eventName = WPK_EVENTS.ACTION_ERROR;
-		}
-		runtime.bridge.emit(eventName, event, event);
-	}
+	runtime?.bridge?.emit?.(eventName, event, event);
+}
 
-	if (event.scope === 'crossTab') {
-		const channel = getBroadcastChannel();
-		channel?.postMessage({
-			type: WPK_INFRASTRUCTURE.ACTIONS_MESSAGE_TYPE_LIFECYCLE,
-			event,
-		});
+function broadcastLifecycle(event: ActionLifecycleEvent): void {
+	if (event.scope !== 'crossTab') {
+		return;
 	}
+	const channel = getBroadcastChannel();
+	channel?.postMessage({
+		type: WPK_INFRASTRUCTURE.ACTIONS_MESSAGE_TYPE_LIFECYCLE,
+		event,
+	});
+}
+
+export function emitLifecycleEvent(event: ActionLifecycleEvent): void {
+	const eventName = LIFECYCLE_EVENT_MAP[event.phase];
+	emitToHooks(eventName, event);
+	emitLifecycleThroughBridge(eventName, event);
+	broadcastLifecycle(event);
 }
 
 /**
@@ -400,16 +404,11 @@ function emitDomainEvent(
 		timestamp: Date.now(),
 	};
 
-	const hooks = getHooks();
-	if (hooks?.doAction) {
-		hooks.doAction(eventName, payload);
+	emitToHooks(eventName, payload);
+	if (eventMetadata.bridged) {
+		const runtime = getRuntime();
+		runtime?.bridge?.emit?.(eventName, payload, eventMetadata);
 	}
-
-	const runtime = getRuntime();
-	if (eventMetadata.bridged && runtime?.bridge?.emit) {
-		runtime.bridge.emit(eventName, payload, eventMetadata);
-	}
-
 	if (eventMetadata.scope === 'crossTab') {
 		const channel = getBroadcastChannel();
 		channel?.postMessage({

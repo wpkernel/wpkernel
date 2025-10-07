@@ -1,12 +1,10 @@
-[**WP Kernel API v0.1.1**](../../README.md)
+[**WP Kernel API v0.3.0**](../../README.md)
 
 ---
 
 [WP Kernel API](../../README.md) / [error](../README.md) / PolicyDeniedError
 
 # Class: PolicyDeniedError
-
-Defined in: [error/PolicyDeniedError.ts:26](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/error/PolicyDeniedError.ts#L26)
 
 Error thrown when a policy assertion fails
 
@@ -32,8 +30,6 @@ throw new PolicyDeniedError({
 ```ts
 new PolicyDeniedError(options): PolicyDeniedError;
 ```
-
-Defined in: [error/PolicyDeniedError.ts:54](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/error/PolicyDeniedError.ts#L54)
 
 Create a new PolicyDeniedError
 
@@ -69,13 +65,13 @@ Optional custom error message
 
 ###### data?
 
-[`ErrorData`](../interfaces/ErrorData.md)
+[`ErrorData`](../type-aliases/ErrorData.md)
 
 Additional error data
 
 ###### context?
 
-[`ErrorContext`](../interfaces/ErrorContext.md)
+[`ErrorContext`](../type-aliases/ErrorContext.md)
 
 Additional error context
 
@@ -95,8 +91,6 @@ Additional error context
 readonly code: ErrorCode;
 ```
 
-Defined in: [error/KernelError.ts:32](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/error/KernelError.ts#L32)
-
 Error code - identifies the type of error
 
 #### Inherited from
@@ -110,8 +104,6 @@ Error code - identifies the type of error
 ```ts
 readonly optional data: ErrorData;
 ```
-
-Defined in: [error/KernelError.ts:37](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/error/KernelError.ts#L37)
 
 Additional data about the error
 
@@ -127,8 +119,6 @@ Additional data about the error
 readonly optional context: ErrorContext;
 ```
 
-Defined in: [error/KernelError.ts:42](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/error/KernelError.ts#L42)
-
 Context in which the error occurred
 
 #### Inherited from
@@ -143,8 +133,6 @@ Context in which the error occurred
 readonly messageKey: string;
 ```
 
-Defined in: [error/PolicyDeniedError.ts:31](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/error/PolicyDeniedError.ts#L31)
-
 I18n message key for user-facing error messages
 Format: `policy.denied.{namespace}.{policyKey}`
 
@@ -156,8 +144,6 @@ Format: `policy.denied.{namespace}.{policyKey}`
 readonly policyKey: string;
 ```
 
-Defined in: [error/PolicyDeniedError.ts:36](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/error/PolicyDeniedError.ts#L36)
-
 Policy key that was denied
 
 ---
@@ -167,8 +153,6 @@ Policy key that was denied
 ```ts
 readonly namespace: string;
 ```
-
-Defined in: [error/PolicyDeniedError.ts:41](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/error/PolicyDeniedError.ts#L41)
 
 Plugin namespace
 
@@ -180,13 +164,11 @@ Plugin namespace
 toJSON(): SerializedError;
 ```
 
-Defined in: [error/KernelError.ts:84](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/error/KernelError.ts#L84)
-
 Serialize error to JSON-safe format
 
 #### Returns
 
-[`SerializedError`](../interfaces/SerializedError.md)
+[`SerializedError`](../type-aliases/SerializedError.md)
 
 Serialized error object
 
@@ -202,15 +184,13 @@ Serialized error object
 static fromJSON(serialized): KernelError;
 ```
 
-Defined in: [error/KernelError.ts:101](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/error/KernelError.ts#L101)
-
 Create KernelError from serialized format
 
 #### Parameters
 
 ##### serialized
 
-[`SerializedError`](../interfaces/SerializedError.md)
+[`SerializedError`](../type-aliases/SerializedError.md)
 
 Serialized error object
 
@@ -231,8 +211,6 @@ New KernelError instance
 ```ts
 static isKernelError(error): error is KernelError;
 ```
-
-Defined in: [error/KernelError.ts:144](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/error/KernelError.ts#L144)
 
 Check if an error is a KernelError
 
@@ -265,8 +243,6 @@ static wrap(
    context?): KernelError;
 ```
 
-Defined in: [error/KernelError.ts:156](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/error/KernelError.ts#L156)
-
 Wrap a native Error into a KernelError
 
 #### Parameters
@@ -285,7 +261,7 @@ Error code to assign
 
 ##### context?
 
-[`ErrorContext`](../interfaces/ErrorContext.md)
+[`ErrorContext`](../type-aliases/ErrorContext.md)
 
 Additional context
 

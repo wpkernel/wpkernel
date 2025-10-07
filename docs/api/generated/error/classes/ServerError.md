@@ -1,12 +1,10 @@
-[**WP Kernel API v0.1.1**](../../README.md)
+[**WP Kernel API v0.3.0**](../../README.md)
 
 ---
 
 [WP Kernel API](../../README.md) / [error](../README.md) / ServerError
 
 # Class: ServerError
-
-Defined in: [error/ServerError.ts:51](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/error/ServerError.ts#L51)
 
 Error thrown when WordPress REST API returns an error
 
@@ -33,8 +31,6 @@ throw new ServerError({
 ```ts
 new ServerError(options): ServerError;
 ```
-
-Defined in: [error/ServerError.ts:94](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/error/ServerError.ts#L94)
 
 Create a new ServerError
 
@@ -70,7 +66,7 @@ Server error options
 
 ###### context?
 
-[`ErrorContext`](../interfaces/ErrorContext.md)
+[`ErrorContext`](../type-aliases/ErrorContext.md)
 
 #### Returns
 
@@ -88,8 +84,6 @@ Server error options
 readonly code: ErrorCode;
 ```
 
-Defined in: [error/KernelError.ts:32](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/error/KernelError.ts#L32)
-
 Error code - identifies the type of error
 
 #### Inherited from
@@ -103,8 +97,6 @@ Error code - identifies the type of error
 ```ts
 readonly optional data: ErrorData;
 ```
-
-Defined in: [error/KernelError.ts:37](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/error/KernelError.ts#L37)
 
 Additional data about the error
 
@@ -120,8 +112,6 @@ Additional data about the error
 readonly optional context: ErrorContext;
 ```
 
-Defined in: [error/KernelError.ts:42](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/error/KernelError.ts#L42)
-
 Context in which the error occurred
 
 #### Inherited from
@@ -136,8 +126,6 @@ Context in which the error occurred
 readonly serverCode: string;
 ```
 
-Defined in: [error/ServerError.ts:55](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/error/ServerError.ts#L55)
-
 WordPress error code (e.g., 'rest_forbidden', 'rest_invalid_param')
 
 ---
@@ -147,8 +135,6 @@ WordPress error code (e.g., 'rest_forbidden', 'rest_invalid_param')
 ```ts
 readonly serverMessage: string;
 ```
-
-Defined in: [error/ServerError.ts:60](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/error/ServerError.ts#L60)
 
 WordPress error message
 
@@ -160,8 +146,6 @@ WordPress error message
 readonly status: number;
 ```
 
-Defined in: [error/ServerError.ts:65](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/error/ServerError.ts#L65)
-
 HTTP status code
 
 ---
@@ -171,8 +155,6 @@ HTTP status code
 ```ts
 readonly path: string;
 ```
-
-Defined in: [error/ServerError.ts:70](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/error/ServerError.ts#L70)
 
 Request path
 
@@ -184,8 +166,6 @@ Request path
 readonly method: string;
 ```
 
-Defined in: [error/ServerError.ts:75](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/error/ServerError.ts#L75)
-
 HTTP method
 
 ---
@@ -195,8 +175,6 @@ HTTP method
 ```ts
 readonly optional serverData: Record<string, unknown>;
 ```
-
-Defined in: [error/ServerError.ts:80](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/error/ServerError.ts#L80)
 
 Additional server data
 
@@ -208,13 +186,11 @@ Additional server data
 toJSON(): SerializedError;
 ```
 
-Defined in: [error/KernelError.ts:84](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/error/KernelError.ts#L84)
-
 Serialize error to JSON-safe format
 
 #### Returns
 
-[`SerializedError`](../interfaces/SerializedError.md)
+[`SerializedError`](../type-aliases/SerializedError.md)
 
 Serialized error object
 
@@ -230,15 +206,13 @@ Serialized error object
 static fromJSON(serialized): KernelError;
 ```
 
-Defined in: [error/KernelError.ts:101](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/error/KernelError.ts#L101)
-
 Create KernelError from serialized format
 
 #### Parameters
 
 ##### serialized
 
-[`SerializedError`](../interfaces/SerializedError.md)
+[`SerializedError`](../type-aliases/SerializedError.md)
 
 Serialized error object
 
@@ -259,8 +233,6 @@ New KernelError instance
 ```ts
 static isKernelError(error): error is KernelError;
 ```
-
-Defined in: [error/KernelError.ts:144](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/error/KernelError.ts#L144)
 
 Check if an error is a KernelError
 
@@ -293,8 +265,6 @@ static wrap(
    context?): KernelError;
 ```
 
-Defined in: [error/KernelError.ts:156](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/error/KernelError.ts#L156)
-
 Wrap a native Error into a KernelError
 
 #### Parameters
@@ -313,7 +283,7 @@ Error code to assign
 
 ##### context?
 
-[`ErrorContext`](../interfaces/ErrorContext.md)
+[`ErrorContext`](../type-aliases/ErrorContext.md)
 
 Additional context
 
@@ -339,15 +309,13 @@ static fromWordPressResponse(
    context?): ServerError;
 ```
 
-Defined in: [error/ServerError.ts:139](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/error/ServerError.ts#L139)
-
 Parse WordPress REST API error response into ServerError
 
 #### Parameters
 
 ##### response
 
-[`WordPressRESTError`](../interfaces/WordPressRESTError.md)
+[`WordPressRESTError`](../type-aliases/WordPressRESTError.md)
 
 WordPress REST error response
 
@@ -365,7 +333,7 @@ HTTP method
 
 ##### context?
 
-[`ErrorContext`](../interfaces/ErrorContext.md)
+[`ErrorContext`](../type-aliases/ErrorContext.md)
 
 Additional context
 
@@ -383,8 +351,6 @@ New ServerError instance
 isPermissionError(): boolean;
 ```
 
-Defined in: [error/ServerError.ts:163](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/error/ServerError.ts#L163)
-
 Check if this is a permission/capability error
 
 #### Returns
@@ -400,8 +366,6 @@ True if this is a permission error
 ```ts
 isValidationError(): boolean;
 ```
-
-Defined in: [error/ServerError.ts:179](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/error/ServerError.ts#L179)
 
 Check if this is a validation error
 
@@ -419,8 +383,6 @@ True if this is a validation error
 isNotFoundError(): boolean;
 ```
 
-Defined in: [error/ServerError.ts:192](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/error/ServerError.ts#L192)
-
 Check if this is a "not found" error
 
 #### Returns
@@ -436,8 +398,6 @@ True if resource was not found
 ```ts
 getValidationErrors(): object[];
 ```
-
-Defined in: [error/ServerError.ts:205](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/error/ServerError.ts#L205)
 
 Extract validation errors from server response
 

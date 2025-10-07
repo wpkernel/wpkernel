@@ -19,18 +19,18 @@ export type { ResourceConfig };
 /**
  * WordPress E2E fixture context passed to the factory
  */
-export interface WordPressFixtures {
+export type WordPressFixtures = {
 	page: Page;
 	requestUtils: RequestUtils;
 	admin: Admin;
 	editor: Editor;
 	pageUtils: PageUtils;
-}
+};
 
 /**
  * Resource utilities for seeding and cleanup
  */
-export interface ResourceUtils<T = unknown> {
+export type ResourceUtils<T = unknown> = {
 	/**
 	 * Seed a single resource via REST API
 	 *
@@ -59,12 +59,12 @@ export interface ResourceUtils<T = unknown> {
 	 * WARNING: This will delete all resources of this type
 	 */
 	deleteAll: () => Promise<void>;
-}
+};
 
 /**
  * Store utilities for waiting on resolvers and state
  */
-export interface StoreUtils<T = unknown> {
+export type StoreUtils<T = unknown> = {
 	/**
 	 * Wait for store selector to return truthy value
 	 *
@@ -85,32 +85,32 @@ export interface StoreUtils<T = unknown> {
 	 * @return Current state object
 	 */
 	getState: () => Promise<T>;
-}
+};
 
 /**
  * Event recorder options
  */
-export interface EventRecorderOptions {
+export type EventRecorderOptions = {
 	/**
 	 * Optional regex pattern to filter events
 	 * @example /^wpk\.job\./
 	 */
 	pattern?: RegExp;
-}
+};
 
 /**
  * Captured event structure
  */
-export interface CapturedEvent<P = unknown> {
+export type CapturedEvent<P = unknown> = {
 	type: string;
 	payload?: P;
 	timestamp: number;
-}
+};
 
 /**
  * Event utilities for capturing and asserting on kernel events
  */
-export interface EventRecorder<P = unknown> {
+export type EventRecorder<P = unknown> = {
 	/**
 	 * Get all captured events
 	 */
@@ -141,12 +141,12 @@ export interface EventRecorder<P = unknown> {
 	 * Stop recording events
 	 */
 	stop: () => Promise<void>;
-}
+};
 
 /**
  * Main kernel utilities object returned by factory
  */
-export interface KernelUtils {
+export type KernelUtils = {
 	/**
 	 * Create resource utilities for a given resource config
 	 *
@@ -172,4 +172,4 @@ export interface KernelUtils {
 	events: <P = unknown>(
 		options?: EventRecorderOptions
 	) => Promise<EventRecorder<P>>;
-}
+};

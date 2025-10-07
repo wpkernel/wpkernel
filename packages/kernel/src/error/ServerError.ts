@@ -17,7 +17,7 @@ import type { ErrorContext } from './types';
  *
  * @public
  */
-export interface WordPressRESTError {
+export type WordPressRESTError = {
 	/** Error code from WordPress (e.g., 'rest_forbidden', 'invalid_param') */
 	code: string;
 	/** Human-readable error message */
@@ -32,7 +32,7 @@ export interface WordPressRESTError {
 		details?: Record<string, unknown>;
 		[key: string]: unknown;
 	};
-}
+};
 
 /**
  * Error thrown when WordPress REST API returns an error

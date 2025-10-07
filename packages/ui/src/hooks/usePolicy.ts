@@ -65,15 +65,15 @@ export function usePolicy<
 	const [error, setError] = useState<Error | undefined>(undefined);
 
 	useEffect(() => {
-		if (!policy?.can) {
+		if (policy?.can) {
+			setError(undefined);
+		} else {
 			setError(
 				new KernelError('DeveloperError', {
 					message:
 						'No policy runtime configured. Call definePolicy() and wire it into the action runtime.',
 				})
 			);
-		} else {
-			setError(undefined);
 		}
 		setHydrated(true);
 	}, [policy]);

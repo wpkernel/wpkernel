@@ -58,7 +58,7 @@ const EXECUTE_ACTION_TYPE = '@@wp-kernel/EXECUTE_ACTION';
  * @template TArgs - Input type for the action
  * @template TResult - Return type from the action
  */
-export interface ActionEnvelope<TArgs, TResult> {
+export type ActionEnvelope<TArgs, TResult> = {
 	type: typeof EXECUTE_ACTION_TYPE;
 	payload: {
 		action: DefinedAction<TArgs, TResult>;
@@ -66,7 +66,7 @@ export interface ActionEnvelope<TArgs, TResult> {
 	};
 	meta?: Record<string, unknown>;
 	__kernelAction: true;
-}
+};
 
 /**
  * Type guard to identify action envelopes at runtime.

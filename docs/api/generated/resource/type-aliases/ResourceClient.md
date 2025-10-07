@@ -1,21 +1,19 @@
-[**WP Kernel API v0.1.1**](../../README.md)
+[**WP Kernel API v0.3.0**](../../README.md)
 
 ---
 
 [WP Kernel API](../../README.md) / [resource](../README.md) / ResourceClient
 
-# Interface: ResourceClient\<T, TQuery\>
+# Type Alias: ResourceClient\<T, TQuery\>
 
-Defined in: [resource/types.ts:207](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L207)
+```ts
+type ResourceClient<T, TQuery> = object;
+```
 
 Client methods for REST operations
 
 Generated automatically by defineResource based on configured routes.
 All methods return Promises with typed responses.
-
-## Extended by
-
-- [`ResourceObject`](ResourceObject.md)
 
 ## Type Parameters
 
@@ -38,8 +36,6 @@ Query parameters type for list operations
 ```ts
 optional fetchList: (query?) => Promise<ListResponse<T>>;
 ```
-
-Defined in: [resource/types.ts:216](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L216)
 
 Fetch a list of resources
 
@@ -73,8 +69,6 @@ ServerError on REST API error
 optional fetch: (id) => Promise<T>;
 ```
 
-Defined in: [resource/types.ts:226](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L226)
-
 Fetch a single resource by ID
 
 #### Parameters
@@ -107,8 +101,6 @@ ServerError on REST API error (including 404)
 optional create: (data) => Promise<T>;
 ```
 
-Defined in: [resource/types.ts:236](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L236)
-
 Create a new resource
 
 #### Parameters
@@ -140,8 +132,6 @@ ServerError on REST API error (including validation errors)
 ```ts
 optional update: (id, data) => Promise<T>;
 ```
-
-Defined in: [resource/types.ts:247](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L247)
 
 Update an existing resource
 
@@ -180,8 +170,6 @@ ServerError on REST API error (including 404, validation errors)
 ```ts
 optional remove: (id) => Promise<void | T>;
 ```
-
-Defined in: [resource/types.ts:257](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L257)
 
 Delete a resource
 

@@ -35,19 +35,20 @@ function getGlobalObject(): DispatchGlobal {
 	return (globalThis as DispatchGlobal | undefined) ?? {};
 }
 
-function ensureDispatch(): DispatchFunction {
-	const globalObj = getGlobalObject();
-	if (globalObj.__WP_KERNEL_UI_ACTION_DISPATCH__) {
-		return globalObj.__WP_KERNEL_UI_ACTION_DISPATCH__;
-	}
-
+function ensureBrowserEnvironment() {
 	if (typeof window === 'undefined') {
 		throw new KernelError('DeveloperError', {
 			message:
 				'useAction cannot run during SSR. Call run() on the client side.',
 		});
 	}
+}
 
+type ResolvedRegistry = WPDataLike & {
+	dispatch: NonNullable<WPDataLike['dispatch']>;
+};
+
+function resolveWpDataRegistry(): ResolvedRegistry {
 	const wpData = getWPData() as WPDataLike | undefined;
 
 	if (!wpData?.dispatch) {
@@ -56,47 +57,67 @@ function ensureDispatch(): DispatchFunction {
 				'useAction requires the WordPress data registry. Ensure wp.data is available and withKernel() has been called.',
 		});
 	}
+	return wpData as ResolvedRegistry;
+}
 
-	if (!globalObj.__WP_KERNEL_UI_ACTION_STORE__) {
-		try {
-			registerKernelStore(ACTION_STORE_KEY, {
-				reducer: (state = {}) => state,
-				actions: {
-					invoke: (
-						...args: unknown[]
-					): ActionEnvelope<unknown, unknown> =>
-						args[0] as ActionEnvelope<unknown, unknown>,
-				},
-				selectors: {},
-			});
-		} catch (error) {
-			// Ignore duplicate registration since store may already exist.
-			if (
-				!(error instanceof Error) ||
-				!error.message.includes('already registered')
-			) {
-				throw error;
-			}
-		}
-		globalObj.__WP_KERNEL_UI_ACTION_STORE__ = true;
+function ensureActionStoreRegistered(globalObj: DispatchGlobal): void {
+	if (globalObj.__WP_KERNEL_UI_ACTION_STORE__) {
+		return;
 	}
 
-	const dispatcher = wpData.dispatch(ACTION_STORE_KEY) as {
-		invoke?: (
-			envelope: ActionEnvelope<unknown, unknown>
-		) => Promise<unknown>;
-	};
+	try {
+		registerKernelStore(ACTION_STORE_KEY, {
+			reducer: (state = {}) => state,
+			actions: {
+				invoke: (
+					...args: unknown[]
+				): ActionEnvelope<unknown, unknown> =>
+					args[0] as ActionEnvelope<unknown, unknown>,
+			},
+			selectors: {},
+		});
+	} catch (error) {
+		const alreadyRegistered =
+			error instanceof Error &&
+			error.message.includes('already registered');
+		if (!alreadyRegistered) {
+			throw error;
+		}
+	}
 
-	if (typeof dispatcher?.invoke !== 'function') {
+	globalObj.__WP_KERNEL_UI_ACTION_STORE__ = true;
+}
+
+function resolveInvokeMethod(
+	wpData: ResolvedRegistry
+): (envelope: ActionEnvelope<unknown, unknown>) => Promise<unknown> {
+	const dispatcher = wpData.dispatch(ACTION_STORE_KEY) as
+		| {
+				invoke?: (
+					envelope: ActionEnvelope<unknown, unknown>
+				) => Promise<unknown>;
+		  }
+		| undefined;
+
+	const invoke = dispatcher?.invoke;
+
+	if (typeof invoke !== 'function') {
 		throw new KernelError('DeveloperError', {
 			message:
 				'Failed to resolve kernel action dispatcher. Verify withKernel() was initialised.',
 		});
 	}
 
-	// Type guard ensures invoke exists and has correct signature after check above
-	const invokeMethod = dispatcher.invoke;
+	return invoke as (
+		envelope: ActionEnvelope<unknown, unknown>
+	) => Promise<unknown>;
+}
 
+function wrapInvoke(
+	invokeMethod: (
+		envelope: ActionEnvelope<unknown, unknown>
+	) => Promise<unknown>
+): DispatchFunction {
 	const dispatchFn: DispatchFunction = <TArgs, TResult>(
 		envelope: ActionEnvelope<TArgs, TResult>
 	): Promise<TResult> => {
@@ -105,6 +126,21 @@ function ensureDispatch(): DispatchFunction {
 			envelope as ActionEnvelope<unknown, unknown>
 		) as Promise<TResult>;
 	};
+
+	return dispatchFn;
+}
+
+function ensureDispatch(): DispatchFunction {
+	const globalObj = getGlobalObject();
+	if (globalObj.__WP_KERNEL_UI_ACTION_DISPATCH__) {
+		return globalObj.__WP_KERNEL_UI_ACTION_DISPATCH__;
+	}
+
+	ensureBrowserEnvironment();
+	const wpData = resolveWpDataRegistry();
+	ensureActionStoreRegistered(globalObj);
+	const invokeMethod = resolveInvokeMethod(wpData);
+	const dispatchFn = wrapInvoke(invokeMethod);
 
 	globalObj.__WP_KERNEL_UI_ACTION_DISPATCH__ = dispatchFn;
 	return dispatchFn;

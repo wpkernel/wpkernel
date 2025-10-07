@@ -13,7 +13,7 @@ export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
 /**
  * Request options for transport.fetch()
  */
-export interface TransportRequest {
+export type TransportRequest = {
 	/**
 	 * REST API path (e.g., '/my-plugin/v1/things' or '/my-plugin/v1/things/123')
 	 */
@@ -44,12 +44,12 @@ export interface TransportRequest {
 	 * Custom request ID for correlation (generated if not provided)
 	 */
 	requestId?: string;
-}
+};
 
 /**
  * Response from transport.fetch()
  */
-export interface TransportResponse<T = unknown> {
+export type TransportResponse<T = unknown> = {
 	/**
 	 * Response data
 	 */
@@ -69,12 +69,12 @@ export interface TransportResponse<T = unknown> {
 	 * Request ID used for this request (for correlation)
 	 */
 	requestId: string;
-}
+};
 
 /**
  * Event payload for wpk.resource.request
  */
-export interface ResourceRequestEvent {
+export type ResourceRequestEvent = {
 	/**
 	 * Request ID for correlation
 	 */
@@ -99,12 +99,12 @@ export interface ResourceRequestEvent {
 	 * Timestamp when request started
 	 */
 	timestamp: number;
-}
+};
 
 /**
  * Event payload for wpk.resource.response
  */
-export interface ResourceResponseEvent<T = unknown> {
+export type ResourceResponseEvent<T = unknown> = {
 	/**
 	 * Request ID for correlation
 	 */
@@ -139,12 +139,12 @@ export interface ResourceResponseEvent<T = unknown> {
 	 * Timestamp when response received
 	 */
 	timestamp: number;
-}
+};
 
 /**
  * Event payload for wpk.resource.error
  */
-export interface ResourceErrorEvent {
+export type ResourceErrorEvent = {
 	/**
 	 * Request ID for correlation
 	 */
@@ -184,4 +184,4 @@ export interface ResourceErrorEvent {
 	 * Timestamp when error occurred
 	 */
 	timestamp: number;
-}
+};

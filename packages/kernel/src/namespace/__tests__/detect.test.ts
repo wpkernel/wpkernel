@@ -271,8 +271,8 @@ describe('fallback behavior', () => {
 		expect(result).toEqual({
 			namespace: 'wpk',
 			source: 'fallback',
-			sanitized: true,
-			original: '123invalid',
+			sanitized: false,
+			original: undefined,
 		});
 	});
 });

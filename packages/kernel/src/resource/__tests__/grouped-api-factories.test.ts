@@ -13,7 +13,6 @@
 
 import {
 	createSelectGetter,
-	createUseGetter,
 	createGetGetter,
 	createMutateGetter,
 	createCacheGetter,
@@ -251,54 +250,6 @@ describe('grouped-api namespace factories', () => {
 			const list = selectNamespace!.list();
 
 			expect(list).toEqual([]);
-		});
-	});
-
-	// ===================================================================
-	// createUseGetter - React hooks namespace
-	// ===================================================================
-
-	describe('createUseGetter', () => {
-		it('should return undefined when no hooks available', () => {
-			const resourceNoHooks = {
-				...mockResourceObject,
-				useGet: undefined,
-				useList: undefined,
-			};
-
-			const getter = createUseGetter<TestItem, TestQuery>();
-			const result = getter.call(resourceNoHooks);
-
-			expect(result).toBeUndefined();
-		});
-
-		it('should return use namespace with item hook', () => {
-			const getter = createUseGetter<TestItem, TestQuery>();
-			const useNamespace = getter.call(mockResourceObject);
-
-			expect(useNamespace).toBeDefined();
-			expect(useNamespace!.item).toBe(mockResourceObject.useGet);
-		});
-
-		it('should return use namespace with list hook', () => {
-			const getter = createUseGetter<TestItem, TestQuery>();
-			const useNamespace = getter.call(mockResourceObject);
-
-			expect(useNamespace).toBeDefined();
-			expect(useNamespace!.list).toBe(mockResourceObject.useList);
-		});
-
-		it('should work when only useGet is available', () => {
-			const resourceOnlyUseGet = {
-				...mockResourceObject,
-				useList: undefined,
-			};
-
-			const getter = createUseGetter<TestItem, TestQuery>();
-			const useNamespace = getter.call(resourceOnlyUseGet);
-
-			expect(useNamespace).toBeDefined();
-			expect(useNamespace!.item).toBe(mockResourceObject.useGet);
 		});
 	});
 

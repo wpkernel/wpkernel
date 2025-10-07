@@ -1,4 +1,4 @@
-[**WP Kernel API v0.1.1**](../README.md)
+[**WP Kernel API v0.3.0**](../README.md)
 
 ---
 
@@ -6,23 +6,20 @@
 
 # resource
 
-## Interfaces
-
-- [InvalidateOptions](interfaces/InvalidateOptions.md)
-- [ResourceRoute](interfaces/ResourceRoute.md)
-- [ResourceRoutes](interfaces/ResourceRoutes.md)
-- [CacheKeys](interfaces/CacheKeys.md)
-- [ResourceConfig](interfaces/ResourceConfig.md)
-- [ListResponse](interfaces/ListResponse.md)
-- [ResourceClient](interfaces/ResourceClient.md)
-- [ResourceObject](interfaces/ResourceObject.md)
-
 ## Type Aliases
 
 - [CacheKeyPattern](type-aliases/CacheKeyPattern.md)
 - [PathParams](type-aliases/PathParams.md)
+- [InvalidateOptions](type-aliases/InvalidateOptions.md)
 - [HttpMethod](type-aliases/HttpMethod.md)
+- [ResourceRoute](type-aliases/ResourceRoute.md)
+- [ResourceRoutes](type-aliases/ResourceRoutes.md)
 - [CacheKeyFn](type-aliases/CacheKeyFn.md)
+- [CacheKeys](type-aliases/CacheKeys.md)
+- [ResourceConfig](type-aliases/ResourceConfig.md)
+- [ListResponse](type-aliases/ListResponse.md)
+- [ResourceClient](type-aliases/ResourceClient.md)
+- [ResourceObject](type-aliases/ResourceObject.md)
 
 ## Functions
 

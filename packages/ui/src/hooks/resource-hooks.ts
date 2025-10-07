@@ -24,7 +24,7 @@ type WordPressStoreSelector<T, TQuery = unknown> = {
 	getListStatus?: (query?: TQuery) => string | undefined;
 	isResolving?: (method: string, args: unknown[]) => boolean;
 	hasFinishedResolution?: (method: string, args: unknown[]) => boolean;
-	getItemError?: (id: string | number) => Error | undefined;
+	getItemError?: (id: string | number) => string | undefined;
 	getListError?: (query?: TQuery) => string | undefined;
 };
 
@@ -126,18 +126,10 @@ function createUseGet<T, TQuery>(resource: ResourceObject<T, TQuery>) {
 
 				const storeSelect = select(resource.storeKey);
 				const data = storeSelect?.getItem?.(id);
-				const isResolving = storeSelect?.isResolving?.('getItem', [id]);
-				const hasResolved = storeSelect?.hasFinishedResolution?.(
-					'getItem',
-					[id]
-				);
 				const error = storeSelect?.getItemError?.(id);
+				const isLoading = computeItemLoading(storeSelect, id);
 
-				return {
-					data,
-					isLoading: Boolean(isResolving || !hasResolved),
-					error: error?.message,
-				};
+				return { data, isLoading, error };
 			},
 			[id]
 		);
@@ -163,27 +155,10 @@ function createUseList<T, TQuery>(resource: ResourceObject<T, TQuery>) {
 
 				const storeSelect = select(resource.storeKey);
 				const data = storeSelect?.getList?.(query);
-				const status = storeSelect?.getListStatus?.(query) ?? 'idle';
-				const isResolving =
-					storeSelect?.isResolving?.('getList', [query]) ?? false;
-				const hasResolved = storeSelect?.hasFinishedResolution?.(
-					'getList',
-					[query]
-				);
 				const error = storeSelect?.getListError?.(query);
+				const isLoading = computeListLoading(storeSelect, query);
 
-				const resolvedByStatus =
-					status === 'success' || status === 'error';
-				const isLoading =
-					status === 'loading' ||
-					((hasResolved === false || status === 'idle') &&
-						!resolvedByStatus);
-
-				return {
-					data,
-					isLoading: isLoading || isResolving,
-					error,
-				};
+				return { data, isLoading, error };
 			},
 			[query]
 		);
@@ -263,4 +238,77 @@ if (typeof globalThis !== 'undefined') {
 			attachResourceHooks(resource);
 		});
 	}
+}
+
+function computeItemLoading<T>(
+	selector: WordPressStoreSelector<T> | undefined,
+	id: string | number
+): boolean {
+	if (isItemResolving(selector, id)) {
+		return true;
+	}
+	return isItemAwaitingResolution(selector, id);
+}
+
+function computeListLoading<T, TQuery>(
+	selector: WordPressStoreSelector<T, TQuery> | undefined,
+	query: TQuery | undefined
+): boolean {
+	const status = selector?.getListStatus?.(query) ?? 'idle';
+
+	if (shouldShowLoadingState(selector, query, status)) {
+		return true;
+	}
+
+	return isListResolving(selector, query);
+}
+
+function isItemResolving<T>(
+	selector: WordPressStoreSelector<T> | undefined,
+	id: string | number
+): boolean {
+	return Boolean(selector?.isResolving?.('getItem', [id]));
+}
+
+function isItemAwaitingResolution<T>(
+	selector: WordPressStoreSelector<T> | undefined,
+	id: string | number
+): boolean {
+	return selector?.hasFinishedResolution?.('getItem', [id]) === false;
+}
+
+function isListResolving<T, TQuery>(
+	selector: WordPressStoreSelector<T, TQuery> | undefined,
+	query: TQuery | undefined
+): boolean {
+	return Boolean(selector?.isResolving?.('getList', [query]));
+}
+
+function shouldShowLoadingState<T, TQuery>(
+	selector: WordPressStoreSelector<T, TQuery> | undefined,
+	query: TQuery | undefined,
+	status: string
+): boolean {
+	if (status === 'loading') {
+		return true;
+	}
+
+	const resolvedByStatus = status === 'success' || status === 'error';
+
+	// If status explicitly indicates resolution, trust it
+	if (resolvedByStatus) {
+		return false;
+	}
+
+	// For idle status, check if resolution has started
+	if (status === 'idle') {
+		const hasFinished = selector?.hasFinishedResolution?.('getList', [
+			query,
+		]);
+		if (hasFinished === false) {
+			return true;
+		}
+	}
+
+	return false;
 }

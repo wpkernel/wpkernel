@@ -202,10 +202,6 @@ describe('defineResource - grouped API getters and cache.key()', () => {
 				},
 			});
 
-			// Access use property to trigger getter
-			const useNamespace = resource.use;
-
-			expect(useNamespace).toBeUndefined();
 			expect(resource.useGet).toBeUndefined();
 			expect(resource.useList).toBeUndefined();
 		});

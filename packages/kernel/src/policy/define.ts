@@ -54,9 +54,9 @@ const policyModuleReporter = createKernelReporter({
 	level: 'warn',
 });
 
-interface WordPressHooks {
+type WordPressHooks = {
 	doAction: (eventName: string, payload: unknown) => void;
-}
+};
 
 let eventChannel: BroadcastChannel | null | undefined;
 
@@ -278,8 +278,6 @@ function emitPolicyDenied(
 	requestContext?: PolicyProxyOptions
 ) {
 	const resolvedNamespace = requestContext?.namespace ?? namespace;
-	const hooks = getHooks();
-	const channel = getEventChannel();
 	const timestamp = Date.now();
 	const eventPayload: PolicyDeniedEvent = {
 		...payload,
@@ -288,24 +286,78 @@ function emitPolicyDenied(
 	};
 
 	const eventName = `${resolvedNamespace}.${POLICY_DENIED_EVENT}`;
-	hooks?.doAction(eventName, eventPayload);
-	channel?.postMessage({
-		type: POLICY_DENIED_EVENT,
-		namespace: resolvedNamespace,
-		payload: eventPayload,
-	});
+	emitPolicyHooks(eventName, eventPayload);
+	broadcastPolicyDenied(resolvedNamespace, eventPayload);
+	emitPolicyBridge(
+		resolvedNamespace,
+		eventPayload,
+		requestContext,
+		timestamp
+	);
+}
 
-	if (requestContext?.bridged) {
-		const runtime = getPolicyRuntime();
-		runtime?.bridge?.emit?.(
-			`${resolvedNamespace}.${BRIDGE_POLICY_DENIED_EVENT}`,
-			eventPayload,
-			{
-				...requestContext,
-				timestamp,
-			}
-		);
+/**
+ * Emit policy denied event to WordPress hooks
+ *
+ * @internal
+ * @param eventName - Full event name (e.g., 'namespace.policy.denied')
+ * @param payload   - Policy denied event payload
+ */
+function emitPolicyHooks(eventName: string, payload: PolicyDeniedEvent): void {
+	getHooks()?.doAction?.(eventName, payload);
+}
+
+/**
+ * Broadcast policy denied event to other browser tabs
+ *
+ * Uses BroadcastChannel API for cross-tab synchronization of policy events.
+ *
+ * @internal
+ * @param namespace - Plugin namespace for event scoping
+ * @param payload   - Policy denied event payload
+ */
+function broadcastPolicyDenied(
+	namespace: string,
+	payload: PolicyDeniedEvent
+): void {
+	getEventChannel()?.postMessage({
+		type: POLICY_DENIED_EVENT,
+		namespace,
+		payload,
+	});
+}
+
+/**
+ * Emit policy denied event to PHP bridge
+ *
+ * Sends event to server-side bridge when bridged mode is enabled in action context.
+ * Only emits if request context indicates bridging is active.
+ *
+ * @internal
+ * @param namespace      - Plugin namespace for event scoping
+ * @param payload        - Policy denied event payload
+ * @param requestContext - Request context containing bridged flag
+ * @param timestamp      - Event timestamp in milliseconds
+ */
+function emitPolicyBridge(
+	namespace: string,
+	payload: PolicyDeniedEvent,
+	requestContext: PolicyProxyOptions | undefined,
+	timestamp: number
+): void {
+	if (!requestContext?.bridged) {
+		return;
 	}
+
+	const runtime = getPolicyRuntime();
+	runtime?.bridge?.emit?.(
+		`${namespace}.${BRIDGE_POLICY_DENIED_EVENT}`,
+		payload,
+		{
+			...requestContext,
+			timestamp,
+		}
+	);
 }
 
 /**

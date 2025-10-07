@@ -149,6 +149,125 @@ function normalizeError(
 	});
 }
 
+type ApiFetchOptions = {
+	path?: string;
+	url?: string;
+	method?: string;
+	data?: unknown;
+	parse?: boolean;
+};
+
+type ApiFetchFn = (options: ApiFetchOptions) => Promise<unknown>;
+
+function resolveApiFetch(
+	requestId: string,
+	method: string,
+	fullPath: string
+): ApiFetchFn {
+	if (typeof window === 'undefined') {
+		throw new KernelError('DeveloperError', {
+			message: 'Cannot execute fetch during server-side rendering (SSR).',
+			context: { requestId, method, path: fullPath },
+		});
+	}
+
+	const globalWp = (
+		window as Window & {
+			wp?: {
+				apiFetch?: ApiFetchFn;
+			};
+		}
+	).wp;
+
+	const apiFetch = globalWp?.apiFetch;
+
+	if (!apiFetch) {
+		throw new KernelError('DeveloperError', {
+			message:
+				'@wordpress/api-fetch is not available. Ensure it is loaded as a dependency.',
+			context: { requestId, method, path: fullPath },
+		});
+	}
+
+	return apiFetch;
+}
+
+/**
+ * Emit request event via hooks.
+ * Each helper performs its own null check for isolation and testability,
+ * rather than relying on an early guard in the caller.
+ *
+ * @param hooks     - WordPress hooks instance
+ * @param requestId - Unique request identifier
+ * @param request   - Transport request object
+ */
+function emitRequestEvent(
+	hooks: ReturnType<typeof getHooks>,
+	requestId: string,
+	request: TransportRequest
+): void {
+	if (!hooks?.doAction) {
+		return;
+	}
+
+	const requestEvent: ResourceRequestEvent = {
+		requestId,
+		method: request.method,
+		path: request.path,
+		query: request.query,
+		timestamp: Date.now(),
+	};
+	hooks.doAction(WPK_EVENTS.RESOURCE_REQUEST, requestEvent);
+}
+
+function emitResponseEvent<T>(
+	hooks: ReturnType<typeof getHooks>,
+	request: TransportRequest,
+	response: TransportResponse<T>,
+	duration: number
+): void {
+	if (!hooks?.doAction) {
+		return;
+	}
+
+	const responseEvent: ResourceResponseEvent<T> = {
+		requestId: response.requestId,
+		method: request.method,
+		path: request.path,
+		status: response.status,
+		data: response.data,
+		duration,
+		timestamp: Date.now(),
+	};
+	hooks.doAction(WPK_EVENTS.RESOURCE_RESPONSE, responseEvent);
+}
+
+function emitErrorEvent(
+	hooks: ReturnType<typeof getHooks>,
+	request: TransportRequest,
+	error: KernelError,
+	duration: number
+): void {
+	if (!hooks?.doAction) {
+		return;
+	}
+
+	const errorEvent: ResourceErrorEvent = {
+		requestId: error.context?.requestId as string,
+		method: request.method,
+		path: request.path,
+		code: error.code,
+		message: error.message,
+		status:
+			error.data && typeof error.data === 'object'
+				? (error.data as { status?: number }).status
+				: undefined,
+		duration,
+		timestamp: Date.now(),
+	};
+	hooks.doAction(WPK_EVENTS.RESOURCE_ERROR, errorEvent);
+}
+
 /**
  * Fetch data from WordPress REST API
  *
@@ -186,50 +305,10 @@ export async function fetch<T = unknown>(
 	// Build URL with query params and _fields
 	const fullPath = buildUrl(request.path, request.query, request.fields);
 
-	// Emit request event
-	if (hooks?.doAction) {
-		const requestEvent: ResourceRequestEvent = {
-			requestId,
-			method: request.method,
-			path: request.path,
-			query: request.query,
-			timestamp: Date.now(),
-		};
-		hooks.doAction(WPK_EVENTS.RESOURCE_REQUEST, requestEvent);
-	}
+	emitRequestEvent(hooks, requestId, request);
 
 	try {
-		// Import @wordpress/api-fetch dynamically (peer dependency)
-		type ApiFetchOptions = {
-			path?: string;
-			url?: string;
-			method?: string;
-			data?: unknown;
-			parse?: boolean;
-		};
-
-		const globalWp =
-			typeof window !== 'undefined'
-				? (
-						window as Window & {
-							wp?: {
-								apiFetch?: (
-									options: ApiFetchOptions
-								) => Promise<unknown>;
-							};
-						}
-					).wp
-				: null;
-
-		const apiFetch = globalWp?.apiFetch;
-
-		if (!apiFetch) {
-			throw new KernelError('DeveloperError', {
-				message:
-					'@wordpress/api-fetch is not available. Ensure it is loaded as a dependency.',
-				context: { requestId, method: request.method, path: fullPath },
-			});
-		}
+		const apiFetch = resolveApiFetch(requestId, request.method, fullPath);
 
 		// Make the request
 		const data = await apiFetch({
@@ -249,19 +328,7 @@ export async function fetch<T = unknown>(
 			requestId,
 		};
 
-		// Emit response event
-		if (hooks?.doAction) {
-			const responseEvent: ResourceResponseEvent<T> = {
-				requestId,
-				method: request.method,
-				path: request.path,
-				status: response.status,
-				data: response.data,
-				duration,
-				timestamp: Date.now(),
-			};
-			hooks.doAction(WPK_EVENTS.RESOURCE_RESPONSE, responseEvent);
-		}
+		emitResponseEvent(hooks, request, response, duration);
 		return response;
 	} catch (error) {
 		const duration = performance.now() - startTime;
@@ -272,23 +339,7 @@ export async function fetch<T = unknown>(
 			fullPath
 		);
 
-		// Emit error event
-		if (hooks?.doAction) {
-			const errorEvent: ResourceErrorEvent = {
-				requestId,
-				method: request.method,
-				path: request.path,
-				code: kernelError.code,
-				message: kernelError.message,
-				status:
-					kernelError.data && typeof kernelError.data === 'object'
-						? (kernelError.data as { status?: number }).status
-						: undefined,
-				duration,
-				timestamp: Date.now(),
-			};
-			hooks.doAction(WPK_EVENTS.RESOURCE_ERROR, errorEvent);
-		}
+		emitErrorEvent(hooks, request, kernelError, duration);
 		throw kernelError;
 	}
 }

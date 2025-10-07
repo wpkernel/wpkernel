@@ -1,4 +1,4 @@
-[**WP Kernel API v0.1.1**](../../README.md)
+[**WP Kernel API v0.3.0**](../../README.md)
 
 ---
 
@@ -9,8 +9,6 @@
 ```ts
 function findMatchingKeys(keys, pattern): string[];
 ```
-
-Defined in: [resource/cache.ts:332](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/cache.ts#L332)
 
 Find all cache keys in a collection that match the given pattern.
 

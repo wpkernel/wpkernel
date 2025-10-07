@@ -23,7 +23,7 @@ export type ErrorCode =
 /**
  * Context data that can be attached to any error
  */
-export interface ErrorContext {
+export type ErrorContext = {
 	/** Resource or action name */
 	resourceName?: string;
 	actionName?: string;
@@ -43,12 +43,12 @@ export interface ErrorContext {
 
 	/** Additional arbitrary data */
 	[key: string]: unknown;
-}
+};
 
 /**
  * Data payload that can be attached to errors
  */
-export interface ErrorData {
+export type ErrorData = {
 	/** Original error if wrapping */
 	originalError?: Error;
 
@@ -66,16 +66,16 @@ export interface ErrorData {
 
 	/** Additional arbitrary data */
 	[key: string]: unknown;
-}
+};
 
 /**
  * Serialized error format (JSON-safe)
  */
-export interface SerializedError {
+export type SerializedError = {
 	code: ErrorCode;
 	message: string;
 	data?: ErrorData;
 	context?: ErrorContext;
 	name: string;
 	stack?: string;
-}
+};

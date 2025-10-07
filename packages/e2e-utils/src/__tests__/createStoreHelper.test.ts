@@ -85,18 +85,17 @@ describe('createStoreHelper', () => {
 			jest.restoreAllMocks();
 		});
 
-		it('should handle selector that throws error', async () => {
+		it('should surface selector errors immediately', async () => {
 			const selector = () => {
 				throw new Error('Selector error');
 			};
 
-			mockPage.evaluate.mockRejectedValue(new Error('Selector error'));
-
 			const helper = createStoreHelper(storeKey, mockPage);
 
 			await expect(helper.wait(selector, 100)).rejects.toThrow(
-				'Selector error'
+				'Invalid selector: Only simple property access is supported'
 			);
+			expect(mockPage.evaluate).not.toHaveBeenCalled();
 		});
 
 		it('should continue polling on false/0/empty string', async () => {
@@ -125,7 +124,7 @@ describe('createStoreHelper', () => {
 
 			expect(mockPage.evaluate).toHaveBeenCalledWith(
 				expect.any(Function),
-				{ key: storeKey, fn: selector.toString() }
+				{ key: storeKey, path: ['jobs'] }
 			);
 		});
 	});
@@ -225,17 +224,18 @@ describe('createStoreHelper', () => {
 				jobs: Array<{ id: number; title: string }>;
 			}
 
-			mockPage.evaluate.mockResolvedValue([{ id: 1, title: 'Engineer' }]);
+			mockPage.evaluate.mockResolvedValue([
+				{ id: 1, title: 'Engineer' },
+				{ id: 2, title: 'Designer' },
+			]);
 
 			const helper = createStoreHelper<JobState>(storeKey, mockPage);
 
 			// Selector parameter should be typed as JobState
-			const result = await helper.wait(
-				(state) => state.jobs.filter((j) => j.id === 1),
-				1000
-			);
+			const result = await helper.wait((state) => state.jobs, 1000);
 
-			expect(result).toHaveLength(1);
+			expect(result).toHaveLength(2);
+			expect(result[0].title).toBe('Engineer');
 		});
 	});
 });

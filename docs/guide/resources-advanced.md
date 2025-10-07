@@ -73,15 +73,15 @@ const cachedList = select(testimonial.store).select.list({ rating: 5 });
 
 ## React Hooks (`use.*`)
 
-Identical to thin-flat API hooks, provided for grouped API consistency.
+**Note:** React hooks are provided by `@geekist/wp-kernel-ui` package. The thin-flat API (`useGet`, `useList`) is recommended.
 
-### `use.item(id)`
+### `useGet(id)` (from @geekist/wp-kernel-ui)
 
-Same as `testimonial.useGet(id)` from thin-flat API.
+React hook for fetching a single item with loading states.
 
 ```typescript
 function TestimonialView({ id }: { id: number }) {
-	const { data, isLoading, error } = testimonial.use.item(id);
+	const { data, isLoading, error } = testimonial.useGet(id);
 
 	if (isLoading) return <Spinner />;
 	if (error) return <Notice status="error">{error}</Notice>;
@@ -90,13 +90,13 @@ function TestimonialView({ id }: { id: number }) {
 }
 ```
 
-### `use.list(query?)`
+### `useList(query?)` (from @geekist/wp-kernel-ui)
 
-Same as `testimonial.useList(query)` from thin-flat API.
+React hook for fetching a list with loading states.
 
 ```typescript
 function TestimonialList() {
-	const { data, isLoading, error } = testimonial.use.list({ rating: 5 });
+	const { data, isLoading, error } = testimonial.useList({ rating: 5 });
 
 	if (isLoading) return <Spinner />;
 	return <List items={data?.items} />;
@@ -415,21 +415,23 @@ testimonial.cache.invalidate.list({ featured: true });
 // Other lists (rating:5, etc.) remain cached
 ```
 
-## Grouped API vs Thin-Flat API
+## Thin-Flat API (Recommended)
 
-| Task          | Thin-Flat API                      | Grouped API                              |
-| ------------- | ---------------------------------- | ---------------------------------------- |
-| Fetch item    | `testimonial.useGet(id)`           | `testimonial.use.item(id)`               |
-| Fetch list    | `testimonial.useList(query)`       | `testimonial.use.list(query)`            |
-| Create        | `testimonial.create(data)`         | `testimonial.mutate.create(data)`        |
-| Update        | `testimonial.update(id, data)`     | `testimonial.mutate.update(id, data)`    |
-| Delete        | `testimonial.remove(id)`           | `testimonial.mutate.remove(id)`          |
-| Prefetch item | `testimonial.prefetchGet(id)`      | `testimonial.cache.prefetch.item(id)`    |
-| Prefetch list | `testimonial.prefetchList(query)`  | `testimonial.cache.prefetch.list(query)` |
-| Invalidate    | `testimonial.invalidate(patterns)` | `testimonial.cache.invalidate.all()`     |
-| Cache key     | `testimonial.key(op, params)`      | `testimonial.cache.key(op, params)`      |
-| Check cache   | N/A                                | `testimonial.select.item(id)`            |
-| Force fetch   | N/A                                | `testimonial.fetch.item(id)`             |
+The thin-flat API provides direct access to resource methods:
+
+| Task          | API                                | Package                       |
+| ------------- | ---------------------------------- | ----------------------------- |
+| Fetch item    | `testimonial.useGet(id)`           | @geekist/wp-kernel-ui         |
+| Fetch list    | `testimonial.useList(query)`       | @geekist/wp-kernel-ui         |
+| Create        | `testimonial.create(data)`         | @geekist/wp-kernel            |
+| Update        | `testimonial.update(id, data)`     | @geekist/wp-kernel            |
+| Delete        | `testimonial.remove(id)`           | @geekist/wp-kernel            |
+| Prefetch item | `testimonial.prefetchGet(id)`      | @geekist/wp-kernel            |
+| Prefetch list | `testimonial.prefetchList(query)`  | @geekist/wp-kernel            |
+| Invalidate    | `testimonial.invalidate(patterns)` | @geekist/wp-kernel            |
+| Cache key     | `testimonial.key(op, params)`      | @geekist/wp-kernel            |
+| Check cache   | N/A                                | `testimonial.select.item(id)` |
+| Force fetch   | N/A                                | `testimonial.fetch.item(id)`  |
 
 ## Performance Considerations
 

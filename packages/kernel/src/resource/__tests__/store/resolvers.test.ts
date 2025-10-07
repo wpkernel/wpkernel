@@ -128,10 +128,7 @@ describe('createStore - Resolvers', () => {
 				items: jest.fn().mockReturnValue([]),
 				list: jest.fn().mockReturnValue([]),
 			},
-			use: {
-				item: jest.fn(),
-				list: jest.fn(),
-			},
+
 			get: {
 				item: jest.fn().mockResolvedValue({
 					id: 1,

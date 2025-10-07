@@ -40,153 +40,143 @@ import type { ResourceConfig } from './types';
 export function validateConfig<T, TQuery>(
 	config: ResourceConfig<T, TQuery>
 ): void {
-	// Validate name
+	const resourceName = validateName(config);
+	const routes = validateRoutesObject(config, resourceName);
+
+	for (const [routeName, route] of routes) {
+		validateRouteDefinition(routeName, route, resourceName);
+	}
+}
+
+const VALID_ROUTE_NAMES = new Set<
+	keyof ResourceConfig<unknown, unknown>['routes']
+>(['list', 'get', 'create', 'update', 'remove']);
+const VALID_METHODS = new Set(['GET', 'POST', 'PUT', 'PATCH', 'DELETE']);
+
+function failValidation(
+	message: string,
+	field: string,
+	options: { code?: string; resourceName?: string } = {}
+): never {
+	const { code, resourceName } = options;
+	throw new KernelError('DeveloperError', {
+		message,
+		data: {
+			validationErrors: [
+				{
+					field,
+					message,
+					...(code ? { code } : {}),
+				},
+			],
+		},
+		context: resourceName ? { resourceName } : undefined,
+	});
+}
+
+function validateName<T, TQuery>(config: ResourceConfig<T, TQuery>): string {
 	if (!config.name || typeof config.name !== 'string') {
-		throw new KernelError('DeveloperError', {
-			message: 'Resource config must have a valid "name" property',
-			data: {
-				validationErrors: [
-					{
-						field: 'name',
-						message: 'Required string property',
-					},
-				],
-			},
-		});
+		failValidation(
+			'Resource config must have a valid "name" property',
+			'name'
+		);
 	}
 
 	if (!/^[a-z][a-z0-9-]*$/.test(config.name)) {
-		throw new KernelError('DeveloperError', {
-			message: `Resource name "${config.name}" must be lowercase with hyphens only (kebab-case)`,
-			data: {
-				validationErrors: [
-					{
-						field: 'name',
-						message:
-							'Must match pattern: lowercase letters, numbers, hyphens',
-					},
-				],
-			},
-		});
+		failValidation(
+			`Resource name "${config.name}" must be lowercase with hyphens only (kebab-case)`,
+			'name'
+		);
 	}
 
-	// Validate routes
+	return config.name;
+}
+
+function validateRoutesObject<T, TQuery>(
+	config: ResourceConfig<T, TQuery>,
+	resourceName: string
+): Array<
+	[
+		keyof ResourceConfig<T, TQuery>['routes'],
+		ResourceConfig<T, TQuery>['routes'][keyof ResourceConfig<
+			T,
+			TQuery
+		>['routes']],
+	]
+> {
 	if (!config.routes || typeof config.routes !== 'object') {
-		throw new KernelError('DeveloperError', {
-			message: 'Resource config must have a "routes" object',
-			data: {
-				validationErrors: [
-					{
-						field: 'routes',
-						message: 'Required object property',
-					},
-				],
-			},
-			context: { resourceName: config.name },
-		});
+		failValidation(
+			'Resource config must have a "routes" object',
+			'routes',
+			{ resourceName }
+		);
 	}
 
-	// At least one route must be defined
-	const routeKeys = Object.keys(config.routes);
-	if (routeKeys.length === 0) {
-		throw new KernelError('DeveloperError', {
-			message: `Resource "${config.name}" must define at least one route`,
-			data: {
-				validationErrors: [
-					{
-						field: 'routes',
-						message:
-							'At least one route (list, get, create, update, remove) required',
-					},
-				],
-			},
-			context: { resourceName: config.name },
-		});
+	const entries = Object.entries(config.routes) as Array<
+		[
+			keyof ResourceConfig<T, TQuery>['routes'],
+			ResourceConfig<T, TQuery>['routes'][keyof ResourceConfig<
+				T,
+				TQuery
+			>['routes']],
+		]
+	>;
+	if (entries.length === 0) {
+		failValidation(
+			`Resource "${resourceName}" must define at least one route`,
+			'routes',
+			{ resourceName }
+		);
 	}
 
-	// Validate each route definition
-	const validRouteNames = ['list', 'get', 'create', 'update', 'remove'];
-	for (const [routeName, route] of Object.entries(config.routes)) {
-		if (!validRouteNames.includes(routeName)) {
-			throw new KernelError('DeveloperError', {
-				message: `Invalid route name "${routeName}" in resource "${config.name}"`,
-				data: {
-					validationErrors: [
-						{
-							field: `routes.${routeName}`,
-							message: `Must be one of: ${validRouteNames.join(', ')}`,
-							code: 'INVALID_ROUTE_NAME',
-						},
-					],
-				},
-				context: { resourceName: config.name },
-			});
-		}
+	return entries;
+}
 
-		if (!route || typeof route !== 'object') {
-			throw new KernelError('DeveloperError', {
-				message: `Route "${routeName}" in resource "${config.name}" must be an object`,
-				data: {
-					validationErrors: [
-						{
-							field: `routes.${routeName}`,
-							message: 'Must be an object with path and method',
-							code: 'INVALID_ROUTE_TYPE',
-						},
-					],
-				},
-				context: { resourceName: config.name },
-			});
-		}
+function validateRouteDefinition(
+	routeName: keyof ResourceConfig<unknown, unknown>['routes'],
+	route: ResourceConfig<unknown, unknown>['routes'][keyof ResourceConfig<
+		unknown,
+		unknown
+	>['routes']],
+	resourceName: string
+): void {
+	if (!VALID_ROUTE_NAMES.has(routeName)) {
+		failValidation(
+			`Invalid route name "${routeName}" in resource "${resourceName}"`,
+			`routes.${routeName}`,
+			{ code: 'INVALID_ROUTE_NAME', resourceName }
+		);
+	}
 
-		if (!route.path || typeof route.path !== 'string') {
-			throw new KernelError('DeveloperError', {
-				message: `Route "${routeName}" in resource "${config.name}" must have a valid "path"`,
-				data: {
-					validationErrors: [
-						{
-							field: `routes.${routeName}.path`,
-							message: 'Required string property',
-							code: 'MISSING_PATH',
-						},
-					],
-				},
-				context: { resourceName: config.name },
-			});
-		}
+	if (!route || typeof route !== 'object') {
+		failValidation(
+			`Route "${routeName}" in resource "${resourceName}" must be an object`,
+			`routes.${routeName}`,
+			{ code: 'INVALID_ROUTE_TYPE', resourceName }
+		);
+	}
 
-		if (!route.method || typeof route.method !== 'string') {
-			throw new KernelError('DeveloperError', {
-				message: `Route "${routeName}" in resource "${config.name}" must have a valid "method"`,
-				data: {
-					validationErrors: [
-						{
-							field: `routes.${routeName}.method`,
-							message:
-								'Required string property (GET, POST, PUT, PATCH, DELETE)',
-							code: 'MISSING_METHOD',
-						},
-					],
-				},
-				context: { resourceName: config.name },
-			});
-		}
+	if (!route.path || typeof route.path !== 'string') {
+		failValidation(
+			`Route "${routeName}" in resource "${resourceName}" must have a valid "path"`,
+			`routes.${routeName}.path`,
+			{ code: 'MISSING_PATH', resourceName }
+		);
+	}
 
-		const validMethods = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'];
-		if (!validMethods.includes(route.method)) {
-			throw new KernelError('DeveloperError', {
-				message: `Invalid HTTP method "${route.method}" for route "${routeName}" in resource "${config.name}"`,
-				data: {
-					validationErrors: [
-						{
-							field: `routes.${routeName}.method`,
-							message: `Must be one of: ${validMethods.join(', ')}`,
-							code: 'INVALID_METHOD',
-						},
-					],
-				},
-				context: { resourceName: config.name },
-			});
-		}
+	if (!route.method || typeof route.method !== 'string') {
+		failValidation(
+			`Route "${routeName}" in resource "${resourceName}" must have a valid "method"`,
+			`routes.${routeName}.method`,
+			{ code: 'MISSING_METHOD', resourceName }
+		);
+	}
+
+	if (!VALID_METHODS.has(route.method)) {
+		failValidation(
+			`Invalid HTTP method "${route.method}" for route "${routeName}" in resource "${resourceName}"`,
+			`routes.${routeName}.method`,
+			{ code: 'INVALID_METHOD', resourceName }
+		);
 	}
 }

@@ -1,12 +1,14 @@
-[**WP Kernel API v0.1.1**](../../README.md)
+[**WP Kernel API v0.3.0**](../../README.md)
 
 ---
 
 [WP Kernel API](../../README.md) / [resource](../README.md) / ResourceConfig
 
-# Interface: ResourceConfig\<T, TQuery, \_TTypes\>
+# Type Alias: ResourceConfig\<T, TQuery, \_TTypes\>
 
-Defined in: [resource/types.ts:126](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L126)
+```ts
+type ResourceConfig<T, TQuery, _TTypes> = object;
+```
 
 Complete resource definition configuration
 
@@ -53,8 +55,6 @@ Query parameters type for list operations (e.g., { q?: string })
 name: string;
 ```
 
-Defined in: [resource/types.ts:138](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L138)
-
 Unique resource name (lowercase, singular recommended)
 
 Used for store keys, event names, and debugging
@@ -66,8 +66,6 @@ Used for store keys, event names, and debugging
 ```ts
 routes: ResourceRoutes;
 ```
-
-Defined in: [resource/types.ts:145](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L145)
 
 REST route definitions
 
@@ -81,8 +79,6 @@ Define only the operations your resource supports
 optional cacheKeys: CacheKeys;
 ```
 
-Defined in: [resource/types.ts:152](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L152)
-
 Cache key generators
 
 Optional. If omitted, default cache keys based on resource name will be used
@@ -94,8 +90,6 @@ Optional. If omitted, default cache keys based on resource name will be used
 ```ts
 optional namespace: string;
 ```
-
-Defined in: [resource/types.ts:167](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L167)
 
 Namespace for events and store keys
 
@@ -115,10 +109,8 @@ name: 'my-plugin:job'; // Shorthand namespace:name format
 ### schema?
 
 ```ts
-optional schema: unknown;
+optional schema: Promise<unknown> | unknown;
 ```
-
-Defined in: [resource/types.ts:179](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L179)
 
 JSON Schema for runtime validation
 
