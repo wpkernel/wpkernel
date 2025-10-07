@@ -236,6 +236,131 @@ export function createResourceHelper<T>(
 }
 
 /**
+ * Regex pattern to match return statements in selector functions
+ * @internal
+ */
+const SELECTOR_RETURN_PATTERN = /return\s+([^;]+);?/;
+
+/**
+ * Regex pattern to validate safe property access patterns
+ * Allows only simple dot notation like `state.prop1.prop2`
+ * @internal
+ */
+const SAFE_SELECTOR_PATTERN = /^state(?:\.[a-zA-Z_$][\w$]*)*$/;
+
+/**
+ * Set of forbidden property names that cannot be accessed
+ * Prevents prototype pollution and constructor access
+ * @internal
+ */
+const FORBIDDEN_PROPS = new Set(['__proto__', 'constructor', 'prototype']);
+
+/**
+ * Extract property path from a selector function
+ *
+ * Parses a selector function and extracts the property access path as an array.
+ * Only supports simple property access patterns like `state.prop1.prop2`.
+ * Throws an error for complex expressions or forbidden properties.
+ *
+ * @internal
+ * @param selector - Selector function that accesses state properties
+ * @return Array of property names representing the access path
+ * @throws Error if selector contains unsupported patterns or forbidden properties
+ *
+ * @example
+ * ```ts
+ * extractSelectorPath((state) => state.jobs)
+ * // Returns: ['jobs']
+ *
+ * extractSelectorPath((state) => state.data.items)
+ * // Returns: ['data', 'items']
+ * ```
+ */
+function extractSelectorPath<T>(selector: (state: T) => unknown): string[] {
+	const source = selector.toString().trim();
+	const expression = source.includes('=>')
+		? extractArrowExpression(source)
+		: extractFunctionExpression(source);
+
+	if (!expression) {
+		throw new Error(
+			'Invalid selector: Only simple property access is supported'
+		);
+	}
+
+	const candidate = expression.replace(/;$/, '');
+	if (!SAFE_SELECTOR_PATTERN.test(candidate)) {
+		throw new Error(
+			'Invalid selector: Only simple property access is supported'
+		);
+	}
+
+	const path =
+		candidate === 'state'
+			? []
+			: candidate.replace(/^state\./, '').split('.');
+
+	for (const segment of path) {
+		if (FORBIDDEN_PROPS.has(segment)) {
+			throw new Error(
+				`Security violation: Property "${segment}" is not allowed`
+			);
+		}
+	}
+
+	return path.filter(Boolean);
+}
+
+/**
+ * Extract the expression body from an arrow function selector
+ *
+ * Handles both implicit return (`state => state.prop`) and
+ * explicit return (`state => { return state.prop; }`) syntax.
+ *
+ * @internal
+ * @param source - Source code of the arrow function
+ * @return Extracted expression or null if parsing fails
+ */
+function extractArrowExpression(source: string): string | null {
+	const [, rawBody = ''] = source.split('=>', 2);
+	const body = rawBody.trim();
+
+	if (!body.startsWith('{')) {
+		return body.replace(/;$/, '').trim();
+	}
+
+	const trimmed = body.replace(/^{/, '').replace(/}$/, '').trim();
+	return extractReturnExpression(trimmed);
+}
+
+/**
+ * Extract the expression body from a traditional function selector
+ *
+ * Parses function declarations/expressions to find the return statement.
+ *
+ * @internal
+ * @param source - Source code of the function
+ * @return Extracted expression or null if parsing fails
+ */
+function extractFunctionExpression(source: string): string | null {
+	return extractReturnExpression(source);
+}
+
+/**
+ * Extract the expression from a return statement
+ *
+ * Uses regex to find and extract the expression following `return`.
+ *
+ * @internal
+ * @param body - Function body containing the return statement
+ * @return Extracted expression or null if no return statement found
+ */
+function extractReturnExpression(body: string): string | null {
+	const match = body.match(SELECTOR_RETURN_PATTERN);
+	return match?.[1]?.trim() ?? null;
+}
+
+/**
  * Internal: Create store utilities
  *
  * Exported for testing only, not part of public API
@@ -254,10 +379,11 @@ export function createStoreHelper<T>(
 			timeout = 5000
 		): Promise<R> => {
 			const startTime = Date.now();
+			const propertyPath = extractSelectorPath(selector);
 
 			while (true) {
 				const result = await page.evaluate(
-					({ key, fn }) => {
+					({ key, path }) => {
 						// Auto-detect namespace
 						const namespace = window.wpKernelNamespace || 'wpk';
 						const { select } = window.wp.data;
@@ -275,58 +401,19 @@ export function createStoreHelper<T>(
 						}
 
 						// SECURITY FIX: Use safe eval instead of new Function()
-						// Parse the function string more carefully
 						try {
-							// Extract the return statement from the function
-							const fnBody = fn
-								.replace(/^[^{]*{/, '') // Remove function signature and opening brace
-								.replace(/}[^}]*$/, '') // Remove closing brace
-								.trim();
-
-							// Only allow simple property access patterns for security
-							const returnMatch =
-								fnBody.match(/^return\s+(.+);?$/);
-							if (!returnMatch || !returnMatch[1]) {
-								throw new Error(
-									'Invalid selector: Only simple return statements allowed'
-								);
-							}
-
-							const propertyPath = returnMatch[1].trim();
-							if (
-								!/^state(\.[a-zA-Z_$][a-zA-Z0-9_$]*)*$/.test(
-									propertyPath
-								)
-							) {
-								throw new Error(
-									'Invalid selector: Only simple property access allowed'
-								);
-							}
-
-							// SECURITY: Prevent prototype pollution attacks
-							const props = propertyPath
-								.replace(/^state\.?/, '')
-								.split('.');
-
-							// Reject dangerous property names
-							const dangerousProps = [
-								'__proto__',
-								'constructor',
-								'prototype',
-							];
-							for (const prop of props) {
-								if (dangerousProps.includes(prop)) {
-									throw new Error(
-										`Security violation: Property "${prop}" is not allowed`
-									);
+							return path.reduce<unknown>((current, segment) => {
+								if (
+									current &&
+									typeof current === 'object' &&
+									segment in current
+								) {
+									return (current as Record<string, unknown>)[
+										segment
+									];
 								}
-							}
-
-							// Safe property access evaluation
-							return props.reduce(
-								(obj, prop) => obj?.[prop],
-								store
-							);
+								return undefined;
+							}, store as unknown);
 						} catch (error) {
 							// Fallback for complex selectors - disable for security
 							throw new Error(
@@ -334,7 +421,7 @@ export function createStoreHelper<T>(
 							);
 						}
 					},
-					{ key: storeKey, fn: selector.toString() }
+					{ key: storeKey, path: propertyPath }
 				);
 
 				if (result) {

@@ -1,4 +1,4 @@
-[**WP Kernel API v0.1.1**](../../README.md)
+[**WP Kernel API v0.3.0**](../../README.md)
 
 ---
 
@@ -9,8 +9,6 @@
 ```ts
 function fetch<T>(request): Promise<TransportResponse<T>>;
 ```
-
-Defined in: [http/fetch.ts:179](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/http/fetch.ts#L179)
 
 Fetch data from WordPress REST API
 
@@ -33,13 +31,13 @@ Expected response data type
 
 ### request
 
-[`TransportRequest`](../interfaces/TransportRequest.md)
+[`TransportRequest`](../type-aliases/TransportRequest.md)
 
 Request configuration
 
 ## Returns
 
-`Promise`\<[`TransportResponse`](../interfaces/TransportResponse.md)\<`T`\>\>
+`Promise`\<[`TransportResponse`](../type-aliases/TransportResponse.md)\<`T`\>\>
 
 Promise resolving to response with data and metadata
 

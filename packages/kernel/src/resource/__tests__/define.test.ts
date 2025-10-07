@@ -478,18 +478,18 @@ describe('defineResource - integration', () => {
 				);
 			} finally {
 				// Restore
-				if (originalDefine !== undefined) {
-					(
-						globalThis as GlobalThis & {
-							__WPK_NAMESPACE__?: string;
-						}
-					).__WPK_NAMESPACE__ = originalDefine;
-				} else {
+				if (originalDefine === undefined) {
 					delete (
 						globalThis as GlobalThis & {
 							__WPK_NAMESPACE__?: string;
 						}
 					).__WPK_NAMESPACE__;
+				} else {
+					(
+						globalThis as GlobalThis & {
+							__WPK_NAMESPACE__?: string;
+						}
+					).__WPK_NAMESPACE__ = originalDefine;
 				}
 			}
 		});
@@ -526,10 +526,10 @@ describe('defineResource - integration', () => {
 			} finally {
 				// Restore
 				if (windowWithWp) {
-					if (originalData !== undefined) {
-						windowWithWp.wpKernelData = originalData;
-					} else {
+					if (originalData === undefined) {
 						delete windowWithWp.wpKernelData;
+					} else {
+						windowWithWp.wpKernelData = originalData;
 					}
 				}
 			}
@@ -553,7 +553,6 @@ describe('defineResource - integration', () => {
 			expect(resource).toHaveProperty('invalidate');
 			expect(resource).toHaveProperty('key');
 			expect(resource).toHaveProperty('select');
-			expect(resource).toHaveProperty('use');
 			expect(resource).toHaveProperty('get');
 			expect(resource).toHaveProperty('mutate');
 			expect(resource).toHaveProperty('cache');

@@ -44,12 +44,12 @@ export type { Reporter } from '../reporter';
  * defineAction('ToggleSidebar', impl, { scope: 'tabLocal' }); // bridged=false automatically
  * ```
  */
-export interface ActionOptions {
+export type ActionOptions = {
 	/** Event scope: whether events broadcast cross-tab or stay in current tab. */
 	scope?: 'crossTab' | 'tabLocal';
 	/** Whether to bridge lifecycle events to PHP server. Ignored when scope is tabLocal. */
 	bridged?: boolean;
-}
+};
 
 /**
  * Resolved action options with framework defaults applied.
@@ -60,18 +60,18 @@ export interface ActionOptions {
  *
  * @internal
  */
-export interface ResolvedActionOptions {
+export type ResolvedActionOptions = {
 	scope: 'crossTab' | 'tabLocal';
 	bridged: boolean;
-}
+};
 
 /**
  * Options for waiting on a background job.
  */
-export interface WaitOptions {
+export type WaitOptions = {
 	timeoutMs?: number;
 	pollIntervalMs?: number;
-}
+};
 
 /**
  * Background job orchestration interface for asynchronous work.
@@ -98,14 +98,14 @@ export interface WaitOptions {
  * }
  * ```
  */
-export interface ActionJobs {
+export type ActionJobs = {
 	enqueue: <TPayload>(jobName: string, payload: TPayload) => Promise<void>;
 	wait: <TPayload, TResult>(
 		jobName: string,
 		payload: TPayload,
 		options?: WaitOptions
 	) => Promise<TResult>;
-}
+};
 
 /**
  * Authorization and capability checking interface for actions.
@@ -147,14 +147,14 @@ export interface ActionJobs {
  *
  * @internal
  */
-export interface ActionLifecycleEventBase {
+export type ActionLifecycleEventBase = {
 	actionName: string;
 	requestId: string;
 	namespace: string;
 	scope: 'crossTab' | 'tabLocal';
 	bridged: boolean;
 	timestamp: number;
-}
+};
 
 /**
  * Lifecycle event emitted when an action starts execution.
@@ -166,10 +166,10 @@ export interface ActionLifecycleEventBase {
  *
  * Event name: `wpk.action.start`
  */
-export interface ActionStartEvent extends ActionLifecycleEventBase {
+export type ActionStartEvent = {
 	phase: 'start';
 	args: unknown;
-}
+} & ActionLifecycleEventBase;
 
 /**
  * Lifecycle event emitted when an action completes successfully.
@@ -181,11 +181,11 @@ export interface ActionStartEvent extends ActionLifecycleEventBase {
  *
  * Event name: `wpk.action.complete`
  */
-export interface ActionCompleteEvent extends ActionLifecycleEventBase {
+export type ActionCompleteEvent = {
 	phase: 'complete';
 	result: unknown;
 	durationMs: number;
-}
+} & ActionLifecycleEventBase;
 
 /**
  * Lifecycle event emitted when an action fails.
@@ -197,11 +197,11 @@ export interface ActionCompleteEvent extends ActionLifecycleEventBase {
  *
  * Event name: `wpk.action.error`
  */
-export interface ActionErrorEvent extends ActionLifecycleEventBase {
+export type ActionErrorEvent = {
 	phase: 'error';
 	error: unknown;
 	durationMs: number;
-}
+} & ActionLifecycleEventBase;
 
 /**
  * Union type of all lifecycle events emitted by actions.
@@ -259,7 +259,7 @@ export type ActionLifecycleEvent =
  * }
  * ```
  */
-export interface ActionContext {
+export type ActionContext = {
 	/** Correlation identifier shared with transport calls. */
 	readonly requestId: string;
 	/** Emit canonical events. */
@@ -280,7 +280,7 @@ export interface ActionContext {
 	readonly reporter: Reporter;
 	/** Resolved namespace of the current action. */
 	readonly namespace: string;
-}
+};
 
 /**
  * Function signature for action implementations.
@@ -336,11 +336,11 @@ export type ActionFn<TArgs, TResult> = (
  * console.log(CreatePost.options.scope); // "crossTab"
  * ```
  */
-export interface DefinedAction<TArgs, TResult> {
+export type DefinedAction<TArgs, TResult> = {
 	(args: TArgs): Promise<TResult>;
 	readonly actionName: string;
 	readonly options: ResolvedActionOptions;
-}
+};
 
 /**
  * Redux compatible dispatch signature (duck-typed from Redux types).
@@ -350,10 +350,10 @@ export type ReduxDispatch = (action: unknown) => unknown;
 /**
  * Redux compatible middleware API signature.
  */
-export interface ReduxMiddlewareAPI<TState = unknown> {
+export type ReduxMiddlewareAPI<TState = unknown> = {
 	dispatch: ReduxDispatch;
 	getState: () => TState;
-}
+};
 
 /**
  * Redux compatible middleware type without depending on redux package.
@@ -383,7 +383,7 @@ export type ReduxMiddleware<TState = unknown> = (
  *
  * @internal
  */
-export interface ActionRuntime {
+export type ActionRuntime = {
 	reporter?: Reporter;
 	jobs?: ActionJobs;
 	policy?: Partial<PolicyHelpers<Record<string, unknown>>>;
@@ -394,7 +394,7 @@ export interface ActionRuntime {
 			metadata: ActionLifecycleEventBase
 		) => void;
 	};
-}
+};
 
 declare global {
 	var __WP_KERNEL_ACTION_RUNTIME__: ActionRuntime | undefined;

@@ -8,11 +8,11 @@ import {
 import { __ } from '@wordpress/i18n';
 import type { Job } from '../../../types/job';
 
-interface JobListTableProps {
+type JobListTableProps = {
 	jobs: Job[];
 	isLoading: boolean;
 	errorMessage?: string | null;
-}
+};
 
 const formatDate = (value?: string): string => {
 	if (!value) {

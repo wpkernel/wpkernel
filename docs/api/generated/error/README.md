@@ -1,4 +1,4 @@
-[**WP Kernel API v0.1.1**](../README.md)
+[**WP Kernel API v0.3.0**](../README.md)
 
 ---
 
@@ -17,13 +17,10 @@ Exports all error types and utilities for consistent error handling throughout t
 - [ServerError](classes/ServerError.md)
 - [TransportError](classes/TransportError.md)
 
-## Interfaces
-
-- [WordPressRESTError](interfaces/WordPressRESTError.md)
-- [ErrorContext](interfaces/ErrorContext.md)
-- [ErrorData](interfaces/ErrorData.md)
-- [SerializedError](interfaces/SerializedError.md)
-
 ## Type Aliases
 
+- [WordPressRESTError](type-aliases/WordPressRESTError.md)
 - [ErrorCode](type-aliases/ErrorCode.md)
+- [ErrorContext](type-aliases/ErrorContext.md)
+- [ErrorData](type-aliases/ErrorData.md)
+- [SerializedError](type-aliases/SerializedError.md)

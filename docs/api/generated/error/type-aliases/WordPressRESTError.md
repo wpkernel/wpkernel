@@ -1,12 +1,14 @@
-[**WP Kernel API v0.1.1**](../../README.md)
+[**WP Kernel API v0.3.0**](../../README.md)
 
 ---
 
 [WP Kernel API](../../README.md) / [error](../README.md) / WordPressRESTError
 
-# Interface: WordPressRESTError
+# Type Alias: WordPressRESTError
 
-Defined in: [error/ServerError.ts:20](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/error/ServerError.ts#L20)
+```ts
+type WordPressRESTError = object;
+```
 
 WordPress REST API error response shape
 
@@ -20,8 +22,6 @@ This interface represents the standard error format returned by WordPress REST A
 code: string;
 ```
 
-Defined in: [error/ServerError.ts:22](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/error/ServerError.ts#L22)
-
 Error code from WordPress (e.g., 'rest_forbidden', 'invalid_param')
 
 ---
@@ -32,8 +32,6 @@ Error code from WordPress (e.g., 'rest_forbidden', 'invalid_param')
 message: string;
 ```
 
-Defined in: [error/ServerError.ts:24](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/error/ServerError.ts#L24)
-
 Human-readable error message
 
 ---
@@ -43,8 +41,6 @@ Human-readable error message
 ```ts
 optional data: object;
 ```
-
-Defined in: [error/ServerError.ts:26](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/error/ServerError.ts#L26)
 
 Additional error data
 

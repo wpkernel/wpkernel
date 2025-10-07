@@ -1,12 +1,14 @@
-[**WP Kernel API v0.1.1**](../../README.md)
+[**WP Kernel API v0.3.0**](../../README.md)
 
 ---
 
 [WP Kernel API](../../README.md) / [resource](../README.md) / ResourceRoutes
 
-# Interface: ResourceRoutes
+# Type Alias: ResourceRoutes
 
-Defined in: [resource/types.ts:48](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L48)
+```ts
+type ResourceRoutes = object;
+```
 
 Standard CRUD routes for a resource
 
@@ -32,8 +34,6 @@ All routes are optional. At minimum, define the operations your resource support
 optional list: ResourceRoute;
 ```
 
-Defined in: [resource/types.ts:50](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L50)
-
 Fetch a list/collection of resources
 
 ---
@@ -43,8 +43,6 @@ Fetch a list/collection of resources
 ```ts
 optional get: ResourceRoute;
 ```
-
-Defined in: [resource/types.ts:52](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L52)
 
 Fetch a single resource by identifier
 
@@ -56,8 +54,6 @@ Fetch a single resource by identifier
 optional create: ResourceRoute;
 ```
 
-Defined in: [resource/types.ts:54](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L54)
-
 Create a new resource
 
 ---
@@ -68,8 +64,6 @@ Create a new resource
 optional update: ResourceRoute;
 ```
 
-Defined in: [resource/types.ts:56](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L56)
-
 Update an existing resource
 
 ---
@@ -79,7 +73,5 @@ Update an existing resource
 ```ts
 optional remove: ResourceRoute;
 ```
-
-Defined in: [resource/types.ts:58](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L58)
 
 Delete a resource

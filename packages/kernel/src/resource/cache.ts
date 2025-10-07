@@ -14,12 +14,12 @@ type InternalState = {
 /**
  * Dispatch interface for stores with invalidation capabilities.
  */
-interface DispatchWithInvalidate {
+type DispatchWithInvalidate = {
 	invalidate?: (keys: string[]) => void;
 	invalidateResolution?: (type: string) => void;
 	invalidateAll?: () => void;
 	[key: string]: unknown;
-}
+};
 
 /**
  * Convert input pattern(s) into an array form.
@@ -482,7 +482,7 @@ export function extractPathParams(path: string): string[] {
 /**
  * Options for invalidate function
  */
-export interface InvalidateOptions {
+export type InvalidateOptions = {
 	/**
 	 * Store key to target (e.g., 'my-plugin/thing')
 	 * If not provided, invalidates across all registered stores
@@ -494,7 +494,7 @@ export interface InvalidateOptions {
 	 * @default true
 	 */
 	emitEvent?: boolean;
-}
+};
 
 /**
  * Registry to track resource store keys

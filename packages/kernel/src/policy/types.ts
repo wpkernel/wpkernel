@@ -88,24 +88,24 @@ export type ParamsOf<K, Key extends keyof K> = K[Key] extends void
 /**
  * Cache storage options for policy evaluations.
  */
-export interface PolicyCacheOptions {
+export type PolicyCacheOptions = {
 	ttlMs?: number;
 	storage?: 'memory' | 'session';
 	crossTab?: boolean;
-}
+};
 
 /**
  * Entry stored in the policy cache.
  */
-export interface PolicyCacheEntry {
+export type PolicyCacheEntry = {
 	value: boolean;
 	expiresAt: number;
-}
+};
 
 /**
  * Minimal cache contract used by the policy runtime and React hook.
  */
-export interface PolicyCache {
+export type PolicyCache = {
 	get: (key: string) => boolean | undefined;
 	set: (
 		key: string,
@@ -121,7 +121,7 @@ export interface PolicyCache {
 	keys: () => string[];
 	subscribe: (listener: () => void) => () => void;
 	getSnapshot: () => number;
-}
+};
 
 /**
  * Adapters that policy rules can leverage when evaluating capabilities.
@@ -163,7 +163,7 @@ export interface PolicyCache {
  * }
  * ```
  */
-export interface PolicyAdapters {
+export type PolicyAdapters = {
 	wp?: {
 		canUser: (
 			action: 'create' | 'read' | 'update' | 'delete',
@@ -173,7 +173,7 @@ export interface PolicyAdapters {
 		) => boolean | Promise<boolean>;
 	};
 	restProbe?: (key: string) => Promise<boolean>;
-}
+};
 
 /**
  * Policy evaluation context passed to every rule.
@@ -208,27 +208,27 @@ export interface PolicyAdapters {
  * };
  * ```
  */
-export interface PolicyContext {
+export type PolicyContext = {
 	namespace: string;
 	adapters: PolicyAdapters;
 	cache: PolicyCache;
 	reporter?: PolicyReporter;
-}
+};
 
 /**
  * Additional options accepted by `definePolicy()`.
  */
-export interface PolicyOptions {
+export type PolicyOptions = {
 	namespace?: string;
 	adapters?: PolicyAdapters;
 	cache?: PolicyCacheOptions;
 	debug?: boolean;
-}
+};
 
 /**
  * Runtime helpers exposed by `definePolicy()`.
  */
-export interface PolicyHelpers<K extends Record<string, unknown>> {
+export type PolicyHelpers<K extends Record<string, unknown>> = {
 	can: <Key extends keyof K>(
 		key: Key,
 		...params: ParamsOf<K, Key>
@@ -240,24 +240,24 @@ export interface PolicyHelpers<K extends Record<string, unknown>> {
 	keys: () => (keyof K)[];
 	extend: (additionalMap: Partial<PolicyMap<K>>) => void;
 	readonly cache: PolicyCache;
-}
+};
 
 /**
  * Payload emitted with `{namespace}.policy.denied` events.
  */
-export interface PolicyDeniedEvent {
+export type PolicyDeniedEvent = {
 	policyKey: string;
 	context?: Record<string, unknown>;
 	requestId?: string;
 	timestamp: number;
 	reason?: string;
 	messageKey?: string;
-}
+};
 
 /**
  * Result returned by the `usePolicy()` hook.
  */
-export interface UsePolicyResult<K extends Record<string, unknown>> {
+export type UsePolicyResult<K extends Record<string, unknown>> = {
 	can: <Key extends keyof K>(
 		key: Key,
 		...params: ParamsOf<K, Key>
@@ -265,4 +265,4 @@ export interface UsePolicyResult<K extends Record<string, unknown>> {
 	keys: (keyof K)[];
 	isLoading: boolean;
 	error?: Error;
-}
+};

@@ -4,13 +4,13 @@ import type { Job } from '../../types/job';
 /**
  * Query parameters for job listing endpoint.
  */
-export interface JobListParams {
+export type JobListParams = {
 	q?: string;
 	department?: string;
 	location?: string;
 	status?: 'draft' | 'publish' | 'closed';
 	cursor?: string;
-}
+};
 
 /**
  * Resource definition for job postings.

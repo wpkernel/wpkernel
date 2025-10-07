@@ -154,6 +154,35 @@ describe('resource hooks (UI integration)', () => {
 				error: 'Not found',
 			});
 		});
+
+		it('keeps items loading until resolution completes', () => {
+			mockWpData.useSelect.mockImplementation((callback: any) => {
+				const mockSelect = {
+					getItem: jest.fn().mockReturnValue({
+						id: 5,
+						title: 'Pending',
+						status: 'draft',
+					}),
+					isResolving: jest.fn().mockReturnValue(false),
+					hasFinishedResolution: jest.fn().mockReturnValue(false),
+					getItemError: jest.fn().mockReturnValue(undefined),
+				};
+
+				return callback(() => mockSelect);
+			});
+
+			const resource = defineResource<MockThing, MockThingQuery>({
+				name: 'thing',
+				routes: {
+					get: { path: '/wpk/v1/things/:id', method: 'GET' },
+				},
+			});
+
+			const result = resource.useGet!(5);
+
+			expect(result.isLoading).toBe(true);
+			expect(result.data).toMatchObject({ id: 5, title: 'Pending' });
+		});
 	});
 
 	describe('useList hook', () => {
@@ -300,6 +329,59 @@ describe('resource hooks (UI integration)', () => {
 				isLoading: false,
 				error: mockError,
 			});
+		});
+
+		it('treats idle lists without resolution as loading', () => {
+			mockWpData.useSelect.mockImplementation((callback: any) => {
+				const mockSelect = {
+					getList: jest.fn().mockReturnValue(undefined),
+					getListStatus: jest.fn().mockReturnValue('idle'),
+					isResolving: jest.fn().mockReturnValue(false),
+					hasFinishedResolution: jest.fn().mockReturnValue(false),
+					getListError: jest.fn().mockReturnValue(undefined),
+				};
+
+				return callback(() => mockSelect);
+			});
+
+			const resource = defineResource<MockThing, MockThingQuery>({
+				name: 'thing',
+				routes: {
+					list: { path: '/wpk/v1/things', method: 'GET' },
+				},
+			});
+
+			const result = resource.useList?.();
+			expect(result?.isLoading).toBe(true);
+		});
+
+		it('keeps success lists loading while resolver runs', () => {
+			mockWpData.useSelect.mockImplementation((callback: any) => {
+				const mockSelect = {
+					getList: jest
+						.fn()
+						.mockReturnValue([
+							{ id: 9, title: 'Entry', status: 'active' },
+						]),
+					getListStatus: jest.fn().mockReturnValue('success'),
+					isResolving: jest.fn().mockReturnValue(true),
+					hasFinishedResolution: jest.fn().mockReturnValue(true),
+					getListError: jest.fn().mockReturnValue(undefined),
+				};
+
+				return callback(() => mockSelect);
+			});
+
+			const resource = defineResource<MockThing, MockThingQuery>({
+				name: 'thing',
+				routes: {
+					list: { path: '/wpk/v1/things', method: 'GET' },
+				},
+			});
+
+			const result = resource.useList?.();
+			expect(result?.isLoading).toBe(true);
+			expect(result?.data).toHaveLength(1);
 		});
 	});
 

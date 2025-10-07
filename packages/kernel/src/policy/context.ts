@@ -20,13 +20,13 @@ import { createReporter } from '../reporter';
 import { WPK_SUBSYSTEM_NAMESPACES } from '../namespace/constants';
 import type { PolicyHelpers } from './types';
 
-export interface PolicyProxyOptions {
+export type PolicyProxyOptions = {
 	actionName: string;
 	requestId: string;
 	namespace: string;
 	scope: 'crossTab' | 'tabLocal';
 	bridged: boolean;
-}
+};
 
 type PolicyRequestContext = PolicyProxyOptions;
 

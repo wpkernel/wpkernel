@@ -94,27 +94,6 @@ export function createSelectGetter<T, TQuery>(
 }
 
 /**
- * Create use namespace getter
- *
- * React hooks that integrate with @wordpress/data.
- * Aliases to thin-flat useGet/useList methods.
- *
- * @return Getter descriptor for use namespace
- */
-export function createUseGetter<T, TQuery>() {
-	return function (this: ResourceObject<T, TQuery>) {
-		if (!this.useGet && !this.useList) {
-			return undefined;
-		}
-
-		return {
-			item: this.useGet!,
-			list: this.useList!,
-		};
-	};
-}
-
-/**
  * Create get namespace getter
  *
  * Explicit fetching methods that bypass cache and always hit the server.

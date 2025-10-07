@@ -7,6 +7,10 @@
 
 import { FlatCompat } from '@eslint/eslintrc';
 import js from '@eslint/js';
+import importPlugin from 'eslint-plugin-import';
+import unicorn from 'eslint-plugin-unicorn';
+import sonarjs from 'eslint-plugin-sonarjs';
+import earlyReturn from 'eslint-plugin-early-return';
 import tseslint from '@typescript-eslint/eslint-plugin';
 import tsParser from '@typescript-eslint/parser';
 import globals from 'globals';
@@ -82,12 +86,28 @@ export default [
 
 		plugins: {
 			'@kernel': kernelPlugin,
+			import: importPlugin,
+			unicorn,
+			sonarjs,
+			'early-return': earlyReturn,
 		},
 
 		// Custom rules for WP Kernel
 		rules: {
 			// Disable problematic rule (ESLint 9 compatibility issue)
 			'@wordpress/no-unused-vars-before-return': 'off',
+			'no-else-return': 'error',
+			'no-fallthrough': 'error',
+			'default-case-last': 'error',
+			complexity: ['error', 10],
+			'max-depth': ['error', 3],
+			'max-nested-callbacks': ['error', 3],
+			'unicorn/no-negated-condition': 'error',
+			'unicorn/prefer-switch': 'error',
+			'unicorn/no-nested-ternary': 'error',
+			'sonarjs/no-collapsible-if': 'error',
+			'sonarjs/no-nested-switch': 'error',
+			'sonarjs/cognitive-complexity': ['error', 15],
 
 			// Enforce no deep imports across packages (must use public entry points)
 			'no-restricted-imports': [
@@ -176,30 +196,24 @@ export default [
 		},
 	},
 
-	// Test files - more relaxed rules + enforce test patterns
+	// Test files - relaxed rules
 	{
 		files: [
 			'**/*.test.ts',
 			'**/*.test.tsx',
 			'**/*.spec.ts',
 			'**/*.spec.tsx',
-			'**/test/**',
-			'**/testing/**',
-			'**/tests/**',
 			'**/__tests__/**',
+			'**/tests/**',
+			'**/testing/**',
 		],
-		plugins: {
-			'@kernel': kernelPlugin,
-		},
 		rules: {
-			'no-console': 'off',
+			complexity: 'off',
+			'max-depth': 'off',
+			'max-nested-callbacks': 'off',
 			'@typescript-eslint/no-explicit-any': 'off',
 			'import/no-default-export': 'off',
-			// Disable extraneous dependencies rule for test files
-			// In a monorepo with centralized dependency management, this rule is more harmful than helpful
 			'import/no-extraneous-dependencies': 'off',
-			// Enforce centralized test patterns
-			'@kernel/no-manual-test-globals': 'error',
 		},
 	},
 

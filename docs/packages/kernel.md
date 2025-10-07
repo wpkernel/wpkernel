@@ -173,9 +173,9 @@ const post = defineResource({ name: 'post' /* ... */ });
 const posts = post.select.list();
 const singlePost = post.select.item(123);
 
-// React hooks
-const { data: posts, isLoading } = post.use.list();
-const { data: singlePost } = post.use.item(123);
+// React hooks (from @geekist/wp-kernel-ui)
+const { data: posts, isLoading } = post.useList();
+const { data: singlePost } = post.useGet(123);
 
 // Explicit fetching (bypass cache)
 const freshPosts = await post.get.list();

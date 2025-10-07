@@ -22,27 +22,27 @@ import { WPK_NAMESPACE, WPK_SUBSYSTEM_NAMESPACES } from './constants';
 /**
  * WordPress global data interface
  */
-interface WordPressGlobal {
+type WordPressGlobal = {
 	wp?: unknown;
 	wpKernelData?: {
 		textDomain?: string;
 	};
-}
+};
 
 /**
  * Package data interface for bundled environments
  */
-interface PackageData {
+type PackageData = {
 	name?: string;
-}
+};
 
 /**
  * Global this with package data and build-time defines
  */
-interface GlobalThisWithPackage {
+type GlobalThisWithPackage = {
 	__WP_KERNEL_PACKAGE__?: PackageData;
 	__WPK_NAMESPACE__?: string;
-}
+};
 
 /**
  * Reserved namespace words that cannot be used
@@ -72,6 +72,8 @@ const namespaceReporter = createReporter({
 
 /**
  * Check if we're in development mode
+ *
+ * @internal
  * @return True if in development environment
  */
 function isDevelopment(): boolean {
@@ -89,6 +91,8 @@ function isDevelopment(): boolean {
 
 /**
  * Emit development-only warning for non-deterministic fallbacks
+ *
+ * @internal
  * @param source    - The detection source that was used
  * @param namespace - The detected namespace
  */
@@ -125,6 +129,7 @@ export function resetNamespaceCache(): void {
 /**
  * Generate cache key from options
  *
+ * @internal
  * @param options - Detection options
  * @return Cache key string
  */
@@ -141,6 +146,8 @@ function getCacheKey(options: NamespaceDetectionOptions): string {
 
 /**
  * Detect runtime context automatically
+ *
+ * @internal
  * @return Best guess at current runtime context
  */
 function detectRuntimeContext(): NamespaceRuntimeContext {
@@ -164,6 +171,7 @@ function detectRuntimeContext(): NamespaceRuntimeContext {
  * Extract namespace from build-time defines
  * These are the most deterministic and WordPress-native sources
  *
+ * @internal
  * @return Detected namespace or null
  */
 function extractFromBuildDefines(): string | null {
@@ -186,6 +194,7 @@ function extractFromBuildDefines(): string | null {
  * Extract namespace from module ID
  * For Script Modules pattern: wpk/my-plugin → my-plugin
  *
+ * @internal
  * @param moduleId - Module identifier
  * @return Extracted namespace or null
  */
@@ -237,7 +246,7 @@ export type NamespaceRuntimeContext =
 /**
  * Options for namespace detection
  */
-export interface NamespaceDetectionOptions {
+export type NamespaceDetectionOptions = {
 	/**
 	 * Explicit namespace override
 	 */
@@ -271,12 +280,12 @@ export interface NamespaceDetectionOptions {
 	 * Module ID for Script Modules (e.g., 'wpk/my-plugin' → 'my-plugin')
 	 */
 	moduleId?: string;
-}
+};
 
 /**
  * Result of namespace detection
  */
-export interface NamespaceDetectionResult {
+export type NamespaceDetectionResult = {
 	/**
 	 * The detected/resolved namespace
 	 */
@@ -303,7 +312,14 @@ export interface NamespaceDetectionResult {
 	 * Original value before sanitization (if different)
 	 */
 	original?: string;
-}
+};
+
+type NamespaceCandidate = {
+	source: NamespaceDetectionResult['source'];
+	resolve: () => string | null | undefined;
+	original?: string;
+	onInvalid?: 'fallback' | 'default';
+};
 
 /**
  * Extract namespace from WordPress plugin headers
@@ -311,6 +327,7 @@ export interface NamespaceDetectionResult {
  * Looks for 'Text Domain' in plugin header or attempts to
  * extract from plugin file name/directory structure.
  *
+ * @internal
  * @param mode    - Detection mode (affects which methods are used)
  * @param runtime - Runtime context (affects DOM access)
  * @return Detected namespace or null
@@ -319,65 +336,132 @@ function extractFromPluginHeader(
 	mode: NamespaceDetectionMode = 'wp',
 	runtime: NamespaceRuntimeContext = 'frontend'
 ): string | null {
-	// Skip DOM-based detection in headless/static contexts
-	if (runtime === 'headless' || runtime === 'static') {
+	if (!isBrowserRuntime(runtime)) {
 		return null;
 	}
 
-	// Only available in WordPress context
-	if (
-		typeof window === 'undefined' ||
-		typeof (window as unknown as WordPressGlobal).wp === 'undefined'
-	) {
+	if (!hasWordPressContext()) {
 		return null;
 	}
 
+	const wpKernelData = getWordPressTextDomain();
+	if (wpKernelData) {
+		return wpKernelData;
+	}
+
+	if (!shouldUseHeuristics(mode)) {
+		return null;
+	}
+
+	const scriptMatch = extractNamespaceFromScriptTags();
+	if (scriptMatch) {
+		return scriptMatch;
+	}
+
+	return extractNamespaceFromBodyClasses();
+}
+
+/**
+ * Check if the runtime context is browser-based
+ *
+ * @internal
+ * @param runtime - Runtime context to check
+ * @return True if runtime allows browser API access
+ */
+function isBrowserRuntime(
+	runtime: NamespaceRuntimeContext
+): runtime is Exclude<NamespaceRuntimeContext, 'headless' | 'static'> {
+	return runtime !== 'headless' && runtime !== 'static';
+}
+
+/**
+ * Check if WordPress global context is available
+ *
+ * @internal
+ * @return True if window.wp is defined
+ */
+function hasWordPressContext(): boolean {
+	return (
+		typeof window !== 'undefined' &&
+		typeof (window as unknown as WordPressGlobal).wp !== 'undefined'
+	);
+}
+
+/**
+ * Extract WordPress text domain from global wpKernelData
+ *
+ * @internal
+ * @return Text domain string or null if not found
+ */
+function getWordPressTextDomain(): string | null {
+	const wpKernelData = (window as unknown as WordPressGlobal).wpKernelData
+		?.textDomain;
+	if (typeof wpKernelData === 'string' && wpKernelData.trim().length > 0) {
+		return wpKernelData;
+	}
+	return null;
+}
+
+/**
+ * Check if detection mode allows heuristic-based detection
+ *
+ * @internal
+ * @param mode - Detection mode to check
+ * @return True if heuristic methods should be used
+ */
+function shouldUseHeuristics(mode: NamespaceDetectionMode): boolean {
+	return mode === 'heuristic' || mode === 'auto';
+}
+
+/**
+ * Extract namespace from script tag IDs in the DOM
+ *
+ * Looks for script tags with IDs matching the pattern `{namespace}-wp-kernel`
+ *
+ * @internal
+ * @return Detected namespace or null
+ */
+function extractNamespaceFromScriptTags(): string | null {
 	try {
-		// Try to get text domain from WordPress globals
-		// This would be set by wp_localize_script or similar
-		const wpData = (window as unknown as WordPressGlobal).wpKernelData;
-		if (
-			wpData?.textDomain &&
-			typeof wpData.textDomain === 'string' &&
-			wpData.textDomain.trim().length > 0
-		) {
-			return wpData.textDomain;
-		}
-
-		// Heuristic methods only in 'heuristic' or 'auto' mode
-		if (mode !== 'heuristic' && mode !== 'auto') {
-			return null;
-		}
-
-		// Try to extract from script tags with plugin info
 		const scripts = document.querySelectorAll('script[id*="wp-kernel"]');
 		for (const script of scripts) {
 			const id = script.getAttribute('id');
-			if (id && id.length <= 100) {
-				// Extract from script ID pattern like 'my-plugin-wp-kernel-js'
-				// Limit input length and use more restrictive pattern to prevent ReDoS
-				const match = id.match(/^([a-z0-9-]{1,50})-wp-kernel/);
-				if (match && match[1]) {
-					return match[1];
-				}
+			if (!id || id.length > 100) {
+				continue;
+			}
+
+			const match = id.match(/^([a-z0-9-]{1,50})-wp-kernel/);
+			if (match?.[1]) {
+				return match[1];
 			}
 		}
-
-		// Try to extract from body classes (many plugins add these)
-		const bodyClasses = document.body.className;
-		if (bodyClasses && bodyClasses.length <= 500) {
-			// Limit input length and use more restrictive pattern
-			const pluginMatches = bodyClasses.match(
-				/(?:^|\s)([a-z0-9-]{1,50})-admin(?:\s|$)/
-			);
-			if (pluginMatches && pluginMatches[1]) {
-				return pluginMatches[1];
-			}
-		}
-
-		return null;
 	} catch (_error) {
-		// Silent fail for detection
+		return null;
+	}
+
+	return null;
+}
+
+/**
+ * Extract namespace from body CSS classes
+ *
+ * Looks for body classes matching the pattern `{namespace}-admin`
+ *
+ * @internal
+ * @return Detected namespace or null
+ */
+function extractNamespaceFromBodyClasses(): string | null {
+	try {
+		const bodyClasses = document.body.className;
+		if (!bodyClasses || bodyClasses.length > 500) {
+			return null;
+		}
+
+		const match = bodyClasses.match(
+			/(?:^|\s)([a-z0-9-]{1,50})-admin(?:\s|$)/
+		);
+		return match?.[1] ?? null;
+	} catch (_error) {
 		return null;
 	}
 }
@@ -387,6 +471,7 @@ function extractFromPluginHeader(
  *
  * Looks for package name in build context or bundled package info.
  *
+ * @internal
  * @return Detected namespace or null
  */
 function extractFromPackageJson(): string | null {
@@ -531,99 +616,152 @@ export function detectNamespace(
 		return result;
 	};
 
-	// Priority 1: Explicit namespace parameter
-	if (explicit) {
-		if (validate) {
-			const sanitized = sanitizeNamespace(explicit);
-			if (sanitized) {
-				return createResult(sanitized, 'explicit', explicit);
-			}
-			// If explicit namespace is invalid, fall through to auto-detection
-			// unless mode is 'explicit'
-			if (mode === 'explicit') {
-				return createResult(fallback, 'fallback', explicit);
-			}
-		} else {
-			return createResult(explicit, 'explicit');
+	const evaluateCandidate = (
+		candidate: string | null | undefined,
+		source: NamespaceDetectionResult['source'],
+		original?: string
+	): NamespaceDetectionResult | null => {
+		if (!candidate) {
+			return null;
+		}
+
+		if (!validate) {
+			return createResult(candidate, source);
+		}
+
+		const sanitized = sanitizeNamespace(candidate);
+		return sanitized
+			? createResult(sanitized, source, original ?? candidate)
+			: null;
+	};
+
+	const candidates = buildNamespaceCandidates({
+		explicit,
+		fallback,
+		mode,
+		moduleId,
+		detectedRuntime,
+	});
+
+	return evaluateCandidates(candidates, fallback, evaluateCandidate, () =>
+		createResult(WPK_NAMESPACE, 'fallback')
+	);
+}
+
+/**
+ * Build an ordered list of namespace candidates to evaluate
+ *
+ * Creates candidates based on detection mode and available context.
+ * Candidates are ordered by priority (explicit > build-time > auto-detect > fallback).
+ *
+ * @internal
+ * @param args                 - Configuration for building candidates
+ * @param args.explicit        - Explicit namespace override
+ * @param args.fallback        - Fallback namespace if all detection fails
+ * @param args.mode            - Detection mode controlling which methods to use
+ * @param args.moduleId        - Module ID for Script Modules pattern extraction
+ * @param args.detectedRuntime - Detected runtime context
+ * @return Ordered array of namespace candidates
+ */
+function buildNamespaceCandidates(args: {
+	explicit?: string;
+	fallback: string;
+	mode: NamespaceDetectionMode;
+	moduleId?: string;
+	detectedRuntime: NamespaceRuntimeContext;
+}): NamespaceCandidate[] {
+	const { explicit, fallback, mode, moduleId, detectedRuntime } = args;
+
+	const explicitCandidate: NamespaceCandidate = {
+		source: 'explicit',
+		resolve: () => explicit ?? null,
+		original: explicit,
+		onInvalid: explicit && mode === 'explicit' ? 'fallback' : undefined,
+	};
+
+	const autoDetectCandidates: NamespaceCandidate[] =
+		mode === 'explicit'
+			? []
+			: [
+					{
+						source: 'build-define',
+						resolve: extractFromBuildDefines,
+					},
+					{
+						source: 'module-id',
+						resolve: () =>
+							moduleId ? extractFromModuleId(moduleId) : null,
+					},
+					{
+						source: 'plugin-header',
+						resolve: () =>
+							extractFromPluginHeader(mode, detectedRuntime),
+					},
+					{
+						source: 'package-json',
+						resolve: extractFromPackageJson,
+					},
+				];
+
+	const fallbackCandidate: NamespaceCandidate = {
+		source: 'fallback',
+		resolve: () => fallback,
+		original: fallback,
+		onInvalid: 'default',
+	};
+
+	return [explicitCandidate, ...autoDetectCandidates, fallbackCandidate];
+}
+
+/**
+ * Evaluate namespace candidates in priority order
+ *
+ * Iterates through candidates, evaluating each one. Returns the first valid result.
+ * Handles special fallback logic for invalid explicit namespaces and final default fallback.
+ *
+ * @internal
+ * @param candidates     - Ordered array of namespace candidates
+ * @param fallback       - Fallback namespace to use for invalid explicit values
+ * @param evaluate       - Function to evaluate and validate a candidate
+ * @param createFallback - Function to create the ultimate fallback result
+ * @return Namespace detection result
+ */
+function evaluateCandidates(
+	candidates: NamespaceCandidate[],
+	fallback: string,
+	evaluate: (
+		candidate: string | null | undefined,
+		source: NamespaceDetectionResult['source'],
+		original?: string
+	) => NamespaceDetectionResult | null,
+	createFallback: () => NamespaceDetectionResult
+): NamespaceDetectionResult {
+	for (const candidate of candidates) {
+		const value = candidate.resolve();
+		const result = evaluate(
+			value,
+			candidate.source,
+			candidate.original ?? value ?? undefined
+		);
+		if (result) {
+			return result;
+		}
+
+		if (candidate.onInvalid === 'fallback') {
+			const fallbackResult = evaluate(
+				fallback,
+				'fallback',
+				candidate.original ?? fallback
+			);
+			return fallbackResult ?? createFallback();
+		}
+
+		if (candidate.onInvalid === 'default') {
+			return createFallback();
 		}
 	}
 
-	// Skip auto-detection in 'explicit' mode
-	if (mode === 'explicit') {
-		return createResult(fallback, 'fallback');
-	}
-
-	// Priority 2: Build-time defines (most deterministic)
-	const buildDefine = extractFromBuildDefines();
-	if (buildDefine) {
-		if (validate) {
-			const sanitized = sanitizeNamespace(buildDefine);
-			if (sanitized) {
-				return createResult(sanitized, 'build-define', buildDefine);
-			}
-		} else {
-			return createResult(buildDefine, 'build-define');
-		}
-	}
-
-	// Priority 3: Module ID extraction
-	if (moduleId) {
-		const moduleNamespace = extractFromModuleId(moduleId);
-		if (moduleNamespace) {
-			if (validate) {
-				const sanitized = sanitizeNamespace(moduleNamespace);
-				if (sanitized) {
-					return createResult(
-						sanitized,
-						'module-id',
-						moduleNamespace
-					);
-				}
-			} else {
-				return createResult(moduleNamespace, 'module-id');
-			}
-		}
-	}
-
-	// Priority 4: WordPress plugin header
-	const pluginNamespace = extractFromPluginHeader(mode, detectedRuntime);
-	if (pluginNamespace) {
-		if (validate) {
-			const sanitized = sanitizeNamespace(pluginNamespace);
-			if (sanitized) {
-				return createResult(
-					sanitized,
-					'plugin-header',
-					pluginNamespace
-				);
-			}
-		} else {
-			return createResult(pluginNamespace, 'plugin-header');
-		}
-	}
-
-	// Priority 5: package.json name
-	const packageNamespace = extractFromPackageJson();
-	if (packageNamespace) {
-		if (validate) {
-			const sanitized = sanitizeNamespace(packageNamespace);
-			if (sanitized) {
-				return createResult(
-					sanitized,
-					'package-json',
-					packageNamespace
-				);
-			}
-		} else {
-			return createResult(packageNamespace, 'package-json');
-		}
-	}
-
-	// Priority 6: Fallback
-	const finalFallback = validate
-		? sanitizeNamespace(fallback) || WPK_NAMESPACE
-		: fallback;
-	return createResult(finalFallback, 'fallback', fallback);
+	return createFallback();
 }
 
 /**

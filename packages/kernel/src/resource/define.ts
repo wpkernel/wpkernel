@@ -19,7 +19,6 @@ import { createDefaultCacheKeys } from './utils';
 import { getNamespace } from '../namespace';
 import {
 	createSelectGetter,
-	createUseGetter,
 	createGetGetter,
 	createMutateGetter,
 	createCacheGetter,
@@ -52,6 +51,7 @@ let uiHooksAttached = false;
 /**
  * Parse namespace:name syntax from a string
  *
+ * @internal
  * @param name - String that may contain namespace:name syntax
  * @return Parsed namespace and resource name, or null if invalid
  */
@@ -76,6 +76,7 @@ function parseNamespaceFromString(
 /**
  * Resolve namespace from config with support for shorthand syntax
  *
+ * @internal
  * @param config - Resource configuration
  * @return Resolved namespace and resource name
  */
@@ -205,9 +206,9 @@ export function defineResource<T = unknown, TQuery = unknown>(
 
 				// Check if @wordpress/data is available (browser environment)
 				const globalWp =
-					typeof window !== 'undefined'
-						? (window as WPGlobal).wp
-						: undefined;
+					typeof window === 'undefined'
+						? undefined
+						: (window as WPGlobal).wp;
 				if (
 					globalWp?.data?.createReduxStore &&
 					globalWp?.data?.register
@@ -238,9 +239,9 @@ export function defineResource<T = unknown, TQuery = unknown>(
 			? async (id: string | number) => {
 					// Check if @wordpress/data is available
 					const globalWp =
-						typeof window !== 'undefined'
-							? (window as WPGlobal).wp
-							: undefined;
+						typeof window === 'undefined'
+							? undefined
+							: (window as WPGlobal).wp;
 					if (!globalWp?.data?.dispatch) {
 						throw new KernelError('DeveloperError', {
 							message:
@@ -275,9 +276,9 @@ export function defineResource<T = unknown, TQuery = unknown>(
 			? async (query?: TQuery) => {
 					// Check if @wordpress/data is available
 					const globalWp =
-						typeof window !== 'undefined'
-							? (window as WPGlobal).wp
-							: undefined;
+						typeof window === 'undefined'
+							? undefined
+							: (window as WPGlobal).wp;
 					if (!globalWp?.data?.dispatch) {
 						throw new KernelError('DeveloperError', {
 							message:
@@ -335,11 +336,6 @@ export function defineResource<T = unknown, TQuery = unknown>(
 		// Grouped API: Pure selectors (read from cache)
 		get select() {
 			return createSelectGetter<T, TQuery>(config).call(this);
-		},
-
-		// Grouped API: React hooks (alias to thin-flat)
-		get use() {
-			return createUseGetter<T, TQuery>().call(this);
 		},
 
 		// Grouped API: Explicit data fetching (bypass cache, direct REST calls)

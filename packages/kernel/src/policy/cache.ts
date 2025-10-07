@@ -39,16 +39,29 @@ type CacheEntryInternal = {
 	expiresAt: number;
 };
 
+type BroadcastSetMessage = {
+	type: 'set';
+	namespace: string;
+	key: string;
+	value: boolean;
+	expiresAt: number;
+};
+
+type BroadcastInvalidateMessage = {
+	type: 'invalidate';
+	namespace: string;
+	policyKey?: string;
+};
+
+type BroadcastClearMessage = {
+	type: 'clear';
+	namespace: string;
+};
+
 type BroadcastMessage =
-	| {
-			type: 'set';
-			namespace: string;
-			key: string;
-			value: boolean;
-			expiresAt: number;
-	  }
-	| { type: 'invalidate'; namespace: string; policyKey?: string }
-	| { type: 'clear'; namespace: string };
+	| BroadcastSetMessage
+	| BroadcastInvalidateMessage
+	| BroadcastClearMessage;
 
 const hasWindow = typeof window !== 'undefined';
 
@@ -114,6 +127,16 @@ export function createPolicyCacheKey(
 	return `${policyKey}::${serialized}`;
 }
 
+/**
+ * Get the appropriate storage mechanism based on cache options
+ *
+ * Returns sessionStorage if 'session' storage is requested and available.
+ * Falls back to null in SSR environments or if sessionStorage is unavailable.
+ *
+ * @internal
+ * @param options - Policy cache configuration options
+ * @return Storage instance or null if unavailable
+ */
 function getStorage(options: PolicyCacheOptions | undefined): Storage | null {
 	if (!hasWindow) {
 		return null;
@@ -134,6 +157,17 @@ function getStorage(options: PolicyCacheOptions | undefined): Storage | null {
 	return null;
 }
 
+/**
+ * Read persisted cache entries from storage
+ *
+ * Attempts to read and parse cached policy results from the configured storage.
+ * Returns an empty object if storage is unavailable, parsing fails, or no cache exists.
+ *
+ * @internal
+ * @param namespace - Namespace for storage key scoping
+ * @param options   - Policy cache configuration options
+ * @return Map of cache keys to their cached entries
+ */
 function readPersisted(
 	namespace: string,
 	options: PolicyCacheOptions | undefined
@@ -164,6 +198,17 @@ function readPersisted(
 	}
 }
 
+/**
+ * Persist cache entries to storage
+ *
+ * Serializes and writes the current cache state to the configured storage.
+ * Silently fails if storage is unavailable or write operation fails.
+ *
+ * @internal
+ * @param namespace - Namespace for storage key scoping
+ * @param store     - Map of cache entries to persist
+ * @param options   - Policy cache configuration options
+ */
 function persist(
 	namespace: string,
 	store: Map<string, CacheEntryInternal>,
@@ -182,6 +227,17 @@ function persist(
 	}
 }
 
+/**
+ * Create a BroadcastChannel for cross-tab cache synchronization
+ *
+ * Creates a channel for syncing cache invalidations across browser tabs.
+ * Returns null in SSR environments, if BroadcastChannel API is unavailable,
+ * or if cross-tab sync is explicitly disabled.
+ *
+ * @internal
+ * @param options - Policy cache configuration options
+ * @return BroadcastChannel instance or null if unavailable
+ */
 function createBroadcastChannel(
 	options: PolicyCacheOptions | undefined
 ): BroadcastChannel | null {
@@ -222,6 +278,42 @@ export function createPolicyCache(
 	}
 
 	const channel = createBroadcastChannel(options);
+
+	function notify(): void {
+		version += 1;
+		listeners.forEach((listener) => listener());
+		persist(namespace, store, options);
+	}
+
+	function applyBroadcastSet(message: BroadcastSetMessage): void {
+		store.set(message.key, {
+			value: message.value,
+			expiresAt: message.expiresAt,
+		});
+		notify();
+	}
+
+	function applyBroadcastInvalidate(
+		message: BroadcastInvalidateMessage
+	): void {
+		if (message.policyKey) {
+			const prefix = `${message.policyKey}::`;
+			for (const key of Array.from(store.keys())) {
+				if (key.startsWith(prefix)) {
+					store.delete(key);
+				}
+			}
+		} else {
+			store.clear();
+		}
+		notify();
+	}
+
+	function applyBroadcastClear(): void {
+		store.clear();
+		notify();
+	}
+
 	if (channel) {
 		channel.onmessage = (event: MessageEvent<BroadcastMessage>) => {
 			const message = event.data;
@@ -229,47 +321,20 @@ export function createPolicyCache(
 				return;
 			}
 
-			if (message.type === 'set') {
-				store.set(message.key, {
-					value: message.value,
-					expiresAt: message.expiresAt,
-				});
-				version += 1;
-				listeners.forEach((listener) => listener());
-				persist(namespace, store, options);
-				return;
-			}
-
-			if (message.type === 'invalidate') {
-				if (message.policyKey) {
-					const prefix = `${message.policyKey}::`;
-					for (const key of Array.from(store.keys())) {
-						if (key.startsWith(prefix)) {
-							store.delete(key);
-						}
-					}
-				} else {
-					store.clear();
-				}
-				version += 1;
-				listeners.forEach((listener) => listener());
-				persist(namespace, store, options);
-				return;
-			}
-
-			if (message.type === 'clear') {
-				store.clear();
-				version += 1;
-				listeners.forEach((listener) => listener());
-				persist(namespace, store, options);
+			switch (message.type) {
+				case 'set':
+					applyBroadcastSet(message);
+					break;
+				case 'invalidate':
+					applyBroadcastInvalidate(message);
+					break;
+				case 'clear':
+					applyBroadcastClear();
+					break;
+				default:
+					break;
 			}
 		};
-	}
-
-	function notify(): void {
-		version += 1;
-		listeners.forEach((listener) => listener());
-		persist(namespace, store, options);
 	}
 
 	function broadcast(message: BroadcastMessage): void {

@@ -1,12 +1,10 @@
-[**WP Kernel API v0.1.1**](../../README.md)
+[**WP Kernel API v0.3.0**](../../README.md)
 
 ---
 
 [WP Kernel API](../../README.md) / [error](../README.md) / KernelError
 
 # Class: KernelError
-
-Defined in: [error/KernelError.ts:28](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/error/KernelError.ts#L28)
 
 Base error class for WP Kernel
 
@@ -37,8 +35,6 @@ throw new KernelError('PolicyDenied', {
 new KernelError(code, options): KernelError;
 ```
 
-Defined in: [error/KernelError.ts:53](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/error/KernelError.ts#L53)
-
 Create a new KernelError
 
 #### Parameters
@@ -59,11 +55,11 @@ Error options
 
 ###### data?
 
-[`ErrorData`](../interfaces/ErrorData.md)
+[`ErrorData`](../type-aliases/ErrorData.md)
 
 ###### context?
 
-[`ErrorContext`](../interfaces/ErrorContext.md)
+[`ErrorContext`](../type-aliases/ErrorContext.md)
 
 #### Returns
 
@@ -83,8 +79,6 @@ Error.constructor;
 readonly code: ErrorCode;
 ```
 
-Defined in: [error/KernelError.ts:32](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/error/KernelError.ts#L32)
-
 Error code - identifies the type of error
 
 ---
@@ -94,8 +88,6 @@ Error code - identifies the type of error
 ```ts
 readonly optional data: ErrorData;
 ```
-
-Defined in: [error/KernelError.ts:37](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/error/KernelError.ts#L37)
 
 Additional data about the error
 
@@ -107,8 +99,6 @@ Additional data about the error
 readonly optional context: ErrorContext;
 ```
 
-Defined in: [error/KernelError.ts:42](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/error/KernelError.ts#L42)
-
 Context in which the error occurred
 
 ## Methods
@@ -119,13 +109,11 @@ Context in which the error occurred
 toJSON(): SerializedError;
 ```
 
-Defined in: [error/KernelError.ts:84](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/error/KernelError.ts#L84)
-
 Serialize error to JSON-safe format
 
 #### Returns
 
-[`SerializedError`](../interfaces/SerializedError.md)
+[`SerializedError`](../type-aliases/SerializedError.md)
 
 Serialized error object
 
@@ -137,15 +125,13 @@ Serialized error object
 static fromJSON(serialized): KernelError;
 ```
 
-Defined in: [error/KernelError.ts:101](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/error/KernelError.ts#L101)
-
 Create KernelError from serialized format
 
 #### Parameters
 
 ##### serialized
 
-[`SerializedError`](../interfaces/SerializedError.md)
+[`SerializedError`](../type-aliases/SerializedError.md)
 
 Serialized error object
 
@@ -162,8 +148,6 @@ New KernelError instance
 ```ts
 static isKernelError(error): error is KernelError;
 ```
-
-Defined in: [error/KernelError.ts:144](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/error/KernelError.ts#L144)
 
 Check if an error is a KernelError
 
@@ -192,8 +176,6 @@ static wrap(
    context?): KernelError;
 ```
 
-Defined in: [error/KernelError.ts:156](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/error/KernelError.ts#L156)
-
 Wrap a native Error into a KernelError
 
 #### Parameters
@@ -212,7 +194,7 @@ Error code to assign
 
 ##### context?
 
-[`ErrorContext`](../interfaces/ErrorContext.md)
+[`ErrorContext`](../type-aliases/ErrorContext.md)
 
 Additional context
 

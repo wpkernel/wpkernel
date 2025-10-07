@@ -1,4 +1,4 @@
-[**WP Kernel API v0.1.1**](../../README.md)
+[**WP Kernel API v0.3.0**](../../README.md)
 
 ---
 
@@ -9,8 +9,6 @@
 ```ts
 function invalidateAll(storeKey): void;
 ```
-
-Defined in: [resource/cache.ts:639](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/cache.ts#L639)
 
 Invalidate all caches in a specific store
 

@@ -12,11 +12,11 @@ import {
 import { __ } from '@wordpress/i18n';
 import type { CreateJobInput } from '../../actions/jobs/CreateJob';
 
-interface JobCreatePanelProps {
+type JobCreatePanelProps = {
 	onSubmit: (input: CreateJobInput) => Promise<void> | void;
 	feedback?: { type: 'success' | 'error'; message: string } | null;
 	isSubmitting: boolean;
-}
+};
 
 const createDefaultFormState = (): CreateJobInput => ({
 	title: '',

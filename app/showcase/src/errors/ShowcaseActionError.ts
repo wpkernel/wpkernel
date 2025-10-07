@@ -1,11 +1,11 @@
 import { KernelError } from '@geekist/wp-kernel';
 import type { ErrorCode, ErrorContext, ErrorData } from '@geekist/wp-kernel';
 
-interface ShowcaseActionErrorOptions {
+type ShowcaseActionErrorOptions = {
 	message?: string;
 	data?: ErrorData;
 	context?: ErrorContext;
-}
+};
 
 /**
  * ShowcaseActionError standardizes failures raised from showcase actions.

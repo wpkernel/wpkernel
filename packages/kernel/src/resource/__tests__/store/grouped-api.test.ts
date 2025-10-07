@@ -96,10 +96,7 @@ describe('createStore - Grouped API', () => {
 				items: jest.fn().mockReturnValue([]),
 				list: jest.fn().mockReturnValue([]),
 			},
-			use: {
-				item: jest.fn(),
-				list: jest.fn(),
-			},
+
 			get: {
 				item: jest.fn().mockResolvedValue({
 					id: 1,
@@ -216,33 +213,6 @@ describe('createStore - Grouped API', () => {
 				} else {
 					delete global.window.wp;
 				}
-			});
-		});
-
-		describe('use namespace (React hooks)', () => {
-			it('should have use.item hook', () => {
-				expect(mockResource.use).toBeDefined();
-				expect(mockResource.use?.item).toBeDefined();
-				expect(typeof mockResource.use?.item).toBe('function');
-			});
-
-			it('should have use.list hook', () => {
-				expect(mockResource.use?.list).toBeDefined();
-				expect(typeof mockResource.use?.list).toBe('function');
-			});
-
-			it('use.item should be callable', () => {
-				expect(() => mockResource.use?.item(123)).not.toThrow();
-			});
-
-			it('use.list should be callable with query', () => {
-				expect(() =>
-					mockResource.use?.list({ q: 'search' })
-				).not.toThrow();
-			});
-
-			it('use.list should be callable without query', () => {
-				expect(() => mockResource.use?.list()).not.toThrow();
 			});
 		});
 
@@ -437,9 +407,6 @@ describe('createStore - Grouped API', () => {
 				// Fetch explicitly
 				const fetchedItem = await mockResource.get?.item(123);
 				expect(fetchedItem).toBeDefined();
-
-				// Hook would trigger resolver (not tested here as it needs React)
-				expect(() => mockResource.use?.item(123)).not.toThrow();
 			});
 
 			it('should support write path: mutate → invalidate → prefetch', async () => {
@@ -543,12 +510,10 @@ describe('createStore - Grouped API', () => {
 				expect(mockResource.fetchList).toBeDefined();
 			});
 			it('use.item should be equivalent to useGet', () => {
-				expect(mockResource.use?.item).toBeDefined();
 				expect(mockResource.useGet).toBeDefined();
 			});
 
 			it('use.list should be equivalent to useList', () => {
-				expect(mockResource.use?.list).toBeDefined();
 				expect(mockResource.useList).toBeDefined();
 			});
 

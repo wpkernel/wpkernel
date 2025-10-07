@@ -1,4 +1,4 @@
-[**WP Kernel API v0.1.1**](../README.md)
+[**WP Kernel API v0.3.0**](../README.md)
 
 ---
 
@@ -15,17 +15,14 @@ Provides HTTP transport layer wrapping @wordpress/api-fetch with:
 - Error normalization to KernelError
 - Query parameter and field filtering support
 
-## Interfaces
-
-- [TransportRequest](interfaces/TransportRequest.md)
-- [TransportResponse](interfaces/TransportResponse.md)
-- [ResourceRequestEvent](interfaces/ResourceRequestEvent.md)
-- [ResourceResponseEvent](interfaces/ResourceResponseEvent.md)
-- [ResourceErrorEvent](interfaces/ResourceErrorEvent.md)
-
 ## Type Aliases
 
 - [HttpMethod](type-aliases/HttpMethod.md)
+- [TransportRequest](type-aliases/TransportRequest.md)
+- [TransportResponse](type-aliases/TransportResponse.md)
+- [ResourceRequestEvent](type-aliases/ResourceRequestEvent.md)
+- [ResourceResponseEvent](type-aliases/ResourceResponseEvent.md)
+- [ResourceErrorEvent](type-aliases/ResourceErrorEvent.md)
 
 ## Functions
 

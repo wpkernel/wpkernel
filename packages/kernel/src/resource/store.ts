@@ -87,138 +87,172 @@ export function createStore<T, TQuery = unknown>(
 		...customInitialState,
 	};
 
-	// Reducer
+	function receiveItem(state: ResourceState<T>, item: T): ResourceState<T> {
+		const id = getId(item);
+		return {
+			...state,
+			items: {
+				...state.items,
+				[id]: item,
+			},
+		};
+	}
+
+	function receiveItems(
+		state: ResourceState<T>,
+		items: T[],
+		queryKey: string,
+		meta: ResourceState<T>['listMeta'][string] | undefined
+	): ResourceState<T> {
+		const nextItems = { ...state.items };
+		const ids: Array<string | number> = [];
+
+		for (const item of items) {
+			const id = getId(item);
+			nextItems[id] = item;
+			ids.push(id);
+		}
+
+		const cacheKey = `${resource.name}:list:${queryKey}`;
+		const nextErrors = { ...state.errors };
+		delete nextErrors[cacheKey];
+
+		return {
+			...state,
+			items: nextItems,
+			lists: {
+				...state.lists,
+				[queryKey]: ids,
+			},
+			listMeta: {
+				...state.listMeta,
+				[queryKey]: {
+					...state.listMeta[queryKey],
+					...meta,
+					status: 'success',
+				},
+			},
+			errors: nextErrors,
+		};
+	}
+
+	function receiveError(
+		state: ResourceState<T>,
+		cacheKey: string,
+		error: string
+	): ResourceState<T> {
+		return {
+			...state,
+			errors: {
+				...state.errors,
+				[cacheKey]: error,
+			},
+		};
+	}
+
+	function invalidateKeys(
+		state: ResourceState<T>,
+		cacheKeys: string[]
+	): ResourceState<T> {
+		const lists = { ...state.lists };
+		const listMeta = { ...state.listMeta };
+		const errors = { ...state.errors };
+
+		for (const key of cacheKeys) {
+			delete lists[key];
+			delete listMeta[key];
+			delete errors[key];
+		}
+
+		return {
+			...state,
+			lists,
+			listMeta,
+			errors,
+		};
+	}
+
+	function resetState(): ResourceState<T> {
+		return {
+			...initialState,
+			items: {},
+			lists: {},
+			listMeta: {},
+			errors: {},
+		};
+	}
+
+	function setListStatus(
+		state: ResourceState<T>,
+		queryKey: string,
+		status: ResourceListStatus
+	): ResourceState<T> {
+		return {
+			...state,
+			listMeta: {
+				...state.listMeta,
+				[queryKey]: {
+					...state.listMeta[queryKey],
+					status,
+				},
+			},
+		};
+	}
+
+	const actionHandlers: Record<
+		string,
+		(
+			state: ResourceState<T>,
+			action: { [key: string]: unknown }
+		) => ResourceState<T>
+	> = {
+		[ACTION_TYPES.RECEIVE_ITEM]: (state, action) =>
+			receiveItem(state, action.item as T),
+		[ACTION_TYPES.RECEIVE_ITEMS]: (state, action) =>
+			receiveItems(
+				state,
+				(action.items as T[]) ?? [],
+				(action.queryKey as string) ?? '',
+				action.meta as ResourceState<T>['listMeta'][string]
+			),
+		[ACTION_TYPES.RECEIVE_ERROR]: (state, action) =>
+			receiveError(
+				state,
+				(action.cacheKey as string) ?? '',
+				(action.error as string) ?? ''
+			),
+		[ACTION_TYPES.INVALIDATE]: (state, action) =>
+			invalidateKeys(state, (action.cacheKeys as string[]) ?? []),
+		[ACTION_TYPES.INVALIDATE_ALL]: () => resetState(),
+		[ACTION_TYPES.SET_LIST_STATUS]: (state, action) =>
+			setListStatus(
+				state,
+				(action.queryKey as string) ?? '',
+				action.status as ResourceListStatus
+			),
+	};
+
+	function isAction(
+		value: unknown
+	): value is { type: string; [key: string]: unknown } {
+		return (
+			typeof value === 'object' &&
+			value !== null &&
+			'type' in value &&
+			typeof (value as { type: unknown }).type === 'string'
+		);
+	}
+
 	function reducer(
 		state: ResourceState<T> = initialState,
 		action: unknown
 	): ResourceState<T> {
-		// Type guard for action objects
-		if (
-			typeof action !== 'object' ||
-			action === null ||
-			!('type' in action)
-		) {
+		if (!isAction(action)) {
 			return state;
 		}
 
-		const typedAction = action as {
-			type: string;
-			[key: string]: unknown;
-		};
-
-		switch (typedAction.type) {
-			case ACTION_TYPES.RECEIVE_ITEM: {
-				const item = typedAction.item as T;
-				const id = getId(item);
-				return {
-					...state,
-					items: {
-						...state.items,
-						[id]: item,
-					},
-				};
-			}
-
-			case ACTION_TYPES.RECEIVE_ITEMS: {
-				const items = typedAction.items as T[];
-				const queryKey = typedAction.queryKey as string;
-				const meta =
-					(typedAction.meta as ResourceState<T>['listMeta'][string]) ||
-					{};
-
-				const newItems = { ...state.items };
-				const ids: (string | number)[] = [];
-
-				items.forEach((item) => {
-					const id = getId(item);
-					newItems[id] = item;
-					ids.push(id);
-				});
-
-				// Clear any previous error for this list
-				const cacheKey = `${resource.name}:list:${queryKey}`;
-				const newErrors = { ...state.errors };
-				delete newErrors[cacheKey];
-
-				return {
-					...state,
-					items: newItems,
-					lists: {
-						...state.lists,
-						[queryKey]: ids,
-					},
-					listMeta: {
-						...state.listMeta,
-						[queryKey]: {
-							...state.listMeta[queryKey],
-							...meta,
-							status: 'success',
-						},
-					},
-					errors: newErrors,
-				};
-			}
-			case ACTION_TYPES.RECEIVE_ERROR: {
-				const cacheKey = typedAction.cacheKey as string;
-				const error = typedAction.error as string;
-
-				return {
-					...state,
-					errors: {
-						...state.errors,
-						[cacheKey]: error,
-					},
-				};
-			}
-
-			case ACTION_TYPES.INVALIDATE: {
-				const cacheKeys = typedAction.cacheKeys as string[];
-				const newLists = { ...state.lists };
-				const newListMeta = { ...state.listMeta };
-				const newErrors = { ...state.errors };
-
-				cacheKeys.forEach((key) => {
-					delete newLists[key];
-					delete newListMeta[key];
-					delete newErrors[key];
-				});
-
-				return {
-					...state,
-					lists: newLists,
-					listMeta: newListMeta,
-					errors: newErrors,
-				};
-			}
-
-			case ACTION_TYPES.INVALIDATE_ALL: {
-				return {
-					items: {},
-					lists: {},
-					listMeta: {},
-					errors: {},
-				};
-			}
-
-			case ACTION_TYPES.SET_LIST_STATUS: {
-				const queryKey = typedAction.queryKey as string;
-				const status = typedAction.status as ResourceListStatus;
-
-				return {
-					...state,
-					listMeta: {
-						...state.listMeta,
-						[queryKey]: {
-							...state.listMeta[queryKey],
-							status,
-						},
-					},
-				};
-			}
-
-			default:
-				return state;
-		}
+		const handler = actionHandlers[action.type];
+		return handler ? handler(state, action) : state;
 	}
 
 	// Actions

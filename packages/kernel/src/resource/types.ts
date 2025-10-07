@@ -22,12 +22,12 @@ export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
  * { path: '/my-plugin/v1/things/:id', method: 'GET' }
  * ```
  */
-export interface ResourceRoute {
+export type ResourceRoute = {
 	/** REST API path (may include :id, :slug patterns) */
 	path: string;
 	/** HTTP method */
 	method: HttpMethod;
-}
+};
 
 /**
  * Standard CRUD routes for a resource
@@ -45,7 +45,7 @@ export interface ResourceRoute {
  * }
  * ```
  */
-export interface ResourceRoutes {
+export type ResourceRoutes = {
 	/** Fetch a list/collection of resources */
 	list?: ResourceRoute;
 	/** Fetch a single resource by identifier */
@@ -56,7 +56,7 @@ export interface ResourceRoutes {
 	update?: ResourceRoute;
 	/** Delete a resource */
 	remove?: ResourceRoute;
-}
+};
 
 /**
  * Cache key generator function
@@ -88,7 +88,7 @@ export type CacheKeyFn<TParams = unknown> = (
  * }
  * ```
  */
-export interface CacheKeys {
+export type CacheKeys = {
 	/** Cache key for list operations */
 	list?: CacheKeyFn<unknown>;
 	/** Cache key for single-item fetch */
@@ -99,7 +99,7 @@ export interface CacheKeys {
 	update?: CacheKeyFn<string | number>;
 	/** Cache key for delete operations */
 	remove?: CacheKeyFn<string | number>;
-}
+};
 
 /**
  * Complete resource definition configuration
@@ -123,13 +123,13 @@ export interface CacheKeys {
  * })
  * ```
  */
-export interface ResourceConfig<
+export type ResourceConfig<
 	T = unknown,
 	TQuery = unknown,
 	// Type parameters used by defineResource function signature, not directly in this interface
 
 	_TTypes = [T, TQuery],
-> {
+> = {
 	/**
 	 * Unique resource name (lowercase, singular recommended)
 	 *
@@ -177,14 +177,14 @@ export interface ResourceConfig<
 	 * ```
 	 */
 	schema?: Promise<unknown> | unknown;
-}
+};
 
 /**
  * List response with pagination metadata
  *
  * @template T - The resource entity type
  */
-export interface ListResponse<T> {
+export type ListResponse<T> = {
 	/** Array of resource entities */
 	items: T[];
 	/** Total count of items (if available) */
@@ -193,7 +193,7 @@ export interface ListResponse<T> {
 	nextCursor?: string;
 	/** Whether there are more pages */
 	hasMore?: boolean;
-}
+};
 
 /**
  * Client methods for REST operations
@@ -204,7 +204,7 @@ export interface ListResponse<T> {
  * @template T - The resource entity type
  * @template TQuery - Query parameters type for list operations
  */
-export interface ResourceClient<T = unknown, TQuery = unknown> {
+export type ResourceClient<T = unknown, TQuery = unknown> = {
 	/**
 	 * Fetch a list of resources
 	 *
@@ -255,7 +255,7 @@ export interface ResourceClient<T = unknown, TQuery = unknown> {
 	 * @throws ServerError on REST API error (including 404)
 	 */
 	remove?: (id: string | number) => Promise<void | T>;
-}
+};
 
 /**
  * Complete resource object returned by defineResource
@@ -297,8 +297,7 @@ export interface ResourceClient<T = unknown, TQuery = unknown> {
  * const item = select(store).getItem(123);
  * ```
  */
-export interface ResourceObject<T = unknown, TQuery = unknown>
-	extends ResourceClient<T, TQuery> {
+export type ResourceObject<T = unknown, TQuery = unknown> = {
 	/**
 	 * Resource name
 	 */
@@ -503,31 +502,6 @@ export interface ResourceObject<T = unknown, TQuery = unknown>
 	};
 
 	/**
-	 * Grouped API: React hooks
-	 *
-	 * Convenience wrappers around useGet/useList for the grouped API.
-	 */
-	use?: {
-		/**
-		 * React hook to fetch and watch a single item
-		 */
-		item: (id: string | number) => {
-			data: T | undefined;
-			isLoading: boolean;
-			error: string | undefined;
-		};
-
-		/**
-		 * React hook to fetch and watch a list
-		 */
-		list: (query?: TQuery) => {
-			data: ListResponse<T> | undefined;
-			isLoading: boolean;
-			error: string | undefined;
-		};
-	};
-
-	/**
 	 * Grouped API: Explicit data fetching (bypass cache)
 	 *
 	 * Direct network calls that always hit the server.
@@ -667,7 +641,7 @@ export interface ResourceObject<T = unknown, TQuery = unknown>
 		 */
 		removed: string;
 	};
-}
+} & ResourceClient<T, TQuery>;
 
 /**
  * State shape for a resource store.
@@ -676,7 +650,7 @@ export interface ResourceObject<T = unknown, TQuery = unknown>
  */
 export type ResourceListStatus = 'idle' | 'loading' | 'success' | 'error';
 
-export interface ResourceState<T> {
+export type ResourceState<T> = {
 	/**
 	 * Map of items by ID.
 	 */
@@ -705,7 +679,7 @@ export interface ResourceState<T> {
 	 * Error messages by cache key.
 	 */
 	errors: Record<string, string>;
-}
+};
 
 type AnyFn = (...args: never[]) => unknown;
 
@@ -714,7 +688,7 @@ type AnyFn = (...args: never[]) => unknown;
  *
  * @template T - The resource entity type
  */
-export interface ResourceActions<T> extends Record<string, AnyFn> {
+export type ResourceActions<T> = {
 	/**
 	 * Receive a single item.
 	 *
@@ -767,7 +741,7 @@ export interface ResourceActions<T> extends Record<string, AnyFn> {
 	 * @param status   - Loading status
 	 */
 	setListStatus: (queryKey: string, status: ResourceListStatus) => void;
-}
+} & Record<string, AnyFn>;
 
 /**
  * Selectors for a resource store.
@@ -775,7 +749,7 @@ export interface ResourceActions<T> extends Record<string, AnyFn> {
  * @template T - The resource entity type
  * @template TQuery - The query parameter type for list operations
  */
-export interface ResourceSelectors<T, TQuery = unknown> {
+export type ResourceSelectors<T, TQuery = unknown> = {
 	/**
 	 * Get a single item by ID.
 	 *
@@ -896,7 +870,7 @@ export interface ResourceSelectors<T, TQuery = unknown> {
 	 * @return The complete resource state
 	 */
 	__getInternalState: (state: ResourceState<T>) => ResourceState<T>;
-}
+};
 
 /**
  * Resolvers for a resource store.
@@ -904,8 +878,7 @@ export interface ResourceSelectors<T, TQuery = unknown> {
  * @template _T - The resource entity type (unused, for type inference in store creation)
  * @template TQuery - The query parameter type for list operations
  */
-export interface ResourceResolvers<_T, TQuery = unknown>
-	extends Record<string, AnyFn> {
+export type ResourceResolvers<_T, TQuery = unknown> = {
 	/**
 	 * Resolver for getItem selector.
 	 * Fetches a single item by ID if not already in state.
@@ -929,7 +902,7 @@ export interface ResourceResolvers<_T, TQuery = unknown>
 	 * @param query - Query parameters
 	 */
 	getList: (query?: TQuery) => Generator<unknown, void, unknown>;
-}
+} & Record<string, AnyFn>;
 
 /**
  * Store configuration for a resource.
@@ -937,7 +910,7 @@ export interface ResourceResolvers<_T, TQuery = unknown>
  * @template T - The resource entity type
  * @template TQuery - The query parameter type for list operations
  */
-export interface ResourceStoreConfig<T, TQuery = unknown> {
+export type ResourceStoreConfig<T, TQuery = unknown> = {
 	/**
 	 * The resource object this store is for.
 	 */
@@ -959,7 +932,7 @@ export interface ResourceStoreConfig<T, TQuery = unknown> {
 	 * Defaults to JSON.stringify
 	 */
 	getQueryKey?: (query?: TQuery) => string;
-}
+};
 
 /**
  * Complete store descriptor returned by createStore.
@@ -967,7 +940,7 @@ export interface ResourceStoreConfig<T, TQuery = unknown> {
  * @template T - The resource entity type
  * @template TQuery - The query parameter type for list operations
  */
-export interface ResourceStore<T, TQuery = unknown> {
+export type ResourceStore<T, TQuery = unknown> = {
 	/**
 	 * Store key for registration with @wordpress/data.
 	 */
@@ -1005,4 +978,4 @@ export interface ResourceStore<T, TQuery = unknown> {
 	 * Controls for handling async operations in generators.
 	 */
 	controls?: Record<string, (action: unknown) => unknown>;
-}
+};

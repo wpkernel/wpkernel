@@ -1,4 +1,4 @@
-[**WP Kernel API v0.1.1**](../../README.md)
+[**WP Kernel API v0.3.0**](../../README.md)
 
 ---
 
@@ -18,7 +18,5 @@ type ErrorCode =
 	| 'DeprecatedError'
 	| 'UnknownError';
 ```
-
-Defined in: [error/types.ts:12](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/error/types.ts#L12)
 
 Standard error codes used in WP Kernel

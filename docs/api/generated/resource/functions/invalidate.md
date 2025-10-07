@@ -1,4 +1,4 @@
-[**WP Kernel API v0.1.1**](../../README.md)
+[**WP Kernel API v0.3.0**](../../README.md)
 
 ---
 
@@ -9,8 +9,6 @@
 ```ts
 function invalidate(patterns, options): void;
 ```
-
-Defined in: [resource/cache.ts:558](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/cache.ts#L558)
 
 Invalidate cached data matching the given patterns.
 Deletes matching cache entries and marks selectors as stale.
@@ -28,7 +26,7 @@ Cache key patterns to invalidate
 
 ### options
 
-[`InvalidateOptions`](../interfaces/InvalidateOptions.md) = `{}`
+[`InvalidateOptions`](../type-aliases/InvalidateOptions.md) = `{}`
 
 Invalidation options
 

@@ -495,7 +495,7 @@ For power users, resources provide a **grouped API** with namespaced methods:
 ```typescript
 // Grouped API (power users)
 const cached = testimonial.select.item(123); // Pure selector (no fetch)
-const { data } = testimonial.use.item(123); // React hook
+const { data } = testimonial.useGet(123); // React hook (from @geekist/wp-kernel-ui)
 await testimonial.fetch.item(123); // Explicit fetch (bypass cache)
 await testimonial.mutate.create(data); // Write operation
 await testimonial.cache.prefetch.item(123); // Prefetch

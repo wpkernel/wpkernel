@@ -3,13 +3,13 @@ import { job } from '../../resources';
 import type { Job } from '../../../types/job';
 import { ShowcaseActionError } from '../../errors/ShowcaseActionError';
 
-export interface CreateJobInput {
+export type CreateJobInput = {
 	title: string;
 	department?: string;
 	location?: string;
 	description?: string;
 	status: 'draft' | 'publish' | 'closed';
-}
+};
 
 /**
  * CreateJob orchestrates job creation through the resource client.

@@ -6,18 +6,18 @@ import { WPK_EVENTS, WPK_INFRASTRUCTURE } from '../../namespace/constants';
 
 export type NoticeStatus = 'success' | 'info' | 'warning' | 'error';
 
-export interface KernelEventsPluginOptions {
+export type KernelEventsPluginOptions = {
 	reporter?: Reporter;
 	registry?: KernelRegistry;
-}
+};
 
-interface NoticesDispatch {
+type NoticesDispatch = {
 	createNotice: (
 		status: NoticeStatus,
 		content: string,
 		options?: Record<string, unknown>
 	) => void;
-}
+};
 
 type WordPressHooks = {
 	addAction?: (
@@ -29,10 +29,9 @@ type WordPressHooks = {
 	removeAction?: (hookName: string, namespace: string) => void;
 };
 
-interface KernelReduxMiddleware<TState = unknown>
-	extends ReduxMiddleware<TState> {
+type KernelReduxMiddleware<TState = unknown> = {
 	destroy?: () => void;
-}
+} & ReduxMiddleware<TState>;
 
 function getHooks(): WordPressHooks | null {
 	if (typeof window === 'undefined') {

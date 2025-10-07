@@ -96,10 +96,10 @@ test.describe.serial('Job creation workflow', () => {
 		await expect(rowLocator).toBeVisible({ timeout: 30000 });
 		const jobIdAttr = await rowLocator.first().getAttribute('data-job-id');
 		const jobId = jobIdAttr ? Number(jobIdAttr) : NaN;
-		if (!Number.isNaN(jobId)) {
-			createdJobIds.push(jobId);
-		} else {
+		if (Number.isNaN(jobId)) {
 			throw new Error('Failed to capture created job ID for cleanup');
+		} else {
+			createdJobIds.push(jobId);
 		}
 	});
 });

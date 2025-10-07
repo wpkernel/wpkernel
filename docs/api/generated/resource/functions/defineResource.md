@@ -1,4 +1,4 @@
-[**WP Kernel API v0.1.1**](../../README.md)
+[**WP Kernel API v0.3.0**](../../README.md)
 
 ---
 
@@ -9,8 +9,6 @@
 ```ts
 function defineResource<T, TQuery>(config): ResourceObject<T, TQuery>;
 ```
-
-Defined in: [resource/define.ts:164](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/define.ts#L164)
 
 Define a resource with typed REST client
 
@@ -41,13 +39,13 @@ Query parameters type for list operations (e.g., { search?: string })
 
 ### config
 
-[`ResourceConfig`](../interfaces/ResourceConfig.md)\<`T`, `TQuery`\>
+[`ResourceConfig`](../type-aliases/ResourceConfig.md)\<`T`, `TQuery`\>
 
 Resource configuration
 
 ## Returns
 
-[`ResourceObject`](../interfaces/ResourceObject.md)\<`T`, `TQuery`\>
+[`ResourceObject`](../type-aliases/ResourceObject.md)\<`T`, `TQuery`\>
 
 Resource object with client methods and metadata
 

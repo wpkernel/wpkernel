@@ -1,12 +1,10 @@
-[**WP Kernel API v0.1.1**](../../README.md)
+[**WP Kernel API v0.3.0**](../../README.md)
 
 ---
 
 [WP Kernel API](../../README.md) / [error](../README.md) / TransportError
 
 # Class: TransportError
-
-Defined in: [error/TransportError.ts:25](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/error/TransportError.ts#L25)
 
 Error thrown when a network/HTTP request fails
 
@@ -32,8 +30,6 @@ throw new TransportError({
 ```ts
 new TransportError(options): TransportError;
 ```
-
-Defined in: [error/TransportError.ts:52](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/error/TransportError.ts#L52)
 
 Create a new TransportError
 
@@ -61,11 +57,11 @@ Transport error options
 
 ###### data?
 
-[`ErrorData`](../interfaces/ErrorData.md)
+[`ErrorData`](../type-aliases/ErrorData.md)
 
 ###### context?
 
-[`ErrorContext`](../interfaces/ErrorContext.md)
+[`ErrorContext`](../type-aliases/ErrorContext.md)
 
 #### Returns
 
@@ -83,8 +79,6 @@ Transport error options
 readonly code: ErrorCode;
 ```
 
-Defined in: [error/KernelError.ts:32](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/error/KernelError.ts#L32)
-
 Error code - identifies the type of error
 
 #### Inherited from
@@ -98,8 +92,6 @@ Error code - identifies the type of error
 ```ts
 readonly optional data: ErrorData;
 ```
-
-Defined in: [error/KernelError.ts:37](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/error/KernelError.ts#L37)
 
 Additional data about the error
 
@@ -115,8 +107,6 @@ Additional data about the error
 readonly optional context: ErrorContext;
 ```
 
-Defined in: [error/KernelError.ts:42](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/error/KernelError.ts#L42)
-
 Context in which the error occurred
 
 #### Inherited from
@@ -131,8 +121,6 @@ Context in which the error occurred
 readonly status: number;
 ```
 
-Defined in: [error/TransportError.ts:29](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/error/TransportError.ts#L29)
-
 HTTP status code
 
 ---
@@ -142,8 +130,6 @@ HTTP status code
 ```ts
 readonly path: string;
 ```
-
-Defined in: [error/TransportError.ts:34](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/error/TransportError.ts#L34)
 
 Request path
 
@@ -155,8 +141,6 @@ Request path
 readonly method: string;
 ```
 
-Defined in: [error/TransportError.ts:39](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/error/TransportError.ts#L39)
-
 HTTP method
 
 ## Methods
@@ -167,13 +151,11 @@ HTTP method
 toJSON(): SerializedError;
 ```
 
-Defined in: [error/KernelError.ts:84](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/error/KernelError.ts#L84)
-
 Serialize error to JSON-safe format
 
 #### Returns
 
-[`SerializedError`](../interfaces/SerializedError.md)
+[`SerializedError`](../type-aliases/SerializedError.md)
 
 Serialized error object
 
@@ -189,15 +171,13 @@ Serialized error object
 static fromJSON(serialized): KernelError;
 ```
 
-Defined in: [error/KernelError.ts:101](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/error/KernelError.ts#L101)
-
 Create KernelError from serialized format
 
 #### Parameters
 
 ##### serialized
 
-[`SerializedError`](../interfaces/SerializedError.md)
+[`SerializedError`](../type-aliases/SerializedError.md)
 
 Serialized error object
 
@@ -218,8 +198,6 @@ New KernelError instance
 ```ts
 static isKernelError(error): error is KernelError;
 ```
-
-Defined in: [error/KernelError.ts:144](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/error/KernelError.ts#L144)
 
 Check if an error is a KernelError
 
@@ -252,8 +230,6 @@ static wrap(
    context?): KernelError;
 ```
 
-Defined in: [error/KernelError.ts:156](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/error/KernelError.ts#L156)
-
 Wrap a native Error into a KernelError
 
 #### Parameters
@@ -272,7 +248,7 @@ Error code to assign
 
 ##### context?
 
-[`ErrorContext`](../interfaces/ErrorContext.md)
+[`ErrorContext`](../type-aliases/ErrorContext.md)
 
 Additional context
 
@@ -294,8 +270,6 @@ New KernelError wrapping the original
 isTimeout(): boolean;
 ```
 
-Defined in: [error/TransportError.ts:112](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/error/TransportError.ts#L112)
-
 Check if error is a network timeout
 
 #### Returns
@@ -311,8 +285,6 @@ True if this is a timeout error
 ```ts
 isRetryable(): boolean;
 ```
-
-Defined in: [error/TransportError.ts:121](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/error/TransportError.ts#L121)
 
 Check if error is retryable
 
@@ -330,8 +302,6 @@ True if request should be retried
 isClientError(): boolean;
 ```
 
-Defined in: [error/TransportError.ts:138](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/error/TransportError.ts#L138)
-
 Check if error is a client error (4xx)
 
 #### Returns
@@ -347,8 +317,6 @@ True if this is a client error
 ```ts
 isServerError(): boolean;
 ```
-
-Defined in: [error/TransportError.ts:147](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/error/TransportError.ts#L147)
 
 Check if error is a server error (5xx)
 

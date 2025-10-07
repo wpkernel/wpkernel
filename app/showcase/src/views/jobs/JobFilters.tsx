@@ -8,15 +8,15 @@ import { __ } from '@wordpress/i18n';
 
 export type JobStatusFilter = 'all' | 'draft' | 'publish' | 'closed';
 
-export interface JobFiltersState {
+export type JobFiltersState = {
 	search: string;
 	status: JobStatusFilter;
-}
+};
 
-interface JobFiltersProps {
+type JobFiltersProps = {
 	value: JobFiltersState;
 	onChange: (next: JobFiltersState) => void;
-}
+};
 
 /**
  * JobFilters renders simple controls for search + status filtering.
