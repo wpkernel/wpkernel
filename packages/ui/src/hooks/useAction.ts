@@ -100,11 +100,7 @@ function ensureDispatch(): DispatchFunction {
 	const dispatchFn: DispatchFunction = <TArgs, TResult>(
 		envelope: ActionEnvelope<TArgs, TResult>
 	): Promise<TResult> => {
-		// Type assertions required here due to WordPress data store's untyped API:
-		// 1. invokeMethod is typed as (envelope: ActionEnvelope<unknown, unknown>) => Promise<unknown>
-		// 2. We cast the envelope to match invokeMethod's signature
-		// 3. We cast the result Promise<unknown> to Promise<TResult> based on caller's generic type
-		// The type safety contract is maintained by the action envelope system, not by WordPress data types
+		// Type safety is maintained by the action envelope system despite WordPress data API limitations.
 		return invokeMethod(
 			envelope as ActionEnvelope<unknown, unknown>
 		) as Promise<TResult>;
