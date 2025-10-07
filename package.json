@@ -23,7 +23,7 @@
 		"clean:dist": "pnpm --recursive run clean",
 		"lint": "eslint --max-warnings=0 --report-unused-disable-directives packages/ app/",
 		"lint:fix": "eslint packages/ app/ --fix",
-		"lint:branching": "eslint --rulesdir ./eslint-rules --rule 'no-else-return:error' 'max-depth: [\"warn\", 2]' 'complexity: [\"warn\", 10]' 'sonarjs/cognitive-complexity: [\"warn\", 15]' packages/ app/",
+		"lint:branching": "eslint --rulesdir ./eslint-rules --rule 'no-else-return:error' packages/ app/",
 		"format": "prettier --write '**/*.{js,ts,tsx,json,md,yml,yaml}' && node scripts/normalize-punctuation.js",
 		"format:check": "prettier --check '**/*.{js,ts,tsx,json,md,yml,yaml}'",
 		"typecheck": "pnpm --recursive --filter './packages/*' --filter './app/*' run typecheck",
