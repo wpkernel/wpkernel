@@ -358,7 +358,7 @@ function createDeniedError(
  * - **`assert(key, params?)`** — Enforce capability (throws `PolicyDenied` if false)
  * - **Cache management** — Automatic result caching with TTL and cross-tab sync
  * - **Event emission** — Broadcast denied events via `@wordpress/hooks` and BroadcastChannel
- * - **React integration** — `usePolicy()` hook for SSR-safe conditional rendering
+ * - **React integration** — `usePolicy()` hook (provided by `@geekist/wp-kernel-ui`) for SSR-safe conditional rendering
  * - **Action integration** — `ctx.policy.assert()` in actions for write protection
  *
  * ## Basic Usage

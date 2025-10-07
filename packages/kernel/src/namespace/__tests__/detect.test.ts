@@ -672,3 +672,39 @@ describe('package.json detection edge cases', () => {
 		expect(result.namespace).toBe('wpk');
 	});
 });
+
+describe('development warnings', () => {
+	const originalEnv = process.env.NODE_ENV;
+
+	beforeEach(() => {
+		process.env.NODE_ENV = 'development';
+		clearNamespaceState();
+	});
+
+	afterEach(() => {
+		process.env.NODE_ENV = originalEnv;
+	});
+
+	it('emits a warning when falling back to default namespace in development', () => {
+		const result = detectNamespace({ fallback: 'custom-fallback' });
+
+		expect(console).toHaveWarnedWith(
+			'[wpk.namespace]',
+			'🔧 WP Kernel: Using fallback namespace "custom-fallback". For deterministic behavior, set __WPK_NAMESPACE__ (build-time) or wpKernelData.textDomain (runtime). See: https://github.com/theGeekist/wp-kernel/docs/namespace-detection'
+		);
+
+		expect(result.source).toBe('fallback');
+	});
+
+	it('emits a warning when using package.json derived namespace in development', () => {
+		setKernelPackage({ name: '@acme/test-package' });
+		const result = detectNamespace();
+
+		expect(console).toHaveWarnedWith(
+			'[wpk.namespace]',
+			'📦 WP Kernel: Using package.json name for namespace "test-package". For WordPress-native behavior, set wpKernelData.textDomain or __WPK_NAMESPACE__. See: https://github.com/theGeekist/wp-kernel/docs/namespace-detection'
+		);
+
+		expect(result.source).toBe('package-json');
+	});
+});

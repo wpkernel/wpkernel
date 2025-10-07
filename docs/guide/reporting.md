@@ -66,7 +66,7 @@ Without `debug`, the policy reporter becomes a no-op and avoids console noise.
 The new `useKernel()` helper wires kernel middleware into an `@wordpress/data` registry:
 
 ```typescript
-import { useKernel } from '@geekist/wp-kernel/data';
+import { useKernel } from '@geekist/wp-kernel-ui';
 
 const registry = createRegistry();
 const teardown = useKernel(registry, {

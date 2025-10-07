@@ -10,6 +10,7 @@
 import type * as WPData from '@wordpress/data';
 import type * as WPApiFetch from '@wordpress/api-fetch';
 import type * as WPHooks from '@wordpress/hooks';
+import type { ResourceObject } from '@geekist/wp-kernel/resource';
 
 export {};
 
@@ -51,6 +52,12 @@ declare global {
 			name?: string;
 			version?: string;
 		};
+		__WP_KERNEL_UI_ATTACH_RESOURCE_HOOKS__?: <
+			T = unknown,
+			TQuery = unknown,
+		>(
+			resource: ResourceObject<T, TQuery>
+		) => void;
 	}
 
 	/**

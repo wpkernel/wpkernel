@@ -1,12 +1,14 @@
 import React, { act, useEffect, useRef } from 'react';
 import { createRoot } from 'react-dom/client';
-import { usePolicy } from '../hooks';
-import { createPolicyCache, createPolicyCacheKey } from '../cache';
-import type { ActionRuntime } from '../../actions/types';
-import type { PolicyHelpers, UsePolicyResult } from '../types';
-import { KernelError } from '../../error/KernelError';
+import { usePolicy } from '../usePolicy';
+import {
+	createPolicyCache,
+	createPolicyCacheKey,
+} from '@geekist/wp-kernel/policy';
+import type { PolicyHelpers, UsePolicyResult } from '@geekist/wp-kernel/policy';
+import { KernelError } from '@geekist/wp-kernel/error';
 
-jest.mock('../../namespace/detect', () => ({
+jest.mock('@geekist/wp-kernel/namespace', () => ({
 	getNamespace: () => 'acme',
 }));
 
@@ -16,7 +18,7 @@ type RuntimePolicy =
 			cache?: PolicyHelpers<Record<string, unknown>>['cache'];
 	  });
 
-describe('usePolicy hook', () => {
+describe('usePolicy hook (UI integration)', () => {
 	beforeAll(() => {
 		(
 			globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }
@@ -29,7 +31,8 @@ describe('usePolicy hook', () => {
 	});
 
 	afterEach(() => {
-		delete global.__WP_KERNEL_ACTION_RUNTIME__;
+		delete (globalThis as { __WP_KERNEL_ACTION_RUNTIME__?: unknown })
+			.__WP_KERNEL_ACTION_RUNTIME__;
 		jest.restoreAllMocks();
 	});
 
@@ -94,9 +97,11 @@ describe('usePolicy hook', () => {
 			keys: () => ['tasks.manage'],
 			cache,
 		};
-		global.__WP_KERNEL_ACTION_RUNTIME__ = {
-			policy: runtime,
-		} as ActionRuntime;
+		(
+			globalThis as {
+				__WP_KERNEL_ACTION_RUNTIME__?: { policy?: RuntimePolicy };
+			}
+		).__WP_KERNEL_ACTION_RUNTIME__ = { policy: runtime };
 
 		const results: UsePolicyResult<Record<string, unknown>>[] = [];
 		const { cleanup } = renderTestComponent(results);
@@ -120,9 +125,11 @@ describe('usePolicy hook', () => {
 			keys: () => ['tasks.manage'],
 			cache: createPolicyCache({ crossTab: false }, 'acme'),
 		};
-		global.__WP_KERNEL_ACTION_RUNTIME__ = {
-			policy: runtime,
-		} as ActionRuntime;
+		(
+			globalThis as {
+				__WP_KERNEL_ACTION_RUNTIME__?: { policy?: RuntimePolicy };
+			}
+		).__WP_KERNEL_ACTION_RUNTIME__ = { policy: runtime };
 
 		const results: UsePolicyResult<Record<string, unknown>>[] = [];
 		const { cleanup } = renderTestComponent(results);
@@ -152,9 +159,11 @@ describe('usePolicy hook', () => {
 			keys: () => ['tasks.manage'],
 			cache: createPolicyCache({ crossTab: false }, 'acme'),
 		};
-		global.__WP_KERNEL_ACTION_RUNTIME__ = {
-			policy: runtime,
-		} as ActionRuntime;
+		(
+			globalThis as {
+				__WP_KERNEL_ACTION_RUNTIME__?: { policy?: RuntimePolicy };
+			}
+		).__WP_KERNEL_ACTION_RUNTIME__ = { policy: runtime };
 
 		const results: UsePolicyResult<Record<string, unknown>>[] = [];
 		const { cleanup } = renderTestComponent(results);
@@ -185,9 +194,11 @@ describe('usePolicy hook', () => {
 			keys: () => ['tasks.manage'],
 			cache: createPolicyCache({ crossTab: false }, 'acme'),
 		};
-		global.__WP_KERNEL_ACTION_RUNTIME__ = {
-			policy: runtime,
-		} as ActionRuntime;
+		(
+			globalThis as {
+				__WP_KERNEL_ACTION_RUNTIME__?: { policy?: RuntimePolicy };
+			}
+		).__WP_KERNEL_ACTION_RUNTIME__ = { policy: runtime };
 
 		const results: UsePolicyResult<Record<string, unknown>>[] = [];
 		const { cleanup } = renderTestComponent(results);
@@ -206,6 +217,113 @@ describe('usePolicy hook', () => {
 		const final = results[results.length - 1]!;
 		expect(final.error).toBeInstanceOf(Error);
 		expect((final.error as Error).message).toBe('denied');
+		cleanup();
+	});
+
+	it('handles promise rejection with non-Error values', async () => {
+		const runtimeCan = jest.fn(() => Promise.reject('rejected-string'));
+		const runtime: RuntimePolicy = {
+			can: runtimeCan,
+			keys: () => ['tasks.manage'],
+			cache: createPolicyCache({ crossTab: false }, 'acme'),
+		};
+		(
+			globalThis as {
+				__WP_KERNEL_ACTION_RUNTIME__?: { policy?: RuntimePolicy };
+			}
+		).__WP_KERNEL_ACTION_RUNTIME__ = { policy: runtime };
+
+		const results: UsePolicyResult<Record<string, unknown>>[] = [];
+		const { cleanup } = renderTestComponent(results);
+
+		await act(async () => {
+			await Promise.resolve();
+		});
+
+		const latest = results[results.length - 1]!;
+		await act(async () => {
+			latest.can('tasks.manage', undefined);
+			await Promise.resolve();
+		});
+
+		const final = results[results.length - 1]!;
+		expect(final.error).toBeInstanceOf(Error);
+		expect((final.error as Error).message).toBe('rejected-string');
+		cleanup();
+	});
+
+	it('handles Error rejection from runtime can()', async () => {
+		const errorInstance = new Error('Custom error message');
+		const runtimeCan = jest.fn(() => Promise.reject(errorInstance));
+		const runtime: RuntimePolicy = {
+			can: runtimeCan,
+			keys: () => ['tasks.manage'],
+			cache: createPolicyCache({ crossTab: false }, 'acme'),
+		};
+		(
+			globalThis as {
+				__WP_KERNEL_ACTION_RUNTIME__?: { policy?: RuntimePolicy };
+			}
+		).__WP_KERNEL_ACTION_RUNTIME__ = { policy: runtime };
+
+		const results: UsePolicyResult<Record<string, unknown>>[] = [];
+		const { cleanup } = renderTestComponent(results);
+
+		await act(async () => {
+			await Promise.resolve();
+		});
+
+		const latest = results[results.length - 1]!;
+		await act(async () => {
+			latest.can('tasks.manage', undefined);
+			await Promise.resolve();
+		});
+
+		const final = results[results.length - 1]!;
+		expect(final.error).toBe(errorInstance);
+		expect((final.error as Error).message).toBe('Custom error message');
+		cleanup();
+	});
+
+	it('handles successful policy check with context', async () => {
+		const cache = createPolicyCache({ crossTab: false }, 'acme');
+		const runtimeCan = jest
+			.fn()
+			.mockImplementation(
+				(key: string, ctx?: Record<string, unknown>) => {
+					if (key === 'tasks.edit' && ctx?.id === 123) {
+						return true; // Return synchronously, not as promise
+					}
+					return false;
+				}
+			);
+		const runtime: RuntimePolicy = {
+			can: runtimeCan,
+			keys: () => ['tasks.edit'],
+			cache,
+		};
+		(
+			globalThis as {
+				__WP_KERNEL_ACTION_RUNTIME__?: { policy?: RuntimePolicy };
+			}
+		).__WP_KERNEL_ACTION_RUNTIME__ = { policy: runtime };
+
+		const results: UsePolicyResult<Record<string, unknown>>[] = [];
+		const { cleanup } = renderTestComponent(results);
+
+		await act(async () => {
+			await Promise.resolve();
+		});
+
+		const latest = results[results.length - 1]!;
+		let allowed: boolean | undefined;
+		await act(async () => {
+			allowed = latest.can('tasks.edit', { id: 123 });
+			await Promise.resolve();
+		});
+
+		expect(allowed).toBe(true);
+		expect(runtimeCan).toHaveBeenCalledWith('tasks.edit', { id: 123 });
 		cleanup();
 	});
 });

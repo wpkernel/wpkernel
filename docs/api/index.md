@@ -18,13 +18,27 @@ Structured logging via LogLayer with console and WordPress hook transports.
 
 ### [Data Helpers](/guide/data)
 
-Registry utilities (`useKernel`, `registerKernelStore`) and notice bridging for `@wordpress/data` stores.
+Registry utilities (`registerKernelStore`) and notice bridging for `@wordpress/data` stores. React helpers such as `useKernel`
+are available via `@geekist/wp-kernel-ui`.
 
 ### [Errors](/api/generated/error/README)
 
 Error types and handling primitives.
 
 ### [HTTP Transport](/api/generated/http/README)
+
+## UI Hooks
+
+### [`usePrefetcher`](/api/usePrefetcher)
+
+React adapters around resource prefetching helpers (`prefetchGet` /
+`prefetchList`) plus utility hooks for hover, visibility, and pagination
+prefetch flows.
+
+### [`useAction`](/api/useAction)
+
+Thin React wrapper over kernel Actions with concurrency controls, deduping,
+and automatic cache invalidation.
 
 ## Coming Soon
 

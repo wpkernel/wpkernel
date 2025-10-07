@@ -323,7 +323,8 @@ await testimonial.remove(123);
 
 ### React Hooks
 
-React hooks for data fetching with automatic loading states and re-fetching.
+React hooks for data fetching with automatic loading states and re-fetching. Importing `@geekist/wp-kernel-ui`
+automatically registers the hooks for resources defined with `defineResource()`.
 
 #### useGet(id)
 

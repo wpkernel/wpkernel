@@ -1,9 +1,6 @@
-import { createRoot } from 'react-dom/client';
-import React, { act, useEffect, useRef } from 'react';
 import { definePolicy } from '../define';
-import { usePolicy } from '../hooks';
 import { createPolicyProxy } from '../context';
-import type { PolicyHelpers, PolicyRule, UsePolicyResult } from '../types';
+import type { PolicyHelpers, PolicyRule } from '../types';
 import { KernelError } from '../../error/KernelError';
 import { PolicyDeniedError } from '../../error/PolicyDeniedError';
 
@@ -112,57 +109,6 @@ describe('policy module', () => {
 
 		expect(policy.cache.get('tasks.manage::void')).toBeUndefined();
 		await expect(policy.can('tasks.manage')).resolves.toBe(false);
-	});
-
-	it('usePolicy exposes pre-hydration contract', async () => {
-		definePolicy<{
-			'tasks.manage': void;
-		}>({
-			'tasks.manage': () => true,
-		});
-
-		type TestPolicy = { 'tasks.manage': void };
-		const results: UsePolicyResult<TestPolicy>[] = [];
-
-		function TestComponent() {
-			const value = usePolicy<TestPolicy>();
-			const first = useRef(true);
-			useEffect(() => {
-				results.push(value);
-				if (first.current) {
-					first.current = false;
-				}
-			}, [value]);
-			return null;
-		}
-
-		const container = document.createElement('div');
-		let root: ReturnType<typeof createRoot> | undefined;
-		act(() => {
-			root = createRoot(container);
-			root.render(React.createElement(TestComponent));
-		});
-
-		await act(async () => {
-			await new Promise<void>((resolve) => {
-				setTimeout(resolve, 0);
-			});
-		});
-
-		const initial = results[0]!;
-		expect(initial.isLoading).toBe(true);
-		expect(initial.can('tasks.manage')).toBe(false);
-
-		await act(async () => {
-			await Promise.resolve();
-		});
-
-		const latest = results[results.length - 1]!;
-		expect(latest.isLoading).toBe(false);
-		expect(latest.can('tasks.manage')).toBe(true);
-		act(() => {
-			root?.unmount();
-		});
 	});
 
 	it('proxy injects request context for action assertions', async () => {

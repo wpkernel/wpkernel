@@ -7,6 +7,7 @@
 import type * as WPData from '@wordpress/data';
 import type * as WPApiFetch from '@wordpress/api-fetch';
 import type * as WPHooks from '@wordpress/hooks';
+import type { ResourceObject } from '@geekist/wp-kernel/resource';
 
 export {};
 
@@ -48,6 +49,24 @@ declare global {
 			name?: string;
 			version?: string;
 		};
+		/**
+		 * React hook attachment function registered by @geekist/wp-kernel-ui
+		 * Called by defineResource() to attach useGet/useList hooks when UI bundle is loaded
+		 */
+		__WP_KERNEL_UI_ATTACH_RESOURCE_HOOKS__?: <
+			T = unknown,
+			TQuery = unknown,
+		>(
+			resource: ResourceObject<T, TQuery>
+		) => void;
+		/**
+		 * Pending resource processor registered by kernel when resources are queued
+		 * Returns and clears queued resources that were defined before UI bundle loaded
+		 */
+		__WP_KERNEL_UI_PROCESS_PENDING_RESOURCES__?: () => ResourceObject<
+			unknown,
+			unknown
+		>[];
 	}
 
 	/**

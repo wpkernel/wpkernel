@@ -6,6 +6,7 @@
 		{ "path": "./packages/kernel" },
 		{ "path": "./packages/ui" },
 		{ "path": "./packages/kernel/tsconfig.tests.json" },
+		{ "path": "./packages/ui/tsconfig.tests.json" },
 		{ "path": "./packages/cli" },
 		{ "path": "./packages/e2e-utils" },
 		{ "path": "./app/showcase" }

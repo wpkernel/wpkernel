@@ -1,6 +1,5 @@
 export { definePolicy } from './define';
 export { createPolicyProxy } from './context';
-export { usePolicy } from './hooks';
 export { createPolicyCache, createPolicyCacheKey } from './cache';
 export type {
 	PolicyRule,

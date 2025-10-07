@@ -56,6 +56,8 @@ module.exports = {
 		'!app/showcase/src/**',
 		// Exclude e2e-utils (browser-only code, can't be unit tested in JSDOM)
 		'!packages/e2e-utils/src/**',
+		// Exclude testing utilities (test helpers, not production code)
+		'!packages/ui/src/hooks/testing/**',
 		'!packages/*/src/**/*.d.ts',
 		'!app/*/src/**/*.d.ts',
 		'!packages/*/src/**/__tests__/**',

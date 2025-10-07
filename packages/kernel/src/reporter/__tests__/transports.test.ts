@@ -206,4 +206,59 @@ describe('reporter transports', () => {
 
 		dateSpy.mockRestore();
 	});
+
+	it('ignores entries with unsupported log levels', () => {
+		const transport = createTransports(
+			'console',
+			'info'
+		) as TransportWithShipToLogger;
+
+		const result = transport.shipToLogger(
+			createParams({ logLevel: 'verbose' as any })
+		);
+
+		expect(result).toEqual([]);
+		expect(console.info).not.toHaveBeenCalled();
+	});
+
+	it('ignores entries when the first message is not a string', () => {
+		const transport = createTransports(
+			'console',
+			'warn'
+		) as TransportWithShipToLogger;
+
+		const result = transport.shipToLogger(
+			createParams({ messages: [123, 'string values ignored'] as any })
+		);
+
+		expect(result).toEqual([]);
+		expect(console.warn).not.toHaveBeenCalled();
+	});
+
+	it('throws for the bridge transport placeholder', () => {
+		expect(() => createTransports('bridge', 'debug')).toThrow(
+			'Bridge transport is planned for a future sprint'
+		);
+	});
+
+	it('defaults to console transport for unknown channels', () => {
+		const transport = createTransports(
+			'custom' as any,
+			'error'
+		) as TransportWithShipToLogger;
+
+		const result = transport.shipToLogger(
+			createParams({
+				logLevel: 'error',
+				context: { namespace: 'fallback' },
+				messages: ['unknown channel'],
+			})
+		);
+
+		expect(console.error).toHaveBeenCalledWith(
+			'[fallback]',
+			'unknown channel'
+		);
+		expect(result).toEqual(['[fallback]', 'unknown channel']);
+	});
 });
