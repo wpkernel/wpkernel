@@ -214,7 +214,7 @@ export const CreatePost = defineAction(
 ### Reporting and notices
 
 `ctx.reporter` forwards structured telemetry to the reporter module. With `channel: 'all'` the message prints in development
-consoles and emits `showcase.reporter.error` via `wp.hooks`. When paired with [`useKernel()` from `@geekist/wp-kernel-ui`](/guide/data) the
+consoles and emits `showcase.reporter.error` via `wp.hooks`. When paired with [`withKernel()` from `@geekist/wp-kernel`](/guide/data) the
 `kernelEventsPlugin()` listens for `wpk.action.error` and raises `core/notices` alerts automatically.
 
 ## Using Actions in Your UI

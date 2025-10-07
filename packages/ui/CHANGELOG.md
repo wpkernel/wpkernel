@@ -6,6 +6,25 @@
 
 - **Sprint 5: Complete React Hooks Integration for WordPress Data**
 
+### Breaking Changes
+
+- **Removed `useKernel()`** - This function has been moved to `@geekist/wp-kernel` and renamed to `withKernel()`
+    - Import from `@geekist/wp-kernel` instead of `@geekist/wp-kernel-ui`
+    - Function renamed to better reflect its purpose (it's not a React hook)
+    - See migration guide below
+
+### Migration Guide
+
+```typescript
+// Before (Sprint 5)
+import { useKernel } from '@geekist/wp-kernel-ui';
+useKernel(registry, options);
+
+// After
+import { withKernel } from '@geekist/wp-kernel';
+withKernel(registry, options);
+```
+
 ### New Hooks
 
 - **`useAction()`** - Complete action dispatch system with WordPress data integration
@@ -17,10 +36,6 @@
     - Lazy attachment mechanism for resources defined before UI loads
     - WordPress data store integration
     - 266 lines with full documentation
-- **`useKernel()`** - Bootstrap kernel runtime on WordPress data registry
-    - Installs action middleware and events plugin
-    - Automatic cleanup and teardown
-    - 73 lines
 - **`usePolicy()`** - Capability checks in UI (migrated from kernel)
     - Reactive policy cache with `can()` helper
     - Loading and error states

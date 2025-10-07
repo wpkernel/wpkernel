@@ -8,7 +8,7 @@ the lifecycle instrumentation provided by `defineAction`
 interface.
 
 The hook lives in `@geekist/wp-kernel-ui` and expects the kernel middleware to
-be registered in the WordPress data registry (via `useKernel`). It does **not**
+be registered in the WordPress data registry (via `withKernel`). It does **not**
 reimplement Actions-everything still flows through `invokeAction` and the
 runtime declared in `packages/kernel/src/actions/types.ts`.
 

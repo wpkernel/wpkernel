@@ -1,6 +1,8 @@
 # WordPress Data Integration
 
-WP Kernel ships first-class helpers for wiring actions and resources into `@wordpress/data`. The goal is to make registries aware of actions, errors, and notices without duplicating glue code in every plugin.
+WP Kernel ships first-class helpers for wiring actions and resources into `@wordpress/data`. The goal is to make ### Summary
+
+`withKernel` is the framework's public bootstrapping API. Calling it enables participation in the kernel ecosystem: typed actions, lifecycle & domain events bridged to `wp.hooks`, automatic notices, cross-tab coordination, extensible middleware, and upcoming job/bridge integrations. Plugin authors gain consistency and interoperability without bespoke wiring.istries aware of actions, errors, and notices without duplicating glue code in every plugin.
 
 ## What WP Kernel provides (for plugin & theme authors)
 
@@ -15,22 +17,22 @@ WP Kernel standardizes how plugins and themes interact with data, actions, event
 
 The UI hooks in `@geekist/wp-kernel-ui` are the activation point for these systems inside React/WordPress experiences.
 
-## `useKernel(registry, options)` – bootstrap the runtime
+## `withKernel(registry, options)` – bootstrap the runtime
 
-`useKernel` is the primary integration helper that plugin and theme authors call to wire the kernel runtime into an `@wordpress/data` registry. It is intentionally usable by host applications (plugins/themes), not just internal framework code.
+`withKernel` is the primary integration helper that plugin and theme authors call to wire the kernel runtime into an `@wordpress/data` registry. It is intentionally usable by host applications (plugins/themes), not just internal framework code.
 
-### What `useKernel` does
+### What `withKernel` does
 
-Calling `useKernel(registry, options)` enables the kernel runtime on that registry:
+Calling `withKernel(registry, options)` enables the kernel runtime on that registry:
 
 - **Installs action execution middleware** – Dispatch envelopes from `invokeAction()` and get full ActionContext (policy checks, lifecycle events, reporter wiring, cache invalidation, and planned job hooks _(Roadmap: Sprint 6)_).
 - **Installs the kernel events plugin** – Bridges action lifecycle events to `wp.hooks`, forwards actionable errors to `core/notices.createNotice`, and reports to your configured `Reporter`.
 - **Accepts additional middleware** – Pass `{ middleware: [myMiddleware] }` to append custom middleware after the kernel handler.
 - **Returns a cleanup function** – Remove middleware and detach WP hooks, which keeps hot reloads, tests, and SPA lifecycles stable.
 
-### Why authors should call `useKernel`
+### Why authors should call `withKernel`
 
-1. **Single-step activation of kernel behaviours** – Skip writing bespoke middleware or notice plumbing; `useKernel` installs the tested integration.
+1. **Single-step activation of kernel behaviours** – Skip writing bespoke middleware or notice plumbing; `withKernel` installs the tested integration.
 2. **Leverage the ActionContext** – Actions executed through the middleware gain policy enforcement, lifecycle events, domain events via `ctx.emit`, cross-tab broadcast, cache invalidation, reporter logging, and future background job coordination _(Roadmap: Sprint 6)_.
 3. **Native WordPress experience** – Lifecycle and domain events are bridged into `wp.hooks` so PHP-side plugins or other JS code can observe them, keeping backwards compatibility.
 4. **Consistent error handling** – Kernel errors map into WordPress notices automatically while still logging structured context through the reporter.
@@ -42,11 +44,11 @@ Calling `useKernel(registry, options)` enables the kernel runtime on that regist
 #### Minimal bootstrap (plugin entry point)
 
 ```ts
-import { useKernel } from '@geekist/wp-kernel-ui';
-import { registerKernelStore } from '@geekist/wp-kernel/data';
+import { withKernel } from '@geekist/wp-kernel';
+import { registerKernelStore } from '@geekist/wp-kernel';
 
 export function bootstrap(registry) {
-	const teardown = useKernel(registry, {
+	const teardown = withKernel(registry, {
 		namespace: 'my-plugin',
 	});
 
@@ -80,7 +82,7 @@ export async function createItemViaStore(store, payload) {
 
 #### Automatic notices & reporting
 
-If `CreateItem` throws `KernelError('ValidationError', { message: 'Bad input' })`, then after `useKernel(registry)` runs:
+If `CreateItem` throws `KernelError('ValidationError', { message: 'Bad input' })`, then after `withKernel(registry)` runs:
 
 - `core/notices.createNotice('info', 'Bad input')` fires when the store is registered.
 - The configured reporter receives `error(...)` with contextual metadata.
@@ -95,14 +97,14 @@ const metricsMiddleware = () => (next) => async (action) => {
 	return result;
 };
 
-const teardown = useKernel(registry, { middleware: [metricsMiddleware] });
+const teardown = withKernel(registry, { middleware: [metricsMiddleware] });
 ```
 
 #### Custom reporter
 
 ```ts
-import { useKernel } from '@geekist/wp-kernel-ui';
-import { createReporter } from '@geekist/wp-kernel/reporter';
+import { withKernel } from '@geekist/wp-kernel';
+import { createReporter } from '@geekist/wp-kernel';
 
 const reporter = createReporter({
 	namespace: 'my-plugin',
@@ -110,12 +112,12 @@ const reporter = createReporter({
 	level: 'debug',
 });
 
-useKernel(registry, { reporter });
+withKernel(registry, { reporter });
 ```
 
 #### PHP / WP hooks listeners
 
-`useKernel` forwards action events into `wp.hooks`, so a PHP plugin can listen:
+`withKernel` forwards action events into `wp.hooks`, so a PHP plugin can listen:
 
 ```php
 add_action( 'wpk.action.error', 'my_plugin_handle_action_error', 10, 1 );
@@ -135,7 +137,7 @@ function my_plugin_handle_action_error( $payload ) {
 
 ### Best practices
 
-- Call `useKernel(registry)` once per registry at bootstrap; it is idempotent for typical usage.
+- Call `withKernel(registry)` once per registry at bootstrap; it is idempotent for typical usage.
 - Register stores via `registerKernelStore()` so they inherit kernel-aware behaviour.
 - Throw `KernelError` subclasses from actions for structured notice mapping.
 - Provide a production reporter to forward logs to your telemetry system.

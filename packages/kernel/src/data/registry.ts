@@ -1,11 +1,8 @@
-import { createActionMiddleware } from '@geekist/wp-kernel/actions';
-import { kernelEventsPlugin } from '@geekist/wp-kernel/data';
-import type {
-	KernelRegistry,
-	KernelRegistryOptions,
-} from '@geekist/wp-kernel/data';
-import { getNamespace } from '@geekist/wp-kernel/namespace';
-import { createReporter } from '@geekist/wp-kernel/reporter';
+import { createActionMiddleware } from '../actions/middleware';
+import { getNamespace } from '../namespace/detect';
+import { createReporter } from '../reporter';
+import { kernelEventsPlugin } from './plugins/events';
+import type { KernelRegistry, KernelRegistryOptions } from './types';
 
 /**
  * Wire the WP Kernel runtime into a given `@wordpress/data` registry.
@@ -22,7 +19,7 @@ import { createReporter } from '@geekist/wp-kernel/reporter';
  * @param options  - Optional middleware configuration (namespace, reporter, custom middleware)
  * @return Cleanup function to detach middleware and remove listeners
  */
-export function useKernel(
+export function withKernel(
 	registry: KernelRegistry,
 	options: KernelRegistryOptions = {}
 ): () => void {

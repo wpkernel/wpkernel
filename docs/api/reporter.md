@@ -71,7 +71,7 @@ policyReporter.warn('Rule denied', { rule: 'posts.delete' });
 
 - **Actions** – the kernel automatically creates a reporter per namespace when actions execute.
 - **Policies** – `definePolicy()` uses a reporter when `debug: true` is provided.
-- **Registry** – `useKernel()` (from `@geekist/wp-kernel-ui`) accepts a reporter override when wiring `@wordpress/data`.
+- **Registry** – `withKernel()` (from `@geekist/wp-kernel`) accepts a reporter override when wiring `@wordpress/data`.
 
 Every console call inside `packages/kernel/src` now routes through this module. The custom ESLint rule
 `@kernel/no-console-in-kernel` enforces the policy.

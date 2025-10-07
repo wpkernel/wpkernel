@@ -53,7 +53,7 @@ function ensureDispatch(): DispatchFunction {
 	if (!wpData?.dispatch) {
 		throw new KernelError('DeveloperError', {
 			message:
-				'useAction requires the WordPress data registry. Ensure wp.data is available and useKernel() has been called.',
+				'useAction requires the WordPress data registry. Ensure wp.data is available and withKernel() has been called.',
 		});
 	}
 
@@ -90,7 +90,7 @@ function ensureDispatch(): DispatchFunction {
 	if (typeof dispatcher?.invoke !== 'function') {
 		throw new KernelError('DeveloperError', {
 			message:
-				'Failed to resolve kernel action dispatcher. Verify useKernel() was initialised.',
+				'Failed to resolve kernel action dispatcher. Verify withKernel() was initialised.',
 		});
 	}
 

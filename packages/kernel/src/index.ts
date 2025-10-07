@@ -155,9 +155,13 @@ export type {
 } from './policy/index.js';
 
 // Data integration
-export { registerKernelStore } from './data/index.js';
+export { withKernel, registerKernelStore } from './data/index.js';
 export { kernelEventsPlugin } from './data/plugins/events';
-export type { KernelRegistryOptions, NoticeStatus } from './data/index.js';
+export type {
+	KernelRegistry,
+	KernelRegistryOptions,
+	NoticeStatus,
+} from './data/index.js';
 
 // Reporter
 export { createReporter, createNoopReporter } from './reporter/index.js';

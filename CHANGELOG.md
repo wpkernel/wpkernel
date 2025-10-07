@@ -11,6 +11,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added - Sprint 5: React Hooks Integration
 
+#### Breaking Changes
+
+- **Moved and renamed `useKernel` → `withKernel`** - Bootstrap function moved from `@geekist/wp-kernel-ui` to `@geekist/wp-kernel`
+    - Function renamed to better reflect its purpose (it's not a React hook)
+    - Import from `@geekist/wp-kernel` instead of `@geekist/wp-kernel-ui`
+    - All functionality remains the same
+
 #### New Hooks (`@geekist/wp-kernel-ui`)
 
 - **`useAction()`** - Complete action dispatch system with WordPress data integration
@@ -20,9 +27,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **`useGet()` & `useList()`** - Resource data fetching hooks
     - Lazy attachment mechanism for resources defined before UI loads
     - WordPress data store integration
-- **`useKernel()`** - Bootstrap kernel runtime on WordPress data registry
-    - Installs action middleware and events plugin
-    - Automatic cleanup and teardown
 - **`usePolicy()`** - Capability checks in UI (migrated from kernel package)
     - Reactive policy cache with `can()` helper
     - Loading and error states
@@ -118,7 +122,7 @@ This release marks the completion of the foundation, resources, E2E utilities, p
 
 #### WordPress Data Integration (`@geekist/wp-kernel/data`)
 
-- **`useKernel(registry)`** - Registry plugin with kernel middleware
+- **`withKernel(registry)`** - Registry plugin with kernel middleware (renamed from useKernel)
 - **`registerKernelStore()`** - Store wrapper with actions DSL
 - **`kernelEventsPlugin()`** - Automatic error → WordPress notices bridge
 - **Full @wordpress/data parity** - Actions work in block editor environments

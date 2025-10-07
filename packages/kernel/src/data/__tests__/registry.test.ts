@@ -1,7 +1,7 @@
-import { useKernel } from '../useKernel';
+import { withKernel } from '../registry';
 import type { KernelRegistry } from '@geekist/wp-kernel/data';
 
-describe('useKernel (UI integration)', () => {
+describe('withKernel (data registry integration)', () => {
 	beforeEach(() => {
 		(window.wp?.hooks?.addAction as jest.Mock | undefined)?.mockReset?.();
 		(
@@ -39,7 +39,7 @@ describe('useKernel (UI integration)', () => {
 			(next: (action: unknown) => unknown) =>
 			(action: unknown) =>
 				next(action);
-		const cleanup = useKernel(registry, {
+		const cleanup = withKernel(registry, {
 			reporter: mockReporter,
 			middleware: [customMiddleware],
 			namespace: 'acme',
@@ -80,7 +80,7 @@ describe('useKernel (UI integration)', () => {
 	it('returns noop when registry does not support middleware', () => {
 		const registry = {} as unknown as KernelRegistry;
 
-		const cleanup = useKernel(registry);
+		const cleanup = withKernel(registry);
 		expect(cleanup()).toBeUndefined();
 	});
 
@@ -90,7 +90,7 @@ describe('useKernel (UI integration)', () => {
 			dispatch: jest.fn(),
 		} as unknown as KernelRegistry;
 
-		const cleanup = useKernel(registry);
+		const cleanup = withKernel(registry);
 		expect(cleanup()).toBeUndefined();
 	});
 
@@ -100,7 +100,7 @@ describe('useKernel (UI integration)', () => {
 			dispatch: jest.fn(),
 		} as unknown as KernelRegistry;
 
-		const cleanup = useKernel(registry);
+		const cleanup = withKernel(registry);
 		expect(cleanup()).toBeUndefined();
 	});
 
@@ -127,7 +127,7 @@ describe('useKernel (UI integration)', () => {
 			}),
 		};
 
-		const cleanup = useKernel(registry, {
+		const cleanup = withKernel(registry, {
 			reporter: mockReporter,
 			namespace: 'test',
 		});
@@ -148,7 +148,7 @@ describe('useKernel (UI integration)', () => {
 			__experimentalUseMiddleware: jest.Mock;
 		};
 
-		const cleanup = useKernel(registry);
+		const cleanup = withKernel(registry);
 
 		// Should not throw
 		expect(() => cleanup()).not.toThrow();

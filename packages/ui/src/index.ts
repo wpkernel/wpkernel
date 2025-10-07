@@ -12,7 +12,6 @@
 export const VERSION = '0.3.0';
 
 // Hooks migrated from kernel
-export { useKernel } from './hooks/useKernel';
 export { usePolicy } from './hooks/usePolicy';
 export {
 	attachResourceHooks,

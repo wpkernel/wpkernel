@@ -2,6 +2,8 @@
  * WP Kernel Showcase Plugin - Entry Point
  */
 
+import { withKernel } from '@geekist/wp-kernel';
+import type { KernelRegistry } from '@geekist/wp-kernel';
 import { mountAdmin } from './admin';
 import { job } from './resources';
 import { ShowcaseActionError } from './errors/ShowcaseActionError';
@@ -23,6 +25,9 @@ export function init(): void {
 		console.warn('[WP Kernel Showcase] wp.data not available yet.');
 		return;
 	}
+
+	// Initialize WP Kernel runtime (middleware + events plugin)
+	withKernel(globalWindow.wp.data as KernelRegistry);
 
 	try {
 		// Trigger lazy store registration and warm initial data.
