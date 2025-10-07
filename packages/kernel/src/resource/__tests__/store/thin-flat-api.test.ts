@@ -294,8 +294,6 @@ describe('createStore - Thin-Flat API', () => {
 			});
 
 			it('should be callable with numeric ID', () => {
-				// Note: In real usage, this would be called inside a React component
-				// and would use @wordpress/data's useSelect. Here we just verify it exists.
 				expect(() => mockResource.useGet?.(123)).not.toThrow();
 			});
 
@@ -311,8 +309,6 @@ describe('createStore - Thin-Flat API', () => {
 			});
 
 			it('should be callable with query parameters', () => {
-				// Note: In real usage, this would be called inside a React component
-				// and would use @wordpress/data's useSelect. Here we just verify it exists.
 				const query = { q: 'search', status: 'active' };
 				expect(() => mockResource.useList?.(query)).not.toThrow();
 			});

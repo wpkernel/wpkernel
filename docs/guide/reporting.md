@@ -63,13 +63,13 @@ Without `debug`, the policy reporter becomes a no-op and avoids console noise.
 
 ## Registry integration
 
-The new `useKernel()` helper wires kernel middleware into an `@wordpress/data` registry:
+The `withKernel()` helper wires kernel middleware into an `@wordpress/data` registry:
 
 ```typescript
-import { useKernel } from '@geekist/wp-kernel/data';
+import { withKernel } from '@geekist/wp-kernel';
 
 const registry = createRegistry();
-const teardown = useKernel(registry, {
+const teardown = withKernel(registry, {
 	namespace: 'showcase',
 	reporter: createReporter({ namespace: 'showcase', channel: 'all' }),
 });

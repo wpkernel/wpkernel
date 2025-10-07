@@ -12,6 +12,13 @@ import { createRoot } from '@wordpress/element';
 import { JobsList } from './pages/JobsList';
 
 /**
+ * Root component
+ */
+function App(): JSX.Element {
+	return <JobsList />;
+}
+
+/**
  * Mount the admin application
  *
  * Called by main index.ts when #wpk-admin-root is detected.
@@ -28,5 +35,5 @@ export function mountAdmin() {
 
 	// Create React root and render the application
 	const root = createRoot(rootElement);
-	root.render(<JobsList />);
+	root.render(<App />);
 }

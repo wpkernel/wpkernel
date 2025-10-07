@@ -25,7 +25,7 @@ During the `0.x` release series:
 - **`0.x.y` (Patch bump)**: Bug fixes, performance improvements, documentation updates
 - **Breaking changes are documented** in CHANGELOG with migration guides
 
-**Current Status**: v0.5.0 (Sprints 0-4.5 complete)
+**Current Status**: v0.2.0 (Sprints 0-4.5 complete)
 
 ### Post-1.0 Interpretation (Future)
 
@@ -132,10 +132,10 @@ WP Kernel provides a clear deprecation path for all API changes.
 ### Example Timeline
 
 ```
-v0.5.0 → Notice: "defineResource({ name }) is deprecated, use defineResource({ name, namespace })"
-v0.6.0 → Migration: Both syntaxes work; warning persists
-v0.7.0 → Migration: Codemod provided; warning includes "Removed in 1.0"
-v1.0.0 → Removal: Old syntax throws error with migration link
+v0.3.0 → Notice: "defineResource({ name }) is deprecated, use defineResource({ name, namespace })"
+v0.4.0 → Migration: Both syntaxes work; warning persists
+v0.5.0 → Migration: Codemod provided; warning includes "Removed in 1.0"
+v1.6.0 → Removal: Old syntax throws error with migration link
 ```
 
 ### Deprecation Notices
@@ -236,10 +236,10 @@ WP Kernel is a monorepo with multiple packages. They share version numbers:
 
 | Package                        | Current Version | Sync'd with |
 | ------------------------------ | --------------- | ----------- |
-| `@geekist/wp-kernel`           | 0.5.0           | Monorepo    |
-| `@geekist/wp-kernel-ui`        | 0.5.0           | Monorepo    |
-| `@geekist/wp-kernel-cli`       | 0.5.0           | Monorepo    |
-| `@geekist/wp-kernel-e2e-utils` | 0.5.0           | Monorepo    |
+| `@geekist/wp-kernel`           | 0.3.0           | Monorepo    |
+| `@geekist/wp-kernel-ui`        | 0.3.0           | Monorepo    |
+| `@geekist/wp-kernel-cli`       | 0.3.0           | Monorepo    |
+| `@geekist/wp-kernel-e2e-utils` | 0.3.0           | Monorepo    |
 
 **Why synchronized versions?**
 
@@ -294,5 +294,5 @@ We're actively seeking feedback on:
 
 ---
 
-**Last Updated**: October 6, 2025 (v0.5.0 release)  
+**Last Updated**: October 6, 2025 (v0.2.0 release)  
 **Next Review**: v1.0.0 release (planned Q4 2025)

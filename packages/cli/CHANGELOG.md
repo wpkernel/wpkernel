@@ -1,12 +1,18 @@
 # @geekist/wp-kernel-cli
 
-## 0.1.1
+## 0.3.0 [Unreleased]
+
+### Changes
+
+- Version bump to align with monorepo
+
+## 0.2.0
 
 ### Patch Changes
 
 - Internal monorepo improvements
 - Updated dependencies
-    - @geekist/wp-kernel@0.1.1
+    - @geekist/wp-kernel@0.2.0
 
 ## 0.1.0
 

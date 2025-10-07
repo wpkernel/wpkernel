@@ -77,6 +77,12 @@ Bindings connect WordPress blocks to your data. Instead of hard-coded `InnerBloc
 
 The Interactivity API adds behaviour without shipping custom JavaScript bundles per feature. It consumes the same stores and Actions you already defined, which means front-end interactions stay in sync with the editor. [Read the full guide →](/guide/interactivity)
 
+### Prefetching
+
+Strategies for warming caches from user interactions using `usePrefetcher` and
+its helper hooks. Covers practical triggers (hover, visibility, pagination) and
+pitfalls to avoid. [Read the full guide →](/guide/prefetching)
+
 ### Jobs
 
 Jobs handle long-running work-imports, exports, background synchronisation-while providing polling hooks back to the UI. They live alongside Actions so retry policies and status updates stay coherent. [Read the full guide →](/guide/jobs)

@@ -193,7 +193,7 @@ describe('defineResource - grouped API getters and cache.key()', () => {
 			expect(selectNamespace!.items).toBeDefined();
 		});
 
-		it('should lazily create use namespace when accessed', () => {
+		it('should leave use namespace undefined without UI hooks', () => {
 			const resource = defineResource<MockThing, MockThingQuery>({
 				name: 'thing',
 				routes: {
@@ -205,9 +205,9 @@ describe('defineResource - grouped API getters and cache.key()', () => {
 			// Access use property to trigger getter
 			const useNamespace = resource.use;
 
-			expect(useNamespace).toBeDefined();
-			expect(useNamespace!.item).toBe(resource.useGet);
-			expect(useNamespace!.list).toBe(resource.useList);
+			expect(useNamespace).toBeUndefined();
+			expect(resource.useGet).toBeUndefined();
+			expect(resource.useList).toBeUndefined();
 		});
 
 		it('should lazily create get namespace when accessed', () => {

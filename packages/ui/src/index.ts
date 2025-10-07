@@ -9,26 +9,19 @@
 /**
  * Current version of WP Kernel UI
  */
-export const VERSION = '0.0.0';
+export const VERSION = '0.3.0';
 
-/**
- * Component placeholders - implementations coming in future sprints
- *
- * Planned exports:
- * - ActionButton (from './components/ActionButton')
- * - ResourceList (from './components/ResourceList')
- * - ResourceForm (from './components/ResourceForm')
- * - NoticeContainer (from './components/NoticeContainer')
- * - ResourceProvider (from './providers/ResourceProvider')
- * - useResource (from './hooks/useResource')
- * - useAction (from './hooks/useAction')
- */
+// Hooks migrated from kernel
+export { usePolicy } from './hooks/usePolicy';
+export {
+	attachResourceHooks,
+	type UseResourceItemResult,
+	type UseResourceListResult,
+} from './hooks/resource-hooks';
 
-// Future component structure:
-// export { ActionButton } from './components/ActionButton';
-// export { ResourceList } from './components/ResourceList';
-// export { ResourceForm } from './components/ResourceForm';
-// export { NoticeContainer } from './components/NoticeContainer';
-// export { ResourceProvider } from './providers/ResourceProvider';
-// export { useResource } from './hooks/useResource';
-// export { useAction } from './hooks/useAction';
+// New Sprint 5 hooks
+export { usePrefetcher } from './hooks/usePrefetcher';
+export { useHoverPrefetch } from './hooks/useHoverPrefetch';
+export { useVisiblePrefetch } from './hooks/useVisiblePrefetch';
+export { useNextPagePrefetch } from './hooks/useNextPagePrefetch';
+export { useAction } from './hooks/useAction';

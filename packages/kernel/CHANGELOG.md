@@ -1,13 +1,22 @@
 # @geekist/wp-kernel
 
-## [0.1.2](https://github.com/theGeekist/wp-kernel/compare/kernel@v0.1.1...kernel@v0.1.2) (2025-10-06)
+## 0.3.0 [Unreleased]
 
+### Minor Changes
 
-### Features
+- **Sprint 5: React Hooks Integration**
+    - Modified `defineResource()` to support lazy hook attachment via global queue mechanism
+    - Added resource hook queuing for resources defined before UI package loads
+    - Exposed `__WP_KERNEL_UI_PROCESS_PENDING_RESOURCES__` global for pending resource processing
+    - Enhanced resource-to-hook binding with comprehensive JSDoc documentation
 
-* improve test coverage across kernel modules ([e258ae9](https://github.com/theGeekist/wp-kernel/commit/e258ae9194faaa2d031627b50eb740bed5db87c2))
+### Technical Details
 
-## 0.1.1
+- Module-level queue in `resource/define.ts` (lines 28-50, 377-413)
+- Global hooks: `__WP_KERNEL_UI_ATTACH_RESOURCE_HOOKS__`, `__WP_KERNEL_UI_PROCESS_PENDING_RESOURCES__`
+- Ensures resources defined before UI loads can still bind React hooks when UI initializes
+
+## 0.2.0
 
 ### Patch Changes
 

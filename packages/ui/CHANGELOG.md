@@ -1,12 +1,75 @@
 # @geekist/wp-kernel-ui
 
-## 0.1.1
+## 0.3.0 [Unreleased]
+
+### Major Changes
+
+- **Sprint 5: Complete React Hooks Integration for WordPress Data**
+
+### Breaking Changes
+
+- **Removed `useKernel()`** - This function has been moved to `@geekist/wp-kernel` and renamed to `withKernel()`
+    - Import from `@geekist/wp-kernel` instead of `@geekist/wp-kernel-ui`
+    - Function renamed to better reflect its purpose (it's not a React hook)
+    - See migration guide below
+
+### Migration Guide
+
+```typescript
+// Before (Sprint 5)
+import { useKernel } from '@geekist/wp-kernel-ui';
+useKernel(registry, options);
+
+// After
+import { withKernel } from '@geekist/wp-kernel';
+withKernel(registry, options);
+```
+
+### New Hooks
+
+- **`useAction()`** - Complete action dispatch system with WordPress data integration
+    - 4 concurrency modes: `parallel`, `switch`, `queue`, `drop`
+    - Automatic cache invalidation and deduplication
+    - Cancellation support with proper queue handling
+    - 427 lines with comprehensive JSDoc
+- **`useGet()` & `useList()`** - Resource data fetching hooks
+    - Lazy attachment mechanism for resources defined before UI loads
+    - WordPress data store integration
+    - 266 lines with full documentation
+- **`usePolicy()`** - Capability checks in UI (migrated from kernel)
+    - Reactive policy cache with `can()` helper
+    - Loading and error states
+    - 130 lines
+- **Prefetching Hooks**:
+    - `usePrefetcher()` - Generic prefetching orchestrator with debouncing (43 lines)
+    - `useVisiblePrefetch()` - IntersectionObserver-based viewport prefetching (168 lines)
+    - `useHoverPrefetch()` - Hover-triggered prefetching (75 lines)
+    - `useNextPagePrefetch()` - Pagination-aware prefetching (46 lines)
+
+### Critical Fixes
+
+- **P1: Resource Hook Timing** - Implemented module-level queue to handle resources defined before UI loads
+- **P1: Queue Cancellation** - Fixed queue concurrency mode to properly prevent cancelled actions from executing
+
+### Testing
+
+- Added 28 new test cases across 9 test files
+- Achieved 89.73% branch coverage (970 tests passing)
+- Comprehensive coverage of all new hooks and edge cases
+
+### Technical Details
+
+- Global hooks: `__WP_KERNEL_UI_ATTACH_RESOURCE_HOOKS__`, `__WP_KERNEL_UI_PROCESS_PENDING_RESOURCES__`
+- All hooks include comprehensive JSDoc documentation
+- TypeScript strict mode with full type safety
+
+## 0.2.0
 
 ### Patch Changes
 
 - Internal monorepo improvements
 - Updated dependencies
-    - @geekist/wp-kernel@0.1.1
+    - @geekist/wp-kernel@0.2.0
 
 ## 0.1.0
 

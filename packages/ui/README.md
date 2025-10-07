@@ -45,6 +45,16 @@ function PostDashboard() {
 
 **📖 [Complete Documentation →](../../docs/packages/ui.md)**
 
+## React Hooks
+
+- `usePolicy()` – subscribe to policy results with hydration-safe loading states.
+- `attachResourceHooks(resource)` – attach `useGet`/`useList` hooks to kernel resources.
+- `useAction()` – dispatch kernel actions with React state management
+
+> Importing `@geekist/wp-kernel-ui` once in your app bootstrap automatically registers resource hooks for all defined resources.
+
+**Note**: The `withKernel()` bootstrap function is now available from `@geekist/wp-kernel` (see [Data Integration Guide](/guide/data)).
+
 ### Admin Interfaces
 
 ```typescript
@@ -83,6 +93,16 @@ import { AdminTable } from '@geekist/wp-kernel-ui';
 - ⏳ Admin CRUD patterns (Sprint 6+)
 
 **Current Status**: Specification complete, implementation starting in Sprint 5
+
+## Actions in React
+
+`useAction` wraps kernel Actions with a React-friendly state machine and the
+same middleware pipeline used everywhere else. You get predictable status
+transitions, optional dedupe, concurrency controls, and automatic cache
+invalidation hooks. Pair it with `withKernel()` from `@geekist/wp-kernel` so the data registry is wired up.
+
+- [Guide – Actions](/guide/actions)
+- [API reference – `useAction`](/api/useAction)
 
 ## Requirements
 

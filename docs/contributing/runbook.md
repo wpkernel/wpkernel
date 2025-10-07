@@ -292,20 +292,33 @@ Launches WordPress in a WebAssembly environment (no Docker required).
 - CI/CD testing (lightweight)
 - Sharing prototypes
 
-## Changesets
+## Versioning
 
-### Create Sprint Changeset
+### Update CHANGELOG for Sprint
 
-```bash
-# Feature sprint (default)
-pnpm cs:new:minor "Sprint 5: Bindings & Interactivity"
+Update CHANGELOG.md files in affected packages:
 
-# Alignment/patch sprint
-pnpm cs:new:patch "Sprint 5.5: Performance & Polish"
+```markdown
+## 0.x.0 [Unreleased]
 
-# Breaking change (rare pre-1.0)
-pnpm cs:new:major "Sprint 9: PHP Bridge (breaking API)"
+### Added
+
+- Sprint 5: Bindings & Interactivity
+
+### Fixed
+
+- Bug fixes
+
+### Changed
+
+- Breaking changes (if any)
 ```
+
+**Bump types:**
+
+- **minor** (0.x.0) - Feature sprints (default)
+- **patch** (0.x.1) - Alignment/polish sprints
+- **major** (x.0.0) - Breaking changes (rare pre-1.0)
 
 > Direct commits to `main` (infra/docs only) do **not** trigger releases.
 

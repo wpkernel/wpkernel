@@ -1,6 +1,6 @@
 {
 	"name": "wp-kernel",
-	"version": "0.1.1",
+	"version": "0.3.0",
 	"private": true,
 	"type": "module",
 	"description": "A Rails-like, opinionated framework for building modern WordPress products",
@@ -75,6 +75,7 @@
 		"@wordpress/api-fetch": "^7.31.0",
 		"@wordpress/components": "^30.4.0",
 		"@wordpress/data": "^10.31.0",
+		"@wordpress/dataviews": "^9.1.0",
 		"@wordpress/dom-ready": "^4.31.0",
 		"@wordpress/e2e-test-utils-playwright": "^1.31.0",
 		"@wordpress/element": "^6.31.0",

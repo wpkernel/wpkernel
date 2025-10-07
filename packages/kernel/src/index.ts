@@ -140,7 +140,7 @@ export type {
 } from './actions/types';
 
 // Policy system
-export { definePolicy, createPolicyProxy, usePolicy } from './policy/index.js';
+export { definePolicy, createPolicyProxy } from './policy/index.js';
 export type {
 	PolicyRule,
 	PolicyMap,
@@ -151,13 +151,17 @@ export type {
 	PolicyCacheOptions,
 	PolicyDeniedEvent,
 	PolicyReporter,
-	UsePolicyResult,
 	ParamsOf,
 } from './policy/index.js';
 
 // Data integration
-export { useKernel, registerKernelStore } from './data/index.js';
-export type { KernelRegistryOptions, NoticeStatus } from './data/index.js';
+export { withKernel, registerKernelStore } from './data/index.js';
+export { kernelEventsPlugin } from './data/plugins/events';
+export type {
+	KernelRegistry,
+	KernelRegistryOptions,
+	NoticeStatus,
+} from './data/index.js';
 
 // Reporter
 export { createReporter, createNoopReporter } from './reporter/index.js';
@@ -181,5 +185,3 @@ export type {
 	NamespaceDetectionMode,
 	NamespaceRuntimeContext,
 } from './namespace/detect.js';
-// Test
-// Test 2

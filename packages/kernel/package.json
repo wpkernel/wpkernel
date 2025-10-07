@@ -1,6 +1,6 @@
 {
 	"name": "@geekist/wp-kernel",
-	"version": "0.1.2",
+	"version": "0.3.0",
 	"description": "Rails-like framework for building modern WordPress products",
 	"license": "EUPL-1.2",
 	"type": "module",

@@ -278,7 +278,7 @@ Before requesting review:
 - [ ] Types check (`pnpm typecheck`)
 - [ ] No debug code (console.log, debugger)
 - [ ] Documentation updated (if public API)
-- [ ] Changeset added (`pnpm changeset`)
+- [ ] CHANGELOG.md updated in affected packages
 - [ ] Self-reviewed diff on GitHub
 - [ ] PR description complete
 
@@ -340,34 +340,27 @@ git push --force-with-lease
 
 ---
 
-## Changesets
+## Release Process
 
-Every user-facing change requires a **changeset**.
+Releases are managed manually with semantic versioning.
 
-### Create Changeset
+### Version Numbering
 
-```bash
-# Run changeset CLI
-pnpm changeset
+- **Patch (0.x.1)**: Bug fixes, internal improvements
+- **Minor (0.x.0)**: New features, sprint completions
+- **Major (x.0.0)**: Breaking changes
 
-# Select packages affected (spacebar to select)
-# Choose version bump (patch, minor, major)
-# Enter change description
-```
+### Release Steps
 
-### Changeset Format
+1. Update CHANGELOG.md files in affected packages
+2. Update version numbers in package.json files
+3. Create release PR to main
+4. Merge after review and CI passes
+5. Tag release and publish to npm
 
-```markdown
----
-'@geekist/wp-kernel': minor
----
+### When to Skip Version Bump
 
-Add defineResource API for declaring REST resources with generated stores
-```
-
-### When to Skip
-
-Only skip changeset for:
+Only skip version updates for:
 
 - Documentation-only changes
 - Internal refactors (no API change)
@@ -375,29 +368,6 @@ Only skip changeset for:
 - CI/CD changes
 
 ---
-
-## Release Process (Future)
-
-Once Sprint 1 is complete:
-
-### 1. Prepare Release
-
-```bash
-# Create release branch
-git checkout -b release/v0.2.0
-
-# Run changeset version
-pnpm changeset:version
-
-# Review generated CHANGELOG.md
-# Commit changes
-git add .
-git commit -m "chore(release): version packages for v0.2.0"
-
-# Push and create PR
-git push origin release/v0.2.0
-gh pr create --title "Release v0.2.0"
-```
 
 ### 2. Publish (After PR Merge)
 
@@ -441,7 +411,6 @@ gh release create v0.2.0 \
     - ✓ Lint
     - ✓ Unit Tests
     - ✓ E2E Tests
-    - ✓ Changeset Check
 - ✓ Require branches to be up to date before merging
 - ✓ Require conversation resolution before merging
 - ✓ Do not allow bypassing the above settings

@@ -184,6 +184,7 @@ export default [
 			'**/*.spec.ts',
 			'**/*.spec.tsx',
 			'**/test/**',
+			'**/testing/**',
 			'**/tests/**',
 			'**/__tests__/**',
 		],

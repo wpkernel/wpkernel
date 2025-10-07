@@ -42,7 +42,7 @@ Enhancement suggestions are welcome! Please provide:
 4. Add tests for new functionality
 5. Ensure all tests pass (`pnpm test` and `pnpm e2e`)
 6. Lint your code (`pnpm lint`)
-7. Add a changeset (`pnpm changeset`)
+7. Update CHANGELOG.md in affected packages
 8. Commit with Conventional Commits format
 9. Push to your fork
 10. Open a Pull Request
@@ -104,28 +104,30 @@ See [Testing Guide](/contributing/testing) for:
 - Running tests locally
 - Test fixtures and seed data
 
-## Changesets
+## Versioning
 
-WP Kernel uses [Changesets](https://github.com/changesets/changesets) for version management.
+WP Kernel uses manual semantic versioning with fixed versioning across all packages.
 
-### Adding a Changeset
+### Updating Versions
 
-After making changes, add a changeset:
+After making changes, update CHANGELOG.md files:
 
-```bash
-pnpm changeset
+```markdown
+## 0.x.0 [Unreleased]
+
+### Added
+
+- Your feature description
+
+### Fixed
+
+- Bug fix description
 ```
 
-Follow the prompts:
+### Version Bump Guidelines
 
-1. **Select packages** - Which packages are affected?
-2. **Bump type** - Major, minor, or patch?
-3. **Summary** - Describe your changes (supports markdown)
-
-### Changeset Guidelines
-
-- **One changeset per PR** (usually)
-- **Clear summaries** - Users will read these in the changelog
+- **One CHANGELOG update per PR** (usually)
+- **Clear descriptions** - Users will read these in the changelog
 - **Correct bump type**:
     - **Major**: Breaking changes, event taxonomy changes, slot changes
     - **Minor**: New features, new events/slots (non-breaking)
@@ -207,7 +209,7 @@ Use package names or feature areas:
 
 - [ ] All tests pass (`pnpm test` and `pnpm e2e`)
 - [ ] Code is linted (`pnpm lint`)
-- [ ] Changeset added (`pnpm changeset`)
+- [ ] CHANGELOG.md updated in affected packages
 - [ ] Documentation updated (if needed)
 - [ ] Examples updated (if API changed)
 

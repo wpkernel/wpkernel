@@ -7,13 +7,63 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [Unreleased]
+## [0.3.0] - Unreleased
 
-_No unreleased changes yet._
+### Added - Sprint 5: React Hooks Integration
+
+#### Breaking Changes
+
+- **Moved and renamed `useKernel` → `withKernel`** - Bootstrap function moved from `@geekist/wp-kernel-ui` to `@geekist/wp-kernel`
+    - Function renamed to better reflect its purpose (it's not a React hook)
+    - Import from `@geekist/wp-kernel` instead of `@geekist/wp-kernel-ui`
+    - All functionality remains the same
+
+#### New Hooks (`@geekist/wp-kernel-ui`)
+
+- **`useAction()`** - Complete action dispatch system with WordPress data integration
+    - 4 concurrency modes: `parallel`, `switch`, `queue`, `drop`
+    - Automatic cache invalidation and deduplication
+    - Cancellation support with proper queue handling
+- **`useGet()` & `useList()`** - Resource data fetching hooks
+    - Lazy attachment mechanism for resources defined before UI loads
+    - WordPress data store integration
+- **`usePolicy()`** - Capability checks in UI (migrated from kernel package)
+    - Reactive policy cache with `can()` helper
+    - Loading and error states
+- **Prefetching Hooks**:
+    - `usePrefetcher()` - Generic prefetching orchestrator with debouncing
+    - `useVisiblePrefetch()` - IntersectionObserver-based viewport prefetching
+    - `useHoverPrefetch()` - Hover-triggered prefetching
+    - `useNextPagePrefetch()` - Pagination-aware prefetching
+
+#### Kernel Changes (`@geekist/wp-kernel`)
+
+- Modified `defineResource()` to support lazy hook attachment via global queue mechanism
+- Added resource hook queuing for resources defined before UI package loads
+- Exposed `__WP_KERNEL_UI_PROCESS_PENDING_RESOURCES__` global for pending resource processing
+
+### Fixed
+
+- **P1: Resource Hook Timing** - Resources defined before UI loads can now bind React hooks when UI initializes
+- **P1: Queue Cancellation** - Fixed queue concurrency mode to properly prevent cancelled actions from executing
+
+### Testing
+
+- Added 28 new test cases across 9 test files
+- Achieved 89.73% branch coverage (970 tests passing)
+- Comprehensive coverage of all new hooks and edge cases
 
 ---
 
-## [0.5.0] - 2025-10-06
+## [0.2.0] - 2025-10-06
+
+### Changed
+
+- Internal monorepo improvements
+
+---
+
+## [0.1.0] - 2025-10-06
 
 ### 🎉 Sprints 0-4.5 Complete: Production-Ready Core Framework
 
@@ -72,7 +122,7 @@ This release marks the completion of the foundation, resources, E2E utilities, p
 
 #### WordPress Data Integration (`@geekist/wp-kernel/data`)
 
-- **`useKernel(registry)`** - Registry plugin with kernel middleware
+- **`withKernel(registry)`** - Registry plugin with kernel middleware (renamed from useKernel)
 - **`registerKernelStore()`** - Store wrapper with actions DSL
 - **`kernelEventsPlugin()`** - Automatic error → WordPress notices bridge
 - **Full @wordpress/data parity** - Actions work in block editor environments

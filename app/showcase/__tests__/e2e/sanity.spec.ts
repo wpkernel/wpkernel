@@ -13,11 +13,11 @@ import type { Page } from '@playwright/test';
  * @param page
  */
 async function loginToWordPress(page: Page) {
-	await page.goto('/wp-admin/');
+	await page.goto('/wp-login.php');
 	await page.fill('#user_login', 'admin');
 	await page.fill('#user_pass', 'password');
-	await page.click('input[type="submit"]');
-	await page.waitForLoadState('networkidle');
+	await page.click('#wp-submit');
+	await page.waitForURL(/\/wp-admin/);
 }
 
 test.describe('Clean WordPress Environment Sanity Checks', () => {
@@ -40,7 +40,7 @@ test.describe('Clean WordPress Environment Sanity Checks', () => {
 	test('should have showcase plugin activated', async ({ page }) => {
 		await loginToWordPress(page);
 		await page.goto('/wp-admin/plugins.php');
-		await page.waitForLoadState('networkidle');
+		await page.waitForSelector('#wpbody-content');
 
 		const pluginActive = await page.evaluate(() => {
 			const pageHtml = document.body.innerHTML;

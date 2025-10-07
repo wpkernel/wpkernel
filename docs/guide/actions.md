@@ -214,7 +214,7 @@ export const CreatePost = defineAction(
 ### Reporting and notices
 
 `ctx.reporter` forwards structured telemetry to the reporter module. With `channel: 'all'` the message prints in development
-consoles and emits `showcase.reporter.error` via `wp.hooks`. When paired with [`useKernel()`](/guide/data) the
+consoles and emits `showcase.reporter.error` via `wp.hooks`. When paired with [`withKernel()` from `@geekist/wp-kernel`](/guide/data) the
 `kernelEventsPlugin()` listens for `wpk.action.error` and raises `core/notices` alerts automatically.
 
 ## Using Actions in Your UI
@@ -228,27 +228,64 @@ import { useAction } from '@geekist/wp-kernel-ui';
 import { CreatePost } from '@/actions/CreatePost';
 
 function PostForm() {
-  const [createPost, { loading, error }] = useAction(CreatePost);
+  const { run, status, error } = useAction(CreatePost, {
+    autoInvalidate: () => [['post', 'list']],
+  });
 
-  const handleSubmit = async (formData) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const form = new FormData(event.currentTarget);
+
     try {
-      const newPost = await createPost(formData);
-      // Success! UI automatically updates via cache invalidation
-    } catch (err) {
-      // Error handling
+      await run({
+        title: form.get('title') as string,
+        content: form.get('content') as string,
+      });
+    } catch {
+      // error already normalised to KernelError and exposed via `error`
     }
   };
 
   return (
     <form onSubmit={handleSubmit}>
       {/* form fields */}
-      <button disabled={loading}>
-        {loading ? 'Creating...' : 'Create Post'}
+      <button type="submit" disabled={status === 'running'}>
+        {status === 'running' ? 'Creating…' : 'Create Post'}
       </button>
+      {status === 'error' && <Notice status="error">{error?.message}</Notice>}
     </form>
   );
 }
 ```
+
+`useAction` exposes the request lifecycle (`status`, `error`, `result`) and
+allows you to tune concurrency:
+
+- **parallel** (default) keeps every invocation in flight and updates the state
+  when each resolves.
+- **switch** cancels local tracking of previous runs so that the latest attempt
+  owns the state (useful for typeahead inputs).
+- **queue** chains requests, guaranteeing sequential execution.
+- **drop** ignores new calls while the previous one is running.
+
+Combine `dedupeKey` with the concurrency strategy to share in-flight promises:
+
+```ts
+const search = useAction(SearchPosts, {
+	concurrency: 'switch',
+	dedupeKey: (query) => query.trim(),
+});
+```
+
+When a dedupe key matches, subsequent `run()` calls return the same promise and
+do not dispatch a new Action; both callers receive the eventual result.
+
+`autoInvalidate` is a convenient place to emit cache keys that should refresh
+after a successful run. It forwards the patterns to the resource cache helper
+(`invalidate`) and keeps invalidation logic beside the UI that depends on it.
+
+➡️ See the [`useAction` API reference](/api/useAction) for the full option
+surface and additional examples.
 
 ### In Block Editor
 

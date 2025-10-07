@@ -2,14 +2,42 @@
 
 Guide to submitting pull requests to WP Kernel.
 
-> **📖 For release workflow, versioning, and changesets**, see `RELEASING.md` in project root (canonical source).
+> **📖 For release workflow and versioning**, see `RELEASING.md` in project root (canonical source).
 
 ## Before You Start
 
 - Read the [Contributing Guide](/contributing/)
 - Check [existing issues](https://github.com/theGeekist/wp-kernel/issues) for related work
 - Discuss large changes in an issue first
-- **Review `RELEASING.md`** in project root for sprint-driven release workflow
+- **Review `RELEASING.md`** in project root for sprint-driven re2. **Maintainer reviews** PR changes.
+
+3. **Maintainer merges** PR to main.
+4. **Maintainer prepares release** by updating versions and tagging.
+5. **Maintainer publishes** to npm manually.
+
+## Questions?
+
+- **Documentation**: https://theGeekist.github.io/wp-kernel/
+- **Issues**: https://github.com/theGeekist/wp-kernel/issues
+- **Discussions**: https://github.com/theGeekist/wp-kernel/discussions
+
+## Quick Reference
+
+````bash
+# Before starting
+git checkout -b feature/my-feature
+
+# While working
+pnpm test
+pnpm lint
+
+# Update CHANGELOG.md in affected packages
+
+# Before pushing
+git add .
+git commit -m "feat: my feature"
+git push origin feature/my-feature
+```e workflow
 
 ## Creating a Pull Request
 
@@ -26,7 +54,7 @@ git remote add upstream https://github.com/theGeekist/wp-kernel.git
 
 # Create a feature branch
 git checkout -b feature/my-feature
-```
+````
 
 ### 2. Make Changes
 
@@ -47,26 +75,25 @@ pnpm lint
 pnpm typecheck
 ```
 
-### 3. Add Changeset
+### 3. Update CHANGELOG
 
-**For Sprint PRs**, use the non-interactive helper scripts to create changesets:
+**For Sprint PRs**, update CHANGELOG.md files in affected packages:
 
-```bash
-# Feature sprint (default)
-pnpm cs:new:minor "Sprint 5: Bindings & Interactivity (Block Bindings, Interactivity API, Providers)"
+```markdown
+## 0.x.0 [Unreleased]
 
-# Alignment/patch sprint
-pnpm cs:new:patch "Sprint 5.5: Polish & Performance"
+### Added
 
-# Breaking change (rare)
-pnpm cs:new:major "Sprint 9: PHP Bridge (breaking refactor)"
+- Sprint 5: Bindings & Interactivity (Block Bindings, Interactivity API, Providers)
+
+### Fixed
+
+- Bug fix description
 ```
-
-> **Note:** Do not run `pnpm changeset` interactively for sprint PRs. The above scripts handle changeset creation automatically.
 
 **Direct commits to `main`** (infra/docs only) do **not** trigger releases.
 
-> **See `RELEASING.md`** in project root for the canonical sprint PR workflow and changeset guidelines.
+> **See `RELEASING.md`** in project root for the canonical sprint PR workflow and versioning guidelines.
 
 ### 4. Commit Changes
 
@@ -96,7 +123,7 @@ Then open a PR on GitHub **using the PR template** (`.github/PULL_REQUEST_TEMPLA
 - Sprint/scope identification
 - Roadmap and sprint doc links (please include)
 - Release type selection (minor/patch/major)
-- Changeset confirmation checklist
+- CHANGELOG.md confirmation checklist
 - Testing and verification steps
 
 ### Required Sections
@@ -105,7 +132,7 @@ Then open a PR on GitHub **using the PR template** (`.github/PULL_REQUEST_TEMPLA
 2. **Scope** – Brief description of changes
 3. **Context** – Links to roadmap, sprint doc, and related PRs/issues
 4. **Testing** – How to test the changes
-5. **Release** – Bump type and changeset confirmation
+5. **Release** – Bump type and CHANGELOG confirmation
 
 See `RELEASING.md` in project root for the canonical sprint PR workflow.
 
@@ -115,7 +142,7 @@ See `RELEASING.md` in project root for the canonical sprint PR workflow.
 
 - [ ] **All tests pass** – Unit and E2E tests must be green.
 - [ ] **Lint passes** – Zero ESLint errors.
-- [ ] **Changeset** – Unless docs-only change.
+- [ ] **CHANGELOG.md updated** – Unless docs-only change.
 - [ ] **Conventional commits** – Proper commit message format.
 - [ ] **Description** – Clear what/why/how.
 
@@ -208,18 +235,28 @@ git push origin feature/my-feature --force-with-lease
 
 ### Updating Changeset
 
+````bash
 ```bash
-# Remove old changeset
-rm .changeset/<old-changeset-id>.md
-
-# Create new changeset (use sprint scripts for sprint PRs)
-pnpm changeset
+# Update CHANGELOG.md in affected packages
+# Add/modify entries under ## 0.x.0 [Unreleased]
 
 # Commit
-git add .changeset/
-git commit -m "chore: update changeset"
+git add packages/*/CHANGELOG.md
+git commit -m "chore: update changelog"
 git push
+````
+
+## PR Types
+
+### Bug Fix
+
+```markdown
+## What
+
+Fix validation error for empty description field.
 ```
+
+````
 
 ## PR Types
 
@@ -247,7 +284,7 @@ Updated validation schema to allow empty strings for description field.
 3. Enter title only, leave description empty
 4. Click "Create"
 5. Thing should be created successfully
-```
+````
 
 ### New Feature
 
@@ -383,15 +420,19 @@ git push origin feature/my-feature --force-with-lease
 
 ### Changeset Missing
 
+````bash
+### CHANGELOG Missing
+
 ```bash
-# Add changeset
-pnpm changeset
+# Update CHANGELOG.md in affected packages
+# Add entries under ## 0.x.0 [Unreleased]
 
 # Commit
-git add .changeset/
-git commit -m "chore: add changeset"
-git push
-```
+git add packages/*/CHANGELOG.md
+git commit -m "chore: update changelog"
+````
+
+````
 
 ## After Merge
 
@@ -404,7 +445,7 @@ git branch -d feature/my-feature
 
 # Delete remote branch (if not auto-deleted)
 git push origin --delete feature/my-feature
-```
+````
 
 ### Update Local Main
 

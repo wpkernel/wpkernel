@@ -6,7 +6,6 @@
 		"rootDir": "../../",
 		"outDir": "./dist-tests",
 		"composite": true,
-		"noEmit": true,
 		"types": ["jest", "node"]
 	},
 	"include": ["src/**/*", "../../tests/**/*"],

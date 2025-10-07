@@ -45,12 +45,10 @@ WordPress plugin demonstrating a complete jobs & applications system that exerci
 
 1. **Before starting**: Always update sprint docs and share your understanding of current scope with user
 2. **PR creation**: ALWAYS use `.github/PULL_REQUEST_TEMPLATE.md` - never create ad-hoc PRs
-3. **Changeset required**: One changeset per sprint (use `pnpm cs:new:minor "Sprint N: headline"`)
+3. **CHANGELOG updates**: Update CHANGELOG.md files in affected packages with changes
 4. **Roadmap alignment**: Link PR to roadmap section and sprint doc/spec
 5. **Branch management**: Delete branch when PR is merged
 6. **Issue tracking**: Ensure GitHub issue exists for new task before creating branch
-
-See [RELEASING.md](../RELEASING.md) for complete release workflow.
 
 ## Core Code Practices
 

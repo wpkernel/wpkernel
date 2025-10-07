@@ -45,14 +45,4 @@ pnpm prettier --write '**/*.md' --log-level=error > /dev/null 2>&1
 node scripts/normalize-punctuation.js > /dev/null 2>&1
 git add '**/*.md'
 
-# Check for changeset (only on feature branches)
-BRANCH=$(git branch --show-current)
-case "$BRANCH" in
-  sprint-*|feat/*|fix/*)
-    if [ -z "$(ls .changeset/*.md 2>/dev/null | grep -v README)" ]; then
-      echo ""
-      echo "⚠️  No changeset found. Consider: pnpm changeset"
-      echo ""
-    fi
-    ;;
-esac
+# Note: Manual versioning - update CHANGELOG.md files in affected packages before committing

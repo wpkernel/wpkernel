@@ -115,7 +115,7 @@ interface PolicyCacheOptions {
 ## `usePolicy`
 
 ```ts
-import { usePolicy } from '@geekist/wp-kernel/policy';
+import { usePolicy } from '@geekist/wp-kernel-ui';
 ```
 
 ### Signature
