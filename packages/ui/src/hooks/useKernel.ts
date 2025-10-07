@@ -2,22 +2,27 @@ import {
 	createActionMiddleware,
 	createReporter,
 	getNamespace,
-	kernelEventsPlugin,
 } from '@geekist/wp-kernel';
+import { kernelEventsPlugin } from '@geekist/wp-kernel/data';
 import type {
 	KernelRegistry,
 	KernelRegistryOptions,
 } from '@geekist/wp-kernel/data';
 
 /**
- * Register WP Kernel middleware within a WordPress data registry.
+ * Wire the WP Kernel runtime into a given `@wordpress/data` registry.
  *
- * Mirrors the historical `useKernel()` helper that lived inside
- * `@geekist/wp-kernel`, but is now part of the UI integration surface.
+ * This is the public bootstrapping API that plugin and theme authors call to
+ * "turn on" kernel behaviours for a registry. It installs the action
+ * middleware, bridges lifecycle events into `wp.hooks`, forwards errors to the
+ * notices store when available, and appends any user-provided middleware.
+ *
+ * Planned roadmap features such as background job orchestration (Sprint 6) and
+ * the PHP bridge (Sprint 9) will piggy-back on the same integration point.
  *
  * @param registry - WordPress data registry instance
- * @param options  - Optional middleware configuration
- * @return Cleanup function to detach middleware
+ * @param options  - Optional middleware configuration (namespace, reporter, custom middleware)
+ * @return Cleanup function to detach middleware and remove listeners
  */
 export function useKernel(
 	registry: KernelRegistry,

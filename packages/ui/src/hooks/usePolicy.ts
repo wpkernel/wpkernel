@@ -39,7 +39,13 @@ function resolvePolicy<K extends Record<string, unknown>>():
 }
 
 /**
- * React hook for policy evaluation in UI components.
+ * React hook that exposes the kernel policy runtime to UI components.
+ *
+ * Components can gate controls with `can()` while reacting to the shared
+ * policy cache for loading and error states. The hook mirrors the policy
+ * enforcement path used during action execution, keeping UI affordances in
+ * sync with capability checks. When no policy runtime is present we surface a
+ * developer error so plugin authors remember to bootstrap via `definePolicy()`.
  */
 export function usePolicy<
 	K extends Record<string, unknown>,

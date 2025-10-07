@@ -118,6 +118,16 @@ function createUseList<T, TQuery>(resource: ResourceObject<T, TQuery>) {
 	};
 }
 
+/**
+ * Attach `useGet` and `useList` React helpers to a resource definition.
+ *
+ * The hooks wrap `@wordpress/data.useSelect()` to expose resource data with
+ * loading and error states that mirror resolver status. They are registered on
+ * demand when the UI bundle is evaluated so resource modules remain tree-shake
+ * friendly for non-React contexts.
+ *
+ * @param resource - Resource definition to augment with hooks
+ */
 export function attachResourceHooks<T, TQuery>(
 	resource: ResourceObject<T, TQuery>
 ): ResourceObject<T, TQuery> {
