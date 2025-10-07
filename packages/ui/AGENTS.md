@@ -31,7 +31,7 @@ This file supplements the root [AGENTS.md](../../AGENTS.md) with agent guideline
 - Accessibility checks pass (axe).
 - No bundling of WordPress externals.
 - Changelog entry added (Changesets).
-- No deep imports across monorepo packages.
+- No deep imports across monorepo packages, only what is exposed as public API. If something critical or useful is not exposed, adjust framework exports accordingly
 - Always use `.github/PULL_REQUEST_TEMPLATE.md` - no ad-hoc PRs
 
 ---
