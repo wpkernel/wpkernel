@@ -59,7 +59,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [0.5.0] - 2025-10-06
+## [0.1.0] - 2025-10-06
 
 ### 🎉 Sprints 0-4.5 Complete: Production-Ready Core Framework
 

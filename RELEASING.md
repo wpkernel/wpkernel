@@ -129,11 +129,11 @@ Every Sprint PR must link to:
 
 ### Standard Sprint (minor)
 
-Update CHANGELOG.md with sprint changes, bump versions from `0.5.0` → `0.6.0`
+Update CHANGELOG.md with sprint changes, bump versions from `0.3.0` → `0.4.0`
 
 ### Alignment Sprint (patch)
 
-Update CHANGELOG.md with fixes, bump versions from `0.6.0` → `0.6.1`
+Update CHANGELOG.md with fixes, bump versions from `0.3.0` → `0.4.1`
 
 ### Breaking Change (major)
 
