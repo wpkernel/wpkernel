@@ -1,5 +1,7 @@
 /**
  * WP Kernel Showcase Plugin - Entry Point
+ *
+ * Initializes the Kernel runtime and mounts admin UI.
  */
 
 import { withKernel } from '@geekist/wp-kernel';
