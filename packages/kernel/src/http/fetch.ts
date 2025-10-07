@@ -166,8 +166,7 @@ function resolveApiFetch(
 ): ApiFetchFn {
 	if (typeof window === 'undefined') {
 		throw new KernelError('DeveloperError', {
-			message:
-				'Cannot execute fetch during server-side rendering (SSR).',
+			message: 'Cannot execute fetch during server-side rendering (SSR).',
 			context: { requestId, method, path: fullPath },
 		});
 	}
@@ -193,6 +192,15 @@ function resolveApiFetch(
 	return apiFetch;
 }
 
+/**
+ * Emit request event via hooks.
+ * Each helper performs its own null check for isolation and testability,
+ * rather than relying on an early guard in the caller.
+ *
+ * @param hooks     - WordPress hooks instance
+ * @param requestId - Unique request identifier
+ * @param request   - Transport request object
+ */
 function emitRequestEvent(
 	hooks: ReturnType<typeof getHooks>,
 	requestId: string,

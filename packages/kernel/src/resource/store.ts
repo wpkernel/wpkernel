@@ -172,9 +172,13 @@ export function createStore<T, TQuery = unknown>(
 		};
 	}
 
+	/**
+	 * Reset state to empty collections.
+	 * INVALIDATE_ALL intentionally clears ALL state including custom extensions
+	 * to match the original behavior before refactoring.
+	 */
 	function resetState(): ResourceState<T> {
 		return {
-			...initialState,
 			items: {},
 			lists: {},
 			listMeta: {},
