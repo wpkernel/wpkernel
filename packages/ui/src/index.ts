@@ -9,7 +9,7 @@
 /**
  * Current version of WP Kernel UI
  */
-export const VERSION = '0.1.1';
+export const VERSION = '0.3.0';
 
 // Hooks migrated from kernel
 export { useKernel } from './hooks/useKernel';
