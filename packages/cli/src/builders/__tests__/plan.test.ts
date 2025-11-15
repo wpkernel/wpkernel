@@ -8,7 +8,7 @@ import {
 	makePhpIrFixture,
 	makeWpPostResource,
 } from '@wpkernel/test-utils/builders/php/resources.test-support';
-import * as phpDriver from '@wpkernel/php-driver';
+import * as phpPrinter from '@wpkernel/php-json-ast/php-driver';
 import type { PhpProgram, PhpStmtFunction } from '@wpkernel/php-json-ast';
 import {
 	withWorkspace as baseWithWorkspace,
@@ -52,7 +52,7 @@ describe('createApplyPlanBuilder', () => {
 				filePath: string;
 			}> = [];
 			const prettyPrinterSpy = jest
-				.spyOn(phpDriver, 'buildPhpPrettyPrinter')
+				.spyOn(phpPrinter, 'buildPhpPrettyPrinter')
 				.mockImplementation(() => ({
 					async prettyPrint(payload) {
 						capturedPrograms.push({
@@ -480,7 +480,7 @@ describe('createApplyPlanBuilder', () => {
 				filePath: string;
 			}> = [];
 			const prettyPrinterSpy = jest
-				.spyOn(phpDriver, 'buildPhpPrettyPrinter')
+				.spyOn(phpPrinter, 'buildPhpPrettyPrinter')
 				.mockImplementation(() => ({
 					async prettyPrint(payload) {
 						capturedPrograms.push({
@@ -574,7 +574,7 @@ describe('createApplyPlanBuilder', () => {
 				filePath: string;
 			}> = [];
 			const prettyPrinterSpy = jest
-				.spyOn(phpDriver, 'buildPhpPrettyPrinter')
+				.spyOn(phpPrinter, 'buildPhpPrettyPrinter')
 				.mockImplementation(() => ({
 					async prettyPrint(payload) {
 						capturedPrograms.push({
@@ -728,7 +728,7 @@ describe('createApplyPlanBuilder', () => {
 				filePath: string;
 			}> = [];
 			const prettyPrinterSpy = jest
-				.spyOn(phpDriver, 'buildPhpPrettyPrinter')
+				.spyOn(phpPrinter, 'buildPhpPrettyPrinter')
 				.mockImplementation(() => ({
 					async prettyPrint(payload) {
 						capturedPrograms.push({

@@ -22,11 +22,10 @@ export {
 	getPhpBuilderChannel,
 	resetPhpBuilderChannel,
 } from '@wpkernel/php-json-ast';
-
 export {
 	createPhpDriverInstaller,
 	buildPhpPrettyPrinter,
-} from '@wpkernel/php-driver';
+} from '@wpkernel/php-json-ast/php-driver';
 
 export {
 	getWpPostRouteHelperState,

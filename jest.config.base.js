@@ -46,10 +46,10 @@ export default {
 		'^@wpkernel/pipeline$': '<rootDir>/packages/pipeline/src',
 		'^@wpkernel/pipeline/(.*)$': '<rootDir>/packages/pipeline/src/$1',
 		'^@wpkernel/php-json-ast$': '<rootDir>/packages/php-json-ast/src',
+		'^@wpkernel/php-json-ast/package\\.json$':
+			'<rootDir>/packages/php-json-ast/package.json',
 		'^@wpkernel/php-json-ast/(.*)$':
 			'<rootDir>/packages/php-json-ast/src/$1',
-		'^@wpkernel/php-driver$': '<rootDir>/packages/php-driver/src',
-		'^@wpkernel/php-driver/(.*)$': '<rootDir>/packages/php-driver/src/$1',
 		'^@wordpress/interactivity$':
 			'<rootDir>/tests/mocks/wp-interactivity.ts',
 	},

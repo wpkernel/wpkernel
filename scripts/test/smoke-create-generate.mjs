@@ -44,10 +44,6 @@ const REQUIRED_PACKAGES = [
 		distFile: 'packages/create-wpk/dist/index.js',
 	},
 	{
-		name: '@wpkernel/php-driver',
-		distFile: 'packages/php-driver/dist/index.js',
-	},
-	{
 		name: '@wpkernel/php-json-ast',
 		distFile: 'packages/php-json-ast/dist/index.js',
 	},
@@ -96,12 +92,10 @@ async function main() {
 		logStep('Packing tarballs');
 		const cliTarball = await packWorkspace('@wpkernel/cli');
 		const createTarball = await packWorkspace('@wpkernel/create-wpk');
-		const phpDriverTarball = await packWorkspace('@wpkernel/php-driver');
 		const phpJsonAstTarball = await packWorkspace('@wpkernel/php-json-ast');
 		const wpJsonAstTarball = await packWorkspace('@wpkernel/wp-json-ast');
 		recordTarball('@wpkernel/cli', cliTarball);
 		recordTarball('@wpkernel/create-wpk', createTarball);
-		recordTarball('@wpkernel/php-driver', phpDriverTarball);
 		recordTarball('@wpkernel/php-json-ast', phpJsonAstTarball);
 		recordTarball('@wpkernel/wp-json-ast', wpJsonAstTarball);
 
@@ -120,6 +114,8 @@ async function main() {
 				`[${packageManager}] Running create-wpk (scaffold + dependency install)`
 			);
 			await runLocalCreate(scopedProjectDir, packageManager);
+			await initGitRepository(scopedProjectDir);
+			await commitWorkspace(scopedProjectDir, 'chore: initial scaffold');
 
 			await snapshotWorkspace(scopedProjectDir, '[smoke] bootstrap');
 
@@ -128,7 +124,6 @@ async function main() {
 			);
 			const dependencyTarballs = [
 				'@wpkernel/cli',
-				'@wpkernel/php-driver',
 				'@wpkernel/php-json-ast',
 				'@wpkernel/wp-json-ast',
 			]
@@ -156,6 +151,9 @@ async function main() {
 				'[smoke] install cli dependencies'
 			);
 
+			// Ensure a clean, valid repository before running the CLI.
+			await resetGitRepository(scopedProjectDir, 'chore: post-install snapshot');
+
 			logStep(`[${packageManager}] Running "wpk generate" inside scaffold`);
 			await runPackageManagerCommand(
 				packageManager,
@@ -179,6 +177,9 @@ async function main() {
 				scopedProjectDir,
 				'[smoke] post-apply'
 			);
+
+			// Re-initialise git to avoid any partial object state before reruns.
+			await resetGitRepository(scopedProjectDir, 'chore: post-apply snapshot');
 
 			await runPackageManagerCommand(
 				packageManager,
@@ -503,6 +504,49 @@ async function readGitStatus(cwd) {
 
 function runGit(args, options = {}) {
 	return runCommand('git', args, options);
+}
+
+async function initGitRepository(cwd) {
+	// Always re-init to ensure .git exists and is consistent.
+	await runGit(['init'], { cwd, capture: true, quietCapture: true });
+	await runGit(
+		['config', 'user.name', gitIdentity.name],
+		{ cwd, capture: true, quietCapture: true }
+	);
+	await runGit(
+		['config', 'user.email', gitIdentity.email],
+		{ cwd, capture: true, quietCapture: true }
+	);
+	// Seed an initial commit so future git status calls don't error on missing objects.
+	await runGit(['add', '--all'], { cwd, capture: true, quietCapture: true });
+	await runGit(
+		['commit', '--quiet', '--no-verify', '--allow-empty', '-m', 'chore: initial scaffold'],
+		{
+			cwd,
+			capture: true,
+			quietCapture: !smokeVerbose,
+		}
+	).catch(() => {
+		// If commit fails (shouldn't), leave repository initialised to avoid fatal git errors.
+	});
+}
+
+async function resetGitRepository(cwd, message) {
+	await rm(path.join(cwd, '.git'), { recursive: true, force: true });
+	await initGitRepository(cwd);
+	await runGit(['add', '--all'], {
+		cwd,
+		capture: true,
+		quietCapture: true,
+	});
+	await runGit(
+		['commit', '--quiet', '--no-verify', '--allow-empty', '-m', message],
+		{
+			cwd,
+			capture: true,
+			quietCapture: !smokeVerbose,
+		}
+	).catch(() => undefined);
 }
 
 main().catch((error) => {

@@ -12,7 +12,8 @@ import {
 } from '../php';
 import type { BuilderOutput } from '../../runtime/types';
 import type { Workspace } from '../../workspace/types';
-import { buildPhpPrettyPrinter } from '@wpkernel/php-driver';
+import * as phpDriverModule from '@wpkernel/php-json-ast/php-driver';
+const { buildPhpPrettyPrinter } = phpDriverModule;
 import { makeWorkspaceMock } from '../../../tests/workspace.test-support';
 import { buildReporter } from '@wpkernel/test-utils/builders/tests/builder-harness.test-support';
 import {
@@ -20,14 +21,22 @@ import {
 	createPipelineContext,
 } from '../php/test-support/php-builder.test-support';
 
-jest.mock('@wpkernel/php-driver', () => ({
-	buildPhpPrettyPrinter: jest.fn(() => ({
-		prettyPrint: jest.fn(async ({ program }) => ({
-			code: '<?php\n// pretty printed base controller\n',
-			ast: program,
+jest.mock('@wpkernel/php-json-ast/php-driver', () => {
+	const actual = jest.requireActual<typeof phpDriverModule>(
+		'@wpkernel/php-json-ast/php-driver'
+	);
+
+	return {
+		__esModule: true,
+		...actual,
+		buildPhpPrettyPrinter: jest.fn(() => ({
+			prettyPrint: jest.fn(async ({ program }) => ({
+				code: '<?php\n// pretty printed base controller\n',
+				ast: program,
+			})),
 		})),
-	})),
-}));
+	};
+});
 
 const buildPhpPrettyPrinterMock = buildPhpPrettyPrinter as jest.MockedFunction<
 	typeof buildPhpPrettyPrinter

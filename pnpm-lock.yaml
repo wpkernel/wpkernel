@@ -354,9 +354,6 @@ importers:
       '@wpkernel/core':
         specifier: workspace:*
         version: link:../core
-      '@wpkernel/php-driver':
-        specifier: workspace:*
-        version: link:../php-driver
       '@wpkernel/php-json-ast':
         specifier: workspace:*
         version: link:../php-json-ast
@@ -470,27 +467,11 @@ importers:
         specifier: workspace:*
         version: link:../../scripts
 
-  packages/php-driver:
-    dependencies:
-      '@wpkernel/core':
-        specifier: workspace:*
-        version: link:../core
-      '@wpkernel/pipeline':
-        specifier: workspace:*
-        version: link:../pipeline
-    devDependencies:
-      '@wpkernel/scripts':
-        specifier: workspace:*
-        version: link:../../scripts
-
   packages/php-json-ast:
     dependencies:
       '@wpkernel/core':
         specifier: workspace:*
         version: link:../core
-      '@wpkernel/php-driver':
-        specifier: workspace:*
-        version: link:../php-driver
       '@wpkernel/pipeline':
         specifier: workspace:*
         version: link:../pipeline

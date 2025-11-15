@@ -1,6 +1,5 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { buildPhpPrettyPrinter } from '@wpkernel/php-driver';
 import {
 	buildArg,
 	buildBinaryOperation,
@@ -21,6 +20,7 @@ import {
 	type PhpName,
 	type PhpStmt,
 } from '@wpkernel/php-json-ast';
+import { buildPhpPrettyPrinter } from '@wpkernel/php-json-ast/php-driver';
 import { buildNode } from '@wpkernel/php-json-ast/nodes/base';
 import {
 	AUTO_GUARD_BEGIN,

@@ -21,17 +21,17 @@ const PROJECT_ROOT = path.resolve(
 	'..'
 );
 
-describe('php-driver tarball audit', () => {
+describe('php-json-ast tarball audit', () => {
 	jest.setTimeout(120_000);
 
 	it('includes the pretty-print asset in the packed tarball', async () => {
 		const packDestination = await mkdtemp(
-			path.join(os.tmpdir(), 'wpk-php-driver-pack-')
+			path.join(os.tmpdir(), 'wpk-php-json-ast-pack-')
 		);
 		const distDir = path.join(
 			PROJECT_ROOT,
 			'packages',
-			'php-driver',
+			'php-json-ast',
 			'dist'
 		);
 		const distEntry = path.join(distDir, 'index.js');
@@ -54,7 +54,7 @@ describe('php-driver tarball audit', () => {
 				'pnpm',
 				[
 					'--filter',
-					'@wpkernel/php-driver',
+					'@wpkernel/php-json-ast',
 					'pack',
 					'--pack-destination',
 					packDestination,
@@ -76,6 +76,7 @@ describe('php-driver tarball audit', () => {
 
 			const fileListing = metadata.files.map((entry) => entry.path);
 			expect(fileListing).toContain('php/pretty-print.php');
+			expect(fileListing).toContain('php/ingest-program.php');
 
 			const tarballPath = path.isAbsolute(metadata.filename)
 				? metadata.filename
@@ -91,6 +92,7 @@ describe('php-driver tarball audit', () => {
 				.filter((value) => value.length > 0);
 
 			expect(tarEntries).toContain('package/php/pretty-print.php');
+			expect(tarEntries).toContain('package/php/ingest-program.php');
 			expect(tarEntries).toContain('package/dist/index.js');
 		} finally {
 			if (createdDist) {

@@ -94,7 +94,6 @@
 		"@wpkernel/wp-json-ast": "workspace:*"
 	},
 	"dependencies": {
-		"@wpkernel/php-driver": "workspace:*",
 		"@wpkernel/php-json-ast": "workspace:*",
 		"@wpkernel/wp-json-ast": "workspace:*",
 		"@loglayer/transport-simple-pretty-terminal": ">=2.2.9",

@@ -16,16 +16,10 @@ export type { DriverContext, DriverHelper } from './installer';
  *
  * @category PHP Driver
  */
-export { buildPhpPrettyPrinter } from './prettyPrinter';
-/**
- * Resolves the absolute path to the PHP pretty print script.
- *
- * This function helps locate the PHP script responsible for formatting PHP code,
- * which is used by the `buildPhpPrettyPrinter` function.
- *
- * @category PHP Driver
- */
-export { resolvePrettyPrintScriptPath } from './prettyPrinter/createPhpPrettyPrinter';
+export {
+	buildPhpPrettyPrinter,
+	resolvePrettyPrintScriptPath,
+} from './prettyPrinter/createPhpPrettyPrinter';
 export type {
 	DriverWorkspace,
 	WorkspaceLike,

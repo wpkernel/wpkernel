@@ -1,28 +1,23 @@
 import path from 'node:path';
-import { getCliPackageRoot } from './module-url';
+import { createModuleResolver } from './module-url';
+
+const resolveFromCli = createModuleResolver();
+
+function resolvePackageRoot(pkgName: string): string {
+	return path.dirname(resolveFromCli(`${pkgName}/package.json`));
+}
 
 export function resolveBundledPhpJsonAstIngestionPath(): string {
-	return path.resolve(
-		getCliPackageRoot(),
-		'dist',
-		'packages',
-		'php-json-ast',
-		'php',
-		'ingest-program.php'
-	);
+	const pkgRoot = resolvePackageRoot('@wpkernel/php-json-ast');
+	return path.join(pkgRoot, 'php', 'ingest-program.php');
 }
 
 export function resolveBundledPhpDriverPrettyPrintPath(): string {
-	return path.resolve(
-		getCliPackageRoot(),
-		'dist',
-		'packages',
-		'php-driver',
-		'php',
-		'pretty-print.php'
-	);
+	const pkgRoot = resolvePackageRoot('@wpkernel/php-json-ast');
+	return path.join(pkgRoot, 'php', 'pretty-print.php');
 }
 
 export function resolveBundledComposerAutoloadPath(): string {
-	return path.resolve(getCliPackageRoot(), 'vendor', 'autoload.php');
+	const pkgRoot = resolvePackageRoot('@wpkernel/php-json-ast');
+	return path.join(pkgRoot, 'vendor', 'autoload.php');
 }

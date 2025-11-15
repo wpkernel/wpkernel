@@ -23,9 +23,6 @@
 			"path": "../pipeline"
 		},
 		{
-			"path": "../php-driver"
-		},
-		{
 			"path": "../php-json-ast"
 		},
 		{

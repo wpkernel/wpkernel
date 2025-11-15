@@ -4,7 +4,7 @@ import { createReadinessTestContext } from '../../test/test-support';
 jest.mock('../../../../utils/phpAssets', () => ({
 	resolveBundledPhpDriverPrettyPrintPath: jest
 		.fn()
-		.mockReturnValue('/bundle/php-driver/php/pretty-print.php'),
+		.mockReturnValue('/bundle/php-json-ast/php/pretty-print.php'),
 }));
 
 describe('createPhpPrinterPathReadinessHelper', () => {
@@ -12,7 +12,7 @@ describe('createPhpPrinterPathReadinessHelper', () => {
 		const access = jest.fn().mockResolvedValue(undefined);
 		const realpath = jest
 			.fn()
-			.mockResolvedValue('/bundle/php-driver/php/pretty-print.php');
+			.mockResolvedValue('/bundle/php-json-ast/php/pretty-print.php');
 
 		const helper = createPhpPrinterPathReadinessHelper({
 			access,

@@ -1,5 +1,5 @@
 import path from 'node:path';
-import { access as accessFs, readFile as readFileFs } from 'node:fs/promises';
+import { access as accessFs } from 'node:fs/promises';
 import { execFile as execFileCallback } from 'node:child_process';
 import { promisify } from 'node:util';
 import { EnvironmentalError, WPKernelError } from '@wpkernel/core/error';
@@ -16,7 +16,6 @@ const execFile = promisify(execFileCallback);
 
 type Access = typeof accessFs;
 type ExecFile = typeof execFile;
-type ReadFile = typeof readFileFs;
 
 export interface ReleasePackManifestEntry {
 	readonly packageName: string;
@@ -28,7 +27,6 @@ export interface ReleasePackManifestEntry {
 export interface ReleasePackDependencies {
 	readonly access: Access;
 	readonly exec: ExecFile;
-	readonly readFile: ReadFile;
 }
 
 export interface ReleasePackHelperOptions {
@@ -65,20 +63,22 @@ const DEFAULT_MANIFEST: readonly ReleasePackManifestEntry[] = [
 		],
 	},
 	{
-		packageName: '@wpkernel/php-driver',
-		packageDir: path.join('packages', 'php-driver'),
-		expectedArtifacts: [
-			path.join('dist', 'index.js'),
-			path.join('dist', 'installer.js'),
-			path.join('dist', 'prettyPrinter', 'createPhpPrettyPrinter.js'),
-		],
-	},
-	{
 		packageName: '@wpkernel/cli',
 		packageDir: path.join('packages', 'cli'),
 		expectedArtifacts: [
 			path.join('dist', 'index.js'),
 			path.join('dist', 'index.d.ts'),
+		],
+	},
+	{
+		packageName: '@wpkernel/php-json-ast',
+		packageDir: path.join('packages', 'php-json-ast'),
+		expectedArtifacts: [
+			path.join('dist', 'index.js'),
+			path.join('dist', 'index.d.ts'),
+			path.join('php', 'ingest-program.php'),
+			path.join('php', 'pretty-print.php'),
+			path.join('vendor', 'autoload.php'),
 		],
 	},
 	{
@@ -92,7 +92,6 @@ function defaultDependencies(): ReleasePackDependencies {
 	return {
 		access: accessFs,
 		exec: execFile,
-		readFile: readFileFs,
 	} satisfies ReleasePackDependencies;
 }
 
@@ -155,18 +154,6 @@ async function detectMissingArtefacts(
 			}
 		}
 
-		if (entry.packageName === '@wpkernel/cli') {
-			const cliBundleArtefact = await detectCliPhpDriverBundle(
-				repoRoot,
-				entry,
-				dependencies
-			);
-
-			if (cliBundleArtefact) {
-				absent.push(cliBundleArtefact);
-			}
-		}
-
 		if (absent.length > 0) {
 			missing.push({ entry, artefacts: absent });
 		}
@@ -193,105 +180,6 @@ async function resolveMissingArtefact(
 
 		throw error;
 	}
-}
-
-type PhpDriverRootExport =
-	| string
-	| {
-			readonly import?: string;
-			readonly default?: string;
-	  };
-
-interface PhpDriverPackageDefinition {
-	readonly exports?: Record<string, PhpDriverRootExport>;
-	readonly main?: string;
-	readonly module?: string;
-}
-
-function normaliseEntryPath(entry: string): string {
-	return entry.replace(/^\.\//, '').replace(/^\.\//, '');
-}
-
-function resolvePhpDriverEntry(
-	definition: PhpDriverPackageDefinition
-): string | null {
-	const candidates: Array<string | undefined> = [];
-	const rootExport = definition.exports?.['.'];
-
-	if (typeof rootExport === 'string') {
-		candidates.push(rootExport);
-	} else if (rootExport && typeof rootExport === 'object') {
-		candidates.push(rootExport.import, rootExport.default);
-	}
-
-	candidates.push(definition.module, definition.main);
-
-	for (const candidate of candidates) {
-		if (typeof candidate === 'string' && candidate.length > 0) {
-			return normaliseEntryPath(candidate);
-		}
-	}
-
-	return null;
-}
-
-async function detectCliPhpDriverBundle(
-	repoRoot: string,
-	entry: ReleasePackManifestEntry,
-	dependencies: ReleasePackDependencies
-): Promise<string | null> {
-	const packageJsonPath = path.join(
-		repoRoot,
-		'packages',
-		'php-driver',
-		'package.json'
-	);
-	let definition: PhpDriverPackageDefinition;
-
-	try {
-		const raw = await dependencies.readFile(packageJsonPath, 'utf8');
-		definition = JSON.parse(raw) as PhpDriverPackageDefinition;
-	} catch (error) {
-		throw new WPKernelError('DeveloperError', {
-			message:
-				'Unable to load php-driver package definition for release-pack readiness.',
-			context: { packageJsonPath },
-			data: error instanceof Error ? { originalError: error } : undefined,
-		});
-	}
-
-	const entryPoint = resolvePhpDriverEntry(definition);
-	if (!entryPoint) {
-		return '@wpkernel/php-driver (exports missing)';
-	}
-
-	const bundleTargets = [
-		path.join('dist', 'packages', 'php-driver', entryPoint),
-		path.join('dist', 'packages', 'php-driver', 'dist', 'installer.js'),
-		path.join(
-			'dist',
-			'packages',
-			'php-driver',
-			'dist',
-			'prettyPrinter',
-			'createPhpPrettyPrinter.js'
-		),
-	] as const;
-
-	for (const artefact of bundleTargets) {
-		const missing = await resolveMissingArtefact(
-			repoRoot,
-			entry.packageDir,
-			artefact,
-			dependencies.access
-		);
-
-		if (missing) {
-			return missing;
-		}
-	}
-
-	return null;
 }
 
 async function runBuild(

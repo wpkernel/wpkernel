@@ -63,12 +63,6 @@ const TYPECHECK_TARGETS = {
 		packageName: '@wpkernel/ui',
 		directory: 'packages/ui/',
 	},
-	'php-driver': {
-		label: 'PHP driver workspace',
-		filter: '@wpkernel/php-driver',
-		packageName: '@wpkernel/php-driver',
-		directory: 'packages/php-driver/',
-	},
 	'php-json-ast': {
 		label: 'PHP JSON AST workspace',
 		filter: '@wpkernel/php-json-ast',

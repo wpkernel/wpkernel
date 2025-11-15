@@ -1,5 +1,5 @@
 import { createHelper } from '@wpkernel/pipeline';
-import { buildPhpPrettyPrinter } from '@wpkernel/php-driver';
+import { buildPhpPrettyPrinter } from './php-driver';
 import type {
 	BuilderHelper,
 	PipelineContext,

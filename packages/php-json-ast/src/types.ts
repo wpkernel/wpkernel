@@ -1,4 +1,5 @@
 import type { PhpNode, PhpProgram, PhpStmt } from './nodes';
+import type { WorkspaceLike } from './workspace';
 
 export type PhpFileMetadata = Readonly<Record<string, unknown>> & {
 	readonly kind?: string;
@@ -20,3 +21,11 @@ export interface PhpAstBuilder {
 export type PhpJsonNode = PhpNode;
 
 export type PhpJsonAst = PhpProgram;
+
+export type DriverWorkspace = WorkspaceLike;
+export type { WorkspaceLike } from './workspace';
+export type {
+	PhpPrettyPrintPayload,
+	PhpPrettyPrintResult,
+	PhpPrettyPrinter,
+} from './prettyPrinter/createPhpPrettyPrinter';

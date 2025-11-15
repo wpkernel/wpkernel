@@ -1,7 +1,7 @@
 import { EventEmitter } from 'node:events';
 import type { ChildProcess } from 'node:child_process';
 import { WPKernelError } from '@wpkernel/core/error';
-import { buildPhpPrettyPrinter } from '../prettyPrinter';
+import { buildPhpPrettyPrinter } from '../prettyPrinter/createPhpPrettyPrinter';
 import type { DriverWorkspace, PhpPrettyPrintPayload } from '../types';
 
 jest.mock('node:child_process', () => ({

@@ -4,20 +4,13 @@ import { access } from 'node:fs/promises';
 import type { PluginOption } from 'vite';
 import type { Reporter } from '@wpkernel/core/reporter';
 import { createWPKLibConfig } from '../../vite.config.base';
+import { createPhpDriverInstaller, type DriverHelper } from './src/installer';
 
 interface WorkspaceLike {
 	readonly root: string;
 	resolve: (...parts: string[]) => string;
 	exists: (target: string) => Promise<boolean>;
 }
-
-interface DriverInstallerHelper {
-	readonly key: string;
-	readonly kind: 'builder';
-	apply: (...args: readonly unknown[]) => Promise<void> | void;
-}
-
-type PhpDriverInstallerFactory = () => DriverInstallerHelper;
 
 function resolvePackageRoot(): string {
 	if (typeof __dirname === 'string') {
@@ -53,15 +46,11 @@ function createWorkspace(root: string): WorkspaceLike {
 	};
 }
 
-let cachedPhpDriverInstaller: PhpDriverInstallerFactory | null = null;
+let cachedPhpDriverInstaller: DriverHelper | null = null;
 
-async function loadPhpDriverInstaller(): Promise<PhpDriverInstallerFactory> {
+function getPhpDriverInstaller(): DriverHelper {
 	if (!cachedPhpDriverInstaller) {
-		// eslint-disable-next-line import/no-extraneous-dependencies
-		const module = (await import('@wpkernel/php-driver')) as {
-			createPhpDriverInstaller: PhpDriverInstallerFactory;
-		};
-		cachedPhpDriverInstaller = module.createPhpDriverInstaller;
+		cachedPhpDriverInstaller = createPhpDriverInstaller();
 	}
 
 	return cachedPhpDriverInstaller;
@@ -139,8 +128,7 @@ function phpDriverInstallerPlugin(): PluginOption {
 
 			hasRun = true;
 
-			const factory = await loadPhpDriverInstaller();
-			const installer = factory();
+			const installer = getPhpDriverInstaller();
 			const reporter = createConsoleReporter();
 			const workspace = createWorkspace(PACKAGE_ROOT);
 
@@ -161,18 +149,13 @@ function phpDriverInstallerPlugin(): PluginOption {
 	};
 }
 
-const config = createWPKLibConfig(
-	'@wpkernel/php-json-ast',
-	{
-		index: 'src/index.ts',
-		nodes: 'src/nodes.ts',
-		types: 'src/types.ts',
-		modifiers: 'src/modifiers.ts',
-	},
-	{
-		external: [/^@wpkernel\/php-driver(\/.*)?$/],
-	}
-);
+const config = createWPKLibConfig('@wpkernel/php-json-ast', {
+	index: 'src/index.ts',
+	nodes: 'src/nodes.ts',
+	types: 'src/types.ts',
+	modifiers: 'src/modifiers.ts',
+	'php-driver': 'src/php-driver.ts',
+});
 
 const existingPlugins = config.plugins ?? [];
 

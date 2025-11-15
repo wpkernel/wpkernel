@@ -183,10 +183,6 @@ export default withMermaid(
 								link: '/packages/e2e-utils',
 							},
 							{
-								text: '@wpkernel/php-driver',
-								link: '/packages/php-driver',
-							},
-							{
 								text: '@wpkernel/php-json-ast',
 								link: '/packages/php-json-ast',
 							},

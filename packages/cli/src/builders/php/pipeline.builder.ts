@@ -33,9 +33,14 @@ import type {
 import type { PhpDriverConfigurationOptions } from '@wpkernel/php-json-ast';
 import { createPhpCodemodIngestionHelper } from './pipeline.codemods';
 import type { CreatePhpCodemodIngestionHelperOptions } from './pipeline.codemods';
-import { resolveBundledComposerAutoloadPath } from '../../utils/phpAssets';
+import {
+	resolveBundledComposerAutoloadPath,
+	resolveBundledPhpDriverPrettyPrintPath,
+} from '../../utils/phpAssets';
 
 const BUNDLED_PHP_AUTOLOAD_PATH = resolveBundledComposerAutoloadPath();
+const BUNDLED_PHP_PRETTY_PRINT_SCRIPT_PATH =
+	resolveBundledPhpDriverPrettyPrintPath();
 const DRIVER_OPTION_KEYS = ['binary', 'scriptPath', 'importMetaUrl'] as const;
 
 type MutableDriverOptions = {
@@ -83,7 +88,7 @@ export function createPhpBuilder(
 				buildOptions,
 				adapterContext
 			);
-			const driverOptions = ensureBundledAutoloadPaths(
+			const driverOptions = ensureBundledDriverDefaults(
 				mergeDriverOptions(options.driver, adapterConfig?.driver)
 			);
 			const codemodHelperOptions = buildCodemodHelperOptions(
@@ -300,20 +305,22 @@ function isNonEmptyString(value: unknown): value is string {
 	return typeof value === 'string' && value.length > 0;
 }
 
-function ensureBundledAutoloadPaths(
+function ensureBundledDriverDefaults(
 	driver: PhpDriverConfigurationOptions | undefined
 ): PhpDriverConfigurationOptions {
 	const autoloadPaths = mergeAutoloadPathEntries(driver?.autoloadPaths, [
 		BUNDLED_PHP_AUTOLOAD_PATH,
 	]) ?? [BUNDLED_PHP_AUTOLOAD_PATH];
 
-	if (!driver) {
-		return { autoloadPaths };
+	let scriptPath: string | undefined = driver?.scriptPath;
+	if (!isPresent(scriptPath) && !isPresent(driver?.importMetaUrl)) {
+		scriptPath = BUNDLED_PHP_PRETTY_PRINT_SCRIPT_PATH;
 	}
 
 	return {
-		...driver,
+		...(driver ?? {}),
 		autoloadPaths,
+		scriptPath,
 	};
 }
 
@@ -344,4 +351,8 @@ function mergeAutoloadPathEntries(
 	}
 
 	return merged.length > 0 ? merged : undefined;
+}
+
+function isPresent(value: unknown): value is string {
+	return typeof value === 'string' && value.length > 0;
 }

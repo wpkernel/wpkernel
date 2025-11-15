@@ -11,8 +11,9 @@ import {
 	getPhpBuilderChannel,
 	resetPhpBuilderChannel,
 } from '@wpkernel/php-json-ast';
+import * as phpDriverModule from '@wpkernel/php-json-ast/php-driver';
+const { buildPhpPrettyPrinter } = phpDriverModule;
 import { resetPhpAstChannel } from '@wpkernel/wp-json-ast';
-import { buildPhpPrettyPrinter } from '@wpkernel/php-driver';
 import { makeWorkspaceMock } from '../../../../tests/workspace.test-support';
 import {
 	createBuilderInput,
@@ -20,14 +21,22 @@ import {
 	createPipelineContext,
 } from '../test-support/php-builder.test-support';
 
-jest.mock('@wpkernel/php-driver', () => ({
-	buildPhpPrettyPrinter: jest.fn(() => ({
-		prettyPrint: jest.fn(async ({ program }) => ({
-			code: '<?php\n// generated\n',
-			ast: program,
+jest.mock('@wpkernel/php-json-ast/php-driver', () => {
+	const actual = jest.requireActual<typeof phpDriverModule>(
+		'@wpkernel/php-json-ast/php-driver'
+	);
+
+	return {
+		__esModule: true,
+		...actual,
+		buildPhpPrettyPrinter: jest.fn(() => ({
+			prettyPrint: jest.fn(async ({ program }) => ({
+				code: '<?php\n// generated\n',
+				ast: program,
+			})),
 		})),
-	})),
-}));
+	};
+});
 
 const buildPhpPrettyPrinterMock = jest.mocked(buildPhpPrettyPrinter);
 

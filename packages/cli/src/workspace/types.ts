@@ -1,5 +1,7 @@
-import type { WorkspaceWriteOptions } from '@wpkernel/php-json-ast';
-import type { WorkspaceLike } from '@wpkernel/php-driver';
+import type {
+	WorkspaceWriteOptions,
+	WorkspaceLike,
+} from '@wpkernel/php-json-ast';
 
 /**
  * Manifest of filesystem changes produced during a workspace operation.

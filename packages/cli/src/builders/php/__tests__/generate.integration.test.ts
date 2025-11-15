@@ -7,7 +7,7 @@ import type { BuilderOutput } from '../../../runtime/types';
 import { buildWorkspace } from '../../../workspace';
 import { withWorkspace } from '@wpkernel/test-utils/integration';
 import { makePhpIrFixture } from '@wpkernel/test-utils/builders/php/resources.test-support';
-import * as phpDriver from '@wpkernel/php-driver';
+import * as phpPrinter from '@wpkernel/php-json-ast/php-driver';
 import {
 	createBaselineCodemodConfiguration,
 	serialisePhpCodemodConfiguration,
@@ -116,11 +116,11 @@ describe('createPhpBuilder integration', () => {
 			let workspaceRoot: string | null = null;
 
 			const prettyPrinterSpy = jest
-				.spyOn(phpDriver, 'buildPhpPrettyPrinter')
+				.spyOn(phpPrinter, 'buildPhpPrettyPrinter')
 				.mockImplementation((options) => {
 					const scriptPath =
 						options.scriptPath ??
-						phpDriver.resolvePrettyPrintScriptPath();
+						phpPrinter.resolvePrettyPrintScriptPath();
 					const phpBinary = options.phpBinary ?? 'php';
 
 					return {
@@ -170,14 +170,14 @@ describe('createPhpBuilder integration', () => {
 										: stdout.slice(jsonStart);
 								return JSON.parse(
 									parsedPayload
-								) as phpDriver.PhpPrettyPrintResult;
+								) as phpPrinter.PhpPrettyPrintResult;
 							} catch (_error) {
 								throw new Error(
 									`Failed to parse pretty print output: ${result.stdout}`
 								);
 							}
 						},
-					} satisfies phpDriver.PhpPrettyPrinter;
+					} satisfies phpPrinter.PhpPrettyPrinter;
 				});
 
 			try {

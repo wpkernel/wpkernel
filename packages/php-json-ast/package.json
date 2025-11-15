@@ -49,6 +49,11 @@
 			"import": "./dist/modifiers.js",
 			"default": "./dist/modifiers.js"
 		},
+		"./php-driver": {
+			"types": "./dist/php-driver.d.ts",
+			"import": "./dist/php-driver.js",
+			"default": "./dist/php-driver.js"
+		},
 		"./php/ingest-program.php": {
 			"default": "./php/ingest-program.php"
 		},
@@ -57,6 +62,7 @@
 	"files": [
 		"dist",
 		"php",
+		"vendor",
 		"README.md",
 		"LICENSE"
 	],
@@ -87,8 +93,5 @@
 	"peerDependencies": {
 		"@wpkernel/core": "workspace:*",
 		"@wpkernel/pipeline": "workspace:*"
-	},
-	"dependencies": {
-		"@wpkernel/php-driver": "workspace:*"
 	}
 }

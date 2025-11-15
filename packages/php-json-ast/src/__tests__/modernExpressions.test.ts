@@ -4,7 +4,7 @@ import path from 'node:path';
 import {
 	resolvePrettyPrintScriptPath,
 	type WorkspaceLike,
-} from '@wpkernel/php-driver';
+} from '../php-driver';
 import {
 	buildArg,
 	buildArrowFunction,

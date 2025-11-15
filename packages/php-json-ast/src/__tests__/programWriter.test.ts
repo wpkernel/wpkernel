@@ -1,7 +1,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
-import * as phpDriver from '@wpkernel/php-driver';
+import * as phpDriver from '../php-driver';
 import type {
 	PipelineContext,
 	BuilderInput,
@@ -239,8 +239,6 @@ describe('createPhpProgramWriterHelper', () => {
 
 		const scriptPath = path.resolve(
 			PACKAGE_ROOT,
-			'..',
-			'php-driver',
 			'php',
 			'pretty-print.php'
 		);

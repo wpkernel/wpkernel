@@ -38,7 +38,7 @@ describe('createComposerReadinessHelper', () => {
 		expect(detection.status).toBe('ready');
 		expect(detection.message).toBe('Bundled composer autoload detected.');
 		expect(detection.state.autoloadPath).toBe(autoloadPath);
-		expect(detection.state.sourcePackage).toBe('@wpkernel/cli');
+		expect(detection.state.sourcePackage).toBe('@wpkernel/php-json-ast');
 
 		const confirmation = await helper.confirm(context, detection.state);
 		expect(confirmation.status).toBe('ready');
@@ -67,7 +67,7 @@ describe('createComposerReadinessHelper', () => {
 
 		expect(detection.status).toBe('pending');
 		expect(detection.message).toBe(
-			'Bundled composer autoload missing from CLI installation.'
+			'Bundled composer autoload missing from PHP assets package.'
 		);
 		expect(detection.state.autoloadPath).toBeNull();
 	});

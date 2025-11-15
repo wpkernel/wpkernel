@@ -20,4 +20,4 @@ export type {
 } from './types';
 export { createPatcher } from './patcher';
 export { createApplyPlanBuilder } from './plan';
-export { createPhpDriverInstaller } from '@wpkernel/php-driver';
+export { createPhpDriverInstaller } from '@wpkernel/php-json-ast';

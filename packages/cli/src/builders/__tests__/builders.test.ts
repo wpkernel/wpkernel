@@ -2,7 +2,7 @@ import path from 'node:path';
 import { execFile } from 'node:child_process';
 import { createTsBuilder } from '../ts';
 import { createPatcher } from '../patcher';
-import { createPhpDriverInstaller } from '@wpkernel/php-driver';
+import { createPhpDriverInstaller } from '@wpkernel/php-json-ast';
 import type { BuildIrOptions, IRv1 } from '../../ir/publicTypes';
 import type { BuilderOutput } from '../../runtime/types';
 import type { Workspace } from '../../workspace/types';

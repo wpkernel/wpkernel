@@ -14,7 +14,16 @@ const manifest = [
 		packageDir: path.join('packages', 'example'),
 		expectedArtifacts: [path.join('dist', 'index.js')],
 	},
-];
+] as const;
+
+function createContext() {
+	return createReadinessTestContext({
+		projectRoot,
+		workspaceRoot: null,
+		workspace: null,
+		cwd: projectRoot,
+	});
+}
 
 describe('createReleasePackReadinessHelper', () => {
 	it('reports ready when all artefacts exist', async () => {
@@ -30,22 +39,6 @@ describe('createReleasePackReadinessHelper', () => {
 				return undefined;
 			}
 
-			if (
-				target ===
-				path.join(
-					repoRoot,
-					'packages',
-					'cli',
-					'dist',
-					'packages',
-					'php-driver',
-					'dist',
-					'index.js'
-				)
-			) {
-				return undefined;
-			}
-
 			throw makeNoEntry(target);
 		});
 
@@ -53,39 +46,11 @@ describe('createReleasePackReadinessHelper', () => {
 			manifest,
 			dependencies: {
 				access,
-				readFile: jest.fn(async (target: string) => {
-					if (
-						target ===
-						path.join(
-							repoRoot,
-							'packages',
-							'php-driver',
-							'package.json'
-						)
-					) {
-						return JSON.stringify({
-							exports: {
-								'.': {
-									import: './dist/index.js',
-									default: './dist/index.js',
-								},
-							},
-						});
-					}
-
-					throw new Error(`Unexpected read: ${target}`);
-				}),
-				exec: jest.fn().mockResolvedValue(undefined),
+				exec: jest.fn(),
 			},
 		});
 
-		const context = createReadinessTestContext({
-			projectRoot,
-			workspaceRoot: null,
-			workspace: null,
-			cwd: projectRoot,
-		});
-
+		const context = createContext();
 		const detection = await helper.detect(context);
 		expect(detection.status).toBe('ready');
 		expect(detection.message).toBe('Release pack artefacts detected.');
@@ -95,183 +60,6 @@ describe('createReleasePackReadinessHelper', () => {
 		expect(access).toHaveBeenCalledWith(
 			path.join(repoRoot, 'pnpm-workspace.yaml')
 		);
-	});
-
-	it('throws when artefacts remain missing after rebuild', async () => {
-		let built = false;
-		const access = jest.fn(async (target: string) => {
-			if (target === path.join(repoRoot, 'pnpm-workspace.yaml')) {
-				return undefined;
-			}
-
-			if (
-				target ===
-				path.join(repoRoot, 'packages', 'example', 'dist', 'index.js')
-			) {
-				if (built) {
-					return undefined;
-				}
-
-				throw makeNoEntry(target);
-			}
-
-			if (
-				target ===
-				path.join(
-					repoRoot,
-					'packages',
-					'cli',
-					'dist',
-					'packages',
-					'php-driver',
-					'dist',
-					'index.js'
-				)
-			) {
-				return undefined;
-			}
-
-			throw makeNoEntry(target);
-		});
-
-		const exec = jest.fn(async () => {
-			built = true;
-		});
-
-		const helper = createReleasePackReadinessHelper({
-			manifest,
-			dependencies: {
-				access,
-				exec,
-				readFile: jest.fn(async (target: string) => {
-					if (
-						target ===
-						path.join(
-							repoRoot,
-							'packages',
-							'php-driver',
-							'package.json'
-						)
-					) {
-						return JSON.stringify({
-							exports: {
-								'.': {
-									import: './dist/index.js',
-									default: './dist/index.js',
-								},
-							},
-						});
-					}
-
-					throw new Error(`Unexpected read: ${target}`);
-				}),
-			},
-		});
-
-		const context = createReadinessTestContext({
-			projectRoot,
-			workspaceRoot: null,
-			workspace: null,
-			cwd: projectRoot,
-		});
-
-		const detection = await helper.detect(context);
-		expect(detection.status).toBe('pending');
-		expect(detection.message).toContain('Missing build artefact');
-
-		await helper.execute?.(context, detection.state);
-		expect(exec).toHaveBeenCalledWith(
-			'pnpm',
-			['--filter', '@wpkernel/example', 'build'],
-			{
-				cwd: repoRoot,
-			}
-		);
-
-		const confirmation = await helper.confirm(context, detection.state);
-		expect(confirmation.status).toBe('ready');
-	});
-
-	it('surfaces missing artefacts when build does not produce outputs', async () => {
-		const access = jest.fn(async (target: string) => {
-			if (target === path.join(repoRoot, 'pnpm-workspace.yaml')) {
-				return undefined;
-			}
-
-			if (
-				target ===
-				path.join(repoRoot, 'packages', 'example', 'dist', 'index.js')
-			) {
-				throw makeNoEntry(target);
-			}
-
-			if (
-				target ===
-				path.join(
-					repoRoot,
-					'packages',
-					'cli',
-					'dist',
-					'packages',
-					'php-driver',
-					'dist',
-					'index.js'
-				)
-			) {
-				return undefined;
-			}
-
-			throw makeNoEntry(target);
-		});
-
-		const helper = createReleasePackReadinessHelper({
-			manifest,
-			dependencies: {
-				access,
-				exec: jest.fn().mockResolvedValue(undefined),
-				readFile: jest.fn(async (target: string) => {
-					if (
-						target ===
-						path.join(
-							repoRoot,
-							'packages',
-							'php-driver',
-							'package.json'
-						)
-					) {
-						return JSON.stringify({
-							exports: {
-								'.': {
-									import: './dist/index.js',
-									default: './dist/index.js',
-								},
-							},
-						});
-					}
-
-					throw new Error(`Unexpected read: ${target}`);
-				}),
-			},
-		});
-
-		const context = createReadinessTestContext({
-			projectRoot,
-			workspaceRoot: null,
-			workspace: null,
-			cwd: projectRoot,
-		});
-
-		const detection = await helper.detect(context);
-		expect(detection.status).toBe('pending');
-
-		const run = helper.execute?.(context, detection.state);
-		expect(run).toBeDefined();
-		await expect(run as Promise<unknown>).rejects.toBeInstanceOf(
-			EnvironmentalError
-		);
-		await expect(run as Promise<unknown>).rejects.toMatchObject({
-			reason: 'build.missingArtifact',
-		});
 	});
 
 	it('rebuilds missing artefacts and confirms readiness', async () => {
@@ -292,62 +80,6 @@ describe('createReleasePackReadinessHelper', () => {
 				throw makeNoEntry(target);
 			}
 
-			if (
-				target ===
-				path.join(repoRoot, 'packages', 'cli', 'dist', 'index.js')
-			) {
-				return undefined;
-			}
-
-			if (
-				target ===
-				path.join(
-					repoRoot,
-					'packages',
-					'cli',
-					'dist',
-					'packages',
-					'php-driver',
-					'dist',
-					'index.js'
-				)
-			) {
-				return undefined;
-			}
-
-			if (
-				target ===
-				path.join(
-					repoRoot,
-					'packages',
-					'cli',
-					'dist',
-					'packages',
-					'php-driver',
-					'dist',
-					'installer.js'
-				)
-			) {
-				return undefined;
-			}
-
-			if (
-				target ===
-				path.join(
-					repoRoot,
-					'packages',
-					'cli',
-					'dist',
-					'packages',
-					'php-driver',
-					'dist',
-					'prettyPrinter',
-					'createPhpPrettyPrinter.js'
-				)
-			) {
-				return undefined;
-			}
-
 			throw makeNoEntry(target);
 		});
 
@@ -356,65 +88,27 @@ describe('createReleasePackReadinessHelper', () => {
 		});
 
 		const helper = createReleasePackReadinessHelper({
-			manifest: [
-				manifest[0],
-				{
-					packageName: '@wpkernel/cli',
-					packageDir: path.join('packages', 'cli'),
-					expectedArtifacts: [path.join('dist', 'index.js')],
-				},
-			],
-			dependencies: {
-				access,
-				exec,
-				readFile: jest.fn(async (target: string) => {
-					if (
-						target ===
-						path.join(
-							repoRoot,
-							'packages',
-							'php-driver',
-							'package.json'
-						)
-					) {
-						return JSON.stringify({
-							exports: {
-								'.': {
-									import: './dist/index.js',
-								},
-							},
-						});
-					}
-
-					throw new Error(`Unexpected read: ${target}`);
-				}),
-			},
+			manifest,
+			dependencies: { access, exec },
 		});
 
-		const context = createReadinessTestContext({
-			projectRoot,
-			workspaceRoot: null,
-			workspace: null,
-			cwd: projectRoot,
-		});
-
+		const context = createContext();
 		const detection = await helper.detect(context);
 		expect(detection.status).toBe('pending');
+		expect(detection.message).toContain('Missing build artefact');
 
 		await helper.execute?.(context, detection.state);
-
-		const confirmation = await helper.confirm(context, detection.state);
-		expect(confirmation.status).toBe('ready');
 		expect(exec).toHaveBeenCalledWith(
 			'pnpm',
 			['--filter', '@wpkernel/example', 'build'],
-			{
-				cwd: repoRoot,
-			}
+			{ cwd: repoRoot }
 		);
+
+		const confirmation = await helper.confirm(context, detection.state);
+		expect(confirmation.status).toBe('ready');
 	});
 
-	it('surfaces build failures when rebuilding artefacts', async () => {
+	it('throws when artefacts remain missing after rebuild', async () => {
 		const access = jest.fn(async (target: string) => {
 			if (target === path.join(repoRoot, 'pnpm-workspace.yaml')) {
 				return undefined;
@@ -427,22 +121,6 @@ describe('createReleasePackReadinessHelper', () => {
 				throw makeNoEntry(target);
 			}
 
-			if (
-				target ===
-				path.join(
-					repoRoot,
-					'packages',
-					'cli',
-					'dist',
-					'packages',
-					'php-driver',
-					'dist',
-					'index.js'
-				)
-			) {
-				return undefined;
-			}
-
 			throw makeNoEntry(target);
 		});
 
@@ -450,40 +128,50 @@ describe('createReleasePackReadinessHelper', () => {
 			manifest,
 			dependencies: {
 				access,
-				exec: jest.fn(async () => {
-					throw new Error('build failed');
-				}),
-				readFile: jest.fn(async (target: string) => {
-					if (
-						target ===
-						path.join(
-							repoRoot,
-							'packages',
-							'php-driver',
-							'package.json'
-						)
-					) {
-						return JSON.stringify({
-							exports: {
-								'.': {
-									import: './dist/index.js',
-								},
-							},
-						});
-					}
-
-					throw new Error(`Unexpected read: ${target}`);
-				}),
+				exec: jest.fn(),
 			},
 		});
 
-		const context = createReadinessTestContext({
-			projectRoot,
-			workspaceRoot: null,
-			workspace: null,
-			cwd: projectRoot,
+		const context = createContext();
+		const detection = await helper.detect(context);
+		expect(detection.status).toBe('pending');
+
+		const run = helper.execute?.(context, detection.state);
+		expect(run).toBeDefined();
+		await expect(run as Promise<unknown>).rejects.toBeInstanceOf(
+			EnvironmentalError
+		);
+		await expect(run as Promise<unknown>).rejects.toMatchObject({
+			reason: 'build.missingArtifact',
+		});
+	});
+
+	it('surfaces build failures when rebuild fails', async () => {
+		const access = jest.fn(async (target: string) => {
+			if (target === path.join(repoRoot, 'pnpm-workspace.yaml')) {
+				return undefined;
+			}
+
+			if (
+				target ===
+				path.join(repoRoot, 'packages', 'example', 'dist', 'index.js')
+			) {
+				throw makeNoEntry(target);
+			}
+
+			throw makeNoEntry(target);
 		});
 
+		const exec = jest.fn(async () => {
+			throw new Error('boom');
+		});
+
+		const helper = createReleasePackReadinessHelper({
+			manifest,
+			dependencies: { access, exec },
+		});
+
+		const context = createContext();
 		const detection = await helper.detect(context);
 		expect(detection.status).toBe('pending');
 
@@ -507,22 +195,6 @@ describe('createReleasePackReadinessHelper', () => {
 				return undefined;
 			}
 
-			if (
-				target ===
-				path.join(
-					repoRoot,
-					'packages',
-					'cli',
-					'dist',
-					'packages',
-					'php-driver',
-					'dist',
-					'index.js'
-				)
-			) {
-				return undefined;
-			}
-
 			throw makeNoEntry(target);
 		});
 
@@ -533,135 +205,15 @@ describe('createReleasePackReadinessHelper', () => {
 			dependencies: {
 				access,
 				exec,
-				readFile: jest.fn(async (target: string) => {
-					if (
-						target ===
-						path.join(
-							repoRoot,
-							'packages',
-							'php-driver',
-							'package.json'
-						)
-					) {
-						return JSON.stringify({
-							exports: {
-								'.': {
-									import: './dist/index.js',
-									default: './dist/index.js',
-								},
-							},
-						});
-					}
-
-					throw new Error(`Unexpected read: ${target}`);
-				}),
 			},
 		});
 
-		const context = createReadinessTestContext({
-			projectRoot,
-			workspaceRoot: null,
-			workspace: null,
-			cwd: projectRoot,
-		});
-
+		const context = createContext();
 		const detection = await helper.detect(context);
 		expect(detection.status).toBe('ready');
 
 		await helper.execute?.(context, detection.state);
 		expect(exec).not.toHaveBeenCalled();
-	});
-
-	it('reports missing php-driver bundle exports for the CLI package', async () => {
-		const access = jest.fn(async (target: string) => {
-			if (target === path.join(repoRoot, 'pnpm-workspace.yaml')) {
-				return undefined;
-			}
-
-			if (
-				target ===
-				path.join(repoRoot, 'packages', 'cli', 'dist', 'index.js')
-			) {
-				return undefined;
-			}
-
-			throw makeNoEntry(target);
-		});
-
-		const helper = createReleasePackReadinessHelper({
-			manifest: [
-				{
-					packageName: '@wpkernel/cli',
-					packageDir: path.join('packages', 'cli'),
-					expectedArtifacts: [path.join('dist', 'index.js')],
-				},
-			],
-			dependencies: {
-				access,
-				exec: jest.fn(),
-				readFile: jest.fn(
-					async () => '{"name":"@wpkernel/php-driver"}'
-				),
-			},
-		});
-
-		const context = createReadinessTestContext({
-			projectRoot,
-			workspaceRoot: null,
-			workspace: null,
-			cwd: projectRoot,
-		});
-
-		const detection = await helper.detect(context);
-		expect(detection.status).toBe('pending');
-		expect(detection.message).toContain(
-			'@wpkernel/php-driver (exports missing)'
-		);
-	});
-
-	it('throws when php-driver package definition cannot be read', async () => {
-		const access = jest.fn(async (target: string) => {
-			if (target === path.join(repoRoot, 'pnpm-workspace.yaml')) {
-				return undefined;
-			}
-
-			if (
-				target ===
-				path.join(repoRoot, 'packages', 'cli', 'dist', 'index.js')
-			) {
-				return undefined;
-			}
-
-			throw makeNoEntry(target);
-		});
-
-		const helper = createReleasePackReadinessHelper({
-			manifest: [
-				{
-					packageName: '@wpkernel/cli',
-					packageDir: path.join('packages', 'cli'),
-					expectedArtifacts: [path.join('dist', 'index.js')],
-				},
-			],
-			dependencies: {
-				access,
-				exec: jest.fn(),
-				readFile: jest.fn(async () => {
-					throw new Error('boom');
-				}),
-			},
-		});
-
-		const context = createReadinessTestContext({
-			projectRoot,
-			workspaceRoot: null,
-			workspace: null,
-			cwd: projectRoot,
-		});
-
-		await expect(helper.detect(context)).rejects.toMatchObject({
-			code: 'DeveloperError',
-		});
 	});
 
 	it('fails when the repository root cannot be resolved', async () => {
@@ -672,18 +224,10 @@ describe('createReleasePackReadinessHelper', () => {
 					throw makeNoEntry('missing');
 				}),
 				exec: jest.fn(),
-				readFile: jest.fn(async () => '{"exports":{}}'),
 			},
 		});
 
-		const context = createReadinessTestContext({
-			projectRoot,
-			workspaceRoot: null,
-			workspace: null,
-			cwd: projectRoot,
-		});
-
-		await expect(helper.detect(context)).rejects.toMatchObject({
+		await expect(helper.detect(createContext())).rejects.toMatchObject({
 			code: 'DeveloperError',
 		});
 	});

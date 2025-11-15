@@ -18,7 +18,6 @@
 		{ "path": "./tsconfig.json" },
 		{ "path": "../core/tsconfig.json" },
 		{ "path": "../php-json-ast/tsconfig.json" },
-		{ "path": "../php-driver/tsconfig.json" },
 		{ "path": "../test-utils/tsconfig.json" },
 		{ "path": "../ui/tsconfig.json" },
 		{ "path": "../e2e-utils/tsconfig.json" }

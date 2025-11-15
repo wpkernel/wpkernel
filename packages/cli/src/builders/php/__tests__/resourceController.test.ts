@@ -17,7 +17,7 @@ import {
 	createMinimalIr,
 	createPipelineContext,
 } from '../test-support/php-builder.test-support';
-import * as phpDriver from '@wpkernel/php-driver';
+import * as phpPrinter from '@wpkernel/php-json-ast/php-driver';
 import type {
 	PhpProgram,
 	PhpStmtNamespace,
@@ -378,7 +378,7 @@ describe('createPhpResourceControllerHelper', () => {
 			})),
 		};
 		const prettyPrinterSpy = jest
-			.spyOn(phpDriver, 'buildPhpPrettyPrinter')
+			.spyOn(phpPrinter, 'buildPhpPrettyPrinter')
 			.mockReturnValue(prettyPrinter as never);
 
 		try {
@@ -450,7 +450,7 @@ describe('createPhpResourceControllerHelper', () => {
 			})),
 		};
 		const prettyPrinterSpy = jest
-			.spyOn(phpDriver, 'buildPhpPrettyPrinter')
+			.spyOn(phpPrinter, 'buildPhpPrettyPrinter')
 			.mockReturnValue(prettyPrinter as never);
 
 		try {

@@ -19,8 +19,10 @@ describe('createApplyPlanBuilder pretty printer wiring', () => {
 			prettyPrint: jest.fn(async () => ({ code: '<?php\n', ast: [] })),
 		}));
 
-		jest.doMock('@wpkernel/php-driver', () => {
-			const actual = jest.requireActual('@wpkernel/php-driver');
+		jest.doMock('@wpkernel/php-json-ast/php-driver', () => {
+			const actual = jest.requireActual(
+				'@wpkernel/php-json-ast/php-driver'
+			);
 			return {
 				...actual,
 				buildPhpPrettyPrinter: prettyPrinterFactory,

@@ -23,7 +23,6 @@
 		{ "path": "./tsconfig.json" },
 		{ "path": "../core" },
 		{ "path": "../pipeline" },
-		{ "path": "../test-utils" },
-		{ "path": "../php-driver" }
+		{ "path": "../test-utils" }
 	]
 }
