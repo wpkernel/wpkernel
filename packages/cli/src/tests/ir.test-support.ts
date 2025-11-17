@@ -16,6 +16,7 @@ import type {
 	ResourceRegistry,
 	SchemaRegistry,
 } from '../config/types';
+import { loadTestLayoutSync } from './layout.test-support';
 
 type DeepPartial<T> = {
 	[P in keyof T]?: T[P] extends object ? DeepPartial<T[P]> : T[P];
@@ -75,10 +76,12 @@ function makePhpProject(
 	namespace: string,
 	overrides: DeepPartial<IRPhpProject> = {}
 ): IRPhpProject {
+	const layoutMap = loadTestLayoutSync();
+
 	return {
 		namespace,
 		autoload: overrides.autoload ?? 'inc/',
-		outputDir: overrides.outputDir ?? '.generated/php',
+		outputDir: overrides.outputDir ?? layoutMap.resolve('php.generated'),
 	};
 }
 
@@ -92,11 +95,13 @@ export function makeIr({
 	capabilityMap,
 	blocks,
 	php,
+	layout,
 	ui,
 	diagnostics,
 	adapterAudit,
 	references,
 }: DeepPartial<IRv1> & { namespace?: string } = {}): IRv1 {
+	const layoutMap = loadTestLayoutSync();
 	const resolvedMeta = makeIrMeta(namespace, meta ?? {});
 	const resolvedConfig: WPKernelConfigV1 = {
 		version: 1,
@@ -105,6 +110,8 @@ export function makeIr({
 		schemas: ((config?.schemas ?? {}) as SchemaRegistry) || {},
 		resources: ((config?.resources ?? {}) as ResourceRegistry) || {},
 	};
+	const resolvedLayout: IRv1['layout'] =
+		(layout as IRv1['layout'] | undefined) ?? layoutMap;
 
 	return {
 		meta: resolvedMeta,
@@ -115,6 +122,7 @@ export function makeIr({
 		capabilityMap: makeCapabilityMap(capabilityMap ?? {}),
 		blocks: (blocks as IRBlock[] | undefined) ?? [],
 		php: makePhpProject(resolvedMeta.namespace, php ?? {}),
+		layout: resolvedLayout,
 		ui: ui as IRUiSurface | undefined,
 		diagnostics: diagnostics ?? [],
 		adapterAudit,

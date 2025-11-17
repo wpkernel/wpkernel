@@ -48,6 +48,7 @@ export interface WPKConfigV1Like<
 > {
 	readonly version: 1;
 	readonly namespace: string;
+	readonly directories?: Record<string, string>;
 	readonly schemas: TSchemas;
 	readonly resources: TResources;
 	readonly adapters?: TAdapters;

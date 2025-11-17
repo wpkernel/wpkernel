@@ -11,6 +11,8 @@
 		"src/**/*.test.tsx",
 		"src/**/*.spec.ts",
 		"src/**/*.spec.tsx",
+		"src/**/test-support/**/*.ts",
+		"src/tests/**/*.ts",
 		"vite.config.ts",
 		"./package.json"
 	],

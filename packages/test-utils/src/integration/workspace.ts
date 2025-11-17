@@ -1,6 +1,7 @@
 import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
+import { ensureLayoutManifest } from '../layout-manifest.test-support.js';
 
 /**
  * Options for configuring a temporary workspace.
@@ -44,6 +45,8 @@ export async function withWorkspace(
 	const previousCwd = process.cwd();
 
 	try {
+		await ensureLayoutManifest(workspace);
+
 		if (files) {
 			await Promise.all(
 				Object.entries(files).map(async ([relativePath, contents]) => {

@@ -178,7 +178,7 @@ describe('createIr', () => {
 					expect.objectContaining({
 						namespace: expect.any(String),
 						autoload: 'inc/',
-						outputDir: '.generated/php',
+						outputDir: ir.layout.resolve('php.generated'),
 					})
 				);
 				expect(Array.isArray(ir.diagnostics)).toBe(true);

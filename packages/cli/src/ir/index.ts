@@ -16,6 +16,7 @@ export { createCapabilityMapFragment } from './fragments/capability-map';
 export { createDiagnosticsFragment } from './fragments/diagnostics';
 export { createBlocksFragment } from './fragments/blocks';
 export { createOrderingFragment } from './fragments/ordering';
+export { createLayoutFragment } from './fragments/layout';
 export { createValidationFragment } from './fragments/validation';
 export type {
 	IRDiagnostic,

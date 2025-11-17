@@ -14,6 +14,7 @@ import {
 } from '@wpkernel/test-utils/builders/tests/ts.test-support';
 import { buildWorkspace } from '../../workspace';
 import type { Workspace } from '../../workspace';
+import { loadTestLayout } from '../../tests/layout.test-support';
 
 jest.mock('../../commands/run-generate/validation', () => ({
 	validateGeneratedImports: jest.fn().mockResolvedValue(undefined),
@@ -31,12 +32,14 @@ describe('createTsBuilder - DataView fixture creator', () => {
 		await withWorkspace(async ({ workspace, root }) => {
 			const configSource = buildWPKernelConfigSource();
 			await workspace.write('wpk.config.ts', configSource);
+			const layout = await loadTestLayout({ cwd: workspace.root });
 
 			const dataviews = buildDataViewsConfig();
 			const { ir, options } = buildBuilderArtifacts({
 				dataviews,
 				sourcePath: path.join(root, 'wpk.config.ts'),
 			});
+			const irWithLayout = { ...ir, layout };
 
 			const reporter = buildReporter();
 			const output = buildOutput();
@@ -52,7 +55,7 @@ describe('createTsBuilder - DataView fixture creator', () => {
 					input: {
 						phase: 'generate',
 						options,
-						ir,
+						ir: irWithLayout,
 					},
 					output,
 					reporter,
@@ -61,8 +64,7 @@ describe('createTsBuilder - DataView fixture creator', () => {
 			);
 
 			const fixturePath = path.join(
-				'.generated',
-				'ui',
+				layout.resolve('ui.generated'),
 				'fixtures',
 				'dataviews',
 				'job.ts'
@@ -102,6 +104,8 @@ describe('createTsBuilder - DataView fixture creator', () => {
 				dataviews,
 				sourcePath: path.join(root, 'wpk.config.ts'),
 			});
+			const layout = await loadTestLayout({ cwd: workspace.root });
+			const irWithLayout = { ...ir, layout };
 
 			const reporter = buildReporter();
 			const output = buildOutput();
@@ -117,7 +121,7 @@ describe('createTsBuilder - DataView fixture creator', () => {
 					input: {
 						phase: 'generate',
 						options,
-						ir,
+						ir: irWithLayout,
 					},
 					output,
 					reporter,
@@ -125,9 +129,9 @@ describe('createTsBuilder - DataView fixture creator', () => {
 				undefined
 			);
 
+			// const layout = await loadTestLayout({ cwd: workspace.root });
 			const interactivityPath = path.join(
-				'.generated',
-				'ui',
+				layout.resolve('ui.generated'),
 				'fixtures',
 				'interactivity',
 				'job.ts'
@@ -176,6 +180,8 @@ describe('createTsBuilder - DataView fixture creator', () => {
 				dataviews,
 				sourcePath: path.join(root, 'wpk.config.ts'),
 			});
+			const layout = await loadTestLayout({ cwd: workspace.root });
+			const irWithLayout = { ...ir, layout };
 
 			const reporter = buildReporter();
 			const output = buildOutput();
@@ -191,7 +197,7 @@ describe('createTsBuilder - DataView fixture creator', () => {
 					input: {
 						phase: 'generate',
 						options,
-						ir,
+						ir: irWithLayout,
 					},
 					output,
 					reporter,
@@ -200,8 +206,7 @@ describe('createTsBuilder - DataView fixture creator', () => {
 			);
 
 			const interactivityPath = path.join(
-				'.generated',
-				'ui',
+				layout.resolve('ui.generated'),
 				'fixtures',
 				'interactivity',
 				'job.ts'
@@ -239,6 +244,8 @@ describe('createTsBuilder - DataView fixture creator', () => {
 				resourceName: 'Job Board',
 				sourcePath: path.join(root, 'wpk.config.ts'),
 			});
+			const layout = await loadTestLayout({ cwd: workspace.root });
+			const irWithLayout = { ...ir, layout };
 
 			const reporter = buildReporter();
 			const output = buildOutput();
@@ -254,7 +261,7 @@ describe('createTsBuilder - DataView fixture creator', () => {
 					input: {
 						phase: 'generate',
 						options,
-						ir,
+						ir: irWithLayout,
 					},
 					output,
 					reporter,
@@ -263,8 +270,7 @@ describe('createTsBuilder - DataView fixture creator', () => {
 			);
 
 			const fixturePath = path.join(
-				'.generated',
-				'ui',
+				layout.resolve('ui.generated'),
 				'fixtures',
 				'dataviews',
 				'job-board.ts'
@@ -279,6 +285,7 @@ describe('createTsBuilder - DataView fixture creator', () => {
 
 	it('falls back to alias when wpk config path is outside the workspace root', async () => {
 		await withWorkspace(async ({ workspace, root }) => {
+			const layout = await loadTestLayout({ cwd: workspace.root });
 			const externalDir = path.join(
 				path.dirname(root),
 				'external-kernel-config'
@@ -293,6 +300,7 @@ describe('createTsBuilder - DataView fixture creator', () => {
 					dataviews,
 					sourcePath: externalConfigPath,
 				});
+				const irWithLayout = { ...ir, layout };
 
 				const reporter = buildReporter();
 				const output = buildOutput();
@@ -308,7 +316,7 @@ describe('createTsBuilder - DataView fixture creator', () => {
 						input: {
 							phase: 'generate',
 							options,
-							ir,
+							ir: irWithLayout,
 						},
 						output,
 						reporter,
@@ -317,8 +325,7 @@ describe('createTsBuilder - DataView fixture creator', () => {
 				);
 
 				const fixturePath = path.join(
-					'.generated',
-					'ui',
+					layout.resolve('ui.generated'),
 					'fixtures',
 					'dataviews',
 					'job.ts'

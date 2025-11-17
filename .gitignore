@@ -108,3 +108,4 @@ gutenberg
 **/AGENTS.md
 docs/internal/
 artifacts/
+./.wpk/

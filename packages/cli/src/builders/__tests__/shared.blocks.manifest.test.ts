@@ -7,6 +7,7 @@ import { buildWorkspace } from '../../workspace';
 import type { Workspace } from '../../workspace';
 import type { IRBlock, IRHashProvenance } from '../../ir/publicTypes';
 import { collectBlockManifests } from '../shared.blocks.manifest';
+import { loadTestLayout } from '../../tests/layout.test-support';
 
 const makeBlockHash = (label: string): IRHashProvenance => ({
 	algo: 'sha256',
@@ -38,6 +39,7 @@ const withWorkspace = (
 describe('collectBlockManifests', () => {
 	it('returns manifest entries and render metadata for blocks with declared render files', async () => {
 		await withWorkspace(async ({ workspace, root }) => {
+			const layout = await loadTestLayout({ cwd: workspace.root });
 			const blockDir = path.join('src', 'blocks', 'example');
 			const manifestPath = path.join(blockDir, 'block.json');
 			const renderPath = path.join(blockDir, 'render.php');
@@ -69,6 +71,10 @@ describe('collectBlockManifests', () => {
 			const result = await collectBlockManifests({
 				workspace,
 				blocks: [block],
+				roots: {
+					generated: layout.resolve('blocks.generated'),
+					surfaced: layout.resolve('blocks.applied'),
+				},
 			});
 
 			const processed = result.get(block.key);
@@ -90,6 +96,7 @@ describe('collectBlockManifests', () => {
 
 	it('creates render stubs when declared file is missing', async () => {
 		await withWorkspace(async ({ workspace, root }) => {
+			const layout = await loadTestLayout({ cwd: workspace.root });
 			const blockDir = path.join('src', 'blocks', 'stub');
 			const manifestPath = path.join(blockDir, 'block.json');
 
@@ -114,6 +121,10 @@ describe('collectBlockManifests', () => {
 			const result = await collectBlockManifests({
 				workspace,
 				blocks: [block],
+				roots: {
+					generated: layout.resolve('blocks.generated'),
+					surfaced: layout.resolve('blocks.applied'),
+				},
 			});
 			const processed = result.get(block.key);
 			expect(processed?.renderStub).toBeDefined();
@@ -131,6 +142,7 @@ describe('collectBlockManifests', () => {
 
 	it('creates fallback stubs when manifest omits render metadata', async () => {
 		await withWorkspace(async ({ workspace, root }) => {
+			const layout = await loadTestLayout({ cwd: workspace.root });
 			const blockDir = path.join('src', 'blocks', 'fallback');
 			const manifestPath = path.join(blockDir, 'block.json');
 
@@ -159,6 +171,10 @@ describe('collectBlockManifests', () => {
 			const result = await collectBlockManifests({
 				workspace,
 				blocks: [block],
+				roots: {
+					generated: layout.resolve('blocks.generated'),
+					surfaced: layout.resolve('blocks.applied'),
+				},
 			});
 			const processed = result.get(block.key);
 			expect(processed?.renderStub?.target.absolutePath).toBe(
@@ -175,6 +191,7 @@ describe('collectBlockManifests', () => {
 
 	it('omits render metadata when manifest declares a PHP callback', async () => {
 		await withWorkspace(async ({ workspace }) => {
+			const layout = await loadTestLayout({ cwd: workspace.root });
 			const blockDir = path.join('src', 'blocks', 'callback');
 			const manifestPath = path.join(blockDir, 'block.json');
 
@@ -204,6 +221,10 @@ describe('collectBlockManifests', () => {
 			const result = await collectBlockManifests({
 				workspace,
 				blocks: [block],
+				roots: {
+					generated: layout.resolve('blocks.generated'),
+					surfaced: layout.resolve('blocks.applied'),
+				},
 			});
 			const processed = result.get(block.key);
 			expect(processed?.manifestEntry).toEqual({
@@ -217,6 +238,7 @@ describe('collectBlockManifests', () => {
 
 	it('refreshes cached manifest data when the manifest file changes', async () => {
 		await withWorkspace(async ({ workspace }) => {
+			const layout = await loadTestLayout({ cwd: workspace.root });
 			const blockDir = path.join('src', 'blocks', 'cache');
 			const manifestPath = path.join(blockDir, 'block.json');
 
@@ -240,6 +262,10 @@ describe('collectBlockManifests', () => {
 			const first = await collectBlockManifests({
 				workspace,
 				blocks: [block],
+				roots: {
+					generated: layout.resolve('blocks.generated'),
+					surfaced: layout.resolve('blocks.applied'),
+				},
 			});
 
 			expect(first.get(block.key)?.manifestObject?.title).toBe(
@@ -264,6 +290,10 @@ describe('collectBlockManifests', () => {
 			const second = await collectBlockManifests({
 				workspace,
 				blocks: [block],
+				roots: {
+					generated: layout.resolve('blocks.generated'),
+					surfaced: layout.resolve('blocks.applied'),
+				},
 			});
 
 			expect(second.get(block.key)?.manifestObject?.title).toBe(
@@ -274,6 +304,7 @@ describe('collectBlockManifests', () => {
 
 	it('refreshes cached render data when a render file materialises', async () => {
 		await withWorkspace(async ({ workspace, root }) => {
+			const layout = await loadTestLayout({ cwd: workspace.root });
 			const blockDir = path.join('src', 'blocks', 'render');
 			const manifestPath = path.join(blockDir, 'block.json');
 			const renderPath = path.join(blockDir, 'render.php');
@@ -304,6 +335,10 @@ describe('collectBlockManifests', () => {
 			const first = await collectBlockManifests({
 				workspace,
 				blocks: [block],
+				roots: {
+					generated: layout.resolve('blocks.generated'),
+					surfaced: layout.resolve('blocks.applied'),
+				},
 			});
 			const firstProcessed = first.get(block.key);
 			expect(firstProcessed?.renderStub?.target.absolutePath).toBe(
@@ -318,6 +353,10 @@ describe('collectBlockManifests', () => {
 			const second = await collectBlockManifests({
 				workspace,
 				blocks: [block],
+				roots: {
+					generated: layout.resolve('blocks.generated'),
+					surfaced: layout.resolve('blocks.applied'),
+				},
 			});
 			const secondProcessed = second.get(block.key);
 			expect(secondProcessed?.renderStub).toBeUndefined();

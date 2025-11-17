@@ -58,6 +58,14 @@
 					"items": { "$ref": "#/$defs/function" }
 				}
 			}
+		},
+		"directories": {
+			"type": "object",
+			"description": "Optional mapping of logical applied artifact identifiers to workspace-relative directories (omit the \".applied\" suffix).",
+			"additionalProperties": {
+				"type": "string",
+				"minLength": 1
+			}
 		}
 	},
 	"$defs": {

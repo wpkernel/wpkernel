@@ -8,7 +8,6 @@ import type {
 	AdapterExtension,
 	AdapterExtensionFactory,
 } from '../config/types';
-import { GENERATED_ROOT } from '../internal';
 import type {
 	PipelineExtension,
 	PipelineExtensionHookOptions,
@@ -128,12 +127,21 @@ async function runExtensions({
 		return undefined;
 	}
 
+	if (!artifact.layout) {
+		throw new WPKernelError('DeveloperError', {
+			message:
+				'Adapter extensions require a non-null layout on the IR artifact.',
+			data: { namespace: artifact.meta?.namespace },
+		});
+	}
+
 	adapterReporter.info('Running adapter extensions.', {
 		count: resolved.length,
 	});
 
 	const workspaceRoot = runOptions.workspace.root;
-	const outputDir = runOptions.workspace.resolve(GENERATED_ROOT);
+	const generatedRoot = artifact.layout.resolve('js.generated');
+	const outputDir = runOptions.workspace.resolve(generatedRoot);
 	const configDirectory = path.dirname(runOptions.sourcePath);
 
 	const tsFormatter = buildTsFormatter();

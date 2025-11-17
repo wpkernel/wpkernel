@@ -23,6 +23,7 @@ import configConsistency from './eslint-rules/config-consistency.js';
 import cacheKeysValid from './eslint-rules/cache-keys-valid.js';
 import capabilityHints from './eslint-rules/capability-hints.js';
 import docLinks from './eslint-rules/doc-links.js';
+import noHardcodedLayoutPaths from './eslint-rules/no-hardcoded-layout-paths.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -36,6 +37,7 @@ const kernelPlugin = {
 		'cache-keys-valid': cacheKeysValid,
 		'capability-hints': capabilityHints,
 		'doc-links': docLinks,
+		'no-hardcoded-layout-paths': noHardcodedLayoutPaths,
 	},
 };
 
@@ -165,6 +167,7 @@ export default [
 			'@wpkernel/cache-keys-valid': 'error',
 			'@wpkernel/capability-hints': 'error',
 			'@wpkernel/doc-links': 'warn',
+			'@wpkernel/no-hardcoded-layout-paths': 'warn',
 		},
 	}, // WordPress Script Modules - runtime-resolved imports
 	{

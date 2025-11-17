@@ -23,6 +23,14 @@ export const FIXTURE_CONFIG_PATH = path.join(
 	WPK_CONFIG_SOURCES.WPK_CONFIG_TS
 );
 const TMP_PREFIX = path.join(os.tmpdir(), 'wpk-ir-test-');
+const DEFAULT_LAYOUT_MANIFEST = path.resolve(
+	__dirname,
+	'../../../../../layout.manifest.json'
+);
+
+export interface TempWorkspaceOptions {
+	readonly copyLayoutManifest?: boolean;
+}
 
 /**
  * Creates a minimal WPKernel configuration for IR tests.
@@ -116,16 +124,31 @@ export function sortValue<T>(value: T): T {
  *
  * @param    populate
  * @param    run
+ * @param    options
  * @category IR
  */
 export async function withTempWorkspace(
 	populate: (root: string) => Promise<void>,
-	run: (root: string) => Promise<void>
+	run: (root: string) => Promise<void>,
+	options: TempWorkspaceOptions = {}
 ): Promise<void> {
 	const tempDir = await fs.mkdtemp(TMP_PREFIX);
 
 	try {
 		await populate(tempDir);
+
+		if (options.copyLayoutManifest !== false) {
+			const manifestPath = path.join(tempDir, 'layout.manifest.json');
+			const hasManifest = await fs
+				.access(manifestPath)
+				.then(() => true)
+				.catch(() => false);
+
+			if (!hasManifest) {
+				await fs.copyFile(DEFAULT_LAYOUT_MANIFEST, manifestPath);
+			}
+		}
+
 		await run(tempDir);
 	} finally {
 		await fs.rm(tempDir, { recursive: true, force: true });

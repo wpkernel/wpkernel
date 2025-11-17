@@ -1,33 +1,39 @@
 ---
+
 layout: home
 title: WPKernel
 titleTemplate: A modern framework for WordPress apps
 
 hero:
-    name: WPKernel
-    text: Start with one config file
-    tagline: Edit `wpk.config.ts`, run `wpk generate`, then `wpk apply`
-    actions:
-        - theme: brand
-          text: Quickstart (3-minute setup)
-          link: /#the-three-minute-path
-        - theme: alt
-          text: Edit your config
-          link: /guide/config
-        - theme: alt
-          text: Philosophy & Architecture
-          link: /guide/philosophy
+name: WPKernel
+text: Start with one config file
+tagline: Edit `wpk.config.ts`, run `wpk generate`, then `wpk apply`
+actions: - theme: brand
+text: Quickstart (3-minute setup)
+link: /#the-three-minute-path - theme: alt
+text: Edit your config
+link: /guide/config - theme: alt
+text: Philosophy & Architecture
+link: /guide/philosophy
 
-features:
-    - title: Single source of truth
-      details: Define resources, capabilities and schemas in one `wpk.config.ts`. Generators build the rest.
-    - title: Deterministic generation
-      details: '`wpk generate` emits PHP controllers, JS hooks, types and docs. `wpk apply` commits atomically or rolls back.'
-    - title: Inline capability mapping
-      details: Declare friendly capability keys once. The CLI validates, injects server checks and emits a runtime JS map.
-    - title: Ready-made WordPress admin screens
-      details: Add `ui.admin.dataviews` to get full DataViews admin screens with React, interactivity and access control.
+features: - title: Single source of truth
+details: Define resources, capabilities and schemas in one `wpk.config.ts`. Generators build the rest. - title: Deterministic generation
+details: '`wpk generate` emits PHP controllers, JS hooks, types and docs. `wpk apply` commits atomically or rolls back.' - title: Inline capability mapping
+details: Declare friendly capability keys once. The CLI validates, injects server checks and emits a runtime JS map. - title: Ready-made WordPress admin screens
+details: Add `ui.admin.dataviews` to get full DataViews admin screens with React, interactivity and access control.
+
 ---
+
+<div class="sponsor-hero-strip">
+  <span>Help keep WPKernel independent and actively developed.</span>
+  <iframe
+    src="https://github.com/sponsors/wpkernel/button"
+    title="Sponsor wpkernel"
+    height="32"
+    width="114"
+    style="border: 0; border-radius: 6px;"
+  ></iframe>
+</div>
 
 ## The three-minute path
 

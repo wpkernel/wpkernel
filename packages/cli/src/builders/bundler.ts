@@ -15,15 +15,9 @@ import {
 	type RollupDriverConfig,
 	type AssetManifest,
 } from './types';
+import { resolveBundlerPaths } from './bundler.paths';
 
 const BUNDLER_TRANSACTION_LABEL = 'builder.generate.bundler.core';
-const BUNDLER_CONFIG_PATH = path.posix.join('.wpk', 'bundler', 'config.json');
-const ASSET_MANIFEST_PATH = path.posix.join(
-	'.wpk',
-	'bundler',
-	'assets',
-	'index.asset.json'
-);
 
 const DEFAULT_ENTRY_POINT = 'src/index.ts';
 const DEFAULT_ENTRY_KEY = 'index';
@@ -353,16 +347,17 @@ export function createBundler(): BuilderHelper {
 					sanitizedNamespace,
 					hasUi: hasUiResources,
 				});
+				const paths = resolveBundlerPaths(input.ir);
 
 				await context.workspace.writeJson(
-					BUNDLER_CONFIG_PATH,
+					paths.config,
 					artifacts.config,
 					{
 						pretty: true,
 					}
 				);
 				await context.workspace.writeJson(
-					ASSET_MANIFEST_PATH,
+					paths.assets,
 					artifacts.assetManifest,
 					{ pretty: true }
 				);

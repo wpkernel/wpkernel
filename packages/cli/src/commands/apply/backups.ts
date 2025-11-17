@@ -12,10 +12,6 @@ function shouldBackupFile(pathname: string): boolean {
 		return false;
 	}
 
-	if (normalised.startsWith('.wpk/')) {
-		return false;
-	}
-
 	if (normalised.startsWith('.tmp/')) {
 		return false;
 	}

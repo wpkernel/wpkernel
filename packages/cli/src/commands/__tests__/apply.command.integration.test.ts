@@ -3,6 +3,7 @@ import fs from 'node:fs/promises';
 import { WPK_EXIT_CODES } from '@wpkernel/core/contracts';
 import { assignCommandContext } from '@wpkernel/test-utils/cli';
 import { createWorkspaceRunner as buildWorkspaceRunner } from '../../../tests/workspace.test-support';
+import { loadTestLayout } from '../../tests/layout.test-support';
 import * as ApplyModule from '../apply';
 import {
 	TMP_PREFIX,
@@ -56,6 +57,10 @@ function createReadinessRegistryStub() {
 describe('ApplyCommand integration', () => {
 	it('applies git patches and reports summary', async () => {
 		await withWorkspace(async (workspace) => {
+			const layout = await loadTestLayout({
+				cwd: workspace,
+				strict: true,
+			});
 			const target = path.posix.join('php', 'JobController.php');
 			const baseContents = ['<?php', 'class JobController {}', ''].join(
 				'\n'
@@ -71,6 +76,11 @@ describe('ApplyCommand integration', () => {
 				incoming: incomingContents,
 				description: 'Update controller shim',
 				current: baseContents,
+				layout: {
+					planManifest: layout.resolve('plan.manifest'),
+					planBase: layout.resolve('plan.base'),
+					planIncoming: layout.resolve('plan.incoming'),
+				},
 			});
 
 			const loadConfig = jest
@@ -107,8 +117,8 @@ describe('ApplyCommand integration', () => {
 			expect(command.manifest?.actions).toEqual(
 				expect.arrayContaining([
 					target,
-					path.posix.join('.wpk', 'apply', 'manifest.json'),
-					path.posix.join('.wpk', 'apply', 'base', target),
+					layout.resolve('patch.manifest'),
+					path.posix.join(layout.resolve('plan.base'), target),
 				])
 			);
 			expect(stdout.toString()).toContain('Applied: 1');
@@ -123,6 +133,10 @@ describe('ApplyCommand integration', () => {
 
 	it('creates backups when the backup flag is set', async () => {
 		await withWorkspace(async (workspace) => {
+			const layout = await loadTestLayout({
+				cwd: workspace,
+				strict: true,
+			});
 			const target = path.posix.join('php', 'BackupController.php');
 			const baseContents = [
 				'<?php',
@@ -140,6 +154,11 @@ describe('ApplyCommand integration', () => {
 				incoming: updatedContents,
 				current: baseContents,
 				description: 'Update controller shim',
+				layout: {
+					planManifest: layout.resolve('plan.manifest'),
+					planBase: layout.resolve('plan.base'),
+					planIncoming: layout.resolve('plan.incoming'),
+				},
 			});
 
 			const loadConfig = jest
@@ -166,6 +185,10 @@ describe('ApplyCommand integration', () => {
 	});
 	it('accepts git repositories located in ancestor directories', async () => {
 		await withWorkspace(async (workspace) => {
+			const layout = await loadTestLayout({
+				cwd: workspace,
+				strict: true,
+			});
 			const projectWorkspace = path.join(workspace, 'packages', 'demo');
 			await fs.mkdir(projectWorkspace, { recursive: true });
 
@@ -186,6 +209,11 @@ describe('ApplyCommand integration', () => {
 				incoming: incomingContents,
 				current: baseContents,
 				description: 'Update controller shim',
+				layout: {
+					planManifest: layout.resolve('plan.manifest'),
+					planBase: layout.resolve('plan.base'),
+					planIncoming: layout.resolve('plan.incoming'),
+				},
 			});
 
 			const loadConfig = jest
@@ -216,6 +244,10 @@ describe('ApplyCommand integration', () => {
 
 	it('records apply runs in the workspace log', async () => {
 		await withWorkspace(async (workspace) => {
+			const layout = await loadTestLayout({
+				cwd: workspace,
+				strict: true,
+			});
 			const target = path.posix.join('php', 'LogController.php');
 			const baseContents = ['<?php', 'class LogController {}', ''].join(
 				'\n'
@@ -231,6 +263,11 @@ describe('ApplyCommand integration', () => {
 				incoming: incomingContents,
 				current: baseContents,
 				description: 'Promote controller changes',
+				layout: {
+					planManifest: layout.resolve('plan.manifest'),
+					planBase: layout.resolve('plan.base'),
+					planIncoming: layout.resolve('plan.incoming'),
+				},
 			});
 
 			const loadConfig = jest
@@ -310,6 +347,10 @@ describe('ApplyCommand integration', () => {
 
 	it('exits with validation error when conflicts occur', async () => {
 		await withWorkspace(async (workspace) => {
+			const layout = await loadTestLayout({
+				cwd: workspace,
+				strict: true,
+			});
 			const target = path.posix.join('php', 'Conflict.php');
 			const base = ['line-one', 'line-two', ''].join('\n');
 			const incoming = ['line-one updated', 'line-two', ''].join('\n');
@@ -320,6 +361,11 @@ describe('ApplyCommand integration', () => {
 				incoming,
 				current,
 				description: 'Introduce new logic',
+				layout: {
+					planManifest: layout.resolve('plan.manifest'),
+					planBase: layout.resolve('plan.base'),
+					planIncoming: layout.resolve('plan.incoming'),
+				},
 			});
 
 			const loadConfig = jest
@@ -362,6 +408,10 @@ describe('ApplyCommand integration', () => {
 
 	it('returns success for conflicts when force is enabled', async () => {
 		await withWorkspace(async (workspace) => {
+			const layout = await loadTestLayout({
+				cwd: workspace,
+				strict: true,
+			});
 			const target = path.posix.join('php', 'Forced.php');
 			const base = ['original', ''].join('\n');
 			const incoming = ['updated', ''].join('\n');
@@ -372,6 +422,11 @@ describe('ApplyCommand integration', () => {
 				incoming,
 				current,
 				description: 'Introduce conflict',
+				layout: {
+					planManifest: layout.resolve('plan.manifest'),
+					planBase: layout.resolve('plan.base'),
+					planIncoming: layout.resolve('plan.incoming'),
+				},
 			});
 
 			const loadConfig = jest

@@ -128,7 +128,7 @@ describe('buildIr - block discovery', () => {
 	it('throws when block manifest contains invalid JSON', async () => {
 		await withTempWorkspace(
 			async (root) => {
-				const blockDir = path.join(root, 'blocks', 'broken');
+				const blockDir = path.join(root, 'src', 'blocks', 'broken');
 				await fs.mkdir(blockDir, { recursive: true });
 				await fs.writeFile(
 					path.join(blockDir, 'block.json'),
@@ -161,8 +161,8 @@ describe('buildIr - block discovery', () => {
 	it('throws when duplicate block names are discovered', async () => {
 		await withTempWorkspace(
 			async (root) => {
-				const blockA = path.join(root, 'blocks', 'a');
-				const blockB = path.join(root, 'blocks', 'b');
+				const blockA = path.join(root, 'src', 'blocks', 'a');
+				const blockB = path.join(root, 'src', 'blocks', 'b');
 				await fs.mkdir(blockA, { recursive: true });
 				await fs.mkdir(blockB, { recursive: true });
 				const manifest = JSON.stringify({
@@ -199,7 +199,7 @@ describe('buildIr - block discovery', () => {
 	it('throws when block manifest omits the name field', async () => {
 		await withTempWorkspace(
 			async (root) => {
-				const blockDir = path.join(root, 'blocks', 'noname');
+				const blockDir = path.join(root, 'src', 'blocks', 'noname');
 				await fs.mkdir(blockDir, { recursive: true });
 				await fs.writeFile(
 					path.join(blockDir, 'block.json'),
@@ -232,7 +232,7 @@ describe('buildIr - block discovery', () => {
 	it('throws when block manifest is not an object', async () => {
 		await withTempWorkspace(
 			async (root) => {
-				const blockDir = path.join(root, 'blocks', 'array');
+				const blockDir = path.join(root, 'src', 'blocks', 'array');
 				await fs.mkdir(blockDir, { recursive: true });
 				await fs.writeFile(
 					path.join(blockDir, 'block.json'),

@@ -1,7 +1,9 @@
+import path from 'path';
 import { createHelper } from '../../runtime';
+import { resolveTsLayout } from './ts.paths';
 
 /**
- * Creates the builder helper that writes `.generated/js/index.(ts|d.ts)`.
+ * Creates the builder helper that writes `.wpk/generate/js/index.(ts|d.ts)`.
  *
  * @category Builders
  */
@@ -17,12 +19,16 @@ export function createTsIndexBuilder() {
 				return;
 			}
 
+			const { jsGenerated } = resolveTsLayout(input.ir);
+			const indexPath = path.posix.join(jsGenerated, 'index.ts');
+			const dtsPath = path.posix.join(jsGenerated, 'index.d.ts');
+
 			output.queueWrite({
-				file: '.generated/js/index.ts',
+				file: indexPath,
 				contents: "export { capabilities } from './capabilities';\n",
 			});
 			await output.queueWrite({
-				file: '.generated/js/index.d.ts',
+				file: dtsPath,
 				contents:
 					"export { capabilities } from './capabilities';\nexport type { CapabilityConfig, CapabilityKey, CapabilityRuntime } from './capabilities';\n",
 			});

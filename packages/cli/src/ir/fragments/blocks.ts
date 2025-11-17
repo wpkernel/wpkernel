@@ -1,4 +1,4 @@
-import path from 'node:path';
+import { WPKernelError } from '@wpkernel/core/error';
 import { createHelper } from '../../runtime';
 import { discoverBlocks } from '../shared/block-discovery';
 import type { IrFragment, IrFragmentApplyOptions } from '../types';
@@ -16,10 +16,19 @@ export function createBlocksFragment(): IrFragment {
 	return createHelper({
 		key: 'ir.blocks.core',
 		kind: 'fragment',
-		dependsOn: ['ir.meta.core'],
-		async apply({ input, output }: IrFragmentApplyOptions) {
-			const workspaceRoot = path.dirname(input.options.sourcePath);
-			const blocks = await discoverBlocks(workspaceRoot);
+		dependsOn: ['ir.meta.core', 'ir.layout.core'],
+		async apply({ input, output, context }: IrFragmentApplyOptions) {
+			if (!input.draft.layout) {
+				throw new WPKernelError('DeveloperError', {
+					message: 'Layout fragment must run before blocks fragment.',
+				});
+			}
+
+			const blocksRoot = input.draft.layout.resolve('blocks.applied');
+			const blocks = await discoverBlocks(
+				context.workspace.root,
+				blocksRoot
+			);
 			output.assign({ blocks });
 		},
 	});

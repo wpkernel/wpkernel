@@ -159,13 +159,17 @@ export function toFsPath(workspace: string, posixPath: string): string {
  * Seeds an apply plan in a given workspace.
  *
  * @category CLI Helpers
- * @param    workspace           - The path to the workspace.
- * @param    file                - The file name for the plan.
+ * @param    workspace                   - The path to the workspace.
+ * @param    file                        - The file name for the plan.
  * @param    options.base
  * @param    options.incoming
  * @param    options.description
  * @param    options.current
- * @param    options             - Options for seeding the plan (base content, incoming content, description, current content).
+ * @param    options.layout
+ * @param    options.layout.planManifest
+ * @param    options.layout.planBase
+ * @param    options.layout.planIncoming
+ * @param    options                     - Options for seeding the plan (base content, incoming content, description, current content).
  * @returns A Promise that resolves when the plan is seeded.
  */
 export async function seedPlan(
@@ -176,15 +180,29 @@ export async function seedPlan(
 		incoming?: string | null;
 		description?: string;
 		current?: string;
+		layout?: {
+			planManifest: string;
+			planBase: string;
+			planIncoming: string;
+		};
 	}
 ): Promise<void> {
-	const planPath = path.join(workspace, '.wpk', 'apply', 'plan.json');
+	const planManifest =
+		options.layout?.planManifest ??
+		path.posix.join('.wpk', 'apply', 'plan.json');
+	const planBase =
+		options.layout?.planBase ?? path.posix.join('.wpk', 'apply', 'base');
+	const planIncoming =
+		options.layout?.planIncoming ??
+		path.posix.join('.wpk', 'apply', 'incoming');
+
+	const planPath = path.join(workspace, planManifest);
 	await ensureDirectory(path.dirname(planPath));
 
 	const instruction = {
 		file,
-		base: path.posix.join('.wpk', 'apply', 'base', file),
-		incoming: path.posix.join('.wpk', 'apply', 'incoming', file),
+		base: path.posix.join(planBase, file),
+		incoming: path.posix.join(planIncoming, file),
 		description: options.description,
 	};
 

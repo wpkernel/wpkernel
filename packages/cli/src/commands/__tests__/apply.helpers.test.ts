@@ -14,6 +14,7 @@ import type {
 } from '../../../config/types';
 import type { Workspace } from '../../workspace';
 import { makeWorkspaceMock } from '../../../tests/workspace.test-support';
+import { loadTestLayout } from '../../tests/layout.test-support';
 
 const wpkConfig: WPKernelConfigV1 = {
 	version: 1,
@@ -62,8 +63,11 @@ describe('apply command helpers', () => {
 					ReturnType<Workspace['readText']>,
 					Parameters<Workspace['readText']>
 				>()
-				.mockResolvedValue(
-					JSON.stringify({
+				.mockImplementation(async (file: string) => {
+					if (file === 'layout.manifest.json') {
+						return null;
+					}
+					return JSON.stringify({
 						summary: { applied: '2', conflicts: '0', skipped: 1 },
 						records: [
 							{
@@ -79,8 +83,8 @@ describe('apply command helpers', () => {
 								details: 'not-object',
 							},
 						],
-					})
-				),
+					});
+				}),
 		}) as unknown as Workspace;
 
 		const manifest = await readManifest(workspace);
@@ -112,7 +116,9 @@ describe('apply command helpers', () => {
 					ReturnType<Workspace['readText']>,
 					Parameters<Workspace['readText']>
 				>()
-				.mockResolvedValue('invalid-json'),
+				.mockImplementation(async (file: string) =>
+					file === 'layout.manifest.json' ? null : 'invalid-json'
+				),
 		}) as unknown as Workspace;
 
 		await expect(readManifest(workspace)).rejects.toMatchObject({
@@ -239,7 +245,8 @@ describe('apply command helpers', () => {
 		expect(resolveWorkspaceRoot(loadedConfig)).toBe('/path/to/workspace');
 	});
 
-	it('exposes the manifest path constant', () => {
-		expect(PATCH_MANIFEST_PATH).toBe('.wpk/apply/manifest.json');
+	it('exposes the manifest path constant', async () => {
+		const layout = await loadTestLayout({ strict: true });
+		expect(PATCH_MANIFEST_PATH).toBe(layout.resolve('patch.manifest'));
 	});
 });

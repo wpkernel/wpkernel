@@ -16,6 +16,14 @@ import {
 	buildPipelineExtension,
 } from '@wpkernel/test-utils/runtime/pipeline.fixtures.test-support';
 import { withPipelineHarness } from '../test-support/pipeline.test-support';
+import { loadTestLayoutSync } from '../../tests/layout.test-support';
+
+const DUMMY_LAYOUT = {
+	resolve(id: string) {
+		return id;
+	},
+	all: {},
+};
 
 function buildCapabilityMap(): IRCapabilityMap {
 	return {
@@ -36,16 +44,32 @@ describe('createPipeline', () => {
 		resources: {},
 	};
 
+	const layout = loadTestLayoutSync();
+
 	const withConfiguredPipeline = (
 		run: Parameters<typeof withPipelineHarness>[0],
 		options?: Omit<Parameters<typeof withPipelineHarness>[1], 'config'>
 	): ReturnType<typeof withPipelineHarness> =>
-		withPipelineHarness(run, { config, ...(options ?? {}) });
+		withPipelineHarness(
+			async (ctx) => {
+				ctx.pipeline.ir.use(
+					createHelper({
+						key: 'ir.layout.test',
+						kind: 'fragment',
+						mode: 'override',
+						apply({ output }) {
+							output.assign({ layout: DUMMY_LAYOUT });
+						},
+					})
+				);
+				await run(ctx);
+			},
+			{ config, ...(options ?? {}) }
+		);
 
 	it('orders helpers by dependency metadata and executes builders', async () => {
 		await withConfiguredPipeline(async ({ pipeline, run }) => {
 			const runOrder: string[] = [];
-
 			const metaHelper = createHelper({
 				key: 'ir.meta.test',
 				kind: 'fragment',
@@ -77,7 +101,8 @@ describe('createPipeline', () => {
 						php: {
 							namespace: 'TestNamespace',
 							autoload: 'inc/',
-							outputDir: '.generated/php',
+							// Use layout ID to stay in sync with manifest defaults
+							outputDir: layout.resolve('php.generated'),
 						},
 					});
 				},
@@ -144,6 +169,7 @@ describe('createPipeline', () => {
 				'builder',
 			]);
 			expect(steps.map((step) => step.key)).toEqual([
+				'ir.layout.test',
 				'ir.meta.test',
 				'ir.collection.test',
 				'ir.capability-map.test',
@@ -254,7 +280,7 @@ describe('createPipeline', () => {
 						php: {
 							namespace: 'Ext',
 							autoload: 'inc/',
-							outputDir: '.generated/php',
+							outputDir: layout.resolve('php.generated'),
 						},
 					});
 				},
@@ -335,7 +361,7 @@ describe('createPipeline', () => {
 							php: {
 								namespace: 'Async',
 								autoload: 'inc/',
-								outputDir: '.generated/php',
+								outputDir: layout.resolve('php.generated'),
 							},
 						});
 					},
@@ -424,7 +450,7 @@ describe('createPipeline', () => {
 							php: {
 								namespace: 'Initial',
 								autoload: 'inc/',
-								outputDir: '.generated/php',
+								outputDir: layout.resolve('php.generated'),
 							},
 						});
 					},
@@ -534,7 +560,7 @@ describe('createPipeline', () => {
 							php: {
 								namespace: 'Priority',
 								autoload: 'inc/',
-								outputDir: '.generated/php',
+								outputDir: layout.resolve('php.generated'),
 							},
 						});
 					},
@@ -695,7 +721,7 @@ describe('createPipeline', () => {
 							php: {
 								namespace: 'Commit',
 								autoload: 'inc/',
-								outputDir: '.generated/php',
+								outputDir: layout.resolve('php.generated'),
 							},
 						});
 					},
@@ -777,7 +803,7 @@ describe('createPipeline', () => {
 							php: {
 								namespace: 'ExtensionFailure',
 								autoload: 'inc/',
-								outputDir: '.generated/php',
+								outputDir: layout.resolve('php.generated'),
 							},
 						});
 					},
@@ -861,7 +887,7 @@ describe('createPipeline', () => {
 							php: {
 								namespace: 'Rollback',
 								autoload: 'inc/',
-								outputDir: '.generated/php',
+								outputDir: layout.resolve('php.generated'),
 							},
 						});
 					},
@@ -945,7 +971,7 @@ describe('createPipeline', () => {
 							php: {
 								namespace: 'RollbackMissing',
 								autoload: 'inc/',
-								outputDir: '.generated/php',
+								outputDir: layout.resolve('php.generated'),
 							},
 						});
 					},
@@ -1009,6 +1035,7 @@ describe('createPipeline', () => {
 	it('warns when extension rollback fails', async () => {
 		await withConfiguredPipeline(async ({ pipeline, run, reporter }) => {
 			const commit = jest.fn();
+
 			const rollback = jest
 				.fn()
 				.mockRejectedValue(new Error('rollback failure'));
@@ -1030,7 +1057,7 @@ describe('createPipeline', () => {
 							php: {
 								namespace: 'RollbackWarning',
 								autoload: 'inc/',
-								outputDir: '.generated/php',
+								outputDir: layout.resolve('php.generated'),
 							},
 						});
 					},

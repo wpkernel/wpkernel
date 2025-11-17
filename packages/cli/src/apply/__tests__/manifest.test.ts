@@ -1,3 +1,8 @@
+/* eslint-disable @wpkernel/no-hardcoded-layout-paths */
+// This file exercises manifest normalisation against legacy `.wpk` paths,
+// so literals here are intentional fixtures, not new behaviour.
+import fs from 'node:fs';
+import path from 'node:path';
 import type { Workspace } from '../../workspace';
 import type { IRResource } from '../../ir/publicTypes';
 import type { SerializableResourceUIConfig } from '../../config/types';
@@ -6,19 +11,44 @@ import {
 	buildEmptyGenerationState,
 	buildGenerationManifestFromIr,
 	diffGenerationState,
-	GENERATION_STATE_PATH,
 	normaliseGenerationState,
 	readGenerationState,
 	writeGenerationState,
 	type GenerationManifest,
 } from '../manifest';
+import { loadTestLayout } from '../../tests/layout.test-support';
 
 describe('generation manifest helpers', () => {
+	let phpGeneratedRoot: string;
+	let uiGeneratedRoot: string;
+	let applyStatePath: string;
+	let layoutManifestText: string;
+	let testLayout: Awaited<ReturnType<typeof loadTestLayout>>;
+
+	beforeAll(async () => {
+		testLayout = await loadTestLayout();
+		phpGeneratedRoot = testLayout.resolve('php.generated');
+		uiGeneratedRoot = testLayout.resolve('ui.generated');
+		applyStatePath = testLayout.resolve('apply.state');
+		const manifestPath = path.resolve(
+			__dirname,
+			'..',
+			'..',
+			'..',
+			'..',
+			'..',
+			'layout.manifest.json'
+		);
+		layoutManifestText = fs.readFileSync(manifestPath, 'utf8');
+	});
+
 	function createWorkspaceMock(
 		overrides: Partial<Workspace> = {}
 	): Workspace {
 		const workspace: Partial<Workspace> = {
-			readText: jest.fn(async () => null),
+			readText: jest.fn(async (file?: string) =>
+				file === 'layout.manifest.json' ? layoutManifestText : null
+			),
 			writeJson: jest.fn(async () => undefined),
 			...overrides,
 		};
@@ -31,21 +61,28 @@ describe('generation manifest helpers', () => {
 		const result = await readGenerationState(workspace);
 
 		expect(result).toEqual(buildEmptyGenerationState());
-		expect(workspace.readText).toHaveBeenCalledWith(GENERATION_STATE_PATH);
+		expect(workspace.readText).toHaveBeenCalledWith(applyStatePath);
 	});
 
 	it('normalises manifest contents from disk', async () => {
 		const workspace = createWorkspaceMock({
-			readText: jest.fn(async () =>
-				JSON.stringify({
+			readText: jest.fn(async (file?: string) => {
+				if (file === 'layout.manifest.json') {
+					return layoutManifestText;
+				}
+
+				return JSON.stringify({
 					version: 1,
 					resources: {
 						books: {
 							hash: 'abc123',
 							artifacts: {
 								generated: [
-									'.generated\\php\\Rest\\BooksController.php',
-									'./.generated/php/Rest/BooksController.php.ast.json',
+									`${phpGeneratedRoot}\\Rest\\BooksController.php`,
+									`./${path.posix.join(
+										phpGeneratedRoot,
+										'Rest/BooksController.php.ast.json'
+									)}`,
 									'',
 									42,
 								],
@@ -58,7 +95,9 @@ describe('generation manifest helpers', () => {
 						},
 						invalid: {
 							artifacts: {
-								generated: ['.generated/php/Rest/Invalid.php'],
+								generated: [
+									'.wpk/generate/php/Rest/Invalid.php',
+								],
 							},
 						},
 					},
@@ -67,14 +106,14 @@ describe('generation manifest helpers', () => {
 						ast: 'plugin.php.ast.json',
 					},
 					phpIndex: {
-						file: '.generated/php/index.php',
-						ast: './.generated/php/index.php.ast.json',
+						file: '.wpk/generate/php/index.php',
+						ast: './.wpk/generate/php/index.php.ast.json',
 					},
 					ui: {
 						handle: 'wp-demo-plugin-ui',
 					},
-				})
-			),
+				});
+			}),
 		});
 
 		const result = await readGenerationState(workspace);
@@ -86,8 +125,14 @@ describe('generation manifest helpers', () => {
 					hash: 'abc123',
 					artifacts: {
 						generated: [
-							'.generated/php/Rest/BooksController.php',
-							'.generated/php/Rest/BooksController.php.ast.json',
+							path.posix.join(
+								phpGeneratedRoot,
+								'Rest/BooksController.php'
+							),
+							path.posix.join(
+								phpGeneratedRoot,
+								'Rest/BooksController.php.ast.json'
+							),
 						],
 						shims: ['inc/Rest/BooksController.php'],
 					},
@@ -98,8 +143,8 @@ describe('generation manifest helpers', () => {
 				ast: 'plugin.php.ast.json',
 			},
 			phpIndex: {
-				file: '.generated/php/index.php',
-				ast: '.generated/php/index.php.ast.json',
+				file: path.posix.join(phpGeneratedRoot, 'index.php'),
+				ast: path.posix.join(phpGeneratedRoot, 'index.php.ast.json'),
 			},
 			ui: {
 				handle: 'wp-demo-plugin-ui',
@@ -114,7 +159,12 @@ describe('generation manifest helpers', () => {
 
 	it('throws when the state file contains invalid JSON', async () => {
 		const workspace = createWorkspaceMock({
-			readText: jest.fn(async () => '{'),
+			readText: jest.fn(async (file?: string) => {
+				if (file === 'layout.manifest.json') {
+					return layoutManifestText;
+				}
+				return '{';
+			}),
 		});
 
 		await expect(readGenerationState(workspace)).rejects.toMatchObject({
@@ -132,7 +182,7 @@ describe('generation manifest helpers', () => {
 		await writeGenerationState(workspace, state);
 
 		expect(workspace.writeJson).toHaveBeenCalledWith(
-			GENERATION_STATE_PATH,
+			applyStatePath,
 			state,
 			{ pretty: true }
 		);
@@ -211,7 +261,7 @@ describe('generation manifest helpers', () => {
 				php: {
 					namespace: 'DemoPlugin',
 					autoload: 'inc/',
-					outputDir: '.generated/php',
+					outputDir: phpGeneratedRoot,
 				},
 				diagnostics: [],
 			})
@@ -221,22 +271,37 @@ describe('generation manifest helpers', () => {
 			hash: 'abc123',
 			artifacts: {
 				generated: expect.arrayContaining([
-					'.generated/php/Rest/BooksController.php',
-					'.generated/php/Rest/BooksController.php.ast.json',
-					'.generated/ui/fixtures/dataviews/books.ts',
-					'.generated/ui/fixtures/interactivity/books.ts',
-					'.generated/ui/registry/dataviews/books.ts',
+					path.posix.join(
+						phpGeneratedRoot,
+						'Rest/BooksController.php'
+					),
+					path.posix.join(
+						phpGeneratedRoot,
+						'Rest/BooksController.php.ast.json'
+					),
+					path.posix.join(
+						uiGeneratedRoot,
+						'fixtures/dataviews/books.ts'
+					),
+					path.posix.join(
+						uiGeneratedRoot,
+						'fixtures/interactivity/books.ts'
+					),
+					path.posix.join(
+						uiGeneratedRoot,
+						'registry/dataviews/books.ts'
+					),
 				]),
 				shims: ['inc/Rest/BooksController.php'],
 			},
 		});
 		expect(manifest.pluginLoader).toEqual({
-			file: 'plugin.php',
-			ast: 'plugin.php.ast.json',
+			file: path.posix.join(phpGeneratedRoot, 'plugin.php'),
+			ast: path.posix.join(phpGeneratedRoot, 'plugin.php.ast.json'),
 		});
 		expect(manifest.phpIndex).toEqual({
-			file: '.generated/php/index.php',
-			ast: '.generated/php/index.php.ast.json',
+			file: path.posix.join(phpGeneratedRoot, 'index.php'),
+			ast: path.posix.join(phpGeneratedRoot, 'index.php.ast.json'),
 		});
 		expect(manifest.ui).toEqual({ handle: 'wp-demo-plugin-ui' });
 	});
@@ -290,8 +355,9 @@ describe('generation manifest helpers', () => {
 			php: {
 				namespace: 'DemoPlugin',
 				autoload: 'inc/',
-				outputDir: '.generated/php',
+				outputDir: phpGeneratedRoot,
 			},
+			layout: testLayout,
 			diagnostics: [],
 		});
 
@@ -305,7 +371,12 @@ describe('generation manifest helpers', () => {
 				books: {
 					hash: 'abc123',
 					artifacts: {
-						generated: ['.generated/php/Rest/BooksController.php'],
+						generated: [
+							path.posix.join(
+								phpGeneratedRoot,
+								'Rest/BooksController.php'
+							),
+						],
 						shims: ['inc/Rest/BooksController.php'],
 					},
 				},
@@ -320,7 +391,12 @@ describe('generation manifest helpers', () => {
 		expect(diff.removed).toEqual([
 			{
 				resource: 'books',
-				generated: ['.generated/php/Rest/BooksController.php'],
+				generated: [
+					path.posix.join(
+						phpGeneratedRoot,
+						'Rest/BooksController.php'
+					),
+				],
 				shims: ['inc/Rest/BooksController.php'],
 			},
 		]);
@@ -333,7 +409,12 @@ describe('generation manifest helpers', () => {
 				books: {
 					hash: 'abc123',
 					artifacts: {
-						generated: ['.generated/php/Rest/BooksController.php'],
+						generated: [
+							path.posix.join(
+								phpGeneratedRoot,
+								'Rest/BooksController.php'
+							),
+						],
 						shims: ['inc/Rest/BooksController.php'],
 					},
 				},
@@ -345,7 +426,12 @@ describe('generation manifest helpers', () => {
 				books: {
 					hash: 'def456',
 					artifacts: {
-						generated: ['.generated/php/Rest/BooksController.php'],
+						generated: [
+							path.posix.join(
+								phpGeneratedRoot,
+								'Rest/BooksController.php'
+							),
+						],
 						shims: ['inc/Rest/BooksController.php'],
 					},
 				},
@@ -357,6 +443,11 @@ describe('generation manifest helpers', () => {
 	});
 
 	it('diffs manifests when generated artifact paths change', () => {
+		const serverRoot = path.posix.join(
+			path.posix.dirname(phpGeneratedRoot),
+			'server'
+		);
+
 		const previous = {
 			version: 1 as const,
 			resources: {
@@ -364,8 +455,14 @@ describe('generation manifest helpers', () => {
 					hash: 'abc123',
 					artifacts: {
 						generated: [
-							'.generated/php/Rest/BooksController.php',
-							'.generated/php/Rest/BooksController.php.ast.json',
+							path.posix.join(
+								phpGeneratedRoot,
+								'Rest/BooksController.php'
+							),
+							path.posix.join(
+								phpGeneratedRoot,
+								'Rest/BooksController.php.ast.json'
+							),
 						],
 						shims: ['inc/Rest/BooksController.php'],
 					},
@@ -380,8 +477,14 @@ describe('generation manifest helpers', () => {
 					hash: 'def456',
 					artifacts: {
 						generated: [
-							'.generated/server/Rest/BooksController.php',
-							'.generated/server/Rest/BooksController.php.ast.json',
+							path.posix.join(
+								serverRoot,
+								'Rest/BooksController.php'
+							),
+							path.posix.join(
+								serverRoot,
+								'Rest/BooksController.php.ast.json'
+							),
 						],
 						shims: ['inc/Rest/BooksController.php'],
 					},
@@ -394,8 +497,14 @@ describe('generation manifest helpers', () => {
 			{
 				resource: 'books',
 				generated: [
-					'.generated/php/Rest/BooksController.php',
-					'.generated/php/Rest/BooksController.php.ast.json',
+					path.posix.join(
+						phpGeneratedRoot,
+						'Rest/BooksController.php'
+					),
+					path.posix.join(
+						phpGeneratedRoot,
+						'Rest/BooksController.php.ast.json'
+					),
 				],
 				shims: [],
 			},
@@ -409,7 +518,12 @@ describe('generation manifest helpers', () => {
 				books: {
 					hash: 'abc123',
 					artifacts: {
-						generated: ['.generated/php/Rest/BooksController.php'],
+						generated: [
+							path.posix.join(
+								phpGeneratedRoot,
+								'Rest/BooksController.php'
+							),
+						],
 						shims: ['inc/Rest/BooksController.php'],
 					},
 				},
@@ -422,7 +536,12 @@ describe('generation manifest helpers', () => {
 				books: {
 					hash: 'def456',
 					artifacts: {
-						generated: ['.generated/php/Rest/BooksController.php'],
+						generated: [
+							path.posix.join(
+								phpGeneratedRoot,
+								'Rest/BooksController.php'
+							),
+						],
 						shims: ['includes/Rest/BooksController.php'],
 					},
 				},

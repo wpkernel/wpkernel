@@ -27,6 +27,7 @@ export function createMetaFragment(): IrFragment {
 		key: 'ir.meta.core',
 		kind: 'fragment',
 		mode: 'override',
+		dependsOn: ['ir.layout.core'],
 		async apply({ input, output }: IrFragmentApplyOptions) {
 			const sanitizedNamespace = sanitizeNamespace(
 				input.options.namespace
@@ -37,6 +38,13 @@ export function createMetaFragment(): IrFragment {
 					context: {
 						namespace: input.options.namespace,
 					},
+				});
+			}
+
+			if (!input.draft.layout) {
+				throw new WPKernelError('DeveloperError', {
+					message:
+						'Layout fragment must run before meta fragment to provide paths.',
 				});
 			}
 
@@ -67,7 +75,7 @@ export function createMetaFragment(): IrFragment {
 				php: {
 					namespace: createPhpNamespace(sanitizedNamespace),
 					autoload: 'inc/',
-					outputDir: '.generated/php',
+					outputDir: input.draft.layout.resolve('php.generated'),
 				},
 			});
 

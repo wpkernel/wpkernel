@@ -147,6 +147,11 @@ export interface WPKernelConfigV1 {
 	$schema?: string;
 	version: WPKernelConfigVersion;
 	namespace: string;
+	/**
+	 * Optional applied-path overrides for surfaced assets (e.g., blocks, controllers).
+	 * Keys are logical identifiers; values are workspace-relative paths.
+	 */
+	directories?: Record<string, string>;
 	schemas: SchemaRegistry;
 	resources: ResourceRegistry;
 	adapters?: AdaptersConfig;

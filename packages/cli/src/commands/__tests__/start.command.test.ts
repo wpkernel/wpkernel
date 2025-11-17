@@ -1,17 +1,11 @@
 import path from 'node:path';
 import type { FSWatcher } from 'chokidar';
-import { type Command } from 'clipanion';
 import { WPK_EXIT_CODES } from '@wpkernel/core/contracts';
 import {
 	assignCommandContext,
 	type ReporterMock,
 } from '@wpkernel/test-utils/cli';
-import {
-	buildStartCommand,
-	detectTier,
-	prioritiseQueued,
-	type Trigger,
-} from '../start';
+import { buildStartCommand } from '../start';
 import {
 	advanceBy,
 	advanceFastDebounce,
@@ -20,7 +14,6 @@ import {
 	emitChange,
 	expectEventually,
 	FakeChildProcess,
-	FakeGenerateCommand,
 	FakeWatcher,
 	FAST_DEBOUNCE_MS,
 	fsAccess,
@@ -34,10 +27,10 @@ import {
 	spawnViteProcess,
 	teardownStartCommandTest,
 	watchFactory,
+	runGenerate,
 	withStartCommand,
-} from '../test-support/start.command.test-support';
-
-type GenerateConstructor = new () => Command;
+} from '../tests/start.command.test-support';
+import { resolveStartLayoutPaths } from '../start/layout';
 
 describe('buildStartCommand', () => {
 	beforeEach(setupStartCommandTest);
@@ -49,16 +42,16 @@ describe('buildStartCommand', () => {
 
 		await withStartCommand(async (context) => {
 			watcher = context.watcher;
-			expect(FakeGenerateCommand.executeMock).toHaveBeenCalledTimes(1);
+			expect(runGenerate).toHaveBeenCalledTimes(1);
 
 			await emitChange(context.watcher, 'wpk.config.ts');
-			expect(FakeGenerateCommand.executeMock).toHaveBeenCalledTimes(1);
+			expect(runGenerate).toHaveBeenCalledTimes(1);
 
 			await advanceBy(FAST_DEBOUNCE_MS - 1);
-			expect(FakeGenerateCommand.executeMock).toHaveBeenCalledTimes(1);
+			expect(runGenerate).toHaveBeenCalledTimes(1);
 
 			await advanceBy(1);
-			expect(FakeGenerateCommand.executeMock).toHaveBeenCalledTimes(2);
+			expect(runGenerate).toHaveBeenCalledTimes(2);
 
 			stdout = context.stdout.toString();
 		});
@@ -76,10 +69,10 @@ describe('buildStartCommand', () => {
 			);
 
 			await advanceFastDebounce();
-			expect(FakeGenerateCommand.executeMock).toHaveBeenCalledTimes(1);
+			expect(runGenerate).toHaveBeenCalledTimes(1);
 
 			await advanceSlowDebounce();
-			expect(FakeGenerateCommand.executeMock).toHaveBeenCalledTimes(2);
+			expect(runGenerate).toHaveBeenCalledTimes(2);
 		});
 	});
 
@@ -89,7 +82,7 @@ describe('buildStartCommand', () => {
 			await emitChange(watcher, 'wpk.config.ts');
 
 			await advanceFastDebounce(1);
-			expect(FakeGenerateCommand.executeMock).toHaveBeenCalledTimes(2);
+			expect(runGenerate).toHaveBeenCalledTimes(2);
 		});
 	});
 
@@ -104,9 +97,7 @@ describe('buildStartCommand', () => {
 				await emitChange(watcher, 'wpk.config.ts');
 				await advanceFastDebounce(1);
 
-				expect(FakeGenerateCommand.executeMock).toHaveBeenCalledTimes(
-					2
-				);
+				expect(runGenerate).toHaveBeenCalledTimes(2);
 				await expectEventually(() => {
 					expect(fsCp).toHaveBeenCalledTimes(2);
 				});
@@ -131,23 +122,36 @@ describe('buildStartCommand', () => {
 
 	it('queues additional changes while a run is in progress', async () => {
 		let resolveFirst: (() => void) | undefined;
-		FakeGenerateCommand.executeMock
-			.mockImplementationOnce(
-				() =>
-					new Promise((resolve) => {
-						resolveFirst = () => resolve(WPK_EXIT_CODES.SUCCESS);
-					})
-			)
-			.mockResolvedValue(WPK_EXIT_CODES.SUCCESS);
+		const successResult = {
+			exitCode: WPK_EXIT_CODES.SUCCESS,
+			summary: {
+				counts: {
+					written: 0,
+					unchanged: 0,
+					skipped: 0,
+				},
+				entries: [],
+				dryRun: false,
+			},
+			output: '[summary]\n',
+		};
+
+		runGenerate.mockImplementationOnce(
+			() =>
+				new Promise((resolve) => {
+					resolveFirst = () => resolve(successResult);
+				})
+		);
+		runGenerate.mockResolvedValue(successResult);
 
 		await withStartCommand(async ({ watcher, shutdown }) => {
 			await emitChange(watcher, 'wpk.config.ts');
 			await advanceFastDebounce(1);
-			expect(FakeGenerateCommand.executeMock).toHaveBeenCalledTimes(1);
+			expect(runGenerate).toHaveBeenCalledTimes(1);
 
 			resolveFirst?.();
 			await advanceFastDebounce(1);
-			expect(FakeGenerateCommand.executeMock).toHaveBeenCalledTimes(2);
+			expect(runGenerate).toHaveBeenCalledTimes(2);
 
 			await shutdown(['SIGINT', 'SIGTERM']);
 		});
@@ -159,7 +163,7 @@ describe('buildStartCommand', () => {
 			await shutdown();
 		});
 
-		expect(FakeGenerateCommand.executeMock).toHaveBeenCalledTimes(1);
+		expect(runGenerate).toHaveBeenCalledTimes(1);
 	});
 
 	it('restarts debounce timers when repeated fast events arrive', async () => {
@@ -168,23 +172,31 @@ describe('buildStartCommand', () => {
 			await emitChange(watcher, 'wpk.config.ts');
 
 			await advanceBy(FAST_DEBOUNCE_MS - 1);
-			expect(FakeGenerateCommand.executeMock).toHaveBeenCalledTimes(1);
+			expect(runGenerate).toHaveBeenCalledTimes(1);
 
 			await advanceBy(1);
-			expect(FakeGenerateCommand.executeMock).toHaveBeenCalledTimes(2);
+			expect(runGenerate).toHaveBeenCalledTimes(2);
 		});
 	});
 
 	it('retains queued triggers while generation is running', async () => {
-		let resolveGeneration: ((code: number) => void) | null = null;
-		FakeGenerateCommand.executeMock
+		let resolveGeneration: ((result: unknown) => void) | null = null;
+		runGenerate
 			.mockImplementationOnce(
 				() =>
-					new Promise<number>((resolve) => {
+					new Promise((resolve) => {
 						resolveGeneration = resolve;
 					})
 			)
-			.mockResolvedValueOnce(WPK_EXIT_CODES.SUCCESS);
+			.mockResolvedValueOnce({
+				exitCode: WPK_EXIT_CODES.SUCCESS,
+				summary: {
+					counts: { written: 0, unchanged: 0, skipped: 0 },
+					entries: [],
+					dryRun: false,
+				},
+				output: '[summary]\n',
+			});
 
 		await withStartCommand(
 			async ({ watcher, reporterHarness: harness }) => {
@@ -202,7 +214,15 @@ describe('buildStartCommand', () => {
 					})
 				);
 
-				resolveGeneration?.(WPK_EXIT_CODES.SUCCESS);
+				resolveGeneration?.({
+					exitCode: WPK_EXIT_CODES.SUCCESS,
+					summary: {
+						counts: { written: 0, unchanged: 0, skipped: 0 },
+						entries: [],
+						dryRun: false,
+					},
+					output: '[summary]\n',
+				});
 				await advanceFastDebounce();
 			}
 		);
@@ -247,18 +267,30 @@ describe('buildStartCommand', () => {
 		const reporter = reporterHarness.create();
 		const generateReporter = reporterHarness.create();
 
-		FakeGenerateCommand.executeMock.mockReset();
-		FakeGenerateCommand.executeMock.mockResolvedValue(
-			WPK_EXIT_CODES.SUCCESS
-		);
-		FakeGenerateCommand.executeMock.mockImplementationOnce(
-			async () => WPK_EXIT_CODES.UNEXPECTED_ERROR
-		);
+		runGenerate.mockReset();
+		runGenerate.mockResolvedValue({
+			exitCode: WPK_EXIT_CODES.SUCCESS,
+			summary: {
+				counts: { written: 0, unchanged: 0, skipped: 0 },
+				entries: [],
+				dryRun: false,
+			},
+			output: '[summary]\n',
+		});
+		runGenerate.mockImplementationOnce(async () => ({
+			exitCode: WPK_EXIT_CODES.UNEXPECTED_ERROR,
+			summary: null,
+			output: null,
+		}));
 
 		await (
 			command as unknown as {
 				runCycle: (options: {
-					trigger: Trigger;
+					trigger: {
+						tier: 'fast' | 'slow';
+						event: string;
+						file: string;
+					};
 					reporter: ReturnType<typeof reporterHarness.create>;
 					generateReporter: ReturnType<typeof reporterHarness.create>;
 				}) => Promise<void>;
@@ -273,10 +305,12 @@ describe('buildStartCommand', () => {
 			generateReporter,
 		});
 
-		expect(FakeGenerateCommand.executeMock).toHaveBeenCalledTimes(1);
-		await expect(
-			FakeGenerateCommand.executeMock.mock.results[0]?.value
-		).resolves.toBe(WPK_EXIT_CODES.UNEXPECTED_ERROR);
+		expect(runGenerate).toHaveBeenCalledTimes(1);
+		await expect(runGenerate.mock.results[0]?.value).resolves.toEqual(
+			expect.objectContaining({
+				exitCode: WPK_EXIT_CODES.UNEXPECTED_ERROR,
+			})
+		);
 		expect(reporter.warn).toHaveBeenCalledWith(
 			'Generation completed with errors.',
 			{ exitCode: WPK_EXIT_CODES.UNEXPECTED_ERROR }
@@ -290,18 +324,28 @@ describe('buildStartCommand', () => {
 		const generateReporter = reporterHarness.create();
 		const failure = new Error('pipeline failure');
 
-		FakeGenerateCommand.executeMock.mockReset();
-		FakeGenerateCommand.executeMock.mockResolvedValue(
-			WPK_EXIT_CODES.SUCCESS
-		);
-		FakeGenerateCommand.executeMock.mockImplementationOnce(async () => {
+		runGenerate.mockReset();
+		runGenerate.mockResolvedValue({
+			exitCode: WPK_EXIT_CODES.SUCCESS,
+			summary: {
+				counts: { written: 0, unchanged: 0, skipped: 0 },
+				entries: [],
+				dryRun: false,
+			},
+			output: '[summary]\n',
+		});
+		runGenerate.mockImplementationOnce(async () => {
 			throw failure;
 		});
 
 		await (
 			command as unknown as {
 				runCycle: (options: {
-					trigger: Trigger;
+					trigger: {
+						tier: 'fast' | 'slow';
+						event: string;
+						file: string;
+					};
 					reporter: ReturnType<typeof reporterHarness.create>;
 					generateReporter: ReturnType<typeof reporterHarness.create>;
 				}) => Promise<void>;
@@ -316,10 +360,10 @@ describe('buildStartCommand', () => {
 			generateReporter,
 		});
 
-		expect(FakeGenerateCommand.executeMock).toHaveBeenCalledTimes(1);
-		await expect(
-			FakeGenerateCommand.executeMock.mock.results[0]?.value
-		).rejects.toThrow('pipeline failure');
+		expect(runGenerate).toHaveBeenCalledTimes(1);
+		await expect(runGenerate.mock.results[0]?.value).rejects.toThrow(
+			'pipeline failure'
+		);
 		expect(reporter.error).toHaveBeenCalledWith(
 			'Generation pipeline failed to execute.',
 			expect.objectContaining({ message: failure.message })
@@ -369,9 +413,34 @@ describe('buildStartCommand', () => {
 		expect(child?.kill).toHaveBeenCalledWith('SIGINT');
 	});
 
+	it('passes the requested package manager to the Vite spawner', async () => {
+		const command = createStartCommandInstance();
+		const startCommand = command as unknown as {
+			packageManagerValue: string;
+		};
+		startCommand.packageManagerValue = 'yarn';
+
+		const executePromise = command.execute();
+		await advanceFastDebounce();
+		process.emit('SIGINT');
+		await advanceFastDebounce();
+		await executePromise;
+
+		expect(spawnViteProcess).toHaveBeenCalledWith('yarn');
+	});
+
 	it('spawns Vite using the default implementation when no override is provided', async () => {
 		jest.resetModules();
 		const spawnMock = jest.fn(() => new FakeChildProcess());
+		const generateStub = jest.fn().mockResolvedValue({
+			exitCode: WPK_EXIT_CODES.SUCCESS,
+			summary: {
+				counts: { written: 0, unchanged: 0, skipped: 0 },
+				entries: [],
+				dryRun: false,
+			},
+			output: null,
+		});
 		jest.doMock('node:child_process', () => ({
 			spawn: spawnMock,
 			execFile: jest.fn(),
@@ -384,9 +453,7 @@ describe('buildStartCommand', () => {
 		const StartCommand = importBuildStartCommand({
 			loadWatch,
 			buildReporter: reporterFactory,
-			buildGenerateCommand: () =>
-				FakeGenerateCommand as unknown as GenerateConstructor,
-			adoptCommandEnvironment: jest.fn(),
+			runGenerate: generateStub,
 			fileSystem: {
 				access: fsAccess,
 				mkdir: fsMkdir,
@@ -404,7 +471,7 @@ describe('buildStartCommand', () => {
 		await executePromise;
 
 		expect(spawnMock).toHaveBeenCalledWith(
-			'pnpm',
+			'npm',
 			['exec', 'vite'],
 			expect.objectContaining({ cwd: process.cwd() })
 		);
@@ -512,8 +579,7 @@ describe('buildStartCommand', () => {
 			loadWatch,
 			spawnViteProcess,
 			buildReporter: reporterFactory,
-			buildGenerateCommand: () =>
-				FakeGenerateCommand as unknown as GenerateConstructor,
+			runGenerate,
 			fileSystem: {
 				access: fsAccess,
 				mkdir: fsMkdir,
@@ -527,37 +593,6 @@ describe('buildStartCommand', () => {
 		const exitCode = await command.execute();
 		expect(exitCode).toBe(WPK_EXIT_CODES.UNEXPECTED_ERROR);
 		expect(loadWatch).not.toHaveBeenCalled();
-	});
-
-	it('detects slow tiers for contract and schema paths', () => {
-		expect(detectTier('contracts/item.schema.json')).toBe('slow');
-		expect(detectTier('schemas/foo.json')).toBe('slow');
-		expect(detectTier(path.resolve('schemas/absolute.json'))).toBe('slow');
-		expect(detectTier('src/resources/post.ts')).toBe('fast');
-		expect(detectTier(process.cwd())).toBe('fast');
-	});
-
-	it('prioritises queued triggers preferring slow changes', () => {
-		const fastTrigger: Trigger = {
-			tier: 'fast',
-			event: 'change',
-			file: 'wpk.config.ts',
-		};
-		const slowTrigger: Trigger = {
-			tier: 'slow',
-			event: 'change',
-			file: 'contracts/item.schema.json',
-		};
-		const anotherFast: Trigger = {
-			tier: 'fast',
-			event: 'change',
-			file: 'wpk.config.ts',
-		};
-
-		expect(prioritiseQueued(null, fastTrigger)).toBe(fastTrigger);
-		expect(prioritiseQueued(fastTrigger, slowTrigger)).toBe(slowTrigger);
-		expect(prioritiseQueued(slowTrigger, fastTrigger)).toBe(slowTrigger);
-		expect(prioritiseQueued(fastTrigger, anotherFast)).toBe(anotherFast);
 	});
 
 	it('reports when auto-apply fails to copy artifacts', async () => {
@@ -586,18 +621,22 @@ describe('buildStartCommand', () => {
 	});
 
 	it('formats workspace-relative paths when auto-applying artifacts', async () => {
+		const layoutPaths = await resolveStartLayoutPaths();
 		const realResolve = path.resolve.bind(path);
 		const resolveSpy = jest
 			.spyOn(path, 'resolve')
 			.mockImplementation((...segments: string[]) => {
 				if (
 					segments[0] === process.cwd() &&
-					segments[1] === '.generated/php'
+					segments[1] === layoutPaths.phpGenerated
 				) {
 					return process.cwd();
 				}
-				if (segments[0] === process.cwd() && segments[1] === 'inc') {
-					return path.join(process.cwd(), 'inc');
+				if (
+					segments[0] === process.cwd() &&
+					segments[1] === layoutPaths.phpTargetDir
+				) {
+					return path.join(process.cwd(), layoutPaths.phpTargetDir);
 				}
 
 				return realResolve(...segments);
@@ -607,8 +646,7 @@ describe('buildStartCommand', () => {
 			loadWatch,
 			spawnViteProcess,
 			buildReporter: reporterFactory,
-			buildGenerateCommand: () =>
-				FakeGenerateCommand as unknown as GenerateConstructor,
+			runGenerate,
 			fileSystem: {
 				access: fsAccess,
 				mkdir: fsMkdir,
@@ -673,9 +711,7 @@ describe('buildStartCommand', () => {
 
 			const StartCommand = importBuildStartCommand({
 				buildReporter: () => reporterHarness.create(),
-				buildGenerateCommand: () =>
-					FakeGenerateCommand as unknown as GenerateConstructor,
-				adoptCommandEnvironment: jest.fn(),
+				runGenerate,
 				fileSystem: {
 					access: fsAccess,
 					mkdir: fsMkdir,
@@ -725,9 +761,7 @@ describe('buildStartCommand', () => {
 
 			const StartCommand = importBuildStartCommand({
 				buildReporter: () => reporterHarness.create(),
-				buildGenerateCommand: () =>
-					FakeGenerateCommand as unknown as GenerateConstructor,
-				adoptCommandEnvironment: jest.fn(),
+				runGenerate,
 				fileSystem: {
 					access: fsAccess,
 					mkdir: fsMkdir,
@@ -765,9 +799,7 @@ describe('buildStartCommand', () => {
 
 			const StartCommand = importBuildStartCommand({
 				buildReporter: () => reporterHarness.create(),
-				buildGenerateCommand: () =>
-					FakeGenerateCommand as unknown as GenerateConstructor,
-				adoptCommandEnvironment: jest.fn(),
+				runGenerate,
 				fileSystem: {
 					access: fsAccess,
 					mkdir: fsMkdir,

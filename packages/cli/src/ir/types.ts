@@ -6,6 +6,7 @@ import type {
 	IRDiagnostic,
 	IRCapabilityHint,
 	IRCapabilityMap,
+	IRLayout,
 	IRPhpProject,
 	IRResource,
 	IRReferenceSummary,
@@ -29,6 +30,7 @@ export interface MutableIr {
 	capabilityMap: IRCapabilityMap | null;
 	blocks: IRBlock[];
 	php: IRPhpProject | null;
+	layout: IRLayout | null;
 	ui: IRUiSurface | null;
 	diagnostics: IRDiagnostic[];
 	references: IRReferenceSummary | null;
@@ -45,6 +47,7 @@ export function buildIrDraft(options: BuildIrOptions): MutableIr {
 		capabilityMap: null,
 		blocks: [],
 		php: null,
+		layout: null,
 		ui: null,
 		diagnostics: [],
 		references: null,
@@ -54,6 +57,7 @@ export function buildIrDraft(options: BuildIrOptions): MutableIr {
 
 const CORE_FRAGMENT_PREFIXES = [
 	'ir.meta.',
+	'ir.layout.',
 	'ir.schemas.',
 	'ir.resources.',
 	'ir.ui.',
@@ -123,6 +127,13 @@ export function finalizeIrDraft(
 		});
 	}
 
+	if (!draft.layout) {
+		throw new WPKernelError('ValidationError', {
+			message:
+				'IR layout fragment did not resolve layout before pipeline completion.',
+		});
+	}
+
 	const diagnostics =
 		draft.diagnostics.length > 0 ? draft.diagnostics.slice() : undefined;
 	const references = draft.references ? { ...draft.references } : undefined;
@@ -136,6 +147,7 @@ export function finalizeIrDraft(
 		capabilityMap: draft.capabilityMap,
 		blocks: draft.blocks,
 		php: draft.php,
+		layout: draft.layout,
 		ui: draft.ui ?? undefined,
 		diagnostics,
 		references,
@@ -164,6 +176,7 @@ export function buildIrFragmentOutput(draft: MutableIr): IrFragmentOutput {
 				['capabilityMap', partial.capabilityMap],
 				['blocks', partial.blocks],
 				['php', partial.php],
+				['layout', partial.layout],
 				['ui', partial.ui],
 				['diagnostics', partial.diagnostics],
 				['references', partial.references],

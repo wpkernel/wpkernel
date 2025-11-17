@@ -9,6 +9,10 @@ import type {
 	IRv1,
 } from '../../ir/publicTypes';
 import type { WPKernelConfigV1 } from '../../config/types';
+import path from 'path';
+import { loadTestLayoutSync } from '../../tests/layout.test-support';
+
+const layout = loadTestLayoutSync();
 
 describe('deriveResourceBlocks', () => {
 	it('derives manifest attributes from schema definitions', () => {
@@ -62,7 +66,7 @@ describe('deriveResourceBlocks', () => {
 			resources: [
 				makeResource('Alpha Resource', schemaWithAttributes.key),
 			],
-			phpOutputDir: '.generated/php',
+			phpOutputDir: layout.resolve('php.generated'),
 		});
 
 		const derived = deriveResourceBlocks({
@@ -75,9 +79,16 @@ describe('deriveResourceBlocks', () => {
 
 		expect(entry.block).toMatchObject({
 			key: 'test-namespace/alpha-resource',
-			directory: '.generated/blocks/alpha-resource',
+			directory: path.posix.join(
+				layout.resolve('blocks.generated'),
+				'alpha-resource'
+			),
 			hasRender: false,
-			manifestSource: '.generated/blocks/alpha-resource/block.json',
+			manifestSource: path.posix.join(
+				layout.resolve('blocks.generated'),
+				'alpha-resource',
+				'block.json'
+			),
 		});
 		expect(entry.kind).toBe('js');
 		expect(entry.block.id).toEqual(expect.stringMatching(/^blk:/));
@@ -169,9 +180,13 @@ describe('deriveResourceBlocks', () => {
 				}),
 				makeResource('!!!', schemaWithoutObject.key),
 			],
-			phpOutputDir: '.generated/php',
+			phpOutputDir: layout.resolve('php.generated'),
 		});
 
+		const existingBlockDir = path.posix.join(
+			layout.resolve('blocks.generated'),
+			'existing-resource'
+		);
 		const existingBlock: IRBlock = {
 			id: 'blk:test-namespace/existing-resource',
 			hash: makeHash('existing-block', [
@@ -181,9 +196,9 @@ describe('deriveResourceBlocks', () => {
 				'manifestSource',
 			]),
 			key: 'test-namespace/existing-resource',
-			directory: '.generated/blocks/existing-resource',
+			directory: existingBlockDir,
 			hasRender: false,
-			manifestSource: '.generated/blocks/existing-resource/block.json',
+			manifestSource: path.posix.join(existingBlockDir, 'block.json'),
 		};
 
 		const derived = deriveResourceBlocks({
@@ -233,7 +248,7 @@ describe('deriveResourceBlocks', () => {
 					blocks: { mode: 'ssr' },
 				}),
 			],
-			phpOutputDir: '.generated/php',
+			phpOutputDir: layout.resolve('php.generated'),
 		});
 
 		const derived = deriveResourceBlocks({
@@ -329,8 +344,9 @@ function makeIr(options?: {
 		php: {
 			namespace,
 			autoload: 'inc/',
-			outputDir: options?.phpOutputDir ?? '.generated/php',
+			outputDir: options?.phpOutputDir ?? layout.resolve('php.generated'),
 		},
+		layout,
 		diagnostics: [],
 	} satisfies IRv1;
 }

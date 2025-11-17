@@ -3,7 +3,6 @@ import { type TsBuilderCreator } from '../types';
 import { loadTsMorph } from './runtime.loader';
 import { buildModuleSpecifier } from './shared.imports';
 import { toCamelCase } from './shared.metadata';
-import { GENERATED_ROOT } from './pipeline.creator.adminScreen';
 
 /**
  * Builds a `TsBuilderCreator` for generating DataView fixture modules.
@@ -20,8 +19,7 @@ export function buildDataViewFixtureCreator(): TsBuilderCreator {
 			const { VariableDeclarationKind } = await loadTsMorph();
 			const { descriptor } = context;
 			const fixturePath = path.join(
-				GENERATED_ROOT,
-				'ui',
+				context.paths.uiGenerated,
 				'fixtures',
 				'dataviews',
 				`${descriptor.key}.ts`

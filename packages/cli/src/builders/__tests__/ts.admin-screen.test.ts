@@ -20,6 +20,7 @@ import type { Workspace } from '../../workspace';
 import { makeIr } from '../../tests/ir.test-support';
 import type { BuildIrOptions } from '../../ir/publicTypes';
 import { buildEmptyGenerationState } from '../../apply/manifest';
+import { loadTestLayout } from '../../tests/layout.test-support';
 
 jest.mock('../../commands/run-generate/validation', () => ({
 	validateGeneratedImports: jest.fn().mockResolvedValue(undefined),
@@ -103,15 +104,15 @@ describe('createTsBuilder - admin screen creator', () => {
 				undefined
 			);
 
-			const screenPath = path.join(
-				'.generated',
-				'ui',
+			const layout = await loadTestLayout({ cwd: workspace.root });
+			const screenPathFs = path.join(
+				layout.resolve('ui.generated'),
 				'app',
 				'job',
 				'admin',
 				'JobsAdminScreen.tsx'
 			);
-			const screenContents = await workspace.readText(screenPath);
+			const screenContents = await workspace.readText(screenPathFs);
 
 			expect(screenContents).toContain(
 				'/** @jsxImportSource @wordpress/element */'
@@ -138,7 +139,7 @@ describe('createTsBuilder - admin screen creator', () => {
 			const expectedResourceImport = normalise(
 				path
 					.relative(
-						path.dirname(workspace.resolve(screenPath)),
+						path.dirname(workspace.resolve(screenPathFs)),
 						workspace.resolve('src/resources/job.ts')
 					)
 					.replace(/\.(ts|tsx|js|jsx|mjs|cjs)$/u, '')
@@ -146,7 +147,7 @@ describe('createTsBuilder - admin screen creator', () => {
 			const expectedKernelImport = normalise(
 				path
 					.relative(
-						path.dirname(workspace.resolve(screenPath)),
+						path.dirname(workspace.resolve(screenPathFs)),
 						workspace.resolve('src/bootstrap/kernel.ts')
 					)
 					.replace(/\.(ts|tsx|js|jsx|mjs|cjs)$/u, '')
@@ -163,8 +164,12 @@ describe('createTsBuilder - admin screen creator', () => {
 			);
 			expect(screenContents).toContain('context: {');
 			expect(screenContents).toContain("resourceName: 'job'");
+
 			expect(output.actions.map((action) => action.file)).toContain(
-				screenPath
+				path.posix.join(
+					layout.resolve('ui.generated'),
+					'app/job/admin/JobsAdminScreen.tsx'
+				)
 			);
 		});
 	});
@@ -226,9 +231,9 @@ describe('createTsBuilder - admin screen creator', () => {
 				undefined
 			);
 
+			const layout = await loadTestLayout({ cwd: workspace.root });
 			const screenPath = path.join(
-				'.generated',
-				'ui',
+				layout.resolve('ui.generated'),
 				'app',
 				'Job Board',
 				'admin',
@@ -295,9 +300,9 @@ describe('createTsBuilder - admin screen creator', () => {
 				undefined
 			);
 
+			const layout = await loadTestLayout({ cwd: workspace.root });
 			const screenPath = path.join(
-				'.generated',
-				'ui',
+				layout.resolve('ui.generated'),
 				'app',
 				'Job Board',
 				'admin',
@@ -305,8 +310,17 @@ describe('createTsBuilder - admin screen creator', () => {
 			);
 			const screenContents = await workspace.readText(screenPath);
 
+			const expectedResourceImport = normalise(
+				path
+					.relative(
+						path.dirname(workspace.resolve(screenPath)),
+						workspace.resolve('src/resources/job-board.ts')
+					)
+					.replace(/\.(ts|tsx|js|jsx|mjs|cjs)$/u, '')
+			);
+
 			expect(screenContents).toContain(
-				"import { jobBoard } from '../../../../../src/resources/job-board';"
+				`import { jobBoard } from '${prefixRelative(expectedResourceImport)}';`
 			);
 			expect(screenContents).toContain(
 				"import { kernel } from '@/bootstrap/kernel';"
@@ -373,9 +387,9 @@ describe('createTsBuilder - admin screen creator', () => {
 				undefined
 			);
 
+			const layout = await loadTestLayout({ cwd: workspace.root });
 			const screenPath = path.join(
-				'.generated',
-				'ui',
+				layout.resolve('ui.generated'),
 				'app',
 				'job',
 				'admin',
@@ -441,9 +455,9 @@ describe('createTsBuilder - admin screen creator', () => {
 				undefined
 			);
 
+			const layout = await loadTestLayout({ cwd: workspace.root });
 			const screenPath = path.join(
-				'.generated',
-				'ui',
+				layout.resolve('ui.generated'),
 				'app',
 				'Job Board',
 				'admin',
@@ -522,9 +536,9 @@ describe('createTsBuilder - admin screen creator', () => {
 				undefined
 			);
 
+			const layout = await loadTestLayout({ cwd: workspace.root });
 			const screenPath = path.join(
-				'.generated',
-				'ui',
+				layout.resolve('ui.generated'),
 				'app',
 				'job',
 				'admin',

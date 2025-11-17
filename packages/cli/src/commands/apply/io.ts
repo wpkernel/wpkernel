@@ -1,7 +1,8 @@
 import { WPKernelError } from '@wpkernel/core/contracts';
 import type { BuilderOutput } from '../../runtime/types';
 import type { Workspace } from '../../workspace';
-import { PATCH_MANIFEST_PATH } from './constants';
+import { resolvePatchPaths } from '../../builders/patcher.paths';
+import { loadLayoutFromWorkspace } from '../../layout/manifest';
 import type { PatchManifest, PatchStatus } from './types';
 
 export function buildBuilderOutput(): BuilderOutput {
@@ -17,7 +18,8 @@ export function buildBuilderOutput(): BuilderOutput {
 export async function readManifest(
 	workspace: Workspace
 ): Promise<PatchManifest | null> {
-	const raw = await workspace.readText(PATCH_MANIFEST_PATH);
+	const manifestPath = await resolvePatchManifestPath(workspace);
+	const raw = await workspace.readText(manifestPath);
 	if (!raw) {
 		return null;
 	}
@@ -56,11 +58,20 @@ export async function readManifest(
 		throw new WPKernelError('DeveloperError', {
 			message: 'Failed to parse apply manifest.',
 			context: {
-				file: PATCH_MANIFEST_PATH,
+				file: manifestPath,
 				error: (error as Error).message,
 			},
 		});
 	}
+}
+
+async function resolvePatchManifestPath(workspace: Workspace): Promise<string> {
+	const layout = await loadLayoutFromWorkspace({
+		workspace,
+		strict: false,
+	});
+	const paths = resolvePatchPaths({ layout: layout ?? undefined });
+	return paths.manifestPath;
 }
 
 export function formatManifest(manifest: PatchManifest): string {

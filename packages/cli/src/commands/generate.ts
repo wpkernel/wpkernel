@@ -16,7 +16,6 @@ import type {
 	GenerateResult,
 	GenerateExecutionOptions,
 } from './generate/types';
-import { PATCH_MANIFEST_PATH } from './apply/constants';
 import { emitFatalError } from './fatal';
 import type { Workspace } from '../workspace';
 import {
@@ -30,6 +29,7 @@ import { runCommandReadiness } from './readiness';
 import { resolveCommandCwd } from './init/command-runtime';
 import { runWithProgress, formatDuration } from '../utils/progress';
 import { COMMAND_HELP } from '../cli/help';
+import { resolvePatchPaths } from '../builders/patcher.paths';
 
 // Re-export types from sub-modules for TypeDoc
 export type { GenerationSummary } from './run-generate/types';
@@ -39,6 +39,7 @@ export type {
 	FileWriteRecord,
 } from '../utils/file-writer';
 export type { ValidateGeneratedImportsOptions } from './run-generate/validation';
+export { runGenerateWorkflow };
 
 /**
  * Constructor for a Clipanion command.
@@ -61,7 +62,8 @@ function buildFailure(exitCode: WPKExitCode): GenerateResult {
 async function finalizeWorkspaceTransaction(
 	workspace: Workspace,
 	reporter: Reporter,
-	dryRun: boolean
+	dryRun: boolean,
+	manifestPath: string
 ): Promise<GenerateResult | null> {
 	if (dryRun) {
 		await workspace.rollback(TRANSACTION_LABEL);
@@ -70,13 +72,13 @@ async function finalizeWorkspaceTransaction(
 
 	await workspace.commit(TRANSACTION_LABEL);
 
-	const manifestExists = await workspace.exists(PATCH_MANIFEST_PATH);
+	const manifestExists = await workspace.exists(manifestPath);
 	if (manifestExists) {
 		return null;
 	}
 
 	const context = {
-		manifestPath: PATCH_MANIFEST_PATH,
+		manifestPath,
 		workspace: workspace.root,
 	} as const;
 	const message = 'Failed to locate apply manifest after generation.';
@@ -192,11 +194,23 @@ async function runGenerateWorkflow(
 				...writerSummary,
 				dryRun,
 			};
+			const artifactPaths = result.ir?.layout
+				? {
+						php: result.ir.layout.resolve('php.generated'),
+						ui: result.ir.layout.resolve('ui.generated'),
+						js: result.ir.layout.resolve('js.generated'),
+					}
+				: undefined;
+
+			const patchPaths = resolvePatchPaths({
+				layout: result.ir?.layout,
+			});
 
 			const manifestFailure = await finalizeWorkspaceTransaction(
 				tracked.workspace,
 				reporter,
-				dryRun
+				dryRun,
+				patchPaths.manifestPath
 			);
 
 			if (manifestFailure) {
@@ -230,7 +244,8 @@ async function runGenerateWorkflow(
 			const output = dependencies.renderSummary(
 				writerSummary,
 				dryRun,
-				verbose
+				verbose,
+				artifactPaths
 			);
 
 			return {

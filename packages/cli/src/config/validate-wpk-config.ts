@@ -336,6 +336,9 @@ const wpkConfigValidator = t.isObject(
 	{
 		version: t.isOptional(t.isLiteral(1)),
 		namespace: t.isString(),
+		directories: t.isOptional(
+			t.isRecord(t.isString(), { keys: t.isString() })
+		),
 		schemas: t.isRecord(schemaConfigValidator),
 		resources: t.isRecord(resourceConfigValidator),
 		adapters: t.isOptional(adaptersValidator),

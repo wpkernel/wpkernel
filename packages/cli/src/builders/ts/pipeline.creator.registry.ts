@@ -1,6 +1,5 @@
 import path from 'path';
 import { type TsBuilderCreator } from '../types';
-import { GENERATED_ROOT } from './pipeline.creator.adminScreen';
 import { loadTsMorph } from './runtime.loader';
 import { buildModuleSpecifier } from './shared.imports';
 import { toCamelCase } from './shared.metadata';
@@ -28,8 +27,7 @@ export function buildDataViewRegistryCreator(): TsBuilderCreator {
 			const { VariableDeclarationKind } = await loadTsMorph();
 			const { descriptor } = context;
 			const registryPath = path.join(
-				GENERATED_ROOT,
-				'ui',
+				context.paths.uiGenerated,
 				'registry',
 				'dataviews',
 				`${descriptor.key}.ts`

@@ -31,11 +31,11 @@ const COMMAND_HELP: CommandHelpMap = {
 			].join('\n\n'),
 			[
 				'Key options:',
-				'- `--package-manager <npm|pnpm|yarn>` – override the detected/`WPK_PACKAGE_MANAGER` default.',
-				'- `--force` – allow WPKernel to overwrite existing files.',
-				'- `--allow-dirty` (`-D`) – bypass git cleanliness checks when you just want to run in a dirty workspace.',
-				'- `--prefer-registry-versions` – install published versions instead of linking workspace packages.',
-				'- `--name` – override the namespace slug (defaults to the directory name).',
+				'- `--package-manager <npm|pnpm|yarn>` - override the detected/`WPK_PACKAGE_MANAGER` default.',
+				'- `--force` - allow WPKernel to overwrite existing files.',
+				'- `--allow-dirty` (`-D`) - bypass git cleanliness checks when you just want to run in a dirty workspace.',
+				'- `--prefer-registry-versions` - install published versions instead of linking workspace packages.',
+				'- `--name` - override the namespace slug (defaults to the directory name).',
 			].join('\n\n'),
 			[
 				'Tips:',
@@ -54,6 +54,7 @@ const COMMAND_HELP: CommandHelpMap = {
 			],
 		] as [string, string][],
 	},
+
 	init: {
 		summary:
 			'Wire WPKernel tooling into an existing project without scaffolding new files.',
@@ -71,23 +72,25 @@ const COMMAND_HELP: CommandHelpMap = {
 			],
 		] as [string, string][],
 	},
+
 	generate: {
 		summary:
 			'Compile wpk.config.* into PHP bridges, TypeScript clients, and capability maps.',
 		description:
-			'Runs the generation pipeline: loads config, builds the IR, writes `.generated/` artifacts, and records an apply manifest.',
+			'Runs the generation pipeline: loads config, builds the IR, writes artifacts into the layout-defined generation directories, and updates the apply state manifest.',
 		details: [
 			[
 				'Flags:',
-				'- `--dry-run` – show a summary of changes without writing files.',
-				'- `--verbose` – emit transport/cache debug logs during pipeline execution.',
-				'- `--allow-dirty` (`-D`) – run even if git has pending changes (useful in CI environments).',
+				'- `--dry-run` - show a summary of changes without writing files.',
+				'- `--verbose` - emit transport/cache debug logs during pipeline execution.',
+				'- `--allow-dirty` (`-D`) - run even if git has pending changes (useful in CI environments).',
 			].join('\n\n'),
 			[
-				'Outputs:',
-				'- `.generated/php/**` bridges for REST + Composer.',
-				'- `.generated/ts/**` typed clients, reporters, and DataViews helpers.',
-				'- `.wpk/manifest.json` used later by `wpk apply`.',
+				'Outputs (layout-aware):',
+				'- PHP bridges and controllers under the configured `php.generated` directory.',
+				'- JavaScript capability runtime under the configured `js.generated` directory.',
+				'- Admin UI assets under the configured `ui.generated` directory.',
+				'- An apply state manifest used later by `wpk apply` (paths are taken from `layout.manifest.json`).',
 			].join('\n\n'),
 		].join('\n\n'),
 		examples: [
@@ -99,6 +102,7 @@ const COMMAND_HELP: CommandHelpMap = {
 			['Capture detailed logs', 'wpk generate --verbose'],
 		] as [string, string][],
 	},
+
 	apply: {
 		summary:
 			'Apply the pending patch manifest written by `wpk generate`, with interactive or auto approval.',
@@ -107,16 +111,16 @@ const COMMAND_HELP: CommandHelpMap = {
 		details: [
 			[
 				'Flags:',
-				'- `--yes` – skip the interactive prompt and apply immediately.',
-				'- `--backup` – snapshot the workspace before applying (stores `.wpk/backup-*`).',
-				'- `--force` – apply even when git detects pending changes or overwriting files.',
-				'- `--cleanup <path>` – delete leftover shim paths before applying (repeatable).',
-				'- `--allow-dirty` (`-D`) – bypass git safety checks in CI environments.',
+				'- `--yes` - skip the interactive prompt and apply immediately.',
+				'- `--backup` - snapshot the workspace before applying (stores backups under the configured backup directory).',
+				'- `--force` - apply even when git detects pending changes or overwriting files.',
+				'- `--cleanup <path>` - delete leftover shim paths before applying (repeatable).',
+				'- `--allow-dirty` (`-D`) - bypass git safety checks in CI environments.',
 			].join('\n\n'),
 			[
 				'Workflow:',
-				'1. Loads `.wpk/manifest.json` produced by `wpk generate`.',
-				'2. Shows a colorized preview; without `--yes` you can accept/abort.',
+				'1. Loads the apply manifest produced by `wpk generate` (location is defined in `layout.manifest.json`).',
+				'2. Shows a colourised preview; without `--yes` you can accept/abort.',
 				'3. Writes files, optionally restores backups on failure.',
 			].join('\n\n'),
 		].join('\n\n'),
@@ -128,6 +132,7 @@ const COMMAND_HELP: CommandHelpMap = {
 			],
 		] as [string, string][],
 	},
+
 	doctor: {
 		summary:
 			'Run readiness helpers plus workspace, Composer, and configuration health checks.',
@@ -143,6 +148,7 @@ const COMMAND_HELP: CommandHelpMap = {
 			['Capture output for CI artifacts', 'wpk doctor > doctor.log'],
 		] as [string, string][],
 	},
+
 	start: {
 		summary:
 			'Watch config + source files, regenerate on change, and launch the Vite dev server.',
@@ -151,8 +157,8 @@ const COMMAND_HELP: CommandHelpMap = {
 		details: [
 			[
 				'Flags:',
-				'- `--verbose` – stream watcher + Vite diagnostics.',
-				'- `--auto-apply` – automatically re-run `wpk apply --yes` when PHP artifacts change.',
+				'- `--verbose` - stream watcher + Vite diagnostics.',
+				'- `--auto-apply` - automatically re-run `wpk apply --yes` when PHP artifacts change.',
 				'- The command prints the local dev URL once Vite is ready. Press Ctrl+C to stop both the watcher and Vite.',
 			].join('\n\n'),
 		].join('\n'),
@@ -172,8 +178,8 @@ const CLI_HELP = {
 	details: [
 		[
 			'Flags',
-			'- `--version` (`-v`) — print the CLI version and exit.',
-			'- `--package-manager <npm|pnpm|yarn>` (`-p` / `-pm`) — available on `wpk create` and `wpk init` to force the installer (falls back to `WPK_PACKAGE_MANAGER`).',
+			'- `--version` (`-v`) - print the CLI version and exit.',
+			'- `--package-manager <npm|pnpm|yarn>` (`-p` / `-pm`) - available on `wpk create` and `wpk init` to force the installer (falls back to `WPK_PACKAGE_MANAGER`).',
 		].join('\n\n'),
 		[
 			'Common workflow:',
@@ -186,10 +192,10 @@ const CLI_HELP = {
 		].join('\n\n'),
 		[
 			'Environment variables:',
-			'- `WPK_PACKAGE_MANAGER` — default package manager (npm/pnpm/yarn).',
-			'- `WPK_PREFER_REGISTRY_VERSIONS` — set to 1 to prefer published packages when installing.',
-			'- `REGISTRY_URL` — override the npm registry used by installers.',
-			'- `WPK_INIT_INSTALL_NODE_MAX_MS` / `WPK_INIT_INSTALL_COMPOSER_MAX_MS` — installer timeouts (ms).',
+			'- `WPK_PACKAGE_MANAGER` - default package manager (npm/pnpm/yarn).',
+			'- `WPK_PREFER_REGISTRY_VERSIONS` - set to 1 to prefer published packages when installing.',
+			'- `REGISTRY_URL` - override the npm registry used by installers.',
+			'- `WPK_INIT_INSTALL_NODE_MAX_MS` / `WPK_INIT_INSTALL_COMPOSER_MAX_MS` - installer timeouts (ms).',
 		].join('\n\n'),
 		'Every command supports `wpk <command> --help` for option-level guidance.',
 	].join('\n\n'),

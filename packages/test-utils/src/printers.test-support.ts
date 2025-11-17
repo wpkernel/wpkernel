@@ -7,6 +7,9 @@ import type {
 	IRv1Like,
 	WPKConfigV1Like,
 } from './types.js';
+import { loadDefaultLayout } from './layout.test-support.js';
+
+const testLayout = loadDefaultLayout();
 
 export interface MakeWPKernelConfigFixtureOptions {
 	readonly namespace?: string;
@@ -18,11 +21,12 @@ export interface MakeWPKernelConfigFixtureOptions {
 export function makeWPKernelConfigFixture(
 	options: MakeWPKernelConfigFixtureOptions = {}
 ): WPKConfigV1Like {
+	const typesRoot = testLayout.resolve('php.generated');
 	const defaultSchemas: WPKConfigV1Like['schemas'] = {
 		job: {
 			path: './contracts/job.schema.json',
 			generated: {
-				types: './.generated/../types/job.d.ts',
+				types: `./${typesRoot}/../types/job.d.ts`,
 			},
 		},
 	};
@@ -135,7 +139,7 @@ export function makePrinterIrFixture({
 	php = {
 		namespace: 'Demo\\Namespace',
 		autoload: 'inc/',
-		outputDir: '.generated/php',
+		outputDir: testLayout.resolve('php.generated'),
 	},
 	meta: metaOverrides = {},
 	diagnostics,

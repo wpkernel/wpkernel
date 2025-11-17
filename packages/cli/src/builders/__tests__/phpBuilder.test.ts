@@ -351,7 +351,10 @@ describe('createPhpBuilder', () => {
 			'base-controller-ast'
 		);
 
-		const pluginLoaderPath = workspace.resolve('.', 'plugin.php');
+		const pluginLoaderPath = workspace.resolve(
+			ir.php.outputDir,
+			'plugin.php'
+		);
 		const pluginLoaderCall = prettyPrint.mock.calls.find(
 			([payload]) => payload.filePath === pluginLoaderPath
 		);

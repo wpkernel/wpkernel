@@ -14,6 +14,7 @@ import { buildTsFormatter } from '../../builders/ts';
 import { makeWorkspaceMock } from '../../../tests/workspace.test-support';
 import type { Workspace } from '../../workspace';
 import { buildEmptyGenerationState } from '../../apply/manifest';
+import { loadTestLayoutSync } from '../../tests/layout.test-support';
 
 jest.mock('../../adapters', () => ({
 	runAdapterExtensions: jest.fn(),
@@ -58,8 +59,8 @@ function buildOptions(
 				ReturnType<Workspace['resolve']>,
 				Parameters<Workspace['resolve']>
 			>()
-			.mockImplementation((value: string) =>
-				path.join('/tmp/workspace', value)
+			.mockImplementation((value?: string) =>
+				value ? path.join('/tmp/workspace', value) : '/tmp/workspace'
 			),
 		write: jest
 			.fn<
@@ -78,6 +79,7 @@ function buildOptions(
 			sourcePath: '/tmp/workspace/wpk.config.ts',
 			version: 1,
 		},
+		layout: loadTestLayoutSync(),
 	} as unknown as IRv1;
 
 	const generationState = buildEmptyGenerationState();
@@ -258,7 +260,9 @@ describe('buildAdapterExtensionsExtension', () => {
 		]);
 		expect(args?.adapterContext.ir).toBe(ir);
 		expect(args?.outputDir).toBe(
-			options.options.workspace.resolve('.generated')
+			options.options.workspace.resolve(
+				loadTestLayoutSync().resolve('js.generated')
+			)
 		);
 		expect(args?.configDirectory).toBe(
 			path.dirname(options.options.sourcePath)

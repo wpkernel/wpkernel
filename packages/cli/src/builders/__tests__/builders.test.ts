@@ -7,6 +7,7 @@ import type { BuildIrOptions, IRv1 } from '../../ir/publicTypes';
 import type { BuilderOutput } from '../../runtime/types';
 import type { Workspace } from '../../workspace/types';
 import { makeWorkspaceMock } from '../../../tests/workspace.test-support';
+import { loadTestLayoutSync } from '../../tests/layout.test-support';
 import {
 	buildReporter,
 	buildOutput,
@@ -45,6 +46,8 @@ const buildOptions: BuildIrOptions = {
 	sourcePath: '/workspace/wpk.config.ts',
 };
 
+const layout = loadTestLayoutSync();
+
 const ir: IRv1 = {
 	meta: makeIrMeta('test', {
 		origin: 'typescript',
@@ -66,8 +69,9 @@ const ir: IRv1 = {
 	php: {
 		namespace: 'Test',
 		autoload: 'inc/',
-		outputDir: '.generated/php',
+		outputDir: layout.resolve('php.generated'),
 	},
+	layout,
 };
 
 const existsMock = jest

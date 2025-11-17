@@ -1,0 +1,41 @@
+{
+	"$schema": "",
+	"directories": {
+		".wpk": {
+			"generate": {
+				"php": {
+					"$id": "php.generated",
+					"Blocks": "blocks.php.generated",
+					"build": {
+						"blocks-manifest.php": "blocks.manifest"
+					}
+				},
+				"blocks": "blocks.generated",
+				"js": "js.generated",
+				"ui": "ui.generated"
+			},
+			"apply": {
+				"base": "plan.base",
+				"incoming": "plan.incoming",
+				"plan.json": "plan.manifest",
+				"patch-manifest.json": "patch.manifest",
+				"state.json": "apply.state"
+			},
+			"tmp": "tmp",
+			"bundler": {
+				"config.json": "bundler.config",
+				"assets": {
+					"index.asset.json": "bundler.assets"
+				}
+			},
+			"debug-ui.json": "debug.ui"
+		},
+		"src": {
+			"blocks": "blocks.applied"
+		},
+		"inc": {
+			"Rest": "controllers.applied"
+		},
+		"plugin.php": "plugin.loader"
+	}
+}

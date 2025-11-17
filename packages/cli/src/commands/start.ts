@@ -1,8 +1,8 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { spawn, type ChildProcessWithoutNullStreams } from 'node:child_process';
-import { Command, Option } from 'clipanion';
+import { type ChildProcessWithoutNullStreams } from 'node:child_process';
 import type * as chokidarModule from 'chokidar';
+import { Command, Option } from 'clipanion';
 import { createReporterCLI as buildReporter } from '../utils/reporter.js';
 import type { Reporter } from '@wpkernel/core/reporter';
 import {
@@ -11,39 +11,36 @@ import {
 	WPK_CONFIG_SOURCES,
 	type WPKExitCode,
 } from '@wpkernel/core/contracts';
-import { WPKernelError } from '@wpkernel/core/error';
-import { adoptCommandEnvironment } from './internal/delegate';
-import { buildGenerateCommand } from './generate';
-import type { Command as ClipanionCommand } from 'clipanion';
-import { forwardProcessOutput } from './process-output';
 import { serialiseError } from './internal/serialiseError';
 import { COMMAND_HELP } from '../cli/help';
+import { loadChokidarWatch } from './start/chokidar';
+import { resolveStartLayoutPaths, type StartLayoutPaths } from './start/layout';
+import {
+	createGenerateRunner,
+	type GenerateRunner,
+} from './start/generate-runner';
+import {
+	defaultSpawnViteProcess,
+	launchViteDevServer as launchViteDevServerHelper,
+	stopViteDevServer as stopViteDevServerHelper,
+	type ViteHandle,
+} from './start/vite';
+import {
+	detectTier,
+	normaliseForLog,
+	prioritiseQueued,
+	type Trigger,
+	type ChangeTier,
+	toWorkspaceRelativePath,
+} from './start/helpers';
+import {
+	parsePackageManager,
+	defaultPackageManager,
+} from './start/package-manager';
+import type { PackageManager } from './init/types';
+import { resolveCommandCwd } from './init/command-runtime';
 
 type WatchFn = typeof chokidarModule.watch;
-
-/**
- * Defines the tier of a file change, indicating its impact on regeneration speed.
- *
- * - `fast`: Changes that can be regenerated quickly.
- * - `slow`: Changes that require a more extensive or time-consuming regeneration.
- *
- * @category Commands
- */
-export type ChangeTier = 'fast' | 'slow';
-
-/**
- * Represents a file system change that triggers a regeneration cycle.
- *
- * @category Commands
- */
-export type Trigger = {
-	/** The tier of the change (fast or slow). */
-	tier: ChangeTier;
-	/** The type of file system event (e.g., 'add', 'change', 'unlink'). */
-	event: string;
-	/** The path to the file that triggered the change. */
-	file: string;
-};
 
 /**
  * File system operations interface for start command.
@@ -67,14 +64,14 @@ interface BuildStartCommandDependencies {
 	readonly loadWatch: () => Promise<WatchFn>;
 	/** Function to build a reporter instance. */
 	readonly buildReporter: typeof buildReporter;
-	/** Function to build the generate command. */
-	readonly buildGenerateCommand: typeof buildGenerateCommand;
-	/** Function to adopt the command environment. */
-	readonly adoptCommandEnvironment: typeof adoptCommandEnvironment;
+	/** Function to run the generate workflow. */
+	readonly runGenerate: GenerateRunner;
 	/** File system utility functions. */
 	readonly fileSystem: FileSystem;
 	/** Function to spawn the Vite development server process. */
-	readonly spawnViteProcess: () => ChildProcessWithoutNullStreams;
+	readonly spawnViteProcess: (
+		packageManager: PackageManager
+	) => ChildProcessWithoutNullStreams;
 }
 
 /**
@@ -87,14 +84,14 @@ export interface BuildStartCommandOptions {
 	readonly loadWatch?: () => Promise<WatchFn>;
 	/** Optional: Custom reporter builder function. */
 	readonly buildReporter?: typeof buildReporter;
-	/** Optional: Custom generate command builder function. */
-	readonly buildGenerateCommand?: typeof buildGenerateCommand;
-	/** Optional: Custom function to adopt the command environment. */
-	readonly adoptCommandEnvironment?: typeof adoptCommandEnvironment;
+	/** Optional: Custom generate runner function. */
+	readonly runGenerate?: GenerateRunner;
 	/** Optional: Partial file system utility functions for testing. */
 	readonly fileSystem?: Partial<FileSystem>;
 	/** Optional: Custom function to spawn the Vite development server process. */
-	readonly spawnViteProcess?: () => ChildProcessWithoutNullStreams;
+	readonly spawnViteProcess?: (
+		packageManager: PackageManager
+	) => ChildProcessWithoutNullStreams;
 }
 
 const WPK_CONFIG_BASE = WPK_CONFIG_SOURCES.WPK_CONFIG_TS.replace(/\.ts$/, '');
@@ -113,25 +110,10 @@ const WATCH_PATTERNS = [
 	'blocks/**/*',
 ];
 
-const IGNORED_PATTERNS = [
-	'**/.git/**',
-	'**/node_modules/**',
-	'**/.generated/**',
-	'**/build/**',
-];
+const IGNORED_PATTERNS = ['**/.git/**', '**/node_modules/**', '**/build/**'];
 
 const FAST_DEBOUNCE_MS = 200;
 const SLOW_DEBOUNCE_MS = 600;
-
-const PHP_GENERATED_DIR = path.join('.generated', 'php');
-const PHP_TARGET_DIR = 'inc';
-
-type ViteHandle = {
-	readonly child: ChildProcessWithoutNullStreams;
-	readonly exit: Promise<void>;
-};
-
-let chokidarModulePromise: Promise<typeof chokidarModule> | null = null;
 
 function mergeDependencies(
 	options: BuildStartCommandOptions
@@ -146,10 +128,7 @@ function mergeDependencies(
 	return {
 		loadWatch: options.loadWatch ?? loadChokidarWatch,
 		buildReporter: options.buildReporter ?? buildReporter,
-		buildGenerateCommand:
-			options.buildGenerateCommand ?? buildGenerateCommand,
-		adoptCommandEnvironment:
-			options.adoptCommandEnvironment ?? adoptCommandEnvironment,
+		runGenerate: options.runGenerate ?? createGenerateRunner(),
 		fileSystem,
 		spawnViteProcess: options.spawnViteProcess ?? defaultSpawnViteProcess,
 	} satisfies BuildStartCommandDependencies;
@@ -157,47 +136,6 @@ function mergeDependencies(
 
 function buildReporterNamespace(): string {
 	return `${WPK_NAMESPACE}.cli.start`;
-}
-
-function defaultSpawnViteProcess(): ChildProcessWithoutNullStreams {
-	return spawn('pnpm', ['exec', 'vite'], {
-		cwd: process.cwd(),
-		env: {
-			...process.env,
-			NODE_ENV: process.env.NODE_ENV ?? 'development',
-		},
-		stdio: 'pipe',
-	});
-}
-
-async function loadChokidarModule(): Promise<typeof chokidarModule> {
-	if (!chokidarModulePromise) {
-		chokidarModulePromise = import('chokidar');
-	}
-
-	return chokidarModulePromise;
-}
-
-async function loadChokidarWatch(): Promise<WatchFn> {
-	const module = await loadChokidarModule();
-	if (typeof module.watch === 'function') {
-		return module.watch;
-	}
-
-	if (module.default) {
-		const candidate = module.default as unknown;
-		if (typeof candidate === 'function') {
-			return candidate as WatchFn;
-		}
-
-		if (typeof (candidate as { watch?: unknown }).watch === 'function') {
-			return (candidate as { watch: WatchFn }).watch;
-		}
-	}
-
-	throw new WPKernelError('DeveloperError', {
-		message: 'Unable to resolve chokidar.watch for CLI start command.',
-	});
 }
 
 /**
@@ -215,7 +153,6 @@ export function buildStartCommand(
 	options: BuildStartCommandOptions = {}
 ): new () => Command {
 	const dependencies = mergeDependencies(options);
-	const GenerateCommand = dependencies.buildGenerateCommand();
 
 	class NextStartCommand extends Command {
 		static override paths = [['start']];
@@ -228,12 +165,28 @@ export function buildStartCommand(
 
 		verbose = Option.Boolean('--verbose,-v', false);
 		autoApply = Option.Boolean('--auto-apply,-a', false);
+		private readonly packageManagerValue = Option.String(
+			'--package-manager,-p,-pm',
+			{
+				description:
+					'Package manager used to start the dev server (default: npm).',
+				required: false,
+			}
+		);
 
 		#loadWatch = dependencies.loadWatch;
 		#reporterFactory = dependencies.buildReporter;
-		#adoptEnvironment = dependencies.adoptCommandEnvironment;
 		#fileSystem = dependencies.fileSystem;
 		#spawnViteProcess = dependencies.spawnViteProcess;
+		#runGenerate = dependencies.runGenerate;
+		#layoutPaths: StartLayoutPaths | null = null;
+
+		get packageManager(): PackageManager {
+			return (
+				parsePackageManager(this.packageManagerValue) ??
+				defaultPackageManager()
+			);
+		}
 
 		override async execute(): Promise<WPKExitCode> {
 			const reporter = this.#reporterFactory({
@@ -447,21 +400,19 @@ export function buildStartCommand(
 				tier: trigger.tier,
 			});
 
-			const command = new GenerateCommand();
-			this.#adoptEnvironment(
-				this as unknown as ClipanionCommand,
-				command
-			);
-			(command as { dryRun?: boolean }).dryRun = false;
-			(command as { verbose?: boolean }).verbose = this.verbose;
+			const cwd = resolveCommandCwd(this.context);
 
 			let exitCode: WPKExitCode;
+			let output: string | null | undefined;
 			try {
-				const result = await command.execute();
-				exitCode =
-					typeof result === 'number'
-						? (result as WPKExitCode)
-						: WPK_EXIT_CODES.SUCCESS;
+				const result = await this.#runGenerate({
+					reporter: generateReporter,
+					verbose: this.verbose,
+					cwd,
+					allowDirty: false,
+				});
+				exitCode = result.exitCode;
+				output = result.output;
 			} catch (error) {
 				reporter.error(
 					'Generation pipeline failed to execute.',
@@ -475,6 +426,10 @@ export function buildStartCommand(
 					exitCode,
 				});
 				return;
+			}
+
+			if (output) {
+				this.context.stdout.write(output);
 			}
 
 			reporter.info('Generation completed successfully.');
@@ -491,8 +446,15 @@ export function buildStartCommand(
 			reporter: Reporter,
 			generateReporter: Reporter
 		): Promise<void> {
-			const sourceDir = path.resolve(process.cwd(), PHP_GENERATED_DIR);
-			const targetDir = path.resolve(process.cwd(), PHP_TARGET_DIR);
+			const layoutPaths = await this.resolveLayoutPaths();
+			const sourceDir = path.resolve(
+				process.cwd(),
+				layoutPaths.phpGenerated
+			);
+			const targetDir = path.resolve(
+				process.cwd(),
+				layoutPaths.phpTargetDir
+			);
 
 			try {
 				await this.#fileSystem.access(sourceDir);
@@ -524,56 +486,27 @@ export function buildStartCommand(
 			}
 		}
 
+		private async resolveLayoutPaths(): Promise<StartLayoutPaths> {
+			if (this.#layoutPaths) {
+				return this.#layoutPaths;
+			}
+
+			const resolved = await resolveStartLayoutPaths();
+			this.#layoutPaths = resolved;
+			return resolved;
+		}
+
 		protected createViteDevProcess(): ChildProcessWithoutNullStreams {
-			return this.#spawnViteProcess();
+			return this.#spawnViteProcess(this.packageManager);
 		}
 
 		private async launchViteDevServer(
 			reporter: Reporter
 		): Promise<ViteHandle | null> {
-			reporter.info('Starting Vite dev server.');
-
-			let child: ChildProcessWithoutNullStreams;
-			try {
-				child = this.createViteDevProcess();
-			} catch (error) {
-				reporter.error('Failed to start Vite dev server.', {
-					error: serialiseError(error),
-				});
-				return null;
-			}
-
-			forwardProcessOutput({
-				child,
-				reporter,
-				label: 'Vite dev server',
-			});
-
-			const exit = new Promise<void>((resolve) => {
-				let resolved = false;
-				const resolveOnce = () => {
-					if (!resolved) {
-						resolved = true;
-						resolve();
-					}
-				};
-
-				child.once('error', (error) => {
-					reporter.error('Vite dev server error.', {
-						error: serialiseError(error),
-					});
-					resolveOnce();
-				});
-				child.once('exit', (code, signal) => {
-					reporter.info('Vite dev server exited.', {
-						exitCode: code,
-						signal,
-					});
-					resolveOnce();
-				});
-			});
-
-			return { child, exit };
+			return launchViteDevServerHelper(
+				() => this.createViteDevProcess(),
+				reporter
+			);
 		}
 
 		private async stopViteDevServer(
@@ -581,111 +514,12 @@ export function buildStartCommand(
 			reporter: Reporter,
 			stopOptions: { awaitExit?: boolean } = {}
 		): Promise<void> {
-			const { awaitExit = true } = stopOptions;
-			const { child, exit } = handle;
-			if (child.killed) {
-				if (awaitExit) {
-					await exit;
-				}
-				return;
-			}
-
-			const stopped = child.kill('SIGINT');
-			if (!stopped) {
-				reporter.debug('Vite dev server already stopped.');
-				if (awaitExit) {
-					await exit;
-				}
-				return;
-			}
-
-			if (!awaitExit) {
-				return;
-			}
-
-			const timeout = setTimeout(() => {
-				if (!child.killed) {
-					reporter.warn(
-						'Vite dev server did not exit, sending SIGTERM.'
-					);
-					child.kill('SIGTERM');
-				}
-			}, 2000);
-
-			try {
-				await exit;
-			} finally {
-				clearTimeout(timeout);
-			}
+			await stopViteDevServerHelper(handle, reporter, stopOptions);
 		}
 	}
 
 	return NextStartCommand;
 }
 
-function toWorkspaceRelativePath(absolute: string): string {
-	const relative = path.relative(process.cwd(), absolute);
-	if (relative === '') {
-		return '.';
-	}
-
-	return relative.split(path.sep).join('/');
-}
-
-/**
- * Detects the change tier (fast or slow) for a given file path.
- *
- * Files in `contracts/` or `schemas/` are considered 'slow' changes,
- * as they often require more extensive regeneration.
- *
- * @category Commands
- * @param    filePath - The path to the changed file.
- * @returns The `ChangeTier` for the file.
- */
-export function detectTier(filePath: string): ChangeTier {
-	const relative = normaliseForLog(filePath).toLowerCase();
-	if (relative.startsWith('contracts/') || relative.startsWith('schemas/')) {
-		return 'slow';
-	}
-
-	return 'fast';
-}
-
-function normaliseForLog(filePath: string): string {
-	const absolute = path.isAbsolute(filePath)
-		? filePath
-		: path.resolve(process.cwd(), filePath);
-	const relative = path.relative(process.cwd(), absolute);
-	if (relative === '') {
-		return '.';
-	}
-	return relative.split(path.sep).join('/');
-}
-
-/**
- * Prioritises a new incoming trigger over a currently queued trigger.
- *
- * A 'slow' incoming trigger will always override a 'fast' current trigger.
- * If both are 'slow' or both are 'fast', the incoming trigger takes precedence.
- *
- * @category Commands
- * @param    current  - The currently queued trigger, or null if none.
- * @param    incoming - The new incoming trigger.
- * @returns The trigger that should be processed next.
- */
-export function prioritiseQueued(
-	current: Trigger | null,
-	incoming: Trigger
-): Trigger {
-	if (!current) {
-		return incoming;
-	}
-
-	if (incoming.tier === 'slow' && current.tier === 'fast') {
-		return incoming;
-	}
-
-	return current.tier === 'slow' && incoming.tier === 'fast'
-		? current
-		: incoming;
-}
+export { detectTier, prioritiseQueued } from './start/helpers';
+export type { ChangeTier, Trigger } from './start/helpers';

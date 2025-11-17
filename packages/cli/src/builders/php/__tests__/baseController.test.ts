@@ -11,6 +11,7 @@ import {
 	createMinimalIr,
 	createPipelineContext,
 } from '../test-support/php-builder.test-support';
+import { loadTestLayoutSync } from '../../../tests/layout.test-support';
 
 describe('createPhpBaseControllerHelper', () => {
 	it('skips generation when the IR artifact is not available', async () => {
@@ -49,7 +50,7 @@ describe('createPhpBaseControllerHelper', () => {
 			},
 			php: {
 				namespace: 'Demo\\Plugin',
-				outputDir: '.generated/php',
+				outputDir: loadTestLayoutSync().resolve('php.generated'),
 				autoload: 'inc/',
 			},
 		});

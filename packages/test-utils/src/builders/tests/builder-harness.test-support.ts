@@ -13,6 +13,7 @@ import type {
 	BuilderWriteActionLike,
 	WorkspaceLike,
 } from '../../types.js';
+import { ensureLayoutManifest } from '../../layout-manifest.test-support.js';
 
 export interface BuilderHarnessContext<
 	TWorkspace extends WorkspaceLike = WorkspaceLike,
@@ -37,6 +38,7 @@ export async function withWorkspace<
 ): Promise<void> {
 	const root = await fs.mkdtemp(path.join(os.tmpdir(), 'builder-harness-'));
 	try {
+		await ensureLayoutManifest(root);
 		const workspace = (await (options.createWorkspace
 			? options.createWorkspace(root)
 			: makeWorkspaceMock({ root }))) as TWorkspace;

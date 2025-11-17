@@ -21,6 +21,7 @@ import { buildWorkspace } from '../../../workspace';
 import type { Workspace } from '../../../workspace';
 import { makeIr } from '../../../tests/ir.test-support';
 import { buildEmptyGenerationState } from '../../../apply/manifest';
+import { loadTestLayout } from '../../../tests/layout.test-support';
 
 const withWorkspace = (
 	run: (context: BuilderHarnessContext<Workspace>) => Promise<void>
@@ -74,6 +75,7 @@ describe('createJsBlocksBuilder', () => {
 		await withWorkspace(async ({ workspace, root }) => {
 			const configSource = buildWPKernelConfigSource();
 			await workspace.write('wpk.config.ts', configSource);
+			const layout = await loadTestLayout({ cwd: workspace.root });
 
 			const blockDir = path.join('src', 'blocks', 'example');
 			const manifestPath = path.join(blockDir, 'block.json');
@@ -137,14 +139,20 @@ describe('createJsBlocksBuilder', () => {
 			).resolves.toContain('AUTO-GENERATED WPK STUB');
 			await expect(
 				workspace.readText(
-					path.join('.generated', 'blocks', 'auto-register.ts')
+					path.posix.join(
+						layout.resolve('blocks.generated'),
+						'auto-register.ts'
+					)
 				)
 			).resolves.toContain('registerBlockType');
 
 			expect(
 				output.actions.map((action) => normalise(action.file)).sort()
 			).toEqual([
-				'.generated/blocks/auto-register.ts',
+				path.posix.join(
+					layout.resolve('blocks.generated'),
+					'auto-register.ts'
+				),
 				'src/blocks/example/view.ts',
 			]);
 		});
@@ -154,6 +162,7 @@ describe('createJsBlocksBuilder', () => {
 		await withWorkspace(async ({ workspace, root }) => {
 			const configSource = buildWPKernelConfigSource();
 			await workspace.write('wpk.config.ts', configSource);
+			const layout = await loadTestLayout({ cwd: workspace.root });
 
 			const blockDir = path.join('src', 'blocks', 'module');
 			const manifestPath = path.join(blockDir, 'block.json');
@@ -211,7 +220,10 @@ describe('createJsBlocksBuilder', () => {
 
 			await expect(
 				workspace.readText(
-					path.join('.generated', 'blocks', 'auto-register.ts')
+					path.posix.join(
+						layout.resolve('blocks.generated'),
+						'auto-register.ts'
+					)
 				)
 			).resolves.toContain(
 				'No JS-only blocks require auto-registration.'
@@ -222,14 +234,19 @@ describe('createJsBlocksBuilder', () => {
 				)
 			).resolves.toBe(false);
 			expect(output.actions.map((action) => action.file)).toEqual([
-				path.join('.generated', 'blocks', 'auto-register.ts'),
+				path.posix.join(
+					layout.resolve('blocks.generated'),
+					'auto-register.ts'
+				),
 			]);
 		});
 	});
+
 	it('does not overwrite existing stubs when present', async () => {
 		await withWorkspace(async ({ workspace, root }) => {
 			const configSource = buildWPKernelConfigSource();
 			await workspace.write('wpk.config.ts', configSource);
+			const layout = await loadTestLayout({ cwd: workspace.root });
 
 			const blockDir = path.join('src', 'blocks', 'existing');
 			const manifestPath = path.join(blockDir, 'block.json');
@@ -294,7 +311,10 @@ describe('createJsBlocksBuilder', () => {
 				)
 			).resolves.toContain('pre-existing');
 			expect(output.actions.map((action) => action.file)).toEqual([
-				path.join('.generated', 'blocks', 'auto-register.ts'),
+				path.posix.join(
+					layout.resolve('blocks.generated'),
+					'auto-register.ts'
+				),
 			]);
 		});
 	});
@@ -481,6 +501,7 @@ describe('createJsBlocksBuilder', () => {
 		await withWorkspace(async ({ workspace, root }) => {
 			const configSource = buildWPKernelConfigSource();
 			await workspace.write('wpk.config.ts', configSource);
+			const layout = await loadTestLayout({ cwd: workspace.root });
 
 			const blockDir = path.join('src', 'blocks', 'null-read');
 			const manifestPath = path.join(blockDir, 'block.json');
@@ -558,7 +579,10 @@ describe('createJsBlocksBuilder', () => {
 			expect(
 				output.actions.map((action) => normalise(action.file)).sort()
 			).toEqual([
-				'.generated/blocks/auto-register.ts',
+				path.posix.join(
+					layout.resolve('blocks.generated'),
+					'auto-register.ts'
+				),
 				'src/blocks/null-read/view.ts',
 			]);
 			await expect(
@@ -739,45 +763,65 @@ describe('createJsBlocksBuilder', () => {
 				undefined
 			);
 
-			const manifestPath = path.join(
-				'.generated',
-				'blocks',
-				'books',
-				'block.json'
-			);
+			const layout = await loadTestLayout({ cwd: workspace.root });
 
-			const manifestContents = await workspace.readText(manifestPath);
-			expect(manifestContents).not.toBeNull();
-			const parsed = JSON.parse(manifestContents ?? '{}');
+			const manifestAction = output.actions.find((action) =>
+				normalise(action.file).endsWith('books/block.json')
+			);
+			expect(manifestAction).toBeDefined();
+			const parsed = JSON.parse(
+				(manifestAction?.contents as string) ?? '{}'
+			);
 			expect(parsed).toMatchObject({
 				name: 'demo-namespace/books',
 				editorScriptModule: 'file:./index.tsx',
 				viewScriptModule: 'file:./view.ts',
 			});
 
-			await expect(
-				workspace.readText(
-					path.join('.generated', 'blocks', 'books', 'index.tsx')
-				)
-			).resolves.toContain('AUTO-GENERATED WPK STUB');
-			await expect(
-				workspace.readText(
-					path.join('.generated', 'blocks', 'books', 'view.ts')
-				)
-			).resolves.toContain('AUTO-GENERATED WPK STUB');
-
-			expect(
-				output.actions.map((action) => normalise(action.file)).sort()
-			).toEqual(
-				[
-					'.generated/blocks/auto-register.ts',
-					'.generated/blocks/books/block.json',
-					'.generated/blocks/books/index.tsx',
-					'.generated/blocks/books/view.ts',
-				].sort()
+			const indexAction = output.actions.find((action) =>
+				normalise(action.file).endsWith('books/index.tsx')
+			);
+			const viewAction = output.actions.find((action) =>
+				normalise(action.file).endsWith('books/view.ts')
+			);
+			expect(indexAction?.contents as string).toContain(
+				'AUTO-GENERATED WPK STUB'
+			);
+			expect(viewAction?.contents as string).toContain(
+				'AUTO-GENERATED WPK STUB'
 			);
 
-			expect(reporter.warn).toHaveBeenCalledTimes(1);
+			const actionFiles = output.actions
+				.map((action) => normalise(action.file))
+				.map((file) =>
+					file.replace(
+						/^\.generated\/blocks/,
+						layout.resolve('blocks.generated')
+					)
+				)
+				.sort();
+			const expectedFiles = [
+				path.posix.join(
+					layout.resolve('blocks.generated'),
+					'auto-register.ts'
+				),
+				path.posix.join(
+					layout.resolve('blocks.generated'),
+					'books/block.json'
+				),
+				path.posix.join(
+					layout.resolve('blocks.generated'),
+					'books/index.tsx'
+				),
+				path.posix.join(
+					layout.resolve('blocks.generated'),
+					'books/view.ts'
+				),
+			].sort();
+
+			expect(actionFiles).toEqual(expectedFiles);
+
+			expect(reporter.warn).toHaveBeenCalled();
 			expect(reporter.warn).toHaveBeenCalledWith(
 				expect.stringContaining(
 					'render template was not declared and none was found'

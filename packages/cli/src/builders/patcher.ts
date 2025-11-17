@@ -1,7 +1,3 @@
-import fs from 'node:fs/promises';
-import path from 'node:path';
-import { execFile } from 'node:child_process';
-import { promisify } from 'node:util';
 import { WPKernelError } from '@wpkernel/core/error';
 import { createHelper } from '../runtime';
 import type {
@@ -14,35 +10,23 @@ import {
 	type PatchPlan,
 	type PatchInstruction,
 	type PatchManifest,
-	type PatchRecord,
-	type ProcessInstructionOptions,
 	type PatchDeletionResult,
 	type PatchPlanDeletionSkip,
-	type ProcessDeleteInstructionOptions,
-	type ProcessPlanInstructionsOptions,
-	type RecordPlanSkippedDeletionsOptions,
-	type ReportDeletionSummaryOptions,
 } from './types';
+import { resolvePatchPaths, normalisePath } from './patcher.paths';
 
-const execFileAsync = promisify(execFile);
+import {
+	hasPlanInstructions,
+	applyPlanInstructions,
+	recordPlannedDeletions,
+	reportDeletionSummary,
+} from './patcher.instructions';
 
-const PATCH_PLAN_PATH = path.posix.join('.wpk', 'apply', 'plan.json');
-const PATCH_MANIFEST_PATH = path.posix.join('.wpk', 'apply', 'manifest.json');
-const PATCH_BASE_ROOT = path.posix.join('.wpk', 'apply', 'base');
-
-function normaliseRelativePath(file: string): string {
-	const replaced = file.replace(/\\/g, '/');
-	const normalised = path.posix.normalize(replaced);
-
-	if (normalised === '.' || normalised === '') {
-		return '';
-	}
-
-	return normalised.replace(/^\.\//, '').replace(/^\/+/, '');
-}
-
-async function readPlan(workspace: Workspace): Promise<PatchPlan | null> {
-	const contents = await workspace.readText(PATCH_PLAN_PATH);
+async function readPlan(
+	workspace: Workspace,
+	planPath: string
+): Promise<PatchPlan | null> {
+	const contents = await workspace.readText(planPath);
 	if (!contents) {
 		return null;
 	}
@@ -67,7 +51,7 @@ async function readPlan(workspace: Workspace): Promise<PatchPlan | null> {
 		throw new WPKernelError('DeveloperError', {
 			message: 'Failed to parse patch plan JSON.',
 			context: {
-				file: PATCH_PLAN_PATH,
+				file: planPath,
 				error: (error as Error).message,
 			},
 		});
@@ -131,7 +115,7 @@ function normaliseSkippedDeletions(
 			typeof entry.reason === 'string' ? entry.reason : undefined;
 
 		entries.push({
-			file: normaliseRelativePath(file),
+			file: normalisePath(file),
 			description,
 			reason,
 		});
@@ -140,96 +124,7 @@ function normaliseSkippedDeletions(
 	return entries;
 }
 
-async function writeTempFile(
-	workspace: Workspace,
-	scope: string,
-	relativePath: string,
-	contents: string
-): Promise<string> {
-	const base = await workspace.tmpDir(scope);
-	const safeRelative = normaliseRelativePath(relativePath) || 'patched-file';
-	const absolute = path.join(base, safeRelative);
-	await fs.mkdir(path.dirname(absolute), { recursive: true });
-	await fs.writeFile(absolute, contents);
-	return absolute;
-}
-
-async function mergeWithGit(
-	workspace: Workspace,
-	target: string,
-	base: string,
-	current: string,
-	incoming: string
-): Promise<{ status: 'clean' | 'conflict'; result: string }> {
-	const safeName = target.replace(/[^a-zA-Z0-9.-]/g, '-');
-	const baseFile = await writeTempFile(
-		workspace,
-		`patcher-base-${safeName}-`,
-		target,
-		base
-	);
-	const currentFile = await writeTempFile(
-		workspace,
-		`patcher-current-${safeName}-`,
-		target,
-		current
-	);
-	const incomingFile = await writeTempFile(
-		workspace,
-		`patcher-incoming-${safeName}-`,
-		target,
-		incoming
-	);
-
-	try {
-		const { stdout } = await execFileAsync(
-			'git',
-			[
-				'merge-file',
-				'--stdout',
-				'--diff3',
-				currentFile,
-				baseFile,
-				incomingFile,
-			],
-			{
-				encoding: 'utf8',
-			}
-		);
-		const result = await resolveMergeResult(stdout, currentFile);
-		return { status: 'clean', result };
-	} catch (error) {
-		const execError = error as NodeJS.ErrnoException & {
-			code?: number | string;
-			stdout?: string;
-			stderr?: string;
-		};
-
-		const isMergeConflict =
-			(typeof execError.code === 'number' && execError.code === 1) ||
-			(typeof execError.code === 'string' && execError.code === '1');
-
-		if (isMergeConflict) {
-			const result = await resolveMergeResult(
-				execError.stdout,
-				currentFile
-			);
-			return { status: 'conflict', result };
-		}
-
-		/* istanbul ignore next - defensive logging for unexpected git failures */
-		throw new WPKernelError('DeveloperError', {
-			message: 'git merge-file failed while computing patch.',
-			context: {
-				file: target,
-				code: execError.code,
-				stderr: execError.stderr,
-			},
-		});
-	}
-}
-
-async function queueWorkspaceFile(
+export async function queueWorkspaceFile(
 	workspace: Workspace,
 	output: BuilderOutput,
 	file: string
@@ -258,401 +153,6 @@ function buildEmptyManifest(): PatchManifest {
 	} satisfies PatchManifest;
 }
 
-function recordResult(manifest: PatchManifest, record: PatchRecord): void {
-	manifest.records.push(record);
-
-	switch (record.status) {
-		case 'applied':
-			manifest.summary.applied += 1;
-			break;
-		case 'conflict':
-			manifest.summary.conflicts += 1;
-			break;
-		case 'skipped':
-			manifest.summary.skipped += 1;
-			break;
-	}
-}
-
-function hasPlanInstructions(plan: PatchPlan | null): plan is PatchPlan {
-	return Boolean(
-		plan &&
-			(plan.instructions.length > 0 || plan.skippedDeletions.length > 0)
-	);
-}
-
-function recordPlanSkippedDeletions({
-	manifest,
-	plan,
-	reporter,
-}: RecordPlanSkippedDeletionsOptions): void {
-	if (plan.skippedDeletions.length === 0) {
-		return;
-	}
-
-	for (const skipped of plan.skippedDeletions) {
-		recordResult(manifest, {
-			file: normaliseRelativePath(skipped.file),
-			status: 'skipped',
-			description: skipped.description,
-			details: {
-				action: 'delete',
-				reason: skipped.reason ?? 'guarded-by-plan',
-			},
-		});
-	}
-
-	reporter.info(
-		'createPatcher: guarded shim deletions were recorded during planning.',
-		{
-			files: plan.skippedDeletions.map((entry) =>
-				normaliseRelativePath(entry.file)
-			),
-		}
-	);
-}
-
-async function processPlanInstructions({
-	plan,
-	workspace,
-	manifest,
-	output,
-	reporter,
-	deletedFiles,
-	skippedDeletions,
-}: ProcessPlanInstructionsOptions): Promise<void> {
-	for (const instruction of plan.instructions) {
-		await processInstruction({
-			workspace,
-			instruction,
-			manifest,
-			output,
-			reporter,
-			deletedFiles,
-			skippedDeletions,
-		});
-	}
-}
-
-function reportDeletionSummary({
-	plan,
-	reporter,
-	deletedFiles,
-	skippedDeletions,
-}: ReportDeletionSummaryOptions): void {
-	if (deletedFiles.length > 0) {
-		reporter.info('createPatcher: removed shim files.', {
-			files: deletedFiles,
-		});
-	}
-
-	const applySkipped = skippedDeletions.filter(
-		(entry) =>
-			!plan.skippedDeletions.some(
-				(planned) => normaliseRelativePath(planned.file) === entry.file
-			)
-	);
-
-	if (applySkipped.length > 0) {
-		reporter.info(
-			'createPatcher: skipped shim removals due to local modifications.',
-			{
-				files: applySkipped.map((entry) => entry.file),
-			}
-		);
-	}
-}
-
-async function processInstruction({
-	workspace,
-	instruction,
-	manifest,
-	output,
-	reporter,
-	deletedFiles,
-	skippedDeletions,
-}: ProcessInstructionOptions): Promise<void> {
-	if (instruction.action === 'delete') {
-		await processDeleteInstruction({
-			workspace,
-			instruction,
-			manifest,
-			reporter,
-			deletedFiles,
-			skippedDeletions,
-		});
-		return;
-	}
-
-	await applyWriteInstruction({
-		workspace,
-		instruction,
-		manifest,
-		output,
-		reporter,
-	});
-}
-
-interface ProcessWriteInstructionOptions {
-	readonly workspace: Workspace;
-	readonly instruction: Exclude<PatchInstruction, { action: 'delete' }>;
-	readonly manifest: PatchManifest;
-	readonly output: BuilderOutput;
-	readonly reporter: BuilderApplyOptions['reporter'];
-}
-
-async function applyWriteInstruction({
-	workspace,
-	instruction,
-	manifest,
-	output,
-	reporter,
-}: ProcessWriteInstructionOptions): Promise<void> {
-	const file = normaliseRelativePath(instruction.file);
-	const basePath = normaliseRelativePath(instruction.base);
-	const incomingPath = normaliseRelativePath(instruction.incoming);
-	const description = instruction.description;
-
-	const base = (await workspace.readText(basePath)) ?? '';
-	const incoming = await workspace.readText(incomingPath);
-
-	if (!file) {
-		reporter.warn('createPatcher: skipping instruction with empty file.', {
-			base: basePath,
-			incoming: incomingPath,
-		});
-		recordResult(manifest, {
-			file,
-			status: 'skipped',
-			description,
-			details: {
-				reason: 'empty-target',
-			},
-		});
-		return;
-	}
-
-	if (incoming === null) {
-		reporter.warn('createPatcher: incoming file missing.', {
-			file,
-			source: incomingPath,
-		});
-		recordResult(manifest, {
-			file,
-			status: 'skipped',
-			description,
-			details: {
-				reason: 'missing-incoming',
-			},
-		});
-		return;
-	}
-
-	const currentOriginal = await workspace.readText(file);
-	if (
-		await tryRestoreMissingOrEmptyTarget({
-			currentOriginal,
-			incoming,
-			file,
-			basePath,
-			workspace,
-			output,
-			manifest,
-			description,
-			reporter,
-		})
-	) {
-		return;
-	}
-	const current = currentOriginal ?? '';
-
-	if (current === incoming) {
-		reporter.debug('createPatcher: target already up-to-date.', { file });
-		recordResult(manifest, {
-			file,
-			status: 'skipped',
-			description,
-			details: {
-				reason: 'no-op',
-			},
-		});
-		return;
-	}
-
-	const { status, result } = await mergeWithGit(
-		workspace,
-		file,
-		base,
-		current,
-		incoming
-	);
-
-	await workspace.write(file, result, { ensureDir: true });
-	await queueWorkspaceFile(workspace, output, file);
-
-	if (status === 'clean') {
-		await workspace.write(basePath, incoming, { ensureDir: true });
-		await queueWorkspaceFile(workspace, output, basePath);
-	}
-
-	recordResult(manifest, {
-		file,
-		status: status === 'clean' ? 'applied' : 'conflict',
-		description,
-	});
-
-	if (status === 'conflict') {
-		reporter.warn('createPatcher: merge conflict detected.', {
-			file,
-		});
-		return;
-	}
-
-	reporter.debug('createPatcher: patch applied.', { file });
-}
-
-interface RestoreTargetOptions {
-	readonly currentOriginal: string | null;
-	readonly incoming: string;
-	readonly file: string;
-	readonly basePath: string;
-	readonly workspace: Workspace;
-	readonly output: BuilderOutput;
-	readonly manifest: PatchManifest;
-	readonly description?: string;
-	readonly reporter: BuilderApplyOptions['reporter'];
-}
-
-async function tryRestoreMissingOrEmptyTarget({
-	currentOriginal,
-	incoming,
-	file,
-	basePath,
-	workspace,
-	output,
-	manifest,
-	description,
-	reporter,
-}: RestoreTargetOptions): Promise<boolean> {
-	const targetMissingOrEmpty =
-		currentOriginal === null || currentOriginal.trim().length === 0;
-	if (!targetMissingOrEmpty || incoming.trim().length === 0) {
-		return false;
-	}
-
-	await workspace.write(file, incoming, { ensureDir: true });
-	await queueWorkspaceFile(workspace, output, file);
-
-	await workspace.write(basePath, incoming, { ensureDir: true });
-	await queueWorkspaceFile(workspace, output, basePath);
-
-	recordResult(manifest, {
-		file,
-		status: 'applied',
-		description,
-	});
-	reporter.debug(
-		'createPatcher: target missing or empty, restored from incoming.',
-		{ file }
-	);
-	return true;
-}
-
-async function processDeleteInstruction({
-	workspace,
-	instruction,
-	manifest,
-	reporter,
-	deletedFiles,
-	skippedDeletions,
-}: ProcessDeleteInstructionOptions): Promise<void> {
-	const file = normaliseRelativePath(instruction.file);
-	const description = instruction.description;
-
-	if (!file) {
-		reporter.warn(
-			'createPatcher: skipping deletion with empty file target.'
-		);
-		recordResult(manifest, {
-			file,
-			status: 'skipped',
-			description,
-			details: { reason: 'empty-target', action: 'delete' },
-		});
-		skippedDeletions.push({ file, reason: 'empty-target' });
-		return;
-	}
-
-	const basePath = path.posix.join(PATCH_BASE_ROOT, file);
-	const [baseContents, currentContents] = await Promise.all([
-		workspace.readText(basePath),
-		workspace.readText(file),
-	]);
-
-	if (!baseContents) {
-		reporter.debug(
-			'createPatcher: base snapshot missing, skipping deletion.',
-			{
-				file,
-				base: basePath,
-			}
-		);
-		recordResult(manifest, {
-			file,
-			status: 'skipped',
-			description,
-			details: {
-				reason: 'missing-base',
-				action: 'delete',
-				base: basePath,
-			},
-		});
-		skippedDeletions.push({ file, reason: 'missing-base' });
-		return;
-	}
-
-	if (currentContents === null) {
-		reporter.debug('createPatcher: deletion target already absent.', {
-			file,
-		});
-		recordResult(manifest, {
-			file,
-			status: 'skipped',
-			description,
-			details: { reason: 'missing-target', action: 'delete' },
-		});
-		skippedDeletions.push({ file, reason: 'missing-target' });
-		return;
-	}
-
-	if (currentContents !== baseContents) {
-		reporter.info(
-			'createPatcher: detected manual changes, skipping shim deletion.',
-			{ file }
-		);
-		recordResult(manifest, {
-			file,
-			status: 'skipped',
-			description,
-			details: { reason: 'modified-target', action: 'delete' },
-		});
-		skippedDeletions.push({ file, reason: 'modified-target' });
-		return;
-	}
-
-	await workspace.rm(file);
-	deletedFiles.push(file);
-	recordResult(manifest, {
-		file,
-		status: 'applied',
-		description,
-		details: { action: 'delete' },
-	});
-	reporter.debug('createPatcher: removed file via deletion instruction.', {
-		file,
-	});
-}
-
 /**
  * Creates a builder helper for applying patches to the workspace.
  *
@@ -678,7 +178,8 @@ export function createPatcher(): BuilderHelper {
 				return;
 			}
 
-			const plan = await readPlan(context.workspace);
+			const paths = resolvePatchPaths({ layout: input.ir?.layout });
+			const plan = await readPlan(context.workspace, paths.planPath);
 
 			if (!hasPlanInstructions(plan)) {
 				reporter.debug('createPatcher: no patch instructions found.');
@@ -689,9 +190,9 @@ export function createPatcher(): BuilderHelper {
 			const deletedFiles: string[] = [];
 			const skippedDeletions: PatchDeletionResult[] = [];
 
-			recordPlanSkippedDeletions({ manifest, plan, reporter });
+			recordPlannedDeletions({ manifest, plan, reporter });
 
-			await processPlanInstructions({
+			await applyPlanInstructions({
 				plan,
 				workspace: context.workspace,
 				manifest,
@@ -699,22 +200,23 @@ export function createPatcher(): BuilderHelper {
 				reporter,
 				deletedFiles,
 				skippedDeletions,
+				baseRoot: paths.baseRoot,
 			});
 
 			const actionFiles = [
 				...output.actions.map((action) => action.file),
 				...deletedFiles,
-				PATCH_MANIFEST_PATH,
+				paths.manifestPath,
 			];
 			manifest.actions = Array.from(new Set(actionFiles));
 
-			await context.workspace.writeJson(PATCH_MANIFEST_PATH, manifest, {
+			await context.workspace.writeJson(paths.manifestPath, manifest, {
 				pretty: true,
 			});
 			await queueWorkspaceFile(
 				context.workspace,
 				output,
-				PATCH_MANIFEST_PATH
+				paths.manifestPath
 			);
 
 			reportDeletionSummary({
@@ -729,15 +231,4 @@ export function createPatcher(): BuilderHelper {
 			});
 		},
 	});
-}
-
-async function resolveMergeResult(
-	stdout: string | undefined,
-	currentFile: string
-): Promise<string> {
-	if (typeof stdout === 'string' && stdout.length > 0) {
-		return stdout;
-	}
-
-	return await fs.readFile(currentFile, 'utf8');
 }

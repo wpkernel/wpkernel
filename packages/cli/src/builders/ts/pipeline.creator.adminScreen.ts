@@ -8,8 +8,6 @@ import { loadTsMorph } from './runtime.loader';
 import { resolveResourceImport, resolveKernelImport } from './shared.imports';
 import { toPascalCase, toCamelCase } from './shared.metadata';
 
-export const GENERATED_ROOT = '.generated';
-
 export type AdminDataViewsWithInteractivity = AdminDataViews & {
 	readonly interactivity?: { readonly feature?: unknown };
 };
@@ -136,8 +134,7 @@ export function buildAdminScreenCreator(): TsBuilderCreator {
 			const wpkernelSymbol = screenConfig.wpkernelSymbol ?? 'kernel';
 
 			const screenDir = path.join(
-				GENERATED_ROOT,
-				'ui',
+				context.paths.uiGenerated,
 				'app',
 				descriptor.name,
 				'admin'

@@ -10,6 +10,7 @@ import type { WPKernelConfigV1 } from '../../../config/types';
 import { makeWorkspaceMock } from '../../../../tests/workspace.test-support';
 import type { Workspace } from '../../../workspace/types';
 import { buildEmptyGenerationState } from '../../../apply/manifest';
+import { loadTestLayoutSync } from '../../../tests/layout.test-support';
 
 const DEFAULT_CONFIG_SOURCE = 'tests.config.ts';
 
@@ -98,17 +99,45 @@ type MinimalIrOverrides = Partial<
 };
 
 export function createMinimalIr(overrides: MinimalIrOverrides = {}): IRv1 {
-	const namespace = overrides?.meta?.namespace ?? 'DemoPlugin';
+	const namespace = resolveNamespaceFromOverrides(overrides);
+	const components = buildMinimalIrComponents(namespace, overrides);
+	const base = buildIrBase(overrides, components);
+	return mergeIrBase(base, overrides);
+}
+
+function resolveNamespaceFromOverrides(overrides: MinimalIrOverrides): string {
+	return overrides?.meta?.namespace ?? 'DemoPlugin';
+}
+
+function buildMinimalIrComponents(
+	namespace: string,
+	overrides: MinimalIrOverrides
+): {
+	meta: IRv1['meta'];
+	config: WPKernelConfigV1;
+	capabilityMap: IRv1['capabilityMap'];
+	php: IRv1['php'];
+	layout: IRv1['layout'];
+} {
 	const config = resolveIrConfig(overrides?.config, namespace);
 	const meta = buildIrMeta(namespace, overrides?.meta);
 	const capabilityMap = buildCapabilityMap(
 		namespace,
 		overrides?.capabilityMap
 	);
-	const php = buildPhpProject(namespace, overrides?.php);
-	const base = buildIrBase(overrides, { meta, config, capabilityMap, php });
+	const layout = loadTestLayoutSync();
+	const php = buildPhpProject(namespace, {
+		...overrides?.php,
+		outputDir: overrides?.php?.outputDir ?? layout.resolve('php.generated'),
+	});
 
-	return mergeIrBase(base, overrides);
+	return {
+		meta,
+		config,
+		capabilityMap,
+		php,
+		layout,
+	};
 }
 
 function resolveNamespace(overrides?: Partial<BuilderInput>): string {
@@ -239,7 +268,7 @@ function buildPhpProject(
 	return {
 		namespace: overrides?.namespace ?? namespace,
 		autoload: overrides?.autoload ?? 'inc/',
-		outputDir: overrides?.outputDir ?? '.generated/php',
+		outputDir: overrides?.outputDir as IRv1['php']['outputDir'],
 	};
 }
 
@@ -250,6 +279,7 @@ function buildIrBase(
 		config: WPKernelConfigV1;
 		capabilityMap: IRv1['capabilityMap'];
 		php: IRv1['php'];
+		layout: IRv1['layout'];
 	}
 ): IRv1 {
 	const {
@@ -269,6 +299,7 @@ function buildIrBase(
 		capabilityMap: components.capabilityMap,
 		blocks,
 		php: components.php,
+		layout: components.layout,
 		diagnostics,
 	};
 }

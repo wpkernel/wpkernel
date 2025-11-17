@@ -20,6 +20,7 @@ import {
 	type TsBuilderEmitOptions,
 	type TsBuilderLifecycleHooks,
 } from '../types';
+import { resolveTsLayout } from './ts.paths';
 import type { IRv1 } from '../../ir';
 import type { Workspace } from '../../workspace';
 import { createHash as buildHash } from 'crypto';
@@ -32,10 +33,10 @@ import { loadTsMorph } from './runtime.loader';
  * Creates a builder helper for generating TypeScript artifacts.
  *
  * Orchestrates:
- * - Admin screens under `.generated/ui/app/...`
- * - DataView fixtures under `.generated/ui/fixtures/dataviews/...`
- * - Interactivity fixtures under `.generated/ui/fixtures/interactivity/...`
- * - Registry metadata under `.generated/ui/registry/dataviews/...`
+ * - Admin screens under `.wpk/generate/ui/app/...`
+ * - DataView fixtures under `.wpk/generate/ui/fixtures/dataviews/...`
+ * - Interactivity fixtures under `.wpk/generate/ui/fixtures/interactivity/...`
+ * - Registry metadata under `.wpk/generate/ui/registry/dataviews/...`
  *
  * @param    options
  * @category AST Builders
@@ -81,6 +82,7 @@ export function createTsBuilder(
 
 			const project = await Promise.resolve(projectFactory());
 			const emit = buildEmitter(context.workspace, output, emittedFiles);
+			const paths = resolveTsLayout(ir);
 			await generateArtifacts({
 				descriptors,
 				creators,
@@ -91,6 +93,7 @@ export function createTsBuilder(
 				reporter,
 				emit,
 				emittedFiles,
+				paths,
 			});
 
 			await notifyAfterEmit({
@@ -215,6 +218,7 @@ export function requireIr(ir: IRv1 | null): IRv1 {
  * @param    options.reporter
  * @param    options.emit
  * @param    options.emittedFiles
+ * @param    options.paths
  * @category Builders
  */
 export async function generateArtifacts(options: {
@@ -229,6 +233,7 @@ export async function generateArtifacts(options: {
 	readonly reporter: Reporter;
 	readonly emit: (options: TsBuilderEmitOptions) => Promise<void>;
 	readonly emittedFiles: string[];
+	readonly paths: ReturnType<typeof resolveTsLayout>;
 }): Promise<void> {
 	const {
 		descriptors,
@@ -239,6 +244,7 @@ export async function generateArtifacts(options: {
 		input,
 		reporter,
 		emit,
+		paths,
 	} = options;
 
 	for (const descriptor of descriptors) {
@@ -251,6 +257,7 @@ export async function generateArtifacts(options: {
 			ir: input.ir,
 			reporter,
 			emit,
+			paths,
 		};
 
 		for (const creator of creators) {

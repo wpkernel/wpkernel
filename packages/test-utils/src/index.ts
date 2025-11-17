@@ -3,6 +3,8 @@ export * from './integration/index.js';
 export * from './cli/index.js';
 export * from './core/index.js';
 export * from './ui/index.js';
+export * from './layout.test-support.js';
+export * from './layout-manifest.test-support.js';
 export type {
 	SchemaConfigLike,
 	SchemaRegistryLike,

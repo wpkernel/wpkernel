@@ -10,6 +10,7 @@ import { makePhpIrFixture } from '@wpkernel/test-utils/builders/php/resources.te
 import { resolveBundledComposerAutoloadPath } from '../../../utils/phpAssets';
 import * as phpPrinter from '@wpkernel/php-json-ast/php-driver';
 import { buildEmptyGenerationState } from '../../../apply/manifest';
+import { loadTestLayout } from '../../../tests/layout.test-support';
 import {
 	createBaselineCodemodConfiguration,
 	serialisePhpCodemodConfiguration,
@@ -205,6 +206,11 @@ describe('createPhpBuilder integration', () => {
 					await withPhpAutoload(async () => {
 						const workspace = buildWorkspace(workspacePath);
 						workspaceRoot = workspace.root;
+						const layout = await loadTestLayout({
+							cwd: workspace.root,
+						});
+						const phpRoot = layout.resolve('php.generated');
+						ir.php.outputDir = phpRoot;
 
 						const toRelative = (absolute: string): string => {
 							if (!workspaceRoot) {
@@ -264,42 +270,42 @@ describe('createPhpBuilder integration', () => {
 						);
 
 						await captureArtefact(
-							ir.php.outputDir,
+							phpRoot,
 							'Rest',
 							'BaseController.php'
 						);
 						await captureArtefact(
-							ir.php.outputDir,
+							phpRoot,
 							'Rest',
 							'BooksController.php'
 						);
 						await captureArtefact(
-							ir.php.outputDir,
+							phpRoot,
 							'Rest',
 							'JobCategoriesController.php'
 						);
 						await captureArtefact(
-							ir.php.outputDir,
+							phpRoot,
 							'Rest',
 							'JobCacheController.php'
 						);
 						await captureArtefact(
-							ir.php.outputDir,
+							phpRoot,
 							'Rest',
 							'DemoOptionController.php'
 						);
 						await captureArtefact(
-							ir.php.outputDir,
+							phpRoot,
 							'Capability',
 							'Capability.php'
 						);
 						await captureArtefact(
-							ir.php.outputDir,
+							phpRoot,
 							'Registration',
 							'PersistenceRegistry.php'
 						);
-						await captureArtefact(ir.php.outputDir, 'index.php');
-						await captureArtefact('plugin.php');
+						await captureArtefact(phpRoot, 'index.php');
+						await captureArtefact(phpRoot, 'plugin.php');
 					});
 				});
 			} finally {
@@ -317,24 +323,57 @@ describe('createPhpBuilder integration', () => {
 					.join('/');
 
 			const expectedFiles = [
-				'.generated/php/Capability/Capability.php',
-				'.generated/php/Capability/Capability.php.ast.json',
-				'.generated/php/Registration/PersistenceRegistry.php',
-				'.generated/php/Registration/PersistenceRegistry.php.ast.json',
-				'.generated/php/Rest/BaseController.php',
-				'.generated/php/Rest/BaseController.php.ast.json',
-				'.generated/php/Rest/BooksController.php',
-				'.generated/php/Rest/BooksController.php.ast.json',
-				'.generated/php/Rest/JobCategoriesController.php',
-				'.generated/php/Rest/JobCategoriesController.php.ast.json',
-				'.generated/php/Rest/JobCacheController.php',
-				'.generated/php/Rest/JobCacheController.php.ast.json',
-				'.generated/php/Rest/DemoOptionController.php',
-				'.generated/php/Rest/DemoOptionController.php.ast.json',
-				'.generated/php/index.php',
-				'.generated/php/index.php.ast.json',
-				'plugin.php',
-				'plugin.php.ast.json',
+				path.posix.join(ir.php.outputDir, 'Capability/Capability.php'),
+				path.posix.join(
+					ir.php.outputDir,
+					'Capability/Capability.php.ast.json'
+				),
+				path.posix.join(
+					ir.php.outputDir,
+					'Registration/PersistenceRegistry.php'
+				),
+				path.posix.join(
+					ir.php.outputDir,
+					'Registration/PersistenceRegistry.php.ast.json'
+				),
+				path.posix.join(ir.php.outputDir, 'Rest/BaseController.php'),
+				path.posix.join(
+					ir.php.outputDir,
+					'Rest/BaseController.php.ast.json'
+				),
+				path.posix.join(ir.php.outputDir, 'Rest/BooksController.php'),
+				path.posix.join(
+					ir.php.outputDir,
+					'Rest/BooksController.php.ast.json'
+				),
+				path.posix.join(
+					ir.php.outputDir,
+					'Rest/JobCategoriesController.php'
+				),
+				path.posix.join(
+					ir.php.outputDir,
+					'Rest/JobCategoriesController.php.ast.json'
+				),
+				path.posix.join(
+					ir.php.outputDir,
+					'Rest/JobCacheController.php'
+				),
+				path.posix.join(
+					ir.php.outputDir,
+					'Rest/JobCacheController.php.ast.json'
+				),
+				path.posix.join(
+					ir.php.outputDir,
+					'Rest/DemoOptionController.php'
+				),
+				path.posix.join(
+					ir.php.outputDir,
+					'Rest/DemoOptionController.php.ast.json'
+				),
+				path.posix.join(ir.php.outputDir, 'index.php'),
+				path.posix.join(ir.php.outputDir, 'index.php.ast.json'),
+				path.posix.join(ir.php.outputDir, 'plugin.php'),
+				path.posix.join(ir.php.outputDir, 'plugin.php.ast.json'),
 			].sort();
 
 			const actualFiles = Array.from(artefacts.keys()).sort();
@@ -357,19 +396,22 @@ describe('createPhpBuilder integration', () => {
 			);
 
 			const baseControllerPhp = artefacts.get(
-				'.generated/php/Rest/BaseController.php'
+				path.posix.join(ir.php.outputDir, 'Rest/BaseController.php')
 			);
 			expect(baseControllerPhp).toBeDefined();
 			expect(baseControllerPhp).toMatchSnapshot('base-controller.php');
 
 			const booksControllerPhp = artefacts.get(
-				'.generated/php/Rest/BooksController.php'
+				path.posix.join(ir.php.outputDir, 'Rest/BooksController.php')
 			);
 			expect(booksControllerPhp).toBeDefined();
 			expect(booksControllerPhp).toMatchSnapshot('books-controller.php');
 
 			const demoOptionControllerPhp = artefacts.get(
-				'.generated/php/Rest/DemoOptionController.php'
+				path.posix.join(
+					ir.php.outputDir,
+					'Rest/DemoOptionController.php'
+				)
 			);
 			expect(demoOptionControllerPhp).toBeDefined();
 			expect(demoOptionControllerPhp).toMatchSnapshot(
@@ -377,7 +419,7 @@ describe('createPhpBuilder integration', () => {
 			);
 
 			const jobCacheControllerPhp = artefacts.get(
-				'.generated/php/Rest/JobCacheController.php'
+				path.posix.join(ir.php.outputDir, 'Rest/JobCacheController.php')
 			);
 			expect(jobCacheControllerPhp).toBeDefined();
 			expect(jobCacheControllerPhp).toMatchSnapshot(
@@ -385,7 +427,7 @@ describe('createPhpBuilder integration', () => {
 			);
 
 			const capabilityHelperPhp = artefacts.get(
-				'.generated/php/Capability/Capability.php'
+				path.posix.join(ir.php.outputDir, 'Capability/Capability.php')
 			);
 			expect(capabilityHelperPhp).toBeDefined();
 			expect(capabilityHelperPhp).toMatchSnapshot(
@@ -393,7 +435,10 @@ describe('createPhpBuilder integration', () => {
 			);
 
 			const baseControllerAst = artefacts.get(
-				'.generated/php/Rest/BaseController.php.ast.json'
+				path.posix.join(
+					ir.php.outputDir,
+					'Rest/BaseController.php.ast.json'
+				)
 			);
 			expect(baseControllerAst).toBeDefined();
 			const parsedAst = JSON.parse(baseControllerAst as string);

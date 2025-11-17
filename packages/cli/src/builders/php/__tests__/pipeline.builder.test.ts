@@ -1,3 +1,4 @@
+import path from 'node:path';
 import { createPhpBuilder } from '../pipeline.builder';
 import {
 	createBuilderInput,
@@ -5,6 +6,7 @@ import {
 	createMinimalIr,
 	createPipelineContext,
 } from '../test-support/php-builder.test-support';
+import { loadTestLayoutSync } from '../../../tests/layout.test-support';
 
 const codemodApplyMock = jest.fn(async (_options, next) => {
 	await next?.();
@@ -69,6 +71,11 @@ describe('createPhpBuilder - adapter codemods', () => {
 			},
 		});
 
+		const layout = loadTestLayoutSync();
+		const pluginPath = path.posix.join(
+			layout.resolve('php.generated'),
+			'plugin.php'
+		);
 		const ir = createMinimalIr({
 			config: {
 				adapters: {
@@ -78,7 +85,7 @@ describe('createPhpBuilder - adapter codemods', () => {
 								scriptPath: '/adapter/program-writer.php',
 							},
 							codemods: {
-								files: ['plugin.php', ''],
+								files: [pluginPath, ''],
 								configurationPath: 'codemods/baseline.json',
 								diagnostics: { nodeDumps: true },
 								driver: {
@@ -113,7 +120,7 @@ describe('createPhpBuilder - adapter codemods', () => {
 
 		expect(createPhpCodemodIngestionHelper).toHaveBeenCalledTimes(1);
 		expect(createCodemodHelperImpl).toHaveBeenCalledWith({
-			files: ['plugin.php', ''],
+			files: [pluginPath, ''],
 			configurationPath: 'codemods/baseline.json',
 			enableDiagnostics: true,
 			phpBinary: '/adapter/php',

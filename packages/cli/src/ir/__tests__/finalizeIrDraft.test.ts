@@ -2,6 +2,7 @@ import { finalizeIrDraft, buildIrDraft, type MutableIr } from '../types';
 import { WPKernelError } from '@wpkernel/core/error';
 import type { FragmentFinalizationMetadata } from '@wpkernel/pipeline';
 import { makeWPKernelConfigFixture } from '@wpkernel/test-utils/printers.test-support';
+import { loadTestLayoutSync } from '../../tests/layout.test-support';
 
 function createHelpersMetadata(
 	executed: readonly string[],
@@ -47,7 +48,13 @@ function buildDraft(): MutableIr {
 	draft.php = {
 		namespace: 'TestNamespace',
 		autoload: 'inc/',
-		outputDir: '.generated/php',
+		outputDir: loadTestLayoutSync().resolve('php.generated'),
+	};
+	draft.layout = {
+		resolve(id: string) {
+			return id;
+		},
+		all: { foo: 'bar' },
 	};
 
 	return draft;
@@ -56,6 +63,7 @@ function buildDraft(): MutableIr {
 describe('finalizeIrDraft', () => {
 	const REQUIRED = [
 		'ir.meta.core',
+		'ir.layout.core',
 		'ir.schemas.core',
 		'ir.resources.core',
 		'ir.capabilities.core',

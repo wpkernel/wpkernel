@@ -478,6 +478,17 @@ exports[`buildPluginLoaderProgram emits plugin loader with controller registrati
         },
         "nodeType": "Stmt_Nop",
       },
+      {
+        "attributes": {
+          "comments": [
+            {
+              "nodeType": "Comment",
+              "text": "// Custom plugin logic may be added below. This area is left untouched by the generator.",
+            },
+          ],
+        },
+        "nodeType": "Stmt_Nop",
+      },
     ],
   },
 ]
@@ -908,6 +919,17 @@ exports[`buildPluginLoaderProgram handles projects without resources: plugin-loa
             {
               "nodeType": "Comment",
               "text": "// WPK:END AUTO",
+            },
+          ],
+        },
+        "nodeType": "Stmt_Nop",
+      },
+      {
+        "attributes": {
+          "comments": [
+            {
+              "nodeType": "Comment",
+              "text": "// Custom plugin logic may be added below. This area is left untouched by the generator.",
             },
           ],
         },

@@ -1,1241 +1,261 @@
 import path from 'node:path';
-import { buildWorkspace } from '../../workspace';
+import fs from 'node:fs/promises';
+import os from 'node:os';
 import { createApplyPlanBuilder } from '../plan';
-import type { BuilderOutput } from '../../runtime/types';
-import { buildEmptyGenerationState } from '../../apply/manifest';
+import { buildWorkspace } from '../../workspace';
+import {
+	buildEmptyGenerationState,
+	GENERATION_STATE_VERSION,
+} from '../../apply/manifest';
+import { makeIr } from '../../tests/ir.test-support';
 import type { GenerationManifest } from '../../apply/manifest';
-import {
-	makePhpIrFixture,
-	makeWpPostResource,
-} from '@wpkernel/test-utils/builders/php/resources.test-support';
-import * as phpPrinter from '@wpkernel/php-json-ast/php-driver';
-import type { PhpStmtFunction } from '@wpkernel/php-json-ast/nodes';
-import type { PhpStmt } from '@wpkernel/php-json-ast/nodes/stmt/types';
-import {
-	withWorkspace as baseWithWorkspace,
-	buildReporter,
-	buildOutput,
-} from '@wpkernel/test-utils/builders/tests/builder-harness.test-support';
-import type { BuilderHarnessContext } from '@wpkernel/test-utils/builders/tests/builder-harness.test-support';
-import { makeIr, makeIrMeta } from '../../tests/ir.test-support';
-import type { WPKernelConfigV1 } from '../../config/types';
-import type {
-	IRv1,
-	IRResource,
-	IRSchema,
-	IRCapabilityHint,
-	IRBlock,
-	IRDiagnostic,
-} from '../../ir/publicTypes';
+import { loadTestLayout } from '../../tests/layout.test-support';
 
-type PlanWorkspaceContext = BuilderHarnessContext<
-	ReturnType<typeof buildWorkspace>
->;
-
-const withWorkspace = (run: (context: PlanWorkspaceContext) => Promise<void>) =>
-	baseWithWorkspace(run, {
-		createWorkspace: (root) => buildWorkspace(root),
-	});
-
-function toRealIr(
-	irLike: ReturnType<typeof makePhpIrFixture>,
-	sourcePath: string
-) {
-	const toHash = (hash: IRResource['hash'] | string | undefined) =>
-		typeof hash === 'string'
-			? ({
-					algo: 'sha256',
-					inputs: ['resource'],
-					value: hash,
-				} satisfies IRResource['hash'])
-			: hash;
-	const normaliseRoute = (route: IRResource['routes'][number]) => ({
-		...route,
-		hash:
-			typeof route.hash === 'string'
-				? {
-						algo: 'sha256',
-						inputs: ['route'],
-						value: route.hash,
-					}
-				: route.hash,
-	});
-
-	const fallbackResourceHash: IRResource['hash'] = {
-		algo: 'sha256',
-		inputs: ['resource'],
-		value: 'fixture',
+function makeReporter() {
+	return {
+		info: jest.fn(),
+		debug: jest.fn(),
+		warn: jest.fn(),
+		error: jest.fn(),
 	};
-	const resources: IRResource[] = (irLike.resources ?? []).map((res) => ({
-		...res,
-		id: (res as { id?: string }).id ?? `res:${res.name}`,
-		schemaProvenance:
-			res.schemaProvenance as IRResource['schemaProvenance'],
-		routes: Array.from(res.routes ?? []).map((route) =>
-			normaliseRoute(route as unknown as IRResource['routes'][number])
-		) as IRResource['routes'],
-		cacheKeys: res.cacheKeys as IRResource['cacheKeys'],
-		ui: (res as { ui?: IRResource['ui'] }).ui,
-		warnings: (res.warnings ?? []) as IRResource['warnings'],
-		hash:
-			toHash((res as { hash?: IRResource['hash'] | string }).hash) ??
-			fallbackResourceHash,
-		identity: (res as { identity?: IRResource['identity'] }).identity,
-		queryParams: (res as { queryParams?: IRResource['queryParams'] })
-			.queryParams,
-	}));
+}
 
-	return makeIr({
-		namespace: irLike.meta.namespace,
-		meta: makeIrMeta(irLike.meta.namespace, {
-			origin: irLike.meta.origin,
-			sourcePath,
-		}),
-		config: irLike.config as WPKernelConfigV1,
-		resources,
-		schemas: (irLike.schemas ?? []) as unknown as IRSchema[],
-		capabilities: (irLike.capabilities ??
-			[]) as unknown as IRCapabilityHint[],
-		capabilityMap: irLike.capabilityMap as unknown as IRv1['capabilityMap'],
-		blocks: (irLike.blocks ?? []) as unknown as IRBlock[],
-		php: irLike.php as unknown as IRv1['php'],
-		ui: (irLike as { ui?: IRv1['ui'] }).ui,
-		diagnostics: (irLike.diagnostics ?? []).map(
-			(diag) =>
-				({
-					severity: (diag as IRDiagnostic)?.severity ?? 'warning',
-					code: (diag as IRDiagnostic)?.code ?? 'Unknown',
-					message: (diag as IRDiagnostic)?.message ?? 'diagnostic',
-				}) as IRDiagnostic
-		),
+async function withTempWorkspace(
+	run: (context: {
+		root: string;
+		workspace: ReturnType<typeof buildWorkspace>;
+	}) => Promise<void>
+): Promise<void> {
+	const root = await fs.mkdtemp(path.join(os.tmpdir(), 'wpk-plan-'));
+	const workspace = buildWorkspace(root);
+	try {
+		await run({ root, workspace });
+	} finally {
+		await fs.rm(root, { recursive: true, force: true });
+	}
+}
+
+async function runPlan(options: {
+	root: string;
+	workspace: ReturnType<typeof buildWorkspace>;
+	ir?: ReturnType<typeof makeIr> | null;
+	generationState?: GenerationManifest;
+	planPath?: string;
+}): Promise<{ plan: any; reporter: ReturnType<typeof makeReporter> }> {
+	const irArg =
+		options.ir === undefined
+			? makeIr()
+			: (options.ir as ReturnType<typeof makeIr> | null);
+	const optsSeed = irArg ?? makeIr();
+	const reporter = makeReporter();
+	const actions: unknown[] = [];
+	const helper = createApplyPlanBuilder();
+	const generationState =
+		options.generationState ?? buildEmptyGenerationState();
+
+	await helper.apply({
+		context: {
+			workspace: options.workspace,
+			reporter,
+			phase: 'generate',
+			generationState,
+		},
+		input: {
+			phase: 'generate',
+			options: {
+				config: optsSeed.config,
+				namespace: optsSeed.meta.namespace,
+				origin: optsSeed.meta.origin,
+				sourcePath: path.join(options.root, 'wpk.config.ts'),
+			},
+			ir: irArg,
+		},
+		output: { actions, queueWrite: () => {} },
+		reporter,
 	});
+
+	const layout = await loadTestLayout({ cwd: options.workspace.root });
+	const planRaw = await options.workspace.readText(
+		options.planPath ?? layout.resolve('plan.manifest')
+	);
+	return { plan: JSON.parse(planRaw ?? '{}'), reporter };
 }
 
-function expectNodeOfType<T extends { nodeType: string }>(
-	node: T | null | undefined,
-	type: string
-): T {
-	expect(node).toBeDefined();
-	expect(node?.nodeType).toBe(type);
-	return node as T;
-}
+describe('plan (orchestrator)', () => {
+	it('emits loader, shim, and block surfacing instructions with default layout', async () => {
+		await withTempWorkspace(async ({ root, workspace }) => {
+			const layout = await loadTestLayout({ cwd: root });
+			const generatedRoot = layout.resolve('blocks.generated');
+			const generated = path.join(root, generatedRoot, 'demo');
+			await fs.mkdir(generated, { recursive: true });
+			await fs.writeFile(path.join(generated, 'index.tsx'), '// block');
 
-describe('createApplyPlanBuilder', () => {
-	it('emits shim instructions for resources', async () => {
-		await withWorkspace(async ({ workspace, root: workspaceRoot }) => {
-			const reporter = buildReporter();
-			const output = buildOutput<BuilderOutput['actions'][number]>();
-
-			const irLike = makePhpIrFixture({
+			const ir = makeIr({
 				resources: [
-					makeWpPostResource({ name: 'jobs', schemaKey: 'job' }),
+					{
+						name: 'jobs',
+						schemaKey: 'jobs',
+						schemaProvenance: 'manual',
+						routes: [],
+						hash: {
+							algo: 'sha256',
+							inputs: ['resource'],
+							value: 'hash',
+						},
+						warnings: [],
+					},
 				],
 			});
-			const ir = toRealIr(
-				irLike,
-				path.join(workspaceRoot, 'wpk.config.ts')
-			);
 
-			const capturedPrograms: Array<{
-				program: any;
-				filePath: string;
-			}> = [];
-			const prettyPrinterSpy = jest
-				.spyOn(phpPrinter, 'buildPhpPrettyPrinter')
-				.mockImplementation(() => ({
-					async prettyPrint(payload) {
-						capturedPrograms.push({
-							program: payload.program,
-							filePath: payload.filePath,
-						});
-						return {
-							code: '<?php // shim\n',
-							ast: payload.program,
+			const { plan } = await runPlan({ root, workspace, ir });
+
+			const plugin = plan.instructions?.find(
+				(instr: any) => instr.file === 'plugin.php'
+			);
+			expect(plugin).toMatchObject({
+				base: layout.resolve('plan.base') + '/plugin.php',
+				incoming: layout.resolve('plan.incoming') + '/plugin.php',
+			});
+
+			const shim = plan.instructions?.find((instr: any) =>
+				instr.file?.endsWith('inc/Rest/JobsController.php')
+			);
+			expect(shim).toMatchObject({
+				base:
+					layout.resolve('plan.base') +
+					'/inc/Rest/JobsController.php',
+				incoming:
+					layout.resolve('plan.incoming') +
+					'/inc/Rest/JobsController.php',
+			});
+
+			const blockSurfacing = plan.instructions?.find((instr: any) =>
+				instr.file?.endsWith('src/blocks/demo/index.tsx')
+			);
+			expect(blockSurfacing).toMatchObject({
+				base: path.posix.join(
+					layout.resolve('plan.base'),
+					'src/blocks/demo/index.tsx'
+				),
+				incoming: path.posix.join(
+					layout.resolve('plan.incoming'),
+					'src/blocks/demo/index.tsx'
+				),
+			});
+		});
+	});
+
+	it('writes plan to custom layout paths and uses custom plugin loader path', async () => {
+		await withTempWorkspace(async ({ root, workspace }) => {
+			const ir = makeIr({
+				layout: {
+					resolve(id: string) {
+						const map: Record<string, string> = {
+							'plan.manifest': 'custom/plan.json',
+							'plan.base': 'base-dir',
+							'plan.incoming': 'incoming-dir',
+							'blocks.generated': 'generated-blocks',
+							'blocks.applied': 'surfaced-blocks',
+							'php.generated': 'generated-php',
+							'plugin.loader': 'custom/plugin.php',
 						};
+						return map[id] ?? id;
 					},
-				}));
-
-			const helper = createApplyPlanBuilder();
-			await helper.apply(
-				{
-					context: {
-						workspace,
-						reporter,
-						phase: 'generate' as const,
-						generationState: buildEmptyGenerationState(),
-					},
-					input: {
-						phase: 'generate' as const,
-						options: {
-							config: ir.config,
-							namespace: ir.meta.namespace,
-							origin: ir.meta.origin,
-							sourcePath: path.join(
-								workspaceRoot,
-								'wpk.config.ts'
-							),
-						},
-						ir,
-					},
-					output,
-					reporter,
+					all: {},
 				},
-				undefined
-			);
-
-			const planPath = path.posix.join('.wpk', 'apply', 'plan.json');
-			const planRaw = await workspace.readText(planPath);
-			expect(planRaw).toBeTruthy();
-			const plan = JSON.parse(planRaw ?? '{}') as {
-				instructions?: Array<{
-					file: string;
-					base?: string;
-					incoming?: string;
-					action?: string;
-				}>;
-			};
-			expect(plan.instructions).toBeDefined();
-			expect(plan.instructions).toHaveLength(2);
-
-			const pluginInstruction = plan.instructions?.find(
-				(entry) => entry.file === 'plugin.php'
-			);
-			expect(pluginInstruction).toMatchObject({
-				action: 'write',
-				base: '.wpk/apply/base/plugin.php',
-				incoming: '.wpk/apply/incoming/plugin.php',
 			});
 
-			const shimInstruction = plan.instructions?.find(
-				(entry) => entry.file === 'inc/Rest/JobsController.php'
-			);
-			expect(shimInstruction).toMatchObject({
-				action: 'write',
-				base: '.wpk/apply/base/inc/Rest/JobsController.php',
-				incoming: '.wpk/apply/incoming/inc/Rest/JobsController.php',
+			const { plan } = await runPlan({
+				root,
+				workspace,
+				ir,
+				planPath: path.posix.join('custom', 'plan.json'),
 			});
 
-			const incomingPath = path.posix.join(
-				'.wpk',
-				'apply',
-				'incoming',
-				'inc',
-				'Rest',
-				'JobsController.php'
+			const plugin = plan.instructions?.find(
+				(instr: any) => instr.file === 'plugin.php'
 			);
-			const incoming = await workspace.readText(incomingPath);
-
-			const basePath = path.posix.join(
-				'.wpk',
-				'apply',
-				'base',
-				'inc',
-				'Rest',
-				'JobsController.php'
+			expect(plugin).toMatchObject(
+				expect.objectContaining({
+					base: path.posix.join('base-dir', 'custom/plugin.php'),
+					incoming: path.posix.join(
+						'incoming-dir',
+						'custom/plugin.php'
+					),
+				})
 			);
-			const base = await workspace.readText(basePath);
-			expect(base).toBe(incoming);
-
-			const loaderIncomingPath = path.posix.join(
-				'.wpk',
-				'apply',
-				'incoming',
-				'plugin.php'
-			);
-			const loaderIncoming = await workspace.readText(loaderIncomingPath);
-			const loaderBasePath = path.posix.join(
-				'.wpk',
-				'apply',
-				'base',
-				'plugin.php'
-			);
-			const loaderBase = await workspace.readText(loaderBasePath);
-			expect(loaderBase).toBe(loaderIncoming);
-
-			expect(output.actions.map((action) => action.file)).toEqual(
-				expect.arrayContaining([
-					planPath,
-					incomingPath,
-					basePath,
-					loaderIncomingPath,
-					loaderBasePath,
-				])
-			);
-
-			expect(capturedPrograms).toHaveLength(2);
-
-			const toRelative = (absolute: string): string =>
-				path
-					.relative(workspaceRoot, absolute)
-					.split(path.sep)
-					.join('/');
-
-			const loaderProgramEntry = capturedPrograms.find(
-				(entry) =>
-					toRelative(entry.filePath) ===
-					'.wpk/apply/incoming/plugin.php'
-			);
-			expect(loaderProgramEntry).toBeDefined();
-			const loaderProgram = loaderProgramEntry?.program ?? [];
-			const loaderNamespace = expectNodeOfType(
-				loaderProgram.find(
-					(stmt: PhpStmt) => stmt.nodeType === 'Stmt_Namespace'
-				),
-				'Stmt_Namespace'
-			) as any;
-			expect(loaderNamespace.name?.parts).toEqual(['demo-plugin']);
-
-			const programEntry = capturedPrograms.find(
-				(entry) =>
-					toRelative(entry.filePath) ===
-					'.wpk/apply/incoming/inc/Rest/JobsController.php'
-			);
-			expect(programEntry).toBeDefined();
-			const program = programEntry?.program ?? [];
-			const namespaceStmt = expectNodeOfType(
-				program.find(
-					(stmt: PhpStmt) => stmt.nodeType === 'Stmt_Namespace'
-				),
-				'Stmt_Namespace'
-			) as any;
-			expect(namespaceStmt.name?.parts).toEqual(['demo-plugin', 'Rest']);
-
-			const ifStatement = expectNodeOfType(
-				namespaceStmt.stmts.find(
-					(stmt: PhpStmt) => stmt.nodeType === 'Stmt_If'
-				),
-				'Stmt_If'
-			);
-			expect(ifStatement.cond.nodeType).toBe('Expr_BooleanNot');
-			const funcCall = expectNodeOfType(
-				ifStatement.cond.expr,
-				'Expr_FuncCall'
-			);
-			expect(funcCall.name.nodeType).toBe('Name');
-			expect(funcCall.name.parts).toEqual(['class_exists']);
-
-			const classArg = expectNodeOfType(
-				funcCall.args[0]?.value,
-				'Expr_ClassConstFetch'
-			);
-			expect(classArg.class.nodeType).toBe('Name');
-			expect(classArg.class.parts).toEqual([
-				'demo-plugin',
-				'Generated',
-				'Rest',
-				'JobsController',
-			]);
-
-			const requireStatement = expectNodeOfType(
-				ifStatement.stmts[0],
-				'Stmt_Expression'
-			);
-			const requireCall = expectNodeOfType(
-				requireStatement.expr,
-				'Expr_FuncCall'
-			);
-			expect(requireCall.name.nodeType).toBe('Name');
-			expect(requireCall.name.parts).toEqual(['require_once']);
-
-			const requireArg = expectNodeOfType(
-				requireCall.args[0]?.value,
-				'Expr_BinaryOp_Concat'
-			);
-			const requireSuffix = expectNodeOfType(
-				requireArg.right,
-				'Scalar_String'
-			);
-			expect(requireSuffix.value).toBe(
-				'/../../.generated/php/Rest/JobsController.php'
-			);
-
-			const classStmt = expectNodeOfType(
-				namespaceStmt.stmts.find(
-					(stmt: PhpStmt) => stmt.nodeType === 'Stmt_Class'
-				),
-				'Stmt_Class'
-			);
-			expect(classStmt.name?.name).toBe('JobsController');
-			const extendsName = expectNodeOfType(classStmt.extends, 'Name');
-			expect(extendsName.parts).toEqual([
-				'demo-plugin',
-				'Generated',
-				'Rest',
-				'JobsController',
-			]);
-
-			prettyPrinterSpy.mockRestore();
 		});
 	});
 
-	it('surfaces generated block assets via plan instructions', async () => {
-		await withWorkspace(async ({ workspace, root: workspaceRoot }) => {
-			const reporter = buildReporter();
-			const output = buildOutput<BuilderOutput['actions'][number]>();
-
-			await workspace.write(
-				path.posix.join(
-					'.generated',
-					'blocks',
-					'example',
-					'block.json'
-				),
-				'{"name":"example/block","title":"Example","category":"widgets"}',
-				{ ensureDir: true }
+	it('emits deletion instruction for removed shims when snapshots match', async () => {
+		await withTempWorkspace(async ({ root, workspace }) => {
+			const layout = await loadTestLayout({ cwd: root });
+			const shimPath = 'inc/Rest/JobsController.php';
+			const basePath = path.join(
+				root,
+				layout.resolve('plan.base'),
+				shimPath
 			);
-			await workspace.write(
-				path.posix.join('.generated', 'blocks', 'example', 'index.tsx'),
-				'export default function ExampleBlock() { return null; }',
-				{ ensureDir: true }
-			);
+			await fs.mkdir(path.dirname(basePath), { recursive: true });
+			const contents = '<?php // base';
+			await fs.writeFile(basePath, contents);
+			const targetPath = path.join(root, shimPath);
+			await fs.mkdir(path.dirname(targetPath), { recursive: true });
+			await fs.writeFile(targetPath, contents);
 
-			const ir = toRealIr(
-				makePhpIrFixture({ resources: [] }),
-				path.join(workspaceRoot, 'wpk.config.ts')
-			);
-
-			const helper = createApplyPlanBuilder();
-			await helper.apply(
-				{
-					context: {
-						workspace,
-						reporter,
-						phase: 'generate' as const,
-						generationState: buildEmptyGenerationState(),
-					},
-					input: {
-						phase: 'generate' as const,
-						options: {
-							config: ir.config,
-							namespace: ir.meta.namespace,
-							origin: ir.meta.origin,
-							sourcePath: path.join(
-								workspaceRoot,
-								'wpk.config.ts'
-							),
+			const ir = makeIr({ resources: [] });
+			const { plan } = await runPlan({
+				root,
+				workspace,
+				ir,
+				generationState: {
+					version: GENERATION_STATE_VERSION,
+					resources: {
+						jobs: {
+							hash: 'hash',
+							artifacts: { generated: [], shims: [shimPath] },
 						},
-						ir,
 					},
-					output,
-					reporter,
 				},
-				undefined
-			);
-
-			const planPath = path.posix.join('.wpk', 'apply', 'plan.json');
-			const planRaw = await workspace.readText(planPath);
-			expect(planRaw).toBeTruthy();
-			const plan = JSON.parse(planRaw ?? '{}') as {
-				instructions?: Array<{ file: string }>;
-			};
-			expect(plan.instructions).toEqual(
-				expect.arrayContaining([
-					expect.objectContaining({
-						file: 'src/blocks/example/block.json',
-					}),
-					expect.objectContaining({
-						file: 'src/blocks/example/index.tsx',
-					}),
-				])
-			);
-
-			const incomingIndex = await workspace.readText(
-				path.posix.join(
-					'.wpk',
-					'apply',
-					'incoming',
-					'src',
-					'blocks',
-					'example',
-					'index.tsx'
-				)
-			);
-			expect(incomingIndex).toContain('ExampleBlock');
-		});
-	});
-
-	it('removes stale surfaced block assets when generators stop emitting them', async () => {
-		await withWorkspace(async ({ workspace, root: workspaceRoot }) => {
-			const reporter = buildReporter();
-			const output = buildOutput<BuilderOutput['actions'][number]>();
-
-			const orphanFile = path.posix.join(
-				'src',
-				'blocks',
-				'orphan',
-				'block.json'
-			);
-			await workspace.write(orphanFile, '{"name":"demo/orphan"}', {
-				ensureDir: true,
-			});
-			const baseOrphan = path.posix.join(
-				'.wpk',
-				'apply',
-				'base',
-				'src',
-				'blocks',
-				'orphan',
-				'block.json'
-			);
-			await workspace.write(baseOrphan, '{"name":"demo/orphan"}', {
-				ensureDir: true,
 			});
 
-			const ir = toRealIr(
-				makePhpIrFixture({ resources: [] }),
-				path.join(workspaceRoot, 'wpk.config.ts')
-			);
-
-			const helper = createApplyPlanBuilder();
-			await helper.apply(
-				{
-					context: {
-						workspace,
-						reporter,
-						phase: 'generate' as const,
-						generationState: buildEmptyGenerationState(),
-					},
-					input: {
-						phase: 'generate' as const,
-						options: {
-							config: ir.config,
-							namespace: ir.meta.namespace,
-							origin: ir.meta.origin,
-							sourcePath: path.join(
-								workspaceRoot,
-								'wpk.config.ts'
-							),
-						},
-						ir,
-					},
-					output,
-					reporter,
-				},
-				undefined
-			);
-
-			const planPath = path.posix.join('.wpk', 'apply', 'plan.json');
-			const planRaw = await workspace.readText(planPath);
-			expect(planRaw).toBeTruthy();
-			const plan = JSON.parse(planRaw ?? '{}') as {
-				instructions?: Array<{ action: string; file: string }>;
-			};
+			expect(plan.skippedDeletions).toEqual([]);
 			expect(plan.instructions).toEqual(
 				expect.arrayContaining([
 					expect.objectContaining({
 						action: 'delete',
-						file: 'src/blocks/orphan/block.json',
+						file: shimPath,
 					}),
 				])
 			);
 		});
 	});
 
-	it('includes UI enqueue hooks when dataview metadata exists', async () => {
-		await withWorkspace(async ({ workspace, root: workspaceRoot }) => {
-			const reporter = buildReporter();
-			const output = buildOutput<BuilderOutput['actions'][number]>();
-
-			const resource = makeWpPostResource({
-				name: 'jobs',
-				schemaKey: 'job',
-			});
-
-			const irLike = makePhpIrFixture({
-				resources: [
-					{
-						...resource,
-						ui: {
-							admin: {
-								dataviews: {
-									preferencesKey: 'jobs/admin',
-									screen: {
-										menu: { slug: 'jobs', title: 'Jobs' },
-									},
-								},
-							},
-						},
-					},
-				],
-			});
-			const ir = toRealIr(
-				irLike,
-				path.join(workspaceRoot, 'wpk.config.ts')
+	it('skips plugin loader when an unguarded user plugin exists', async () => {
+		await withTempWorkspace(async ({ root, workspace }) => {
+			await fs.writeFile(
+				path.join(root, 'plugin.php'),
+				'<?php // user loader'
 			);
-			ir.ui = {
-				resources: [
-					{
-						resource: 'jobs',
-						preferencesKey: 'jobs/admin',
-						menu: { slug: 'jobs', title: 'Jobs' },
-					},
-				],
-			};
-
-			const capturedPrograms: Array<{
-				program: any;
-				filePath: string;
-			}> = [];
-			const prettyPrinterSpy = jest
-				.spyOn(phpPrinter, 'buildPhpPrettyPrinter')
-				.mockImplementation(() => ({
-					async prettyPrint(payload) {
-						capturedPrograms.push({
-							program: payload.program,
-							filePath: payload.filePath,
-						});
-						return {
-							code: '<?php // loader\n',
-							ast: payload.program,
-						};
-					},
-				}));
-
-			const helper = createApplyPlanBuilder();
-			await helper.apply(
-				{
-					context: {
-						workspace,
-						reporter,
-						phase: 'generate' as const,
-						generationState: buildEmptyGenerationState(),
-					},
-					input: {
-						phase: 'generate' as const,
-						options: {
-							config: ir.config,
-							namespace: ir.meta.namespace,
-							origin: ir.meta.origin,
-							sourcePath: path.join(
-								workspaceRoot,
-								'wpk.config.ts'
-							),
-						},
-						ir,
-					},
-					output,
-					reporter,
-				},
-				undefined
+			const { plan } = await runPlan({ root, workspace, ir: makeIr() });
+			const plugin = plan.instructions?.find(
+				(instr: any) => instr.file === 'plugin.php'
 			);
-
-			const toRelative = (absolute: string): string =>
-				path
-					.relative(workspaceRoot, absolute)
-					.split(path.sep)
-					.join('/');
-
-			const loaderProgramEntry = capturedPrograms.find(
-				(entry) =>
-					toRelative(entry.filePath) ===
-					'.wpk/apply/incoming/plugin.php'
-			);
-			expect(loaderProgramEntry).toBeDefined();
-
-			const loaderProgram = loaderProgramEntry?.program ?? [];
-			const loaderNamespace = expectNodeOfType(
-				loaderProgram.find(
-					(stmt: PhpStmt) => stmt.nodeType === 'Stmt_Namespace'
-				),
-				'Stmt_Namespace'
-			) as any;
-
-			const findFunction = (name: string): PhpStmtFunction | undefined =>
-				loaderNamespace.stmts.find(
-					(stmt: any): stmt is PhpStmtFunction =>
-						stmt.nodeType === 'Stmt_Function' &&
-						stmt.name?.name === name
-				);
-
-			expect(findFunction('enqueue_wpkernel_ui_assets')).toBeDefined();
-			expect(findFunction('bootstrap_kernel')).toBeDefined();
-
-			prettyPrinterSpy.mockRestore();
+			expect(plugin).toBeUndefined();
 		});
 	});
 
-	it('falls back to require guards when no autoload root is defined', async () => {
-		await withWorkspace(async ({ workspace, root: workspaceRoot }) => {
-			const reporter = buildReporter();
-			const output = buildOutput<BuilderOutput['actions'][number]>();
-
-			const ir = toRealIr(
-				{
-					...makePhpIrFixture({
-						resources: [
-							makeWpPostResource({
-								name: 'jobs',
-								schemaKey: 'job',
-							}),
-						],
-					}),
-					php: {
-						autoload: '',
-						outputDir: '.generated/php',
-						namespace: 'DemoPlugin',
-					},
-				},
-				path.join(workspaceRoot, 'wpk.config.ts')
-			);
-
-			const capturedPrograms: Array<{
-				program: any;
-				filePath: string;
-			}> = [];
-			const prettyPrinterSpy = jest
-				.spyOn(phpPrinter, 'buildPhpPrettyPrinter')
-				.mockImplementation(() => ({
-					async prettyPrint(payload) {
-						capturedPrograms.push({
-							program: payload.program,
-							filePath: payload.filePath,
-						});
-						return {
-							code: '<?php // shim\n',
-							ast: payload.program,
-						};
-					},
-				}));
-
-			const helper = createApplyPlanBuilder();
-			await helper.apply(
-				{
-					context: {
-						workspace,
-						reporter,
-						phase: 'generate' as const,
-						generationState: buildEmptyGenerationState(),
-					},
-					input: {
-						phase: 'generate' as const,
-						options: {
-							config: ir.config,
-							namespace: ir.meta.namespace,
-							origin: ir.meta.origin,
-							sourcePath: path.join(
-								workspaceRoot,
-								'wpk.config.ts'
-							),
-						},
-						ir,
-					},
-					output,
-					reporter,
-				},
-				undefined
-			);
-
-			const planPath = path.posix.join('.wpk', 'apply', 'plan.json');
-			const planRaw = await workspace.readText(planPath);
-			expect(planRaw).toBeTruthy();
-			const plan = JSON.parse(planRaw ?? '{}') as {
-				instructions?: Array<{
-					file: string;
-					base: string;
-					incoming: string;
-				}>;
-			};
-
-			expect(plan.instructions).toBeDefined();
-			expect(plan.instructions).toHaveLength(2);
-
-			const pluginInstruction = plan.instructions?.find(
-				(entry) => entry.file === 'plugin.php'
-			);
-			expect(pluginInstruction).toMatchObject({
-				base: '.wpk/apply/base/plugin.php',
-				incoming: '.wpk/apply/incoming/plugin.php',
-			});
-
-			const shimInstruction = plan.instructions?.find(
-				(entry) => entry.file === 'Rest/JobsController.php'
-			);
-			expect(shimInstruction).toMatchObject({
-				base: '.wpk/apply/base/Rest/JobsController.php',
-				incoming: '.wpk/apply/incoming/Rest/JobsController.php',
-			});
-
-			expect(capturedPrograms).toHaveLength(2);
-
-			const toRelative = (absolute: string): string =>
-				path
-					.relative(workspaceRoot, absolute)
-					.split(path.sep)
-					.join('/');
-
-			const loaderProgramEntry = capturedPrograms.find(
-				(entry) =>
-					toRelative(entry.filePath) ===
-					'.wpk/apply/incoming/plugin.php'
-			);
-			expect(loaderProgramEntry).toBeDefined();
-			const loaderProgram = loaderProgramEntry?.program ?? [];
-			const loaderNamespace = expectNodeOfType(
-				loaderProgram.find(
-					(stmt: PhpStmt) => stmt.nodeType === 'Stmt_Namespace'
-				),
-				'Stmt_Namespace'
-			) as any;
-			expect(loaderNamespace.name?.parts).toEqual(['demo-plugin']);
-
-			const programEntry = capturedPrograms.find(
-				(entry) =>
-					toRelative(entry.filePath) ===
-					'.wpk/apply/incoming/Rest/JobsController.php'
-			);
-			expect(programEntry).toBeDefined();
-			const program = programEntry?.program ?? [];
-			const namespaceStmt = expectNodeOfType(
-				program.find(
-					(stmt: PhpStmt) => stmt.nodeType === 'Stmt_Namespace'
-				),
-				'Stmt_Namespace'
-			) as any;
-			const ifStatement = expectNodeOfType(
-				namespaceStmt.stmts.find(
-					(stmt: PhpStmt) => stmt.nodeType === 'Stmt_If'
-				),
-				'Stmt_If'
-			);
-			const requireStatement = expectNodeOfType(
-				ifStatement.stmts[0],
-				'Stmt_Expression'
-			);
-			const requireCall = expectNodeOfType(
-				requireStatement.expr,
-				'Expr_FuncCall'
-			);
-			const requireArg = expectNodeOfType(
-				requireCall.args[0]?.value,
-				'Expr_BinaryOp_Concat'
-			);
-			const requireSuffix = expectNodeOfType(
-				requireArg.right,
-				'Scalar_String'
-			);
-			expect(requireSuffix.value).toBe(
-				'/../.generated/php/Rest/JobsController.php'
-			);
-
-			prettyPrinterSpy.mockRestore();
-		});
-	});
-
-	it('skips plugin loader instructions when an author-owned loader is detected', async () => {
-		await withWorkspace(async ({ workspace, root: workspaceRoot }) => {
-			const reporter = buildReporter();
-			const output = buildOutput<BuilderOutput['actions'][number]>();
-
-			const ir = toRealIr(
-				makePhpIrFixture({
-					resources: [
-						makeWpPostResource({ name: 'jobs', schemaKey: 'job' }),
-					],
-				}),
-				path.join(workspaceRoot, 'wpk.config.ts')
-			);
-
-			await workspace.write('plugin.php', '<?php\n// custom loader\n', {
-				ensureDir: true,
-			});
-
-			const capturedPrograms: Array<{
-				program: any;
-				filePath: string;
-			}> = [];
-			const prettyPrinterSpy = jest
-				.spyOn(phpPrinter, 'buildPhpPrettyPrinter')
-				.mockImplementation(() => ({
-					async prettyPrint(payload) {
-						capturedPrograms.push({
-							program: payload.program,
-							filePath: payload.filePath,
-						});
-						return {
-							code: '<?php // shim\n',
-							ast: payload.program,
-						};
-					},
-				}));
-
-			const helper = createApplyPlanBuilder();
-			await helper.apply(
-				{
-					context: {
-						workspace,
-						reporter,
-						phase: 'generate' as const,
-						generationState: buildEmptyGenerationState(),
-					},
-					input: {
-						phase: 'generate' as const,
-						options: {
-							config: ir.config,
-							namespace: ir.meta.namespace,
-							origin: ir.meta.origin,
-							sourcePath: path.join(
-								workspaceRoot,
-								'wpk.config.ts'
-							),
-						},
-						ir,
-					},
-					output,
-					reporter,
-				},
-				undefined
-			);
-
-			const planPath = path.posix.join('.wpk', 'apply', 'plan.json');
-			const planRaw = await workspace.readText(planPath);
-			expect(planRaw).toBeTruthy();
-			const plan = JSON.parse(planRaw ?? '{}') as {
-				instructions?: Array<{
-					file: string;
-					base: string;
-					incoming: string;
-				}>;
-			};
-
-			expect(plan.instructions).toBeDefined();
-			expect(plan.instructions).toHaveLength(1);
-			expect(plan.instructions?.[0]).toMatchObject({
-				file: 'inc/Rest/JobsController.php',
-			});
-			expect(
-				plan.instructions?.some(
-					(entry) => entry.file === 'plugin.php'
-				) ?? false
-			).toBe(false);
-
-			const loaderIncomingPath = path.posix.join(
-				'.wpk',
-				'apply',
-				'incoming',
-				'plugin.php'
-			);
-			const loaderIncoming = await workspace.readText(loaderIncomingPath);
-			expect(loaderIncoming).toBeNull();
-
-			expect(capturedPrograms).toHaveLength(1);
-
-			prettyPrinterSpy.mockRestore();
-		});
-	});
-
-	it('emits deletion instructions for removed shims', async () => {
-		await withWorkspace(async ({ workspace, root: workspaceRoot }) => {
-			const reporter = buildReporter();
-			const output = buildOutput<BuilderOutput['actions'][number]>();
-
-			const ir = toRealIr(
-				makePhpIrFixture({ resources: [] }),
-				path.join(workspaceRoot, 'wpk.config.ts')
-			);
-			const helper = createApplyPlanBuilder();
-			const previous: GenerationManifest = {
-				version: 1,
-				resources: {
-					jobs: {
-						hash: 'legacy',
-						artifacts: {
-							generated: [
-								'.generated/php/Rest/JobsController.php',
-							],
-							shims: ['inc/Rest/JobsController.php'],
-						},
-					},
-				},
-			};
-
-			const shimContents = '<?php // legacy shim\n';
-			await workspace.write(
-				path.posix.join(
-					'.wpk',
-					'apply',
-					'base',
-					'inc',
-					'Rest',
-					'JobsController.php'
-				),
-				shimContents,
-				{ ensureDir: true }
-			);
-			await workspace.write(
-				path.posix.join('inc', 'Rest', 'JobsController.php'),
-				shimContents,
-				{ ensureDir: true }
-			);
-
-			await helper.apply({
-				context: {
+	it('warns and emits no instructions when IR is missing', async () => {
+		await withTempWorkspace(async ({ root, workspace }) => {
+			await expect(
+				runPlan({
+					root,
 					workspace,
-					reporter,
-					phase: 'generate',
-					generationState: previous,
-				},
-				input: {
-					phase: 'generate',
-					options: {
-						config: ir.config,
-						namespace: ir.meta.namespace,
-						origin: ir.meta.origin,
-						sourcePath: path.join(workspaceRoot, 'wpk.config.ts'),
-					},
-					ir,
-				},
-				output,
-				reporter,
+					ir: null,
+				})
+			).rejects.toMatchObject({
+				message: 'Plan paths cannot be resolved without an IR.',
 			});
-
-			const planPath = path.posix.join('.wpk', 'apply', 'plan.json');
-			const planRaw = await workspace.readText(planPath);
-			expect(planRaw).toBeTruthy();
-			const plan = JSON.parse(planRaw ?? '{}') as {
-				instructions?: Array<{ file: string; action?: string }>;
-				skippedDeletions?: Array<{ file: string; reason?: string }>;
-			};
-
-			const deletion = plan.instructions?.find(
-				(entry) =>
-					entry.file === 'inc/Rest/JobsController.php' &&
-					entry.action === 'delete'
-			);
-
-			expect(deletion).toBeDefined();
-			expect(plan.skippedDeletions).toEqual([]);
-		});
-	});
-
-	it('emits deletion instructions when shim paths change between runs', async () => {
-		await withWorkspace(async ({ workspace, root: workspaceRoot }) => {
-			const reporter = buildReporter();
-			const output = buildOutput<BuilderOutput['actions'][number]>();
-
-			const ir = toRealIr(
-				makePhpIrFixture({
-					resources: [
-						makeWpPostResource({ name: 'jobs', schemaKey: 'job' }),
-					],
-				}),
-				path.join(workspaceRoot, 'wpk.config.ts')
-			);
-			ir.php.autoload = 'includes/';
-
-			const helper = createApplyPlanBuilder();
-			const previous: GenerationManifest = {
-				version: 1,
-				resources: {
-					jobs: {
-						hash: 'legacy',
-						artifacts: {
-							generated: [
-								'.generated/php/Rest/JobsController.php',
-							],
-							shims: ['inc/Rest/JobsController.php'],
-						},
-					},
-				},
-			};
-
-			const shimContents = '<?php // legacy shim\n';
-			await workspace.write(
-				path.posix.join(
-					'.wpk',
-					'apply',
-					'base',
-					'inc',
-					'Rest',
-					'JobsController.php'
-				),
-				shimContents,
-				{ ensureDir: true }
-			);
-			await workspace.write(
-				path.posix.join('inc', 'Rest', 'JobsController.php'),
-				shimContents,
-				{ ensureDir: true }
-			);
-
-			await helper.apply({
-				context: {
-					workspace,
-					reporter,
-					phase: 'generate',
-					generationState: previous,
-				},
-				input: {
-					phase: 'generate',
-					options: {
-						config: ir.config,
-						namespace: ir.meta.namespace,
-						origin: ir.meta.origin,
-						sourcePath: path.join(workspaceRoot, 'wpk.config.ts'),
-					},
-					ir,
-				},
-				output,
-				reporter,
-			});
-
-			const planPath = path.posix.join('.wpk', 'apply', 'plan.json');
-			const planRaw = await workspace.readText(planPath);
-			expect(planRaw).toBeTruthy();
-			const plan = JSON.parse(planRaw ?? '{}') as {
-				instructions?: Array<{ file: string; action?: string }>;
-				skippedDeletions?: Array<{ file: string; reason?: string }>;
-			};
-
-			const deletion = plan.instructions?.find(
-				(entry) =>
-					entry.file === 'inc/Rest/JobsController.php' &&
-					entry.action === 'delete'
-			);
-
-			expect(deletion).toBeDefined();
-			expect(plan.skippedDeletions).toEqual([]);
-		});
-	});
-
-	it('skips deletion instructions when shims diverge from the base snapshot', async () => {
-		await withWorkspace(async ({ workspace, root: workspaceRoot }) => {
-			const reporter = buildReporter();
-			const output = buildOutput<BuilderOutput['actions'][number]>();
-
-			const ir = toRealIr(
-				makePhpIrFixture({ resources: [] }),
-				path.join(workspaceRoot, 'wpk.config.ts')
-			);
-
-			const helper = createApplyPlanBuilder();
-			const previous: GenerationManifest = {
-				version: 1,
-				resources: {
-					jobs: {
-						hash: 'legacy',
-						artifacts: {
-							generated: [
-								'.generated/php/Rest/JobsController.php',
-							],
-							shims: ['inc/Rest/JobsController.php'],
-						},
-					},
-				},
-			};
-
-			await workspace.write(
-				path.posix.join(
-					'.wpk',
-					'apply',
-					'base',
-					'inc',
-					'Rest',
-					'JobsController.php'
-				),
-				'<?php // legacy shim\n',
-				{ ensureDir: true }
-			);
-			await workspace.write(
-				path.posix.join('inc', 'Rest', 'JobsController.php'),
-				['<?php // legacy shim', '// author modification'].join('\n'),
-				{ ensureDir: true }
-			);
-
-			await helper.apply({
-				context: {
-					workspace,
-					reporter,
-					phase: 'generate',
-					generationState: previous,
-				},
-				input: {
-					phase: 'generate',
-					options: {
-						config: ir.config,
-						namespace: ir.meta.namespace,
-						origin: ir.meta.origin,
-						sourcePath: path.join(workspaceRoot, 'wpk.config.ts'),
-					},
-					ir,
-				},
-				output,
-				reporter,
-			});
-
-			const planPath = path.posix.join('.wpk', 'apply', 'plan.json');
-			const planRaw = await workspace.readText(planPath);
-			expect(planRaw).toBeTruthy();
-			const plan = JSON.parse(planRaw ?? '{}') as {
-				instructions?: Array<{ file: string; action?: string }>;
-				skippedDeletions?: Array<{ file: string; reason?: string }>;
-			};
-
-			const deletion = plan.instructions?.find(
-				(entry) =>
-					entry.file === 'inc/Rest/JobsController.php' &&
-					entry.action === 'delete'
-			);
-
-			expect(deletion).toBeUndefined();
-			expect(plan.skippedDeletions).toEqual([
-				expect.objectContaining({
-					file: 'inc/Rest/JobsController.php',
-					reason: 'modified-target',
-				}),
-			]);
-		});
-	});
-
-	it('skips plugin loader emission when the IR artifact is missing', async () => {
-		await withWorkspace(async ({ workspace, root: workspaceRoot }) => {
-			const reporter = buildReporter();
-			const output = buildOutput<BuilderOutput['actions'][number]>();
-
-			const helper = createApplyPlanBuilder();
-			await helper.apply(
-				{
-					context: {
-						workspace,
-						reporter,
-						phase: 'generate',
-						generationState: buildEmptyGenerationState(),
-					},
-					input: {
-						phase: 'generate',
-						options: {
-							config: {
-								version: 1,
-								namespace: 'Demo',
-								resources: {},
-								schemas: {},
-							},
-							namespace: 'Demo',
-							origin: 'typescript',
-							sourcePath: path.join(
-								workspaceRoot,
-								'wpk.config.ts'
-							),
-						},
-						ir: null,
-					},
-					output,
-					reporter,
-				},
-				undefined
-			);
-
-			expect(reporter.warn).toHaveBeenCalledWith(
-				'createApplyPlanBuilder: IR artifact missing, skipping plugin loader emission.'
-			);
-
-			const planRaw = await workspace.readText(
-				path.posix.join('.wpk', 'apply', 'plan.json')
-			);
-			expect(planRaw).toBeTruthy();
-			const plan = JSON.parse(planRaw ?? '{}') as {
-				instructions?: unknown;
-			};
-			expect(plan.instructions).toEqual([]);
 		});
 	});
 });

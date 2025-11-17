@@ -23,6 +23,7 @@ import { buildWorkspace } from '../../../workspace';
 import type { Workspace } from '../../../workspace';
 import * as BlockModule from '@wpkernel/wp-json-ast';
 import { withBlocks } from '../test-support/fixtures.test-support';
+import { loadTestLayout } from '../../../tests/layout.test-support';
 
 jest.mock('@wpkernel/wp-json-ast', () => {
 	const actual = jest.requireActual<typeof BlockModule>(
@@ -46,6 +47,7 @@ describe('createPhpBlocksHelper', () => {
 		await withWorkspace(async ({ workspace, root }) => {
 			const configSource = buildWPKernelConfigSource();
 			await workspace.write('wpk.config.ts', configSource);
+			const layout = await loadTestLayout({ cwd: workspace.root });
 
 			const blockDir = path.join('src', 'blocks', 'example');
 			const manifestPath = path.join(blockDir, 'block.json');
@@ -92,10 +94,17 @@ describe('createPhpBlocksHelper', () => {
 				.map((action) => normalise(path.relative(root, action.file)))
 				.sort();
 
-			expect(queuedFiles).toEqual([
-				'.generated/build/blocks-manifest.php',
-				'.generated/php/Blocks/Register.php',
-			]);
+			expect(queuedFiles).toEqual(
+				expect.arrayContaining([
+					expect.stringContaining('blocks-manifest.php'),
+					normalise(
+						path.join(
+							layout.resolve('php.generated'),
+							'Blocks/Register.php'
+						)
+					),
+				])
+			);
 
 			const manifestAction = pending.find(
 				(action) => action.metadata.kind === 'block-manifest'

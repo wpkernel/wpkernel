@@ -14,7 +14,8 @@
 	"include": [
 		"./**/*.ts",
 		"../src/builders/php/test-support/php-builder.test-support.ts",
-		"../src/tests/ir.test-support.ts"
+		"../src/tests/ir.test-support.ts",
+		"../src/tests/layout.test-support.ts"
 	],
 	"references": [
 		{ "path": "../tsconfig.json" },

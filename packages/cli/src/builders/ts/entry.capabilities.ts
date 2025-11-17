@@ -1,10 +1,12 @@
+import path from 'path';
 import { createHelper } from '../../runtime';
 import { printCapabilityModule } from './entry.capability';
+import { resolveTsLayout } from './ts.paths';
 
 /**
  * Creates the TypeScript capability-module builder helper.
  *
- * Emits `.generated/js/capabilities.(ts|d.ts)` files that mirror the IR capability map.
+ * Emits `.wpk/generate/js/capabilities.(ts|d.ts)` files that mirror the IR capability map.
  *
  * @category Builders
  */
@@ -23,12 +25,15 @@ export function createTsCapabilityBuilder() {
 			const { source, declaration } = await printCapabilityModule(
 				input.ir
 			);
+			const { jsGenerated } = resolveTsLayout(input.ir);
+			const modulePath = path.posix.join(jsGenerated, 'capabilities.ts');
+			const dtsPath = path.posix.join(jsGenerated, 'capabilities.d.ts');
 			output.queueWrite({
-				file: '.generated/js/capabilities.ts',
+				file: modulePath,
 				contents: source,
 			});
 			output.queueWrite({
-				file: '.generated/js/capabilities.d.ts',
+				file: dtsPath,
 				contents: declaration,
 			});
 		},

@@ -20,6 +20,7 @@ import {
 import { buildWorkspace } from '../../workspace';
 import type { Workspace } from '../../workspace';
 import { validateGeneratedImports } from '../../commands/run-generate/validation';
+import { loadTestLayout } from '../../tests/layout.test-support';
 
 const withWorkspace = (
 	run: (context: BuilderHarnessContext<Workspace>) => Promise<void>
@@ -46,6 +47,8 @@ describe('createTsBuilder - orchestration', () => {
 				dataviews: null,
 				sourcePath: path.join(root, 'wpk.config.ts'),
 			});
+			const testLayout = await loadTestLayout({ cwd: workspace.root });
+			const irWithLayout = { ...ir, layout: testLayout };
 
 			const reporter = buildReporter();
 			const output = buildOutput();
@@ -61,7 +64,7 @@ describe('createTsBuilder - orchestration', () => {
 					input: {
 						phase: 'generate',
 						options,
-						ir,
+						ir: irWithLayout,
 					},
 					output,
 					reporter,
@@ -77,8 +80,7 @@ describe('createTsBuilder - orchestration', () => {
 			await expect(
 				workspace.exists(
 					path.join(
-						'.generated',
-						'ui',
+						testLayout.resolve('ui.generated'),
 						'app',
 						'job',
 						'admin',
@@ -104,15 +106,19 @@ describe('createTsBuilder - orchestration', () => {
 				dataviews,
 				sourcePath: path.join(root, 'wpk.config.ts'),
 			});
+			const testLayout = await loadTestLayout({ cwd: workspace.root });
+			const irWithLayout = { ...ir, layout: testLayout };
 
 			const reporter = buildReporter();
 			const output = buildOutput();
 			const customCreator: TsBuilderCreator = {
 				key: 'builder.generate.ts.custom.test',
 				async create({ project, descriptor, emit }) {
+					const creatorLayout = await loadTestLayout({
+						cwd: project.getDirectoryOrThrow('.').getPath(),
+					});
 					const filePath = path.join(
-						'.generated',
-						'ui',
+						creatorLayout.resolve('ui.generated'),
 						'extras',
 						`${descriptor.key}.ts`
 					);
@@ -150,7 +156,7 @@ describe('createTsBuilder - orchestration', () => {
 					input: {
 						phase: 'generate',
 						options,
-						ir,
+						ir: irWithLayout,
 					},
 					output,
 					reporter,
@@ -158,9 +164,10 @@ describe('createTsBuilder - orchestration', () => {
 				undefined
 			);
 
+			const uiGeneratedRoot = testLayout.resolve('ui.generated');
+
 			const customArtifactPath = path.join(
-				'.generated',
-				'ui',
+				uiGeneratedRoot,
 				'extras',
 				'job.ts'
 			);
@@ -170,34 +177,20 @@ describe('createTsBuilder - orchestration', () => {
 			).resolves.toContain("export const marker = 'job';");
 			expect(output.actions.map((action) => action.file)).toEqual([
 				path.join(
-					'.generated',
-					'ui',
+					uiGeneratedRoot,
 					'app',
 					'job',
 					'admin',
 					'JobsAdminScreen.tsx'
 				),
+				path.join(uiGeneratedRoot, 'fixtures', 'dataviews', 'job.ts'),
 				path.join(
-					'.generated',
-					'ui',
-					'fixtures',
-					'dataviews',
-					'job.ts'
-				),
-				path.join(
-					'.generated',
-					'ui',
+					uiGeneratedRoot,
 					'fixtures',
 					'interactivity',
 					'job.ts'
 				),
-				path.join(
-					'.generated',
-					'ui',
-					'registry',
-					'dataviews',
-					'job.ts'
-				),
+				path.join(uiGeneratedRoot, 'registry', 'dataviews', 'job.ts'),
 				customArtifactPath,
 			]);
 			const debugCalls = (reporter.debug as jest.Mock).mock.calls;
@@ -205,15 +198,7 @@ describe('createTsBuilder - orchestration', () => {
 			expect(debugMessage).toContain(
 				'createTsBuilder: 5 files written ('
 			);
-			expect(debugMessage).toContain(
-				'.generated/ui/app/job/admin/JobsAdminScreen.tsx'
-			);
-			expect(debugMessage).toContain(
-				'.generated/ui/fixtures/dataviews/job.ts'
-			);
-			expect(debugMessage).toContain(
-				'.generated/ui/fixtures/interactivity/job.ts'
-			);
+			expect(debugMessage).toContain(testLayout.resolve('ui.generated'));
 		});
 	});
 
@@ -224,6 +209,8 @@ describe('createTsBuilder - orchestration', () => {
 				dataviews,
 				sourcePath: path.join(root, 'wpk.config.ts'),
 			});
+			const testLayout = await loadTestLayout({ cwd: workspace.root });
+			const irWithLayout = { ...ir, layout: testLayout };
 
 			const hooks = {
 				onBeforeCreate: jest.fn(),
@@ -245,7 +232,7 @@ describe('createTsBuilder - orchestration', () => {
 					input: {
 						phase: 'generate',
 						options,
-						ir,
+						ir: irWithLayout,
 					},
 					output,
 					reporter,
@@ -273,10 +260,22 @@ describe('createTsBuilder - orchestration', () => {
 			);
 			expect(emitted).toEqual(
 				expect.arrayContaining([
-					'.generated/ui/app/job/admin/JobsAdminScreen.tsx',
-					'.generated/ui/fixtures/dataviews/job.ts',
-					'.generated/ui/fixtures/interactivity/job.ts',
-					'.generated/ui/registry/dataviews/job.ts',
+					path.posix.join(
+						testLayout.resolve('ui.generated'),
+						'app/job/admin/JobsAdminScreen.tsx'
+					),
+					path.posix.join(
+						testLayout.resolve('ui.generated'),
+						'fixtures/dataviews/job.ts'
+					),
+					path.posix.join(
+						testLayout.resolve('ui.generated'),
+						'fixtures/interactivity/job.ts'
+					),
+					path.posix.join(
+						testLayout.resolve('ui.generated'),
+						'registry/dataviews/job.ts'
+					),
 				])
 			);
 			expect(afterEmitArg.workspace).toBe(workspace);
@@ -292,10 +291,22 @@ describe('createTsBuilder - orchestration', () => {
 				)
 			).toEqual(
 				expect.arrayContaining([
-					'.generated/ui/app/job/admin/JobsAdminScreen.tsx',
-					'.generated/ui/fixtures/dataviews/job.ts',
-					'.generated/ui/fixtures/interactivity/job.ts',
-					'.generated/ui/registry/dataviews/job.ts',
+					path.posix.join(
+						testLayout.resolve('ui.generated'),
+						'app/job/admin/JobsAdminScreen.tsx'
+					),
+					path.posix.join(
+						testLayout.resolve('ui.generated'),
+						'fixtures/dataviews/job.ts'
+					),
+					path.posix.join(
+						testLayout.resolve('ui.generated'),
+						'fixtures/interactivity/job.ts'
+					),
+					path.posix.join(
+						testLayout.resolve('ui.generated'),
+						'registry/dataviews/job.ts'
+					),
 				])
 			);
 		});
@@ -311,6 +322,8 @@ describe('createTsBuilder - orchestration', () => {
 				dataviews,
 				sourcePath: path.join(root, 'wpk.config.ts'),
 			});
+			const testLayout = await loadTestLayout({ cwd: workspace.root });
+			const irWithLayout = { ...ir, layout: testLayout };
 
 			const reporter = buildReporter();
 			const output = buildOutput();
@@ -326,7 +339,7 @@ describe('createTsBuilder - orchestration', () => {
 					input: {
 						phase: 'generate',
 						options,
-						ir,
+						ir: irWithLayout,
 					},
 					output,
 					reporter,
@@ -335,8 +348,7 @@ describe('createTsBuilder - orchestration', () => {
 			);
 
 			const registryPath = path.join(
-				'.generated',
-				'ui',
+				testLayout.resolve('ui.generated'),
 				'registry',
 				'dataviews',
 				'job.ts'
@@ -370,6 +382,8 @@ describe('createTsBuilder - orchestration', () => {
 				dataviews,
 				sourcePath: path.join(root, 'wpk.config.ts'),
 			});
+			const testLayout = await loadTestLayout({ cwd: workspace.root });
+			const irWithLayout = { ...ir, layout: testLayout };
 
 			const reporter = buildReporter();
 			const output = buildOutput();
@@ -385,7 +399,7 @@ describe('createTsBuilder - orchestration', () => {
 					input: {
 						phase: 'generate',
 						options,
-						ir,
+						ir: irWithLayout,
 					},
 					output,
 					reporter,
@@ -394,8 +408,7 @@ describe('createTsBuilder - orchestration', () => {
 			);
 
 			const registryPath = path.join(
-				'.generated',
-				'ui',
+				testLayout.resolve('ui.generated'),
 				'registry',
 				'dataviews',
 				'job.ts'
@@ -426,6 +439,7 @@ describe('createTsBuilder - orchestration', () => {
 				resourceName: 'Job',
 				sourcePath: path.join(root, 'wpk.config.ts'),
 			});
+			const testLayout = await loadTestLayout({ cwd: workspace.root });
 
 			const taskDataViews = buildDataViewsConfig({
 				screen: {
@@ -456,6 +470,7 @@ describe('createTsBuilder - orchestration', () => {
 				hash: 'task-hash',
 				warnings: [],
 			});
+			const irWithLayout = { ...ir, layout: testLayout };
 
 			const reporter = buildReporter();
 			const output = buildOutput();
@@ -471,7 +486,7 @@ describe('createTsBuilder - orchestration', () => {
 					input: {
 						phase: 'generate',
 						options,
-						ir,
+						ir: irWithLayout,
 					},
 					output,
 					reporter,
@@ -479,11 +494,12 @@ describe('createTsBuilder - orchestration', () => {
 				undefined
 			);
 
+			const uiGeneratedRoot = testLayout.resolve('ui.generated');
+
 			await expect(
 				workspace.exists(
 					path.join(
-						'.generated',
-						'ui',
+						uiGeneratedRoot,
 						'app',
 						'Job',
 						'admin',
@@ -494,8 +510,7 @@ describe('createTsBuilder - orchestration', () => {
 			await expect(
 				workspace.exists(
 					path.join(
-						'.generated',
-						'ui',
+						uiGeneratedRoot,
 						'app',
 						'Task',
 						'admin',
@@ -505,63 +520,35 @@ describe('createTsBuilder - orchestration', () => {
 			).resolves.toBe(true);
 			expect(output.actions.map((action) => action.file)).toEqual([
 				path.join(
-					'.generated',
-					'ui',
+					uiGeneratedRoot,
 					'app',
 					'Job',
 					'admin',
 					'JobsAdminScreen.tsx'
 				),
+				path.join(uiGeneratedRoot, 'fixtures', 'dataviews', 'job.ts'),
 				path.join(
-					'.generated',
-					'ui',
-					'fixtures',
-					'dataviews',
-					'job.ts'
-				),
-				path.join(
-					'.generated',
-					'ui',
+					uiGeneratedRoot,
 					'fixtures',
 					'interactivity',
 					'job.ts'
 				),
+				path.join(uiGeneratedRoot, 'registry', 'dataviews', 'job.ts'),
 				path.join(
-					'.generated',
-					'ui',
-					'registry',
-					'dataviews',
-					'job.ts'
-				),
-				path.join(
-					'.generated',
-					'ui',
+					uiGeneratedRoot,
 					'app',
 					'Task',
 					'admin',
 					'TasksAdminScreen.tsx'
 				),
+				path.join(uiGeneratedRoot, 'fixtures', 'dataviews', 'task.ts'),
 				path.join(
-					'.generated',
-					'ui',
-					'fixtures',
-					'dataviews',
-					'task.ts'
-				),
-				path.join(
-					'.generated',
-					'ui',
+					uiGeneratedRoot,
 					'fixtures',
 					'interactivity',
 					'task.ts'
 				),
-				path.join(
-					'.generated',
-					'ui',
-					'registry',
-					'dataviews',
-					'task.ts'
-				),
+				path.join(uiGeneratedRoot, 'registry', 'dataviews', 'task.ts'),
 			]);
 		});
 	});

@@ -25,6 +25,13 @@ import {
 	getTestBuilderQueue,
 } from './testUtils.test-support';
 import type { PhpFileMetadata } from '../types';
+import { loadDefaultLayout } from '@wpkernel/test-utils/layout.test-support';
+
+const layout = loadDefaultLayout();
+const resolvePhpPath = (
+	workspace: ReturnType<typeof createPipelineContext>['workspace'],
+	file: string
+) => workspace.resolve(layout.resolve('php.generated'), file);
 
 function createReporter(): Reporter {
 	const reporter = {
@@ -102,7 +109,7 @@ function createBuilderInput(): BuilderInput {
 			php: {
 				namespace: 'Demo\\Plugin',
 				autoload: 'inc/',
-				outputDir: '.generated/php',
+				outputDir: layout.resolve('php.generated'),
 			},
 		} as unknown as BuilderInput['ir'],
 	};
@@ -116,12 +123,13 @@ describe('programBuilder helpers', () => {
 			actions: [],
 			queueWrite: jest.fn(),
 		};
+		const phpFile = resolvePhpPath(context.workspace, 'Example.php');
 
 		resetTestChannels(context);
 
 		const helper = createPhpFileBuilder({
 			key: 'test-program',
-			filePath: '/workspace/.generated/php/Example.php',
+			filePath: phpFile,
 			namespace: 'Demo\\Example',
 			metadata: { kind: 'capability-helper' },
 			build: (builder) => {
@@ -160,7 +168,7 @@ describe('programBuilder helpers', () => {
 		const actions = getTestBuilderQueue(context);
 		expect(actions).toHaveLength(1);
 		const [action] = actions;
-		expect(action!.file).toBe('/workspace/.generated/php/Example.php');
+		expect(action!.file).toBe(phpFile);
 		expect(action!.metadata.kind).toBe('capability-helper');
 		expect(action!.docblock).toContain('Example file');
 		expect(action!.uses).toEqual([
@@ -190,10 +198,11 @@ describe('programBuilder helpers', () => {
 			actions: [],
 			queueWrite: jest.fn(),
 		};
+		const phpFile = resolvePhpPath(context.workspace, 'Blank.php');
 
 		const helper = createPhpFileBuilder({
 			key: 'multi-methods',
-			filePath: '/workspace/.generated/php/Blank.php',
+			filePath: phpFile,
 			namespace: 'Demo\\Blank',
 			metadata: { kind: 'capability-helper' },
 			build: (builder) => {
@@ -229,6 +238,7 @@ describe('programBuilder helpers', () => {
 
 		const pending = getTestBuilderQueue(context);
 		expect(pending).toHaveLength(1);
+		expect(pending[0]?.file).toBe(phpFile);
 		const namespaceNode = pending[0]!.program.find(
 			(stmt: any) => stmt.nodeType === 'Stmt_Namespace'
 		) as any;
@@ -253,10 +263,11 @@ describe('programBuilder helpers', () => {
 			actions: [],
 			queueWrite: jest.fn(),
 		};
+		const phpFile = resolvePhpPath(context.workspace, 'Normalised.php');
 
 		const helper = createPhpFileBuilder({
 			key: 'normalised-uses',
-			filePath: '/workspace/.generated/php/Normalised.php',
+			filePath: phpFile,
 			namespace: 'Demo\\Original',
 			metadata: { kind: 'capability-helper' },
 			build: (builder) => {
@@ -307,6 +318,7 @@ describe('programBuilder helpers', () => {
 		const actions = getTestBuilderQueue(context);
 		expect(actions).toHaveLength(1);
 		const [action] = actions;
+		expect(action!.file).toBe(phpFile);
 		expect(action!.docblock).toContain('Example docblock');
 		expect(action!.statements).toContain('return 1;');
 		expect(action!.metadata.kind).toBe('base-controller');
@@ -340,7 +352,7 @@ describe('programBuilder helpers', () => {
 
 		const helper = createPhpFileBuilder({
 			key: 'global-namespace',
-			filePath: '/workspace/.generated/php/Global.php',
+			filePath: resolvePhpPath(context.workspace, 'Global.php'),
 			namespace: '',
 			metadata: { kind: 'index-file' },
 			build: (builder) => {

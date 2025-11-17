@@ -11,6 +11,7 @@ import type {
 	ReadinessPlan,
 	ReadinessRegistry,
 } from '../../dx';
+import { loadTestLayoutSync } from '../../tests/layout.test-support';
 
 const withWorkspace = buildWorkspaceRunner({ prefix: TMP_PREFIX });
 
@@ -46,13 +47,36 @@ function createReadinessRegistryStub() {
 describe('ApplyCommand manifest handling', () => {
 	it('reports failure when manifest parsing fails', async () => {
 		await withWorkspace(async (workspace) => {
+			const layout = loadTestLayoutSync();
+			const applyStatePath = layout.resolve('apply.state');
 			const loadConfig = jest
 				.fn()
 				.mockResolvedValue(buildLoadedConfig(workspace));
 			const readText = jest
 				.fn()
 				.mockImplementation(async (file: string) => {
-					if (file === '.wpk/apply/state.json') {
+					if (file === 'layout.manifest.json') {
+						return JSON.stringify({
+							directories: {
+								'.wpk': {
+									apply: {
+										'patch-manifest.json': 'patch.manifest',
+										'patch-manifest.base.json':
+											'patch.manifest.base',
+										'patch-manifest.incoming.json':
+											'patch.manifest.incoming',
+										'plan.json': 'plan.manifest',
+										base: 'plan.base',
+										incoming: 'plan.incoming',
+										'state.json': 'apply.state',
+									},
+									tmp: 'tmp',
+								},
+								inc: { Rest: 'controllers.applied' },
+							},
+						});
+					}
+					if (file === applyStatePath) {
 						return '';
 					}
 

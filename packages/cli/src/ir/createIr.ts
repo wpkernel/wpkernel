@@ -7,6 +7,7 @@ import type { PipelinePhase, Pipeline } from '../runtime';
 import type { Workspace } from '../workspace';
 import { buildWorkspace } from '../workspace';
 import { createMetaFragment } from './fragments/meta';
+import { createLayoutFragment } from './fragments/layout';
 import { createSchemasFragment } from './fragments/schemas';
 import { createResourcesFragment } from './fragments/resources';
 import { createUiFragment } from './fragments/ui';
@@ -57,6 +58,7 @@ export interface CreateIrEnvironment {
  * @param    pipeline - The pipeline instance to register fragments with.
  */
 function registerCoreFragments(pipeline: Pipeline): void {
+	pipeline.ir.use(createLayoutFragment());
 	pipeline.ir.use(createMetaFragment());
 	pipeline.ir.use(createSchemasFragment());
 	pipeline.ir.use(createResourcesFragment());

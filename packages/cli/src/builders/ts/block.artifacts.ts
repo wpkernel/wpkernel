@@ -24,6 +24,8 @@ import {
 import { buildBlockRegistrarMetadata } from './shared.metadata';
 import { loadTsMorph } from './runtime.loader';
 import { type RegistrationEntry, type StubFile } from './types';
+import { resolveTsLayout } from './ts.paths';
+import { resolveBlockRoots } from '../shared.blocks.paths';
 
 const STUB_TRANSACTION_LABEL = 'builder.generate.ts.blocks.stubs';
 const DERIVED_TRANSACTION_LABEL =
@@ -60,6 +62,7 @@ export function createJsBlocksBuilder(): BuilderHelper {
 				workspace: context.workspace,
 				output,
 				reporter,
+				roots: resolveBlockRoots(input.ir),
 			});
 
 			if (registrations !== null) {
@@ -78,6 +81,7 @@ async function runJsBlocksGeneration(options: {
 	readonly workspace: PipelineContext['workspace'];
 	readonly output: BuilderOutput;
 	readonly reporter: BuilderApplyOptions['reporter'];
+	readonly roots: ReturnType<typeof resolveBlockRoots>;
 }): Promise<number | null> {
 	const existingBlocks = new Map<string, IRBlock>(
 		options.ir.blocks.map((block): [string, IRBlock] => [block.key, block])
@@ -102,6 +106,7 @@ async function runJsBlocksGeneration(options: {
 	const manifestMap = await collectBlockManifests({
 		workspace: options.workspace,
 		blocks: allBlocks,
+		roots: options.roots,
 	});
 
 	const jsOnlyBlocks = allBlocks
@@ -117,8 +122,8 @@ async function runJsBlocksGeneration(options: {
 		return null;
 	}
 
-	const generatedRoot = path.dirname(options.ir.php.outputDir);
-	const blocksOutputDir = path.join(generatedRoot, 'blocks');
+	const { blocksGenerated } = resolveTsLayout(options.ir);
+	const blocksOutputDir = blocksGenerated;
 	const registrarMetadata = buildAutoRegisterModuleMetadata({
 		outputDir: blocksOutputDir,
 		source: options.ir.meta.origin,
@@ -136,6 +141,7 @@ async function runJsBlocksGeneration(options: {
 			workspace: options.workspace,
 			reporter: options.reporter,
 			registrarMetadata,
+			roots: options.roots,
 		});
 
 	await stageStubWrites({
@@ -172,6 +178,7 @@ async function collectJsBlockArtifacts(options: {
 	readonly registrarMetadata: ReturnType<
 		typeof buildAutoRegisterModuleMetadata
 	>;
+	readonly roots: ReturnType<typeof resolveBlockRoots>;
 }): Promise<{
 	readonly registrations: RegistrationEntry[];
 	readonly stubs: StubFile[];

@@ -3,7 +3,7 @@ import type * as fs from 'node:fs/promises';
 import { PassThrough } from 'node:stream';
 import type { ChildProcessWithoutNullStreams } from 'node:child_process';
 import type { FSWatcher } from 'chokidar';
-import { Command } from 'clipanion';
+import type { Command } from 'clipanion';
 import { WPK_EXIT_CODES } from '@wpkernel/core/contracts';
 import {
 	assignCommandContext,
@@ -14,11 +14,11 @@ import {
 	type MemoryStream,
 } from '@wpkernel/test-utils/cli';
 import { buildStartCommand, type FileSystem } from '../start';
-import type {
-	BuildGenerateCommandOptions,
-	CommandConstructor as GenerateCommandConstructor,
-	GenerationSummary,
-} from '../generate';
+import type { PackageManager } from '../init/types';
+import type { GenerateRunner } from '../start/generate-runner';
+import type { GenerateResult } from '../generate/types';
+import { loadTestLayoutSync } from '../../tests/layout.test-support';
+import path from 'node:path';
 
 export const FAST_DEBOUNCE_MS = 200;
 export const SLOW_DEBOUNCE_MS = 600;
@@ -36,7 +36,11 @@ export const watchFactory = jest.fn<
 	ReturnType<WatchFactory>,
 	Parameters<WatchFactory>
 >();
-export const spawnViteProcess = jest.fn<ChildProcessWithoutNullStreams, []>();
+export const spawnViteProcess = jest.fn<
+	ChildProcessWithoutNullStreams,
+	[PackageManager]
+>();
+export const runGenerate: jest.MockedFunction<GenerateRunner> = jest.fn();
 
 export const reporterHarness = createCommandReporterHarness();
 export const reporterFactory = reporterHarness.factory;
@@ -56,6 +60,15 @@ export function setupStartCommandTest(): void {
 	fsAccess.mockResolvedValue(undefined);
 	fsMkdir.mockResolvedValue(undefined);
 	fsCp.mockResolvedValue(undefined);
+	runGenerate.mockResolvedValue({
+		exitCode: WPK_EXIT_CODES.SUCCESS,
+		summary: {
+			counts: { written: 0, unchanged: 0, skipped: 0 },
+			entries: [],
+			dryRun: false,
+		},
+		output: '[summary]\n',
+	} satisfies GenerateResult);
 	loadWatch.mockResolvedValue(watchFactory);
 	watchFactory.mockImplementation(
 		() => new FakeWatcher() as unknown as FSWatcher
@@ -65,7 +78,6 @@ export function setupStartCommandTest(): void {
 			new FakeChildProcess() as unknown as ChildProcessWithoutNullStreams
 	);
 	reporterHarness.reset();
-	FakeGenerateCommand.executeMock.mockResolvedValue(WPK_EXIT_CODES.SUCCESS);
 }
 
 export function teardownStartCommandTest(): void {
@@ -117,10 +129,8 @@ export function createStartCommandInstance(
 		loadWatch,
 		spawnViteProcess,
 		buildReporter: reporterFactory,
-		buildGenerateCommand: (_options?: BuildGenerateCommandOptions) =>
-			FakeGenerateCommand as GenerateCommandConstructor,
+		runGenerate,
 		fileSystem,
-		adoptCommandEnvironment: jest.fn(),
 		...overrides,
 	}) as StartCommandConstructor;
 
@@ -188,22 +198,6 @@ type StartCommandDependencies = Parameters<typeof buildStartCommand>[0];
 type StartCommandInstance = Command & { autoApply: boolean };
 type StartCommandConstructor = new () => StartCommandInstance;
 
-export class FakeGenerateCommand extends Command {
-	static readonly executeMock = jest.fn<Promise<number>, []>();
-
-	dryRun = false;
-	verbose = false;
-	summary: GenerationSummary | null = null;
-
-	override async execute(): Promise<number> {
-		const result = await FakeGenerateCommand.executeMock.call(this);
-		if (result === WPK_EXIT_CODES.SUCCESS) {
-			this.context.stdout.write('[summary]\n');
-		}
-		return result;
-	}
-}
-
 export class FakeWatcher extends EventEmitter {
 	close = jest.fn(async () => {
 		this.emit('close');
@@ -243,11 +237,36 @@ async function buildCommand({
 		loadWatch,
 		spawnViteProcess,
 		buildReporter: reporterFactory,
-		buildGenerateCommand: (_options?: BuildGenerateCommandOptions) =>
-			FakeGenerateCommand as GenerateCommandConstructor,
+		runGenerate,
 		fileSystem,
 		...overrides,
 	}) as StartCommandConstructor;
+
+	const layout = loadTestLayoutSync();
+	const defaultLayoutPaths = (() => {
+		try {
+			return {
+				phpGenerated: layout.resolve('php.generated'),
+				phpTargetDir: path.posix.dirname(
+					layout.resolve('controllers.applied')
+				),
+			};
+		} catch {
+			return {
+				phpGenerated: layout.resolve('php.generated'),
+				phpTargetDir: 'inc',
+			};
+		}
+	})();
+
+	(
+		StartCommand.prototype as unknown as {
+			resolveLayoutPaths: jest.Mock<
+				Promise<typeof defaultLayoutPaths>,
+				[]
+			>;
+		}
+	).resolveLayoutPaths = jest.fn(async () => defaultLayoutPaths);
 
 	beforeInstantiate?.(StartCommand);
 

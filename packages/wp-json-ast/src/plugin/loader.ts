@@ -33,11 +33,13 @@ import {
 	buildStmtNop,
 	buildVariable,
 	buildNode,
+	buildTernary,
 	mergeNodeAttributes,
 	type PhpExpr,
 	type PhpExprConstFetch,
 	type PhpProgram,
 	type PhpStmt,
+	type PhpStmtElse,
 	type PhpStmtFunction,
 } from '@wpkernel/php-json-ast';
 
@@ -121,10 +123,25 @@ function buildNamespaceStatements(config: PluginLoaderProgramConfig): PhpStmt {
 		statements.push(registerUiAssetsFunction);
 	}
 
+	const registerAdminMenuFunction = buildRegisterAdminMenuFunction(config);
+	if (registerAdminMenuFunction) {
+		statements.push(registerAdminMenuFunction);
+		statements.push(buildRenderAdminScreenFunction(config));
+	}
+
 	statements.push(buildBootstrapFunction(config));
 	statements.push(buildBootstrapInvocation());
 	statements.push(
 		buildStmtNop({ comments: [buildComment(`// ${AUTO_GUARD_END}`)] })
+	);
+	statements.push(
+		buildStmtNop({
+			comments: [
+				buildComment(
+					'// Custom plugin logic may be added below. This area is left untouched by the generator.'
+				),
+			],
+		})
 	);
 
 	return buildNamespace(namespaceNode, statements);
@@ -439,6 +456,332 @@ function buildRegisterUiAssetsFunction(
 	});
 }
 
+function buildRegisterAdminMenuFunction(
+	config: PluginLoaderProgramConfig
+): PhpStmtFunction | null {
+	const ui = config.ui;
+	if (!ui) {
+		return null;
+	}
+
+	const menuResources = ui.resources.filter((resource) => resource.menu);
+	if (menuResources.length === 0) {
+		return null;
+	}
+
+	const parentsArray = buildArray(
+		menuResources
+			.filter((resource) => !resource.menu?.parent)
+			.map((resource) => {
+				const menuArray = buildMenuLocalizationArray(resource.menu!);
+				if (!menuArray) {
+					throw new Error('Menu config expected but missing');
+				}
+
+				return buildArrayItem(menuArray);
+			})
+	);
+
+	const childrenArray = buildArray(
+		menuResources
+			.filter((resource) => Boolean(resource.menu?.parent))
+			.map((resource) => {
+				const menuArray = buildMenuLocalizationArray(resource.menu!);
+				if (!menuArray) {
+					throw new Error('Menu config expected but missing');
+				}
+
+				return buildArrayItem(menuArray);
+			})
+	);
+
+	const parentsAssign = buildExpressionStatement(
+		buildAssign(buildVariable('parent_menus'), parentsArray)
+	);
+
+	const childrenAssign = buildExpressionStatement(
+		buildAssign(buildVariable('child_menus'), childrenArray)
+	);
+
+	const foreachParents = buildForeach(buildVariable('parent_menus'), {
+		valueVar: buildVariable('menu'),
+		stmts: buildMenuRegistrationStatements(),
+	});
+
+	const foreachChildren = buildForeach(buildVariable('child_menus'), {
+		valueVar: buildVariable('menu'),
+		stmts: buildMenuRegistrationStatements(),
+	});
+
+	const fn = buildNodeFunction('register_wpkernel_admin_menu', {
+		returnType: buildIdentifier('void'),
+		statements: [
+			parentsAssign,
+			childrenAssign,
+			foreachParents,
+			foreachChildren,
+		],
+	});
+
+	return mergeNodeAttributes(fn, {
+		comments: [
+			buildDocComment([
+				'Register admin menu entries for WPKernel DataViews screens.',
+			]),
+		],
+	});
+
+	function buildMenuRegistrationStatements(): PhpStmt[] {
+		const statements: PhpStmt[] = [];
+
+		const slugAssign = buildExpressionStatement(
+			buildAssign(
+				buildVariable('slug'),
+				buildArrayDimFetch(
+					buildVariable('menu'),
+					buildScalarString('slug')
+				)
+			)
+		);
+
+		const titleAssign = buildExpressionStatement(
+			buildAssign(
+				buildVariable('title'),
+				buildArrayDimFetch(
+					buildVariable('menu'),
+					buildScalarString('title')
+				)
+			)
+		);
+
+		const capabilityAssign = buildExpressionStatement(
+			buildAssign(
+				buildVariable('capability'),
+				buildConditionalCapability()
+			)
+		);
+
+		const callbackAssign = buildExpressionStatement(
+			buildAssign(
+				buildVariable('callback'),
+				buildBinaryOperation(
+					'Concat',
+					buildConstFetchExpression('__NAMESPACE__'),
+					buildScalarString('\\render_wpkernel_admin_screen')
+				)
+			)
+		);
+
+		const parentGuard = buildIfStatement(
+			buildBinaryOperation(
+				'BooleanAnd',
+				buildFuncCall(buildName(['isset']), [
+					buildArg(
+						buildArrayDimFetch(
+							buildVariable('menu'),
+							buildScalarString('parent')
+						)
+					),
+				]),
+				buildArrayDimFetch(
+					buildVariable('menu'),
+					buildScalarString('parent')
+				)
+			),
+			[buildParentMenuRegistration(), buildContinue()]
+		);
+
+		const topLevelMenuRegistration = buildTopLevelMenuRegistration();
+
+		statements.push(
+			slugAssign,
+			titleAssign,
+			capabilityAssign,
+			callbackAssign,
+			parentGuard,
+			topLevelMenuRegistration
+		);
+
+		return statements;
+	}
+
+	function buildConditionalCapability(): PhpExpr {
+		const capabilityFetch = buildArrayDimFetch(
+			buildVariable('menu'),
+			buildScalarString('capability')
+		);
+
+		return buildTernary(
+			buildFuncCall(buildName(['isset']), [buildArg(capabilityFetch)]),
+			capabilityFetch,
+			buildScalarString('manage_options')
+		);
+	}
+
+	function buildParentMenuRegistration(): PhpStmt {
+		const parentFetch = buildArrayDimFetch(
+			buildVariable('menu'),
+			buildScalarString('parent')
+		);
+
+		const args = [
+			buildArg(parentFetch),
+			buildArg(buildVariable('title')),
+			buildArg(buildVariable('title')),
+			buildArg(buildVariable('capability')),
+			buildArg(buildVariable('slug')),
+			buildArg(buildVariable('callback')),
+		];
+
+		const positionGuard = buildIfStatement(
+			buildFuncCall(buildName(['isset']), [
+				buildArg(
+					buildArrayDimFetch(
+						buildVariable('menu'),
+						buildScalarString('position')
+					)
+				),
+			]),
+			[
+				buildExpressionStatement(
+					buildFuncCall(buildName(['add_submenu_page']), [
+						...args,
+						buildArg(
+							buildArrayDimFetch(
+								buildVariable('menu'),
+								buildScalarString('position')
+							)
+						),
+					])
+				),
+			],
+			{
+				elseBranch: buildElseBranch([
+					buildExpressionStatement(
+						buildFuncCall(buildName(['add_submenu_page']), args)
+					),
+				]),
+			}
+		);
+
+		return positionGuard;
+	}
+
+	function buildTopLevelMenuRegistration(): PhpStmt {
+		const args = [
+			buildArg(buildVariable('title')),
+			buildArg(buildVariable('title')),
+			buildArg(buildVariable('capability')),
+			buildArg(buildVariable('slug')),
+			buildArg(buildVariable('callback')),
+			buildArg(buildScalarString('')),
+		];
+
+		const positionGuard = buildIfStatement(
+			buildFuncCall(buildName(['isset']), [
+				buildArg(
+					buildArrayDimFetch(
+						buildVariable('menu'),
+						buildScalarString('position')
+					)
+				),
+			]),
+			[
+				buildExpressionStatement(
+					buildFuncCall(buildName(['add_menu_page']), [
+						...args,
+						buildArg(
+							buildArrayDimFetch(
+								buildVariable('menu'),
+								buildScalarString('position')
+							)
+						),
+					])
+				),
+			],
+			{
+				elseBranch: buildElseBranch([
+					buildExpressionStatement(
+						buildFuncCall(buildName(['add_menu_page']), args)
+					),
+				]),
+			}
+		);
+
+		return positionGuard;
+	}
+}
+
+function buildRenderAdminScreenFunction(
+	_config: PluginLoaderProgramConfig
+): PhpStmtFunction {
+	const pageInit = buildExpressionStatement(
+		buildAssign(buildVariable('page'), buildScalarString(''))
+	);
+
+	const pageGuard = buildIfStatement(
+		buildFuncCall(buildName(['isset']), [
+			buildArg(
+				buildArrayDimFetch(
+					buildVariable('_GET'),
+					buildScalarString('page')
+				)
+			),
+		]),
+		[
+			buildExpressionStatement(
+				buildAssign(
+					buildVariable('page'),
+					buildFuncCall(buildName(['sanitize_key']), [
+						buildArg(
+							buildFuncCall(buildName(['strval']), [
+								buildArg(
+									buildArrayDimFetch(
+										buildVariable('_GET'),
+										buildScalarString('page')
+									)
+								),
+							])
+						),
+					])
+				)
+			),
+		]
+	);
+
+	const printScreen = buildExpressionStatement(
+		buildFuncCall(buildName(['printf']), [
+			buildArg(
+				buildScalarString(
+					'<div class="wrap"><div id="wpkernel-admin-screen" data-wpkernel-page="%s"></div></div>'
+				)
+			),
+			buildArg(
+				buildFuncCall(buildName(['esc_attr']), [
+					buildArg(buildVariable('page')),
+				])
+			),
+		])
+	);
+
+	const fn = buildNodeFunction('render_wpkernel_admin_screen', {
+		returnType: buildIdentifier('void'),
+		statements: [pageInit, pageGuard, printScreen],
+	});
+
+	return mergeNodeAttributes(fn, {
+		comments: [
+			buildDocComment([
+				'Render container for WPKernel-admin DataViews screens.',
+			]),
+		],
+	});
+}
+
+function buildElseBranch(stmts: PhpStmt[]): PhpStmtElse {
+	return buildNode<PhpStmtElse>('Stmt_Else', { stmts });
+}
+
 function buildBootstrapFunction(
 	config: PluginLoaderProgramConfig
 ): PhpStmtFunction {
@@ -447,6 +790,9 @@ function buildBootstrapFunction(
 		'Concat',
 		namespaceConst,
 		buildScalarString('\\register_wpkernel_routes')
+	);
+	const hasAdminMenu = Boolean(
+		config.ui?.resources.some((resource) => Boolean(resource.menu))
 	);
 
 	const statements: PhpStmt[] = [
@@ -469,6 +815,22 @@ function buildBootstrapFunction(
 				buildFuncCall(buildName(['add_action']), [
 					buildArg(buildScalarString('admin_enqueue_scripts')),
 					buildArg(uiCallback),
+				])
+			)
+		);
+	}
+
+	if (hasAdminMenu) {
+		const adminMenuCallback = buildBinaryOperation(
+			'Concat',
+			namespaceConst,
+			buildScalarString('\\register_wpkernel_admin_menu')
+		);
+		statements.push(
+			buildExpressionStatement(
+				buildFuncCall(buildName(['add_action']), [
+					buildArg(buildScalarString('admin_menu')),
+					buildArg(adminMenuCallback),
 				])
 			)
 		);

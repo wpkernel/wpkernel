@@ -122,7 +122,10 @@ describe('buildIr - core behaviours', () => {
 			namespace: config.namespace,
 		});
 
-		expect(secondRun).toEqual(ir);
+		const serialisedSecond = JSON.parse(JSON.stringify(secondRun));
+		const serialisedFirst = JSON.parse(JSON.stringify(ir));
+		expect(serialisedSecond).toEqual(serialisedFirst);
+		expect(secondRun.layout.all).toEqual(ir.layout.all);
 	});
 
 	it('threads enriched DataViews metadata into the IR', async () => {

@@ -22,6 +22,7 @@ import type {
 	IRv1Like,
 	WPKConfigV1Like,
 } from '../../types.js';
+import { loadDefaultLayout } from '../../layout.test-support.js';
 
 export interface WPKernelConfigSourceOptions {
 	readonly namespace?: string;
@@ -223,6 +224,7 @@ export interface BuilderArtifacts<
 export function buildBuilderArtifacts(
 	options: BuilderArtifactOptions
 ): BuilderArtifacts {
+	const layout = loadDefaultLayout();
 	const {
 		namespace = 'demo-namespace',
 		resourceKey = 'job',
@@ -294,7 +296,7 @@ export function buildBuilderArtifacts(
 		php: {
 			namespace: sanitizedNamespace,
 			autoload: 'inc/',
-			outputDir: '.generated/php',
+			outputDir: layout.resolve('php.generated'),
 		},
 	} as IRv1Like;
 

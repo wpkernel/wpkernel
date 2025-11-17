@@ -29,14 +29,30 @@ describe('createMetaFragment', () => {
 	}
 
 	it('throws when namespace cannot be sanitised', async () => {
-		const draft = { extensions: {} } as any;
+		const draft = {
+			layout: {
+				resolve(id: string) {
+					return id;
+				},
+				all: {},
+			},
+			extensions: {},
+		} as any;
 		await expect(
 			fragment.apply(makeApplyOptions(draft, { namespace: '' }))
 		).rejects.toThrow(WPKernelError);
 	});
 
 	it('assigns meta to draft on success', async () => {
-		const draft = { extensions: {} } as any;
+		const draft = {
+			layout: {
+				resolve(id: string) {
+					return id;
+				},
+				all: {},
+			},
+			extensions: {},
+		} as any;
 		const opts = makeApplyOptions(draft, { namespace: 'My-Plugin' });
 
 		await fragment.apply(opts);

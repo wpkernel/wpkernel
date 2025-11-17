@@ -5,217 +5,94 @@ import { WPKernelError } from '@wpkernel/core/error';
 import type { IRBlock } from '../publicTypes';
 import { createBlockHash, createBlockId } from './identity';
 
-const IGNORED_DIRECTORIES = new Set([
-	'node_modules',
-	'.generated',
-	'.git',
-	'.wpk',
-]);
-
-interface BlockDiscoveryState {
-	queue: string[];
-	blocks: IRBlock[];
-	seenKeys: Map<string, string>;
-	workspaceRoot: string;
-}
+const SKIP_DIRECTORIES = new Set(['node_modules', '.git']);
 
 /**
- * Recursively discover blocks in the given workspace by locating block.json
- * manifests.
+ * Discover blocks by scanning the configured blocks root for block.json files.
  *
- * This walks the workspace tree (skipping ignored directories), finds
- * directories that contain a `block.json` manifest, validates and loads the
- * manifest, and returns a sorted list of discovered IRBlock entries.
- *
- * @param    workspaceRoot - Filesystem path to the workspace root to search
- * @returns Discovered IRBlock entries
- * @category IR
+ * This is intentionally scoped to the resolved layout path to avoid brittle
+ * workspace-wide traversal.
+ * @param workspaceRoot
+ * @param blocksRoot
  */
 export async function discoverBlocks(
-	workspaceRoot: string
-): Promise<IRBlock[]> {
-	const state = createBlockDiscoveryState(workspaceRoot);
-
-	while (state.queue.length > 0) {
-		const current = state.queue.pop()!;
-		if (isOutsideWorkspace(state.workspaceRoot, current)) {
-			continue;
-		}
-
-		const entries = await fs.readdir(current, { withFileTypes: true });
-		const manifestEntry = findManifest(entries);
-
-		if (manifestEntry) {
-			await handleBlockDirectory({
-				state,
-				directory: current,
-				manifestEntry,
-			});
-			continue;
-		}
-
-		enqueueChildDirectories({ state, directory: current, entries });
-	}
-
-	state.blocks.sort((a, b) => a.key.localeCompare(b.key));
-
-	return state.blocks;
-}
-
-function createBlockDiscoveryState(workspaceRoot: string): BlockDiscoveryState {
-	return {
-		queue: [workspaceRoot],
-		blocks: [],
-		seenKeys: new Map<string, string>(),
-		workspaceRoot,
-	};
-}
-
-/**
- * Return true when the candidate path is outside the provided workspace
- * root.
- *
- * Used by the discovery walker to avoid traversing outside the declared
- * workspace boundary.
- *
- * @param    workspaceRoot - Workspace root directory
- * @param    candidate     - Path to test
- * @returns True if candidate is outside workspaceRoot
- * @category IR
- */
-export function isOutsideWorkspace(
 	workspaceRoot: string,
-	candidate: string
-): boolean {
-	const relative = path.relative(workspaceRoot, candidate);
-	return relative.startsWith('..');
-}
+	blocksRoot: string
+): Promise<IRBlock[]> {
+	const absoluteRoot = path.resolve(workspaceRoot, blocksRoot);
+	const manifestPaths = await findManifests(absoluteRoot);
+	const seenKeys = new Map<string, string>();
+	const blocks: IRBlock[] = [];
 
-function findManifest(entries: Dirent[]): Dirent | undefined {
-	return entries.find(
-		(entry) => entry.isFile() && entry.name === 'block.json'
-	);
-}
+	for (const manifestPath of manifestPaths.sort()) {
+		const directory = path.dirname(manifestPath);
+		const block = await loadBlock(manifestPath, directory, workspaceRoot);
 
-async function handleBlockDirectory(options: {
-	state: BlockDiscoveryState;
-	directory: string;
-	manifestEntry: Dirent;
-}): Promise<void> {
-	const manifestPath = path.join(
-		options.directory,
-		options.manifestEntry.name
-	);
-	const block = await loadBlockEntry(
-		manifestPath,
-		options.directory,
-		options.state.workspaceRoot
-	);
+		const existing = seenKeys.get(block.key);
+		if (existing && existing !== block.directory) {
+			throw new WPKernelError('ValidationError', {
+				message: `Block "${block.key}" discovered in multiple directories.`,
+				context: { existing, duplicate: block.directory },
+			});
+		}
 
-	const existing = options.state.seenKeys.get(block.key);
-	if (existing && existing !== block.directory) {
-		throw new WPKernelError('ValidationError', {
-			message: `Block "${block.key}" discovered in multiple directories.`,
-			context: { existing, duplicate: block.directory },
-		});
+		seenKeys.set(block.key, block.directory);
+		blocks.push(block);
 	}
 
-	options.state.seenKeys.set(block.key, block.directory);
-	options.state.blocks.push(block);
+	return blocks.sort((a, b) => a.key.localeCompare(b.key));
 }
 
-function enqueueChildDirectories(options: {
-	state: BlockDiscoveryState;
-	directory: string;
-	entries: Dirent[];
-}): void {
-	for (const entry of options.entries) {
-		if (shouldSkipEntry(entry)) {
+async function findManifests(root: string): Promise<string[]> {
+	let entries: Dirent[];
+	try {
+		entries = await fs.readdir(root, { withFileTypes: true });
+	} catch (error) {
+		if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
+			return [];
+		}
+
+		throw error;
+	}
+
+	const manifests: string[] = [];
+
+	for (const entry of entries) {
+		const fullPath = path.join(root, entry.name);
+
+		if (entry.isFile() && entry.name === 'block.json') {
+			manifests.push(fullPath);
 			continue;
 		}
 
-		options.state.queue.push(path.join(options.directory, entry.name));
+		if (!entry.isDirectory() || SKIP_DIRECTORIES.has(entry.name)) {
+			continue;
+		}
+
+		const nested = await findManifests(fullPath);
+		manifests.push(...nested);
 	}
+
+	return manifests;
 }
 
-/**
- * Return true when a directory entry should be skipped during discovery.
- *
- * This excludes non-directories, symbolic links and well-known ignored
- * directories such as node_modules or generated build output.
- *
- * @param    entry - Directory entry to test
- * @returns True when the entry should be skipped
- * @category IR
- */
-export function shouldSkipEntry(entry: Dirent): boolean {
-	if (entry.isSymbolicLink()) {
-		return true;
-	}
-
-	if (!entry.isDirectory()) {
-		return true;
-	}
-
-	return IGNORED_DIRECTORIES.has(entry.name);
-}
-
-/**
- * Load and validate a block manifest at the provided path, returning an
- * IRBlock record.
- *
- * Reads the manifest JSON, validates required fields, resolves whether a
- * render file exists, and converts absolute paths to workspace-relative
- * values used by the IR.
- *
- * @param    manifestPath  - Absolute path to block.json
- * @param    directory     - Directory containing the block
- * @param    workspaceRoot - Workspace root used for relative paths
- * @returns IRBlock describing the discovered block
- * @category IR
- */
-export async function loadBlockEntry(
+async function loadBlock(
 	manifestPath: string,
 	directory: string,
 	workspaceRoot: string
 ): Promise<IRBlock> {
-	let raw: string;
-	try {
-		raw = await fs.readFile(manifestPath, 'utf8');
-	} catch (error) {
-		throw new WPKernelError('ValidationError', {
-			message: `Failed to read block manifest at ${manifestPath}.`,
-			data: error instanceof Error ? { originalError: error } : undefined,
-		});
-	}
+	const manifest = await readJson(manifestPath);
+	const key = manifest.name;
 
-	let parsed: unknown;
-	try {
-		parsed = JSON.parse(raw);
-	} catch (error) {
-		throw new WPKernelError('ValidationError', {
-			message: `Invalid JSON in block manifest ${manifestPath}.`,
-			data: error instanceof Error ? { originalError: error } : undefined,
-		});
-	}
-
-	if (!parsed || typeof parsed !== 'object') {
-		throw new WPKernelError('ValidationError', {
-			message: `Block manifest ${manifestPath} must be an object.`,
-		});
-	}
-
-	const key = (parsed as Record<string, unknown>).name;
 	if (typeof key !== 'string' || !key) {
 		throw new WPKernelError('ValidationError', {
 			message: `Block manifest ${manifestPath} missing required "name" field.`,
 		});
 	}
 
-	const hasRender = Boolean(
-		typeof (parsed as Record<string, unknown>).render === 'string' ||
-			(await fileExists(path.join(directory, 'render.php')))
-	);
+	const hasRender =
+		typeof manifest.render === 'string' ||
+		(await pathExists(path.join(directory, 'render.php')));
 
 	const relativeDirectory = path.relative(workspaceRoot, directory);
 	const relativeManifestPath = path.relative(workspaceRoot, manifestPath);
@@ -239,16 +116,34 @@ export async function loadBlockEntry(
 	};
 }
 
-/**
- * Check whether a file exists and is a regular file.
- *
- * Returns `false` for non-existent files, and re-throws unexpected errors.
- *
- * @param    candidate - Path to check
- * @returns True if the candidate exists and is a file
- * @category IR
- */
-export async function fileExists(candidate: string): Promise<boolean> {
+async function readJson(
+	manifestPath: string
+): Promise<Record<string, unknown>> {
+	let raw: string;
+	try {
+		raw = await fs.readFile(manifestPath, 'utf8');
+	} catch (error) {
+		throw new WPKernelError('ValidationError', {
+			message: `Failed to read block manifest at ${manifestPath}.`,
+			data: error instanceof Error ? { originalError: error } : undefined,
+		});
+	}
+
+	try {
+		const parsed = JSON.parse(raw);
+		if (!parsed || typeof parsed !== 'object') {
+			throw new Error('Manifest must be an object');
+		}
+		return parsed as Record<string, unknown>;
+	} catch (error) {
+		throw new WPKernelError('ValidationError', {
+			message: `Invalid JSON in block manifest ${manifestPath}.`,
+			data: error instanceof Error ? { originalError: error } : undefined,
+		});
+	}
+}
+
+async function pathExists(candidate: string): Promise<boolean> {
 	try {
 		const stat = await fs.stat(candidate);
 		return stat.isFile();

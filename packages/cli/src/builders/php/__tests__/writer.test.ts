@@ -21,6 +21,7 @@ import {
 	createPipelineContext,
 } from '../test-support/php-builder.test-support';
 import { buildEmptyGenerationState } from '../../../apply/manifest';
+import { loadTestLayoutSync } from '../../../tests/layout.test-support';
 
 jest.mock('@wpkernel/php-json-ast/php-driver', () => {
 	const actual = jest.requireActual<typeof phpDriverModule>(
@@ -40,6 +41,17 @@ jest.mock('@wpkernel/php-json-ast/php-driver', () => {
 });
 
 const buildPhpPrettyPrinterMock = jest.mocked(buildPhpPrettyPrinter);
+
+// Use the shared test layout manifest instead of hard-coded paths.
+const TEST_LAYOUT = loadTestLayoutSync();
+const PHP_GENERATED_ID = 'php.generated';
+
+type MockWorkspace = ReturnType<typeof makeWorkspaceMock>;
+
+function resolvePhpFile(workspace: MockWorkspace, fileName: string): string {
+	const phpRoot = TEST_LAYOUT.resolve(PHP_GENERATED_ID);
+	return workspace.resolve(phpRoot, fileName);
+}
 
 function buildReporter(): Reporter {
 	return {
@@ -83,7 +95,8 @@ describe('createWpProgramWriterHelper', () => {
 			resolve: (...parts: string[]) => path.join('/workspace', ...parts),
 			write: jest.fn(async () => undefined),
 			writeJson: jest.fn(async () => undefined),
-		});
+		}) as MockWorkspace;
+
 		const reporter = buildReporter();
 		const context = createPipelineContext({ workspace, reporter });
 		const input = createBuilderInput();
@@ -94,8 +107,12 @@ describe('createWpProgramWriterHelper', () => {
 
 		const channel = getPhpBuilderChannel(context);
 		const program = [buildStmtNop(), buildStmtNop()];
+
+		const phpFile = resolvePhpFile(workspace, 'Writer.php');
+		const phpAstFile = `${phpFile}.ast.json`;
+
 		channel.queue({
-			file: '/workspace/.generated/php/Writer.php',
+			file: phpFile,
 			metadata: { kind: 'capability-helper' },
 			docblock: ['Doc line'],
 			uses: ['Demo\\Contracts'],
@@ -120,33 +137,33 @@ describe('createWpProgramWriterHelper', () => {
 		}
 		const prettyPrinter = firstCall.value;
 		expect(prettyPrinter.prettyPrint).toHaveBeenCalledWith({
-			filePath: '/workspace/.generated/php/Writer.php',
+			filePath: phpFile,
 			program,
 		});
 
 		expect(context.workspace.write).toHaveBeenCalledWith(
-			'/workspace/.generated/php/Writer.php',
+			phpFile,
 			'<?php\n// generated\n',
 			{ ensureDir: true }
 		);
 		expect(context.workspace.write).toHaveBeenCalledWith(
-			'/workspace/.generated/php/Writer.php.ast.json',
+			phpAstFile,
 			expect.stringContaining('Stmt_Nop'),
 			{ ensureDir: true }
 		);
 
 		expect(output.queueWrite).toHaveBeenCalledWith({
-			file: '/workspace/.generated/php/Writer.php',
+			file: phpFile,
 			contents: '<?php\n// generated\n',
 		});
 		expect(output.queueWrite).toHaveBeenCalledWith({
-			file: '/workspace/.generated/php/Writer.php.ast.json',
+			file: phpAstFile,
 			contents: expect.stringContaining('Stmt_Nop'),
 		});
 
 		expect(context.reporter.debug).toHaveBeenCalledWith(
 			'createPhpProgramWriterHelper: emitted PHP artifact.',
-			{ file: '/workspace/.generated/php/Writer.php' }
+			{ file: phpFile }
 		);
 	});
 
@@ -157,7 +174,8 @@ describe('createWpProgramWriterHelper', () => {
 			resolve: (...parts: string[]) => path.join('/workspace', ...parts),
 			write: jest.fn(async () => undefined),
 			writeJson: jest.fn(async () => undefined),
-		});
+		}) as MockWorkspace;
+
 		const reporter = buildReporter();
 		const context = createPipelineContext({ workspace, reporter });
 		const input = createBuilderInput();
@@ -168,8 +186,11 @@ describe('createWpProgramWriterHelper', () => {
 
 		const channel = getPhpBuilderChannel(context);
 		const program = [buildStmtNop()];
+
+		const phpFile = resolvePhpFile(workspace, 'Override.php');
+
 		channel.queue({
-			file: '/workspace/.generated/php/Override.php',
+			file: phpFile,
 			metadata: { kind: 'capability-helper' },
 			docblock: [],
 			uses: [],
@@ -217,8 +238,15 @@ describe('createWpProgramWriterHelper', () => {
 		const channel = getPhpBuilderChannel(context);
 		const program = [buildStmtNop()];
 		const expectedSerialisedAst = `${JSON.stringify(program, null, 2)}\n`;
+
+		const phpFile = resolvePhpFile(
+			context.workspace as MockWorkspace,
+			'Fallback.php'
+		);
+		const phpAstFile = `${phpFile}.ast.json`;
+
 		channel.queue({
-			file: '/workspace/.generated/php/Fallback.php',
+			file: phpFile,
 			metadata: { kind: 'capability-helper' },
 			docblock: ['Doc line'],
 			uses: ['Demo\\Contracts'],
@@ -247,23 +275,23 @@ describe('createWpProgramWriterHelper', () => {
 		});
 
 		expect(prettyPrint).toHaveBeenCalledWith({
-			filePath: '/workspace/.generated/php/Fallback.php',
+			filePath: phpFile,
 			program,
 		});
 
 		expect(context.workspace.write).toHaveBeenCalledWith(
-			'/workspace/.generated/php/Fallback.php.ast.json',
+			phpAstFile,
 			expectedSerialisedAst,
 			{ ensureDir: true }
 		);
 		expect(output.queueWrite).toHaveBeenCalledWith({
-			file: '/workspace/.generated/php/Fallback.php.ast.json',
+			file: phpAstFile,
 			contents: expectedSerialisedAst,
 		});
 
 		expect(context.reporter.debug).toHaveBeenCalledWith(
 			'createPhpProgramWriterHelper: emitted PHP artifact.',
-			{ file: '/workspace/.generated/php/Fallback.php' }
+			{ file: phpFile }
 		);
 	});
 

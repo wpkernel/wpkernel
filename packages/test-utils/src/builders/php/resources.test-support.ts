@@ -11,6 +11,7 @@ import type {
 	IRWarningLike,
 	WPKConfigV1Like,
 } from '../../types.js';
+import { loadDefaultLayout } from '../../layout.test-support.js';
 
 type ResourceCacheKeys<TCacheKey extends IRResourceCacheKeyLike> = {
 	readonly list: TCacheKey;
@@ -488,6 +489,7 @@ export function makePhpIrFixture<
 >(
 	options: MakePhpIrFixtureOptions<TRoute, TResource> = {}
 ): IRv1Like<WPKConfigV1Like, unknown, TRoute, TResource> {
+	const layout = loadDefaultLayout();
 	const resources =
 		options.resources ??
 		([
@@ -529,7 +531,8 @@ export function makePhpIrFixture<
 		php: {
 			namespace: 'Demo\\Plugin',
 			autoload: 'inc/',
-			outputDir: '.generated/php',
+			outputDir: layout.resolve('php.generated'),
 		},
+		layout,
 	} as IRv1Like<WPKConfigV1Like, unknown, TRoute, TResource>;
 }

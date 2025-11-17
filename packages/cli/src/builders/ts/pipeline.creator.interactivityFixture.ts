@@ -2,7 +2,6 @@ import path from 'path';
 import { type TsBuilderCreator } from '../types';
 import {
 	resolveInteractivityFeature,
-	GENERATED_ROOT,
 	resolveAdminScreenComponentMetadata,
 	toLowerCamelIdentifier,
 } from './pipeline.creator.adminScreen';
@@ -28,7 +27,7 @@ import { toCamelCase } from './shared.metadata';
  * import {
  *   jobsadminscreenInteractivityNamespace,
  *   createJobsAdminScreenDataViewInteraction,
- * } from '.generated/ui/fixtures/interactivity/job';
+ * } from '.wpk/generate/ui/fixtures/interactivity/job';
  *
  * const { store } = createJobsAdminScreenDataViewInteraction();
  * ``
@@ -53,8 +52,7 @@ export function buildDataViewInteractivityFixtureCreator(): TsBuilderCreator {
 				resolveInteractivityFeature(descriptor);
 
 			const fixturePath = path.join(
-				GENERATED_ROOT,
-				'ui',
+				context.paths.uiGenerated,
 				'fixtures',
 				'interactivity',
 				`${descriptor.key}.ts`

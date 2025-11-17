@@ -95,6 +95,16 @@
 			"import": "./dist/ui/kernel-ui-harness.js",
 			"default": "./dist/ui/kernel-ui-harness.js"
 		},
+		"./layout.test-support": {
+			"types": "./dist/layout.test-support.d.ts",
+			"import": "./dist/layout.test-support.js",
+			"default": "./dist/layout.test-support.js"
+		},
+		"./layout-manifest.test-support": {
+			"types": "./dist/layout-manifest.test-support.d.ts",
+			"import": "./dist/layout-manifest.test-support.js",
+			"default": "./dist/layout-manifest.test-support.js"
+		},
 		"./package.json": "./package.json"
 	},
 	"files": [

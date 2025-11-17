@@ -6,12 +6,13 @@ import type {
 	BuilderNext,
 	BuilderOutput,
 } from '../../runtime/types';
-import type { IRBlock } from '../../ir/publicTypes';
+import type { IRBlock, IRv1 } from '../../ir/publicTypes';
 import {
 	collectBlockManifests,
 	type BlockManifestEntry,
 	type ProcessedBlockManifest,
 } from '../shared.blocks.manifest';
+import { resolveBlockRoots } from '../shared.blocks.paths';
 import { deriveResourceBlocks } from '../shared.blocks.derived';
 import {
 	buildBlockModule,
@@ -31,6 +32,19 @@ type BlockModuleQueuedFile = ReturnType<
 	typeof buildBlockModule
 >['files'][number];
 type PlannerWorkspace = ProgramTargetPlannerOptions['workspace'];
+
+function resolveBlockManifestPath(ir: IRv1): string {
+	const candidate =
+		ir.layout?.resolve('blocks.manifest') ??
+		path.posix.join(ir.php.outputDir, 'build/blocks-manifest.php');
+
+	const relative = path.posix.relative(ir.php.outputDir, candidate);
+	if (relative.startsWith('..') || relative === '') {
+		return 'build/blocks-manifest.php';
+	}
+
+	return relative;
+}
 
 /**
  * Creates a PHP builder helper for generating WordPress blocks.
@@ -77,6 +91,7 @@ export function createPhpBlocksHelper(): BuilderHelper {
 			const processedMap = await collectBlockManifests({
 				workspace: context.workspace,
 				blocks,
+				roots: resolveBlockRoots(input.ir),
 			});
 
 			const processedBlocks = blocks
@@ -103,7 +118,7 @@ export function createPhpBlocksHelper(): BuilderHelper {
 				origin: ir.meta.origin,
 				namespace: blockNamespace,
 				manifest: {
-					fileName: 'build/blocks-manifest.php',
+					fileName: resolveBlockManifestPath(ir),
 					entries: manifestEntries,
 				},
 				registrarFileName: 'Blocks/Register.php',

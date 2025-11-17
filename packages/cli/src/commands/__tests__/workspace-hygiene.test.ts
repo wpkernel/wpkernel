@@ -6,6 +6,7 @@ import {
 	createCommandWorkspaceHarness,
 } from '@wpkernel/test-utils/cli';
 import { makeWorkspaceMock } from '../../../tests/workspace.test-support';
+import { loadTestLayoutSync } from '../../tests/layout.test-support';
 
 describe('workspace hygiene readiness wiring', () => {
 	beforeEach(() => {
@@ -33,6 +34,8 @@ describe('workspace hygiene readiness wiring', () => {
 			configOrigin: 'wpk.config.ts',
 			namespace: 'Demo',
 		});
+
+		const layout = loadTestLayoutSync();
 
 		const pipelineRun = jest.fn().mockResolvedValue({
 			ir: {
@@ -69,9 +72,10 @@ describe('workspace hygiene readiness wiring', () => {
 				php: {
 					namespace: 'Demo',
 					autoload: 'inc',
-					outputDir: '.generated/php',
+					outputDir: layout.resolve('php.generated'),
 				},
 				diagnostics: [],
+				layout,
 			},
 			diagnostics: [],
 			steps: [],

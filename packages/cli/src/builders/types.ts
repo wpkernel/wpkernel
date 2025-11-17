@@ -76,6 +76,12 @@ export interface TsBuilderCreatorContext {
 	readonly sourcePath: string;
 	/** The Intermediate Representation (IR) of the project. */
 	readonly ir: IRv1;
+	/** Resolved layout paths required for TS generation. */
+	readonly paths: {
+		readonly blocksGenerated: string;
+		readonly uiGenerated: string;
+		readonly jsGenerated: string;
+	};
 	/** The reporter instance for logging. */
 	readonly reporter: Reporter;
 	/** A function to emit a generated TypeScript file. */
@@ -232,6 +238,7 @@ export interface ProcessInstructionOptions {
 	readonly reporter: BuilderApplyOptions['reporter'];
 	readonly deletedFiles: string[];
 	readonly skippedDeletions: PatchDeletionResult[];
+	readonly baseRoot: string;
 }
 export interface PatchPlanDeletionSkip {
 	readonly file: string;
@@ -243,12 +250,12 @@ export interface PatchDeletionResult {
 	readonly file: string;
 	readonly reason: string;
 }
-export interface RecordPlanSkippedDeletionsOptions {
+export interface RecordPlanDeletionsOptions {
 	readonly manifest: PatchManifest;
 	readonly plan: PatchPlan;
 	readonly reporter: BuilderApplyOptions['reporter'];
 }
-export interface ProcessPlanInstructionsOptions {
+export interface ApplyPlanInstructionsOptions {
 	readonly plan: PatchPlan;
 	readonly workspace: Workspace;
 	readonly manifest: PatchManifest;
@@ -256,6 +263,7 @@ export interface ProcessPlanInstructionsOptions {
 	readonly reporter: BuilderApplyOptions['reporter'];
 	readonly deletedFiles: string[];
 	readonly skippedDeletions: PatchDeletionResult[];
+	readonly baseRoot: string;
 }
 export interface ReportDeletionSummaryOptions {
 	readonly plan: PatchPlan;
@@ -270,6 +278,7 @@ export interface ProcessDeleteInstructionOptions {
 	readonly reporter: BuilderApplyOptions['reporter'];
 	readonly deletedFiles: string[];
 	readonly skippedDeletions: PatchDeletionResult[];
+	readonly baseRoot: string;
 }
 export interface PackageJsonLike {
 	readonly name?: string;

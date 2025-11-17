@@ -26,7 +26,6 @@ export {
 	buildAutoRegisterModuleMetadata,
 	generateBlockImportPath,
 } from './shared.registrar';
-export { GENERATED_ROOT } from './pipeline.creator.adminScreen';
 export type {
 	TsBuilderCreator,
 	TsBuilderCreatorContext,

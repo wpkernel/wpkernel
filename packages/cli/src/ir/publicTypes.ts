@@ -383,6 +383,16 @@ export interface IRReferenceIssue {
 }
 
 /**
+ * Resolved workspace layout mapping for generated and applied artifacts.
+ *
+ * @category IR
+ */
+export interface IRLayout {
+	resolve: (id: string) => string;
+	all: Record<string, string>;
+}
+
+/**
  * Summary of reference issues used by CI or tooling.
  *
  * @category IR
@@ -436,6 +446,8 @@ export interface IRv1 {
 	blocks: IRBlock[];
 	/** The PHP project IR. */
 	php: IRPhpProject;
+	/** Resolved layout map for internal/applied artifacts. */
+	layout: IRLayout;
 	/** Optional: UI metadata derived from resources. */
 	ui?: IRUiSurface;
 	/** Optional: An array of diagnostic messages. */

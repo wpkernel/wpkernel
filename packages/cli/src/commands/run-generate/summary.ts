@@ -1,60 +1,103 @@
 import type { FileWriterSummary } from '../../utils';
 
-export function renderSummary(
-	summary: FileWriterSummary,
-	dryRun: boolean,
-	verbose: boolean
-): string {
-	const parts: string[] = [];
-	parts.push('\n[wpk] generate summary');
-	parts.push(
-		`  mode: ${dryRun ? 'dry-run' : 'write'} | written=${summary.counts.written}` +
-			` unchanged=${summary.counts.unchanged}` +
-			` skipped=${summary.counts.skipped}`
-	);
+type ArtifactHint = {
+	label: string;
+	directory: string;
+	description: string;
+};
 
-	const artifactHints = [
+function applyArtifactHints(paths?: {
+	php: string;
+	ui: string;
+	js: string;
+}): readonly ArtifactHint[] {
+	return [
 		{
 			label: 'php',
-			directory: '.generated/php',
+			directory: paths?.php ?? 'generate/php',
 			description: 'REST controllers',
 		},
 		{
 			label: 'ui',
-			directory: '.generated/ui',
+			directory: paths?.ui ?? 'generate/ui',
 			description: 'admin application',
 		},
 		{
 			label: 'capabilities',
-			directory: '.generated/js',
+			directory: paths?.js ?? 'generate/js',
 			description: 'capability runtime',
 		},
 	] as const;
+}
 
-	const touchedArtifacts = artifactHints.filter(({ directory }) =>
+function formatCountsLine(summary: FileWriterSummary, dryRun: boolean) {
+	return (
+		`  mode: ${dryRun ? 'dry-run' : 'write'} | written=${summary.counts.written}` +
+		` unchanged=${summary.counts.unchanged}` +
+		` skipped=${summary.counts.skipped}`
+	);
+}
+
+function getTouchedArtifacts(
+	artifactHints: readonly ArtifactHint[],
+	summary: FileWriterSummary
+) {
+	return artifactHints.filter(({ directory }) =>
 		summary.entries.some(
 			(entry) =>
 				entry.path === directory ||
 				entry.path.startsWith(`${directory}/`)
 		)
 	);
+}
 
-	if (touchedArtifacts.length > 0) {
-		parts.push('  artifacts:');
-		for (const artifact of touchedArtifacts) {
-			parts.push(
-				`    - ${artifact.label}: ${artifact.directory} (${artifact.description})`
-			);
-		}
+function formatArtifactsLine(
+	artifactHints: readonly ArtifactHint[],
+	summary: FileWriterSummary
+) {
+	const touched = getTouchedArtifacts(artifactHints, summary);
+	if (touched.length === 0) {
+		return [];
 	}
 
-	if (verbose && summary.entries.length > 0) {
-		parts.push('  files:');
-		for (const entry of summary.entries) {
-			parts.push(`    - ${entry.status.padEnd(9)} ${entry.path}`);
-		}
+	const parts = ['  artifacts:'];
+	for (const artifact of touched) {
+		parts.push(
+			`    - ${artifact.label}: ${artifact.directory} (${artifact.description})`
+		);
+	}
+	return parts;
+}
+
+function formatFiles(summary: FileWriterSummary, verbose: boolean) {
+	if (!verbose || summary.entries.length === 0) {
+		return [];
 	}
 
-	parts.push('\n');
+	const parts = ['  files:'];
+	for (const entry of summary.entries) {
+		parts.push(`    - ${entry.status.padEnd(9)} ${entry.path}`);
+	}
+	return parts;
+}
+
+export function renderSummary(
+	summary: FileWriterSummary,
+	dryRun: boolean,
+	verbose: boolean,
+	paths?: {
+		php: string;
+		ui: string;
+		js: string;
+	}
+): string {
+	const parts: string[] = [
+		'\n[wpk] generate summary',
+		formatCountsLine(summary, dryRun),
+		...formatArtifactsLine(applyArtifactHints(paths), summary),
+		...formatFiles(summary, verbose),
+		'\n',
+	];
+
 	return parts.join('\n');
 }

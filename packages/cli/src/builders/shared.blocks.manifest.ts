@@ -1,10 +1,21 @@
-import { createHash } from 'node:crypto';
-import fs from 'node:fs/promises';
 import path from 'node:path';
 import type { Workspace } from '../workspace/types';
 import type { IRBlock } from '../ir/publicTypes';
 import { buildBlockRegistrarMetadata } from './ts/shared.metadata';
 import type { BlockRegistrarMetadata } from './ts/types';
+import { resolveBlockPath, toWorkspaceRelative } from './shared.blocks.paths';
+import {
+	type BlockManifestSignature,
+	buildBlockSignature,
+	pathSignatureEqual,
+} from './shared.blocks.signatures';
+import {
+	resolveRenderResolution,
+	manifestDeclaresRenderCallback,
+	validateBlockManifest,
+} from './shared.blocks.validation';
+
+type BlockManifest = Record<string, unknown>;
 
 /**
  * Minimal metadata persisted for each discovered `block.json`.
@@ -44,23 +55,6 @@ export interface ProcessedBlockManifest {
 	readonly registrar: BlockRegistrarMetadata;
 }
 
-interface FileSignature {
-	readonly exists: boolean;
-	readonly mtimeMs?: number;
-	readonly size?: number;
-	readonly hash?: string;
-}
-
-interface PathSignature {
-	readonly path: string;
-	readonly signature: FileSignature;
-}
-
-interface BlockManifestSignature {
-	readonly manifest: PathSignature;
-	readonly render?: PathSignature;
-}
-
 interface BlockManifestCache {
 	key: string;
 	data: Map<string, ProcessedBlockManifest>;
@@ -68,9 +62,6 @@ interface BlockManifestCache {
 }
 
 const BLOCK_CACHE = new WeakMap<Workspace, BlockManifestCache>();
-const GENERATED_BLOCKS_ROOT = path.posix.join('.generated', 'blocks');
-const SURFACED_BLOCKS_ROOT = path.posix.join('src', 'blocks');
-
 /**
  * Options for scanning the workspace for block manifests.
  *
@@ -79,6 +70,10 @@ const SURFACED_BLOCKS_ROOT = path.posix.join('src', 'blocks');
 export interface CollectBlockManifestsOptions {
 	readonly workspace: Workspace;
 	readonly blocks: readonly IRBlock[];
+	readonly roots: {
+		readonly generated: string;
+		readonly surfaced: string;
+	};
 }
 
 /**
@@ -87,11 +82,13 @@ export interface CollectBlockManifestsOptions {
  * @param    root0
  * @param    root0.workspace
  * @param    root0.blocks
+ * @param    root0.roots
  * @category Builders
  */
 export async function collectBlockManifests({
 	workspace,
 	blocks,
+	roots,
 }: CollectBlockManifestsOptions): Promise<Map<string, ProcessedBlockManifest>> {
 	const sortedBlocks = [...blocks].sort((a, b) => a.key.localeCompare(b.key));
 	const cacheKey = buildCacheKey(sortedBlocks);
@@ -107,7 +104,7 @@ export async function collectBlockManifests({
 	const signatures = new Map<string, BlockManifestSignature>();
 
 	for (const block of sortedBlocks) {
-		const processed = await processBlock(workspace, block);
+		const processed = await processBlock(workspace, block, roots);
 		map.set(block.key, processed);
 		signatures.set(
 			block.key,
@@ -134,39 +131,108 @@ function buildCacheKey(blocks: readonly IRBlock[]): string {
 
 async function processBlock(
 	workspace: Workspace,
-	block: IRBlock
+	block: IRBlock,
+	roots: { readonly generated: string; readonly surfaced: string }
 ): Promise<ProcessedBlockManifest> {
 	const registrar = buildBlockRegistrarMetadata(block.key);
 	const warnings: string[] = [];
 	const manifestLocation = await resolveBlockPath(
 		workspace,
-		block.manifestSource
+		block.manifestSource,
+		roots
 	);
-	const manifestAbsolutePath = manifestLocation.absolute;
-	const manifestRelativePath = manifestLocation.relative;
-	const manifestDirectory = path.dirname(manifestAbsolutePath);
 	const blockDirectoryLocation = await resolveBlockPath(
 		workspace,
-		block.directory
+		block.directory,
+		roots
 	);
-	const blockDirectoryAbsolute = blockDirectoryLocation.absolute;
-	const blockDirectoryRelative = blockDirectoryLocation.relative;
 
 	const manifestRead = await readManifest(workspace, {
 		...block,
-		manifestSource: manifestRelativePath,
+		manifestSource: manifestLocation.relative,
 	});
 	warnings.push(...manifestRead.warnings);
 
 	if (!manifestRead.manifestObject) {
-		return {
+		return buildManifestResult({
 			block,
 			warnings,
 			registrar,
-		} satisfies ProcessedBlockManifest;
+		});
 	}
 
-	let manifestEntry: BlockManifestEntry = {
+	const manifestDirectory = path.dirname(manifestLocation.absolute);
+	const {
+		manifestEntry,
+		renderPath,
+		renderStub,
+		warnings: renderWarnings,
+	} = await resolveRender({
+		workspace,
+		block,
+		manifestDirectory,
+		manifestRelativePath: manifestLocation.relative,
+		blockDirectoryRelative: blockDirectoryLocation.relative,
+		blockDirectoryAbsolute: blockDirectoryLocation.absolute,
+		manifestObject: manifestRead.manifestObject,
+		warnings,
+	});
+
+	warnings.push(...renderWarnings);
+
+	return buildManifestResult({
+		block,
+		manifestEntry,
+		manifestAbsolutePath: manifestLocation.absolute,
+		manifestDirectory,
+		manifestObject: manifestRead.manifestObject,
+		warnings,
+		renderPath,
+		renderStub,
+		registrar,
+	});
+}
+
+function buildManifestResult(
+	result: Omit<ProcessedBlockManifest, 'manifestObject'> & {
+		readonly manifestObject?: BlockManifest;
+	}
+): ProcessedBlockManifest {
+	return {
+		...result,
+	} satisfies ProcessedBlockManifest;
+}
+
+async function resolveRender({
+	workspace,
+	block,
+	manifestDirectory,
+	manifestRelativePath,
+	blockDirectoryRelative,
+	blockDirectoryAbsolute,
+	manifestObject,
+	warnings,
+}: {
+	workspace: Workspace;
+	block: IRBlock;
+	manifestDirectory: string;
+	manifestRelativePath: string;
+	blockDirectoryRelative: string;
+	blockDirectoryAbsolute: string;
+	manifestObject: BlockManifest;
+	warnings: string[];
+}): Promise<{
+	manifestEntry: BlockManifestEntry;
+	renderStub: ProcessedBlockManifest['renderStub'];
+	renderPath:
+		| {
+				absolutePath: string;
+				relativePath: string;
+		  }
+		| undefined;
+	warnings: string[];
+}> {
+	const manifestEntry: BlockManifestEntry = {
 		directory: blockDirectoryRelative,
 		manifest: manifestRelativePath,
 	} satisfies BlockManifestEntry;
@@ -174,109 +240,176 @@ async function processBlock(
 	const renderResolution = await resolveRenderResolution({
 		workspace,
 		manifestDirectory,
-		manifestObject: manifestRead.manifestObject,
+		manifestObject,
 	});
 
-	const manifestDeclaresCallback = manifestDeclaresRenderCallback(
-		manifestRead.manifestObject
-	);
-
-	let renderStub: ProcessedBlockManifest['renderStub'];
-	let renderPath: { absolutePath: string; relativePath: string } | undefined;
+	const manifestDeclaresCallback =
+		manifestDeclaresRenderCallback(manifestObject);
 
 	if (manifestDeclaresCallback) {
-		// Manifest provides callable render; no render file needed.
 		return {
-			block,
 			manifestEntry,
-			manifestAbsolutePath,
-			manifestDirectory,
-			manifestObject: manifestRead.manifestObject,
+			renderPath: undefined,
+			renderStub: undefined,
 			warnings,
-			registrar,
-		} satisfies ProcessedBlockManifest;
+		};
 	}
 
 	if (renderResolution) {
-		const { absolutePath, relativePath, exists, declared } =
-			renderResolution;
-		renderPath = { absolutePath, relativePath };
-		manifestEntry = {
-			...manifestEntry,
-			render: relativePath,
-		} satisfies BlockManifestEntry;
-
-		if (!exists) {
-			if (declared) {
-				renderStub = {
-					blockKey: block.key,
-					manifest: manifestRead.manifestObject ?? {},
-					target: {
-						absolutePath,
-						relativePath,
-					},
-				} satisfies ProcessedBlockManifest['renderStub'];
-				warnings.push(
-					`Block "${block.key}": render file declared in manifest was missing; created stub at ${relativePath}.`
-				);
-			} else {
-				warnings.push(
-					`Block "${block.key}": expected render template at ${relativePath} but it was not found.`
-				);
-			}
-		}
-
-		return {
+		return handleDeclaredRender({
 			block,
+			renderResolution,
 			manifestEntry,
-			manifestAbsolutePath,
-			manifestDirectory,
-			manifestObject: manifestRead.manifestObject,
+			manifestObject,
 			warnings,
-			renderPath,
-			renderStub,
-			registrar,
-		} satisfies ProcessedBlockManifest;
+		});
 	}
 
-	const fallbackAbsolute = path.resolve(blockDirectoryAbsolute, 'render.php');
-	const fallbackRelative = toWorkspaceRelative(workspace, fallbackAbsolute);
-	const exists = await workspace.exists(fallbackAbsolute);
+	return handleFallbackRender({
+		workspace,
+		block,
+		blockDirectoryAbsolute,
+		warnings,
+		manifestEntry,
+		manifestObject,
+	});
+}
 
-	renderPath = {
-		absolutePath: fallbackAbsolute,
-		relativePath: fallbackRelative,
-	};
-	manifestEntry = {
+function handleDeclaredRender({
+	block,
+	renderResolution,
+	manifestEntry,
+	manifestObject,
+	warnings,
+}: {
+	block: IRBlock;
+	renderResolution: NonNullable<
+		Awaited<ReturnType<typeof resolveRenderResolution>>
+	>;
+	manifestEntry: BlockManifestEntry;
+	manifestObject: BlockManifest;
+	warnings: string[];
+}): {
+	manifestEntry: BlockManifestEntry;
+	renderPath:
+		| {
+				absolutePath: string;
+				relativePath: string;
+		  }
+		| undefined;
+	renderStub: ProcessedBlockManifest['renderStub'];
+	warnings: string[];
+} {
+	const { absolutePath, relativePath, exists, declared } = renderResolution;
+	let renderStub: ProcessedBlockManifest['renderStub'];
+
+	const updatedEntry = {
 		...manifestEntry,
-		render: fallbackRelative,
+		render: relativePath,
 	} satisfies BlockManifestEntry;
 
-	if (!exists) {
+	if (exists) {
+		return {
+			manifestEntry: updatedEntry,
+			renderPath: { absolutePath, relativePath },
+			renderStub: undefined,
+			warnings,
+		};
+	}
+
+	if (declared) {
 		renderStub = {
 			blockKey: block.key,
-			manifest: manifestRead.manifestObject ?? {},
+			manifest: manifestObject ?? {},
 			target: {
-				absolutePath: fallbackAbsolute,
-				relativePath: fallbackRelative,
+				absolutePath,
+				relativePath,
 			},
 		} satisfies ProcessedBlockManifest['renderStub'];
 		warnings.push(
-			`Block "${block.key}": render template was not declared and none was found; created stub at ${fallbackRelative}.`
+			`Block "${block.key}": render file declared in manifest was missing; created stub at ${relativePath}.`
+		);
+	} else {
+		warnings.push(
+			`Block "${block.key}": expected render template at ${relativePath} but it was not found.`
 		);
 	}
 
 	return {
-		block,
-		manifestEntry,
-		manifestAbsolutePath,
-		manifestDirectory,
-		manifestObject: manifestRead.manifestObject,
-		warnings,
-		renderPath,
+		manifestEntry: updatedEntry,
+		renderPath: { absolutePath, relativePath },
 		renderStub,
-		registrar,
-	} satisfies ProcessedBlockManifest;
+		warnings,
+	};
+}
+
+async function handleFallbackRender({
+	workspace,
+	block,
+	blockDirectoryAbsolute,
+	manifestEntry,
+	manifestObject,
+	warnings,
+}: {
+	workspace: Workspace;
+	block: IRBlock;
+	blockDirectoryAbsolute: string;
+	manifestEntry: BlockManifestEntry;
+	manifestObject: BlockManifest;
+	warnings: string[];
+}): Promise<{
+	manifestEntry: BlockManifestEntry;
+	renderPath:
+		| {
+				absolutePath: string;
+				relativePath: string;
+		  }
+		| undefined;
+	renderStub: ProcessedBlockManifest['renderStub'];
+	warnings: string[];
+}> {
+	const fallbackAbsolute = path.resolve(blockDirectoryAbsolute, 'render.php');
+	const fallbackRelative = toWorkspaceRelative(workspace, fallbackAbsolute);
+	const exists = await workspace.exists(fallbackAbsolute);
+
+	const updatedEntry = {
+		...manifestEntry,
+		render: fallbackRelative,
+	} satisfies BlockManifestEntry;
+
+	if (exists) {
+		return {
+			manifestEntry: updatedEntry,
+			renderPath: {
+				absolutePath: fallbackAbsolute,
+				relativePath: fallbackRelative,
+			},
+			renderStub: undefined,
+			warnings,
+		};
+	}
+
+	const renderStub = {
+		blockKey: block.key,
+		manifest: manifestObject ?? {},
+		target: {
+			absolutePath: fallbackAbsolute,
+			relativePath: fallbackRelative,
+		},
+	} satisfies ProcessedBlockManifest['renderStub'];
+	warnings.push(
+		`Block "${block.key}": render template was not declared and none was found; created stub at ${fallbackRelative}.`
+	);
+
+	return {
+		manifestEntry: updatedEntry,
+		renderPath: {
+			absolutePath: fallbackAbsolute,
+			relativePath: fallbackRelative,
+		},
+		renderStub,
+		warnings,
+	};
 }
 
 async function isCacheValid(
@@ -326,129 +459,6 @@ async function isCacheValid(
 	return true;
 }
 
-async function buildBlockSignature(
-	workspace: Workspace,
-	block: IRBlock,
-	processed: ProcessedBlockManifest
-): Promise<BlockManifestSignature> {
-	const manifestAbsolutePath = workspace.resolve(block.manifestSource);
-	const manifest: PathSignature = {
-		path: manifestAbsolutePath,
-		signature: await describeFile(manifestAbsolutePath),
-	};
-
-	const renderAbsolutePath = processed.renderPath?.absolutePath;
-	const render = renderAbsolutePath
-		? {
-				path: renderAbsolutePath,
-				signature: await describeFile(renderAbsolutePath),
-			}
-		: undefined;
-
-	return { manifest, render } satisfies BlockManifestSignature;
-}
-
-async function describeFile(absolutePath: string): Promise<FileSignature> {
-	try {
-		const stats = await fs.lstat(absolutePath);
-		let hash: string | undefined;
-
-		if (stats.isFile()) {
-			const contents = await fs.readFile(absolutePath);
-			hash = createHash('sha1').update(contents).digest('hex');
-		}
-
-		return {
-			exists: true,
-			mtimeMs: stats.mtimeMs,
-			size: stats.size,
-			hash,
-		} satisfies FileSignature;
-	} catch (error) {
-		if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
-			return { exists: false } satisfies FileSignature;
-		}
-
-		throw error;
-	}
-}
-
-function pathSignatureEqual(
-	previous?: PathSignature,
-	current?: PathSignature
-): boolean {
-	if (!previous && !current) {
-		return true;
-	}
-
-	if (!previous || !current) {
-		return false;
-	}
-
-	if (previous.path !== current.path) {
-		return false;
-	}
-
-	return fileSignatureEqual(previous.signature, current.signature);
-}
-
-function fileSignatureEqual(a: FileSignature, b: FileSignature): boolean {
-	if (a.exists !== b.exists) {
-		return false;
-	}
-
-	if (!a.exists) {
-		return true;
-	}
-
-	return a.mtimeMs === b.mtimeMs && a.size === b.size && a.hash === b.hash;
-}
-
-async function resolveBlockPath(
-	workspace: Workspace,
-	relativePath: string
-): Promise<{ relative: string; absolute: string }> {
-	const normalised = relativePath.split('\\').join('/');
-	if (!normalised.startsWith(GENERATED_BLOCKS_ROOT)) {
-		return {
-			relative: normalised,
-			absolute: workspace.resolve(normalised),
-		};
-	}
-
-	const suffix = path.posix.relative(GENERATED_BLOCKS_ROOT, normalised);
-	if (suffix.startsWith('..')) {
-		return {
-			relative: normalised,
-			absolute: workspace.resolve(normalised),
-		};
-	}
-
-	const surfacedRelative = path.posix.join(SURFACED_BLOCKS_ROOT, suffix);
-	const surfacedAbsolute = workspace.resolve(surfacedRelative);
-	if (await pathExists(surfacedAbsolute)) {
-		return { relative: surfacedRelative, absolute: surfacedAbsolute };
-	}
-
-	return {
-		relative: normalised,
-		absolute: workspace.resolve(normalised),
-	};
-}
-
-async function pathExists(absolute: string): Promise<boolean> {
-	try {
-		await fs.stat(absolute);
-		return true;
-	} catch (error) {
-		if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
-			return false;
-		}
-
-		throw error;
-	}
-}
-
 async function readManifest(
 	workspace: Workspace,
 	block: IRBlock
@@ -490,140 +500,4 @@ async function readManifest(
 		);
 		return { manifestObject: null, warnings };
 	}
-}
-
-function validateBlockManifest(
-	manifest: Record<string, unknown>,
-	block: IRBlock
-): string[] {
-	const warnings: string[] = [];
-
-	const checks: Array<{ condition: boolean; message: string }> = [
-		{
-			condition: isNonEmptyString(manifest.name),
-			message: `Block manifest for "${block.key}" is missing a "name" field.`,
-		},
-		{
-			condition: isNonEmptyString(manifest.title),
-			message: `Block manifest for "${block.key}" is missing a "title" field.`,
-		},
-		{
-			condition: isNonEmptyString(manifest.category),
-			message: `Block manifest for "${block.key}" is missing a "category" field.`,
-		},
-		{
-			condition: isNonEmptyString(manifest.icon),
-			message: `Block manifest for "${block.key}" does not define an "icon".`,
-		},
-		{
-			condition:
-				hasString(manifest.editorScript) ||
-				hasString(manifest.editorScriptModule),
-			message: `Block manifest for "${block.key}" is missing "editorScript" or "editorScriptModule".`,
-		},
-	];
-
-	for (const check of checks) {
-		if (!check.condition) {
-			warnings.push(check.message);
-		}
-	}
-
-	if (
-		!block.hasRender &&
-		!(
-			hasString(manifest.viewScript) ||
-			hasString(manifest.viewScriptModule)
-		)
-	) {
-		warnings.push(
-			`JS-only block "${block.key}" is missing "viewScript" or "viewScriptModule".`
-		);
-	}
-
-	return warnings;
-}
-
-function isNonEmptyString(candidate: unknown): candidate is string {
-	return typeof candidate === 'string' && candidate.trim().length > 0;
-}
-
-function hasString(candidate: unknown): candidate is string {
-	return typeof candidate === 'string' && candidate.length > 0;
-}
-
-function manifestDeclaresRenderCallback(
-	manifest: Record<string, unknown>
-): boolean {
-	const render = manifest.render;
-	if (typeof render !== 'string') {
-		return false;
-	}
-
-	const trimmed = render.trim();
-	if (trimmed.length === 0) {
-		return false;
-	}
-
-	return !trimmed.startsWith('file:');
-}
-
-async function resolveRenderResolution(options: {
-	readonly workspace: Workspace;
-	readonly manifestDirectory: string;
-	readonly manifestObject: Record<string, unknown>;
-}): Promise<
-	| {
-			readonly absolutePath: string;
-			readonly relativePath: string;
-			readonly exists: boolean;
-			readonly declared: boolean;
-	  }
-	| undefined
-> {
-	const { workspace, manifestDirectory, manifestObject } = options;
-	const render = manifestObject.render;
-
-	if (typeof render === 'string') {
-		if (!render.startsWith('file:')) {
-			return undefined;
-		}
-
-		const relative = render.slice('file:'.length).trim();
-		const normalised = relative.startsWith('./')
-			? relative.slice(2)
-			: relative;
-		const absolutePath = path.resolve(manifestDirectory, normalised);
-		const relativePath = toWorkspaceRelative(workspace, absolutePath);
-		const exists = await workspace.exists(absolutePath);
-
-		return {
-			absolutePath,
-			relativePath,
-			exists,
-			declared: true,
-		};
-	}
-
-	const fallbackAbsolute = path.resolve(manifestDirectory, 'render.php');
-	const exists = await workspace.exists(fallbackAbsolute);
-	if (!exists) {
-		return undefined;
-	}
-
-	return {
-		absolutePath: fallbackAbsolute,
-		relativePath: toWorkspaceRelative(workspace, fallbackAbsolute),
-		exists: true,
-		declared: false,
-	};
-}
-
-function toWorkspaceRelative(workspace: Workspace, absolute: string): string {
-	const relative = path.relative(workspace.root, absolute);
-	if (relative === '') {
-		return '.';
-	}
-
-	return relative.split(path.sep).join('/');
 }

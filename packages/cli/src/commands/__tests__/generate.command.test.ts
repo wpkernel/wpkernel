@@ -11,7 +11,7 @@ import {
 	type BuildGenerateCommandOptions,
 } from '../generate';
 import { PATCH_MANIFEST_PATH } from '../apply/constants';
-import { GENERATION_STATE_PATH } from '../../apply/manifest';
+import { resolveGenerationStatePath } from '../../apply/manifest';
 import type {
 	Pipeline,
 	PipelineRunOptions,
@@ -22,8 +22,10 @@ import type {
 	ReadinessPlan,
 	ReadinessRegistry,
 } from '../../dx';
+import { loadTestLayoutSync } from '../../tests/layout.test-support';
 
 function buildIrArtifact(workspaceRoot: string): PipelineRunResult['ir'] {
+	const layout = loadTestLayoutSync();
 	return {
 		meta: {
 			version: 1,
@@ -52,9 +54,10 @@ function buildIrArtifact(workspaceRoot: string): PipelineRunResult['ir'] {
 		php: {
 			namespace: 'Demo',
 			autoload: 'inc',
-			outputDir: '.generated/php',
+			outputDir: layout.resolve('php.generated'),
 		},
 		diagnostics: [],
+		layout,
 	} satisfies PipelineRunResult['ir'];
 }
 
@@ -69,8 +72,9 @@ function createPipelineStub(
 	runImpl?: (options: PipelineRunOptions) => Promise<PipelineRunResult>
 ): { pipeline: Pipeline; runMock: jest.Mock } {
 	const runMock = jest.fn(async (options: PipelineRunOptions) => {
+		const layout = loadTestLayoutSync();
 		await options.workspace.write(
-			path.join('.generated', 'index.ts'),
+			path.join(layout.resolve('js.generated'), 'index.ts'),
 			"console.log('hello world');\n"
 		);
 		await options.workspace.write(PATCH_MANIFEST_PATH, '{}');
@@ -183,10 +187,16 @@ describe('GenerateCommand', () => {
 		expect(workspace.begin).toHaveBeenCalledWith('generate');
 		expect(workspace.commit).toHaveBeenCalledWith('generate');
 		expect(workspace.rollback).not.toHaveBeenCalledWith('generate');
+		const layout = loadTestLayoutSync();
 		expect(renderSummary).toHaveBeenCalledWith(
 			expect.objectContaining({ counts: expect.any(Object) }),
 			false,
-			false
+			false,
+			{
+				php: layout.resolve('php.generated'),
+				ui: layout.resolve('ui.generated'),
+				js: layout.resolve('js.generated'),
+			}
 		);
 		expect(validateGeneratedImports).toHaveBeenCalledWith(
 			expect.objectContaining({
@@ -199,7 +209,12 @@ describe('GenerateCommand', () => {
 				dryRun: false,
 				entries: expect.arrayContaining([
 					expect.objectContaining({
-						path: expect.stringContaining('.generated/index.ts'),
+						path: expect.stringContaining(
+							path.posix.join(
+								loadTestLayoutSync().resolve('js.generated'),
+								'index.ts'
+							)
+						),
 						status: 'written',
 					}),
 				]),
@@ -510,17 +525,37 @@ describe('GenerateCommand', () => {
 
 	it('removes stale generated artifacts when generated paths change', async () => {
 		const workspace = createWorkspaceStub();
-		await workspace.writeJson(GENERATION_STATE_PATH, {
+		const layout = loadTestLayoutSync();
+		const generationStatePath = await resolveGenerationStatePath(workspace);
+
+		const phpGenerated = layout.resolve('php.generated');
+		const controllersApplied = layout.resolve('controllers.applied');
+
+		await workspace.writeJson(generationStatePath, {
 			version: 1,
 			resources: {
 				books: {
 					hash: 'legacy',
 					artifacts: {
 						generated: [
-							'.generated/php/Rest/BooksController.php',
-							'.generated/php/Rest/BooksController.php.ast.json',
+							path.posix.join(
+								phpGenerated,
+								'Rest',
+								'BooksController.php'
+							),
+							path.posix.join(
+								phpGenerated,
+								'Rest',
+								'BooksController.php.ast.json'
+							),
 						],
-						shims: ['inc/Rest/BooksController.php'],
+						shims: [
+							path.posix.join(
+								controllersApplied,
+								'Rest',
+								'BooksController.php'
+							),
+						],
 					},
 				},
 			},
@@ -530,7 +565,10 @@ describe('GenerateCommand', () => {
 			workspace,
 			async (options) => {
 				await options.workspace.write(
-					path.join('.generated', 'index.ts'),
+					path.join(
+						loadTestLayoutSync().resolve('js.generated'),
+						'index.ts'
+					),
 					"console.log('hello world');\n"
 				);
 				await options.workspace.write(PATCH_MANIFEST_PATH, '{}');
@@ -555,7 +593,7 @@ describe('GenerateCommand', () => {
 						resources: [resource],
 						php: {
 							...ir.php,
-							outputDir: '.generated/server',
+							outputDir: 'next-php-output',
 						},
 					},
 					diagnostics: [],
@@ -604,21 +642,29 @@ describe('GenerateCommand', () => {
 		expect(exitCode).toBe(WPK_EXIT_CODES.SUCCESS);
 		expect(runMock).toHaveBeenCalled();
 		expect(workspace.rm).toHaveBeenCalledWith(
-			'.generated/php/Rest/BooksController.php',
+			path.posix.join(phpGenerated, 'Rest', 'BooksController.php'),
 			undefined
 		);
 		expect(workspace.rm).toHaveBeenCalledWith(
-			'.generated/php/Rest/BooksController.php.ast.json',
+			path.posix.join(
+				phpGenerated,
+				'Rest',
+				'BooksController.php.ast.json'
+			),
 			undefined
 		);
 		expect(workspace.writeJson).toHaveBeenCalledWith(
-			GENERATION_STATE_PATH,
+			generationStatePath,
 			expect.objectContaining({
 				resources: {
 					books: expect.objectContaining({
 						artifacts: expect.objectContaining({
 							generated: expect.arrayContaining([
-								'.generated/server/Rest/BooksController.php',
+								path.posix.join(
+									'next-php-output',
+									'Rest',
+									'BooksController.php'
+								),
 							]),
 						}),
 					}),

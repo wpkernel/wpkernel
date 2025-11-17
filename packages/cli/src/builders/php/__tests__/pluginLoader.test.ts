@@ -1,3 +1,4 @@
+import path from 'node:path';
 import { createPhpPluginLoaderHelper } from '../entry.plugin';
 import {
 	AUTO_GUARD_BEGIN,
@@ -13,6 +14,7 @@ import {
 } from '../test-support/php-builder.test-support';
 import { makeWorkspaceMock } from '../../../../tests/workspace.test-support';
 import { makeResource, makeRoute } from '../test-support/fixtures.test-support';
+import { loadTestLayoutSync } from '../../../tests/layout.test-support';
 
 describe('createPhpPluginLoaderHelper', () => {
 	it('skips when no IR is available', async () => {
@@ -51,7 +53,7 @@ describe('createPhpPluginLoaderHelper', () => {
 			php: {
 				namespace: 'Demo\\Plugin',
 				autoload: 'inc/',
-				outputDir: '.generated/php',
+				outputDir: loadTestLayoutSync().resolve('php.generated'),
 			},
 			resources: [
 				makeResource({
@@ -80,7 +82,11 @@ describe('createPhpPluginLoaderHelper', () => {
 			.find((candidate) => candidate.metadata.kind === 'plugin-loader');
 
 		expect(entry).toBeDefined();
-		expect(entry?.file).toBe(context.workspace.resolve('plugin.php'));
+		expect(entry?.file).toBe(
+			context.workspace.resolve(
+				path.posix.join(ir.php.outputDir, 'plugin.php')
+			)
+		);
 		expect(entry?.docblock).toEqual([]);
 		expect(entry?.metadata).toEqual({ kind: 'plugin-loader' });
 		expect(entry?.program).toMatchSnapshot('plugin-loader-program');
@@ -147,7 +153,7 @@ describe('createPhpPluginLoaderHelper', () => {
 			php: {
 				namespace: 'Acme\\Demo\\Plugin',
 				autoload: 'src/php/',
-				outputDir: '.generated/php',
+				outputDir: loadTestLayoutSync().resolve('php.generated'),
 			},
 			resources: [
 				makeResource({
@@ -172,7 +178,11 @@ describe('createPhpPluginLoaderHelper', () => {
 			.find((candidate) => candidate.metadata.kind === 'plugin-loader');
 
 		expect(entry).toBeDefined();
-		expect(entry?.file).toBe(context.workspace.resolve('plugin.php'));
+		expect(entry?.file).toBe(
+			context.workspace.resolve(
+				path.posix.join(ir.php.outputDir, 'plugin.php')
+			)
+		);
 		expect(entry?.program).toMatchSnapshot(
 			'plugin-loader-program-custom-namespace'
 		);

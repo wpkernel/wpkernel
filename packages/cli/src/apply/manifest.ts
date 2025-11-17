@@ -4,13 +4,27 @@ import type { IRResource, IRv1 } from '../ir/publicTypes';
 import { toPascalCase } from '../builders/php/utils';
 import type { Workspace } from '../workspace';
 import { sanitizeNamespace } from '../adapters/extensions';
+import { loadLayoutFromWorkspace } from '../layout/manifest';
 
 export const GENERATION_STATE_VERSION = 1 as const;
-export const GENERATION_STATE_PATH = path.posix.join(
-	'.wpk',
-	'apply',
-	'state.json'
-);
+
+export async function resolveGenerationStatePath(
+	workspace: Workspace
+): Promise<string> {
+	const layout = await loadLayoutFromWorkspace({
+		workspace,
+		strict: true,
+	});
+
+	if (!layout) {
+		throw new WPKernelError('DeveloperError', {
+			message:
+				'layout.manifest.json not found; cannot resolve apply state path.',
+		});
+	}
+
+	return layout.resolve('apply.state');
+}
 
 export interface GenerationManifestFilePair {
 	readonly file: string;
@@ -63,7 +77,8 @@ export function buildEmptyGenerationState(): GenerationManifest {
 export async function readGenerationState(
 	workspace: Workspace
 ): Promise<GenerationManifest> {
-	const contents = await workspace.readText(GENERATION_STATE_PATH);
+	const statePath = await resolveGenerationStatePath(workspace);
+	const contents = await workspace.readText(statePath);
 	if (!contents) {
 		return buildEmptyGenerationState();
 	}
@@ -75,7 +90,7 @@ export async function readGenerationState(
 		throw new WPKernelError('DeveloperError', {
 			message: 'Failed to parse generation state JSON.',
 			context: {
-				file: GENERATION_STATE_PATH,
+				file: statePath,
 				error: (error as Error).message,
 			},
 		});
@@ -88,7 +103,8 @@ export async function writeGenerationState(
 	workspace: Workspace,
 	state: GenerationManifest
 ): Promise<void> {
-	await workspace.writeJson(GENERATION_STATE_PATH, state, { pretty: true });
+	const statePath = await resolveGenerationStatePath(workspace);
+	await workspace.writeJson(statePath, state, { pretty: true });
 }
 
 export function buildGenerationManifestFromIr(
@@ -98,11 +114,19 @@ export function buildGenerationManifestFromIr(
 		return buildEmptyGenerationState();
 	}
 
+	if (!ir.layout) {
+		throw new WPKernelError('DeveloperError', {
+			message:
+				'IR layout fragment did not resolve layout before building generation manifest.',
+		});
+	}
+
 	const resources = buildResourceEntries(ir);
-	const pluginLoader = buildFilePair('plugin.php');
-	const phpIndex = buildFilePair(
-		path.posix.join(normaliseDirectory(ir.php.outputDir), 'index.php')
+	const phpOutput = normaliseDirectory(ir.php.outputDir);
+	const pluginLoader = buildFilePair(
+		path.posix.join(phpOutput, 'plugin.php')
 	);
+	const phpIndex = buildFilePair(path.posix.join(phpOutput, 'index.php'));
 
 	const uiHandle = buildUiHandle(ir);
 
@@ -207,9 +231,17 @@ function normaliseResources(
 function buildResourceEntries(
 	ir: IRv1
 ): Record<string, GenerationManifestResourceEntry> {
+	if (!ir.layout) {
+		throw new WPKernelError('DeveloperError', {
+			message:
+				'IR layout fragment did not resolve layout before building resource entries.',
+		});
+	}
+
 	const entries: Record<string, GenerationManifestResourceEntry> = {};
 	const autoloadRoot = normaliseDirectory(ir.php.autoload);
 	const outputDir = normaliseDirectory(ir.php.outputDir);
+	const uiRoot = normaliseDirectory(ir.layout.resolve('ui.generated'));
 	const resourceKeyLookup = buildResourceKeyLookup(ir.config.resources);
 
 	for (const resource of ir.resources) {
@@ -217,6 +249,7 @@ function buildResourceEntries(
 			resource,
 			autoloadRoot,
 			outputDir,
+			uiRoot,
 			resourceKeyLookup,
 		});
 
@@ -285,11 +318,13 @@ function buildResourceEntry({
 	resource,
 	autoloadRoot,
 	outputDir,
+	uiRoot,
 	resourceKeyLookup,
 }: {
 	readonly resource: IRResource;
 	readonly autoloadRoot: string;
 	readonly outputDir: string;
+	readonly uiRoot: string;
 	readonly resourceKeyLookup: Map<string, string>;
 }): GenerationManifestResourceEntry | null {
 	const pascal = toPascalCase(resource.name);
@@ -311,8 +346,7 @@ function buildResourceEntry({
 	const resourceKey = resourceKeyLookup.get(resource.name) ?? resource.name;
 	if (resource.ui?.admin?.dataviews) {
 		const registryPath = path.posix.join(
-			'.generated',
-			'ui',
+			uiRoot,
 			'registry',
 			'dataviews',
 			`${resourceKey}.ts`
@@ -320,8 +354,7 @@ function buildResourceEntry({
 		generatedArtifacts.add(registryPath);
 
 		const dataviewFixturePath = path.posix.join(
-			'.generated',
-			'ui',
+			uiRoot,
 			'fixtures',
 			'dataviews',
 			`${resourceKey}.ts`
@@ -329,8 +362,7 @@ function buildResourceEntry({
 		generatedArtifacts.add(dataviewFixturePath);
 
 		const interactivityFixturePath = path.posix.join(
-			'.generated',
-			'ui',
+			uiRoot,
 			'fixtures',
 			'interactivity',
 			`${resourceKey}.ts`

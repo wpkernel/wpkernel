@@ -16,6 +16,7 @@ import {
 } from '@wpkernel/test-utils/builders/tests/ts.test-support';
 import { buildWorkspace } from '../../../workspace';
 import type { Workspace } from '../../../workspace';
+import { loadTestLayoutSync } from '../../../tests/layout.test-support';
 
 const withWorkspace = (
 	run: (context: BuilderHarnessContext<Workspace>) => Promise<void>
@@ -260,14 +261,19 @@ describe('ts shared helpers', () => {
 		});
 
 		it('preserves leading dot segments when block paths live higher in the tree', () => {
+			const layout = loadTestLayoutSync();
 			const importPath = generateBlockImportPath(
 				path.join('/project/src/blocks/feature', 'block.json'),
-				path.join('/project/.generated/blocks', 'auto-register.ts')
+				path.join(
+					'/project',
+					layout.resolve('blocks.generated'),
+					'auto-register.ts'
+				)
 			);
 
 			const expected = path
 				.relative(
-					path.join('/project/.generated/blocks'),
+					path.join('/project', layout.resolve('blocks.generated')),
 					path.join('/project/src/blocks/feature', 'block.json')
 				)
 				.split(path.sep)
