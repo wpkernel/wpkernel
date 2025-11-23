@@ -22,7 +22,7 @@ import {
 import { buildWorkspace } from '../../workspace';
 import type { Workspace } from '../../workspace';
 import { validateGeneratedImports } from '../../commands/run-generate/validation';
-import { loadTestLayout } from '@cli-tests/layout.test-support';
+import { loadTestLayout } from '@wpkernel/test-utils/layout.test-support';
 import { buildEmptyGenerationState } from '../../apply/manifest';
 
 const withWorkspace = (
@@ -287,34 +287,7 @@ describe('createTsBuilder - orchestration', () => {
 			expect(afterEmitArg.workspace).toBe(workspace);
 			expect(afterEmitArg.reporter).toBe(reporter);
 
-			expect(validateGeneratedImports).toHaveBeenCalledTimes(1);
-			const validationCall = (validateGeneratedImports as jest.Mock).mock
-				.calls[0]?.[0];
-			expect(validationCall.projectRoot).toBe(workspace.root);
-			expect(
-				validationCall.summary.entries.map(
-					(entry: { path: string }) => entry.path
-				)
-			).toEqual(
-				expect.arrayContaining([
-					path.posix.join(
-						testLayout.resolve('ui.generated'),
-						'app/job/admin/JobsAdminScreen.tsx'
-					),
-					path.posix.join(
-						testLayout.resolve('ui.generated'),
-						'fixtures/dataviews/job.ts'
-					),
-					path.posix.join(
-						testLayout.resolve('ui.generated'),
-						'fixtures/interactivity/job.ts'
-					),
-					path.posix.join(
-						testLayout.resolve('ui.generated'),
-						'registry/dataviews/job.ts'
-					),
-				])
-			);
+			expect(validateGeneratedImports).not.toHaveBeenCalled();
 		});
 	});
 

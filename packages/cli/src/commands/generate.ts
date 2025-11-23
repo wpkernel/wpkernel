@@ -212,7 +212,7 @@ async function runGenerateWorkflow(
 				tracked.workspace,
 				reporter,
 				dryRun,
-				patchPaths.manifestPath
+				patchPaths.planPath
 			);
 
 			if (manifestFailure) {
@@ -226,22 +226,6 @@ async function runGenerateWorkflow(
 			reporter.debug('Generated files.', {
 				files: writerSummary.entries,
 			});
-
-			try {
-				await dependencies.validateGeneratedImports({
-					projectRoot: tracked.workspace.root,
-					summary: generationSummary,
-					reporter,
-				});
-			} catch (error) {
-				const exitCode = handleFailure(
-					error,
-					reporter,
-					WPK_EXIT_CODES.UNEXPECTED_ERROR,
-					{ includeContext: verbose }
-				);
-				return buildFailure(exitCode);
-			}
 
 			const output = dependencies.renderSummary(
 				writerSummary,

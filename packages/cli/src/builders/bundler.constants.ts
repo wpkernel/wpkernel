@@ -39,6 +39,7 @@ export const DEFAULT_WORDPRESS_EXTERNALS = [
 	'@wordpress/block-editor',
 	'@wordpress/blocks',
 	'@wordpress/private-apis',
+	'@wordpress/interactivity',
 ];
 
 export const REACT_EXTERNALS = [

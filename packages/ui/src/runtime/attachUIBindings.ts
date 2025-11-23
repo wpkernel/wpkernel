@@ -35,7 +35,8 @@ function resolveCapabilityRuntime(): WPKernelUIRuntime['capabilities'] {
 		return undefined;
 	}
 
-	return { capability: runtime.capability };
+	// Return the stored runtime object directly to keep a stable reference.
+	return runtime as WPKernelUIRuntime['capabilities'];
 }
 
 function registerResourceDataView<TItem, TQuery>(
@@ -65,17 +66,22 @@ function registerResourceDataView<TItem, TQuery>(
 		return;
 	}
 
+	const normalizedResource = resource as ResourceObject<TItem, TQuery> & {
+		fetchList?: ResourceObject<TItem, TQuery>['fetchList'];
+		prefetchList?: ResourceObject<TItem, TQuery>['prefetchList'];
+	};
+
 	try {
 		const controller = createResourceDataViewController<TItem, TQuery>({
-			resource,
+			resource: normalizedResource,
 			config: metadata.config,
 			runtime: dataviews,
 			namespace: runtime.namespace,
 			invalidate: runtime.invalidate,
 			capabilities: () => runtime.capabilities,
 			preferencesKey: metadata.preferencesKey,
-			fetchList: resource.fetchList,
-			prefetchList: resource.prefetchList,
+			fetchList: normalizedResource.fetchList,
+			prefetchList: normalizedResource.prefetchList,
 		});
 
 		dataviews.controllers.set(resource.name, controller);

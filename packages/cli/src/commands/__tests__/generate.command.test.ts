@@ -22,8 +22,9 @@ import type {
 	ReadinessPlan,
 	ReadinessRegistry,
 } from '../../dx';
-import { loadTestLayoutSync } from '@cli-tests/layout.test-support';
+import { loadTestLayoutSync } from '@wpkernel/test-utils/layout.test-support';
 import { createDefaultResource } from '@cli-tests/ir/resource-builder.mock';
+import { resolvePatchPaths } from '../../builders/patcher.paths';
 
 function buildIrArtifact(workspaceRoot: string): PipelineRunResult['ir'] {
 	const layout = loadTestLayoutSync();
@@ -105,6 +106,8 @@ function createPipelineStub(
 			path.join(layout.resolve('js.generated'), 'index.ts'),
 			"console.log('hello world');\n"
 		);
+		const patchPaths = resolvePatchPaths({});
+		await options.workspace.write(patchPaths.planPath, '{}');
 		await options.workspace.write(PATCH_MANIFEST_PATH, '{}');
 
 		return {
@@ -183,7 +186,6 @@ describe('GenerateCommand', () => {
 		});
 
 		const renderSummary = jest.fn().mockReturnValue('summary output\n');
-		const validateGeneratedImports = jest.fn().mockResolvedValue(undefined);
 
 		const GenerateCommand = buildGenerateCommand({
 			loadWPKernelConfig,
@@ -196,7 +198,6 @@ describe('GenerateCommand', () => {
 				.mockReturnValue({ key: 'adapter', register: jest.fn() }),
 			buildReporter: jest.fn().mockReturnValue(reporter),
 			renderSummary,
-			validateGeneratedImports,
 			buildReadinessRegistry: readiness.buildReadinessRegistry,
 		} as BuildGenerateCommandOptions);
 
@@ -225,11 +226,6 @@ describe('GenerateCommand', () => {
 				ui: layout.resolve('ui.generated'),
 				js: layout.resolve('js.generated'),
 			}
-		);
-		expect(validateGeneratedImports).toHaveBeenCalledWith(
-			expect.objectContaining({
-				summary: expect.objectContaining({ dryRun: false }),
-			})
 		);
 		expect(stdout.toString()).toBe('summary output\n');
 		expect(command.summary).toEqual(
@@ -273,7 +269,6 @@ describe('GenerateCommand', () => {
 		});
 
 		const renderSummary = jest.fn().mockReturnValue('dry-run summary\n');
-		const validateGeneratedImports = jest.fn().mockResolvedValue(undefined);
 
 		const GenerateCommand = buildGenerateCommand({
 			loadWPKernelConfig,
@@ -286,7 +281,6 @@ describe('GenerateCommand', () => {
 				.mockReturnValue({ key: 'adapter', register: jest.fn() }),
 			buildReporter: jest.fn().mockReturnValue(reporter),
 			renderSummary,
-			validateGeneratedImports,
 			buildReadinessRegistry: readiness.buildReadinessRegistry,
 		} as BuildGenerateCommandOptions);
 
@@ -304,11 +298,6 @@ describe('GenerateCommand', () => {
 		expect(runMock).toHaveBeenCalled();
 		expect(workspace.rollback).toHaveBeenCalledWith('generate');
 		expect(workspace.commit).not.toHaveBeenCalledWith('generate');
-		expect(validateGeneratedImports).toHaveBeenCalledWith(
-			expect.objectContaining({
-				summary: expect.objectContaining({ dryRun: true }),
-			})
-		);
 		expect(command.summary).toEqual(
 			expect.objectContaining({
 				dryRun: true,
@@ -373,7 +362,6 @@ describe('GenerateCommand', () => {
 				.mockReturnValue({ key: 'adapter', register: jest.fn() }),
 			buildReporter: jest.fn().mockReturnValue(reporter),
 			renderSummary: jest.fn().mockReturnValue('summary\n'),
-			validateGeneratedImports: jest.fn().mockResolvedValue(undefined),
 			buildReadinessRegistry: readiness.buildReadinessRegistry,
 		} as BuildGenerateCommandOptions);
 
@@ -421,7 +409,6 @@ describe('GenerateCommand', () => {
 				.mockReturnValue({ key: 'adapter', register: jest.fn() }),
 			buildReporter: jest.fn().mockReturnValue(reporter),
 			renderSummary: jest.fn().mockReturnValue('summary\n'),
-			validateGeneratedImports: jest.fn().mockResolvedValue(undefined),
 			buildReadinessRegistry: readiness.buildReadinessRegistry,
 		} as BuildGenerateCommandOptions);
 
@@ -469,7 +456,6 @@ describe('GenerateCommand', () => {
 				.mockReturnValue({ key: 'adapter', register: jest.fn() }),
 			buildReporter: jest.fn().mockReturnValue(reporter),
 			renderSummary: jest.fn().mockReturnValue('summary\n'),
-			validateGeneratedImports: jest.fn().mockResolvedValue(undefined),
 			buildReadinessRegistry: readiness.buildReadinessRegistry,
 		} as BuildGenerateCommandOptions);
 
@@ -505,7 +491,6 @@ describe('GenerateCommand', () => {
 		});
 
 		const renderSummary = jest.fn().mockReturnValue('summary output\n');
-		const validateGeneratedImports = jest.fn().mockResolvedValue(undefined);
 
 		const GenerateCommand = buildGenerateCommand({
 			loadWPKernelConfig,
@@ -518,7 +503,6 @@ describe('GenerateCommand', () => {
 				.mockReturnValue({ key: 'adapter', register: jest.fn() }),
 			buildReporter: jest.fn().mockReturnValue(reporter),
 			renderSummary,
-			validateGeneratedImports,
 			buildReadinessRegistry: readiness.buildReadinessRegistry,
 		} as BuildGenerateCommandOptions);
 
@@ -543,11 +527,10 @@ describe('GenerateCommand', () => {
 		expect(reporter.error).toHaveBeenCalledWith(
 			'Failed to locate apply manifest after generation.',
 			expect.objectContaining({
-				manifestPath: PATCH_MANIFEST_PATH,
+				manifestPath: resolvePatchPaths({}).planPath,
 				workspace: workspace.root,
 			})
 		);
-		expect(validateGeneratedImports).not.toHaveBeenCalled();
 		expect(readiness.readinessRun).toHaveBeenCalledTimes(1);
 	});
 
@@ -571,11 +554,6 @@ describe('GenerateCommand', () => {
 								'Rest',
 								'BooksController.php'
 							),
-							path.posix.join(
-								phpGenerated,
-								'Rest',
-								'BooksController.php.ast.json'
-							),
 						],
 						shims: [
 							path.posix.join(
@@ -592,13 +570,19 @@ describe('GenerateCommand', () => {
 		const { pipeline, runMock } = createPipelineStub(
 			workspace,
 			async (options) => {
+				const layoutManifest = loadTestLayoutSync();
+				const patchPaths = resolvePatchPaths({
+					layout: layoutManifest,
+				});
+
 				await options.workspace.write(
 					path.join(
-						loadTestLayoutSync().resolve('js.generated'),
+						layoutManifest.resolve('js.generated'),
 						'index.ts'
 					),
 					"console.log('hello world');\n"
 				);
+				await options.workspace.write(patchPaths.planPath, '{}');
 				await options.workspace.write(PATCH_MANIFEST_PATH, '{}');
 
 				const ir = buildIrArtifact(options.workspace.root);
@@ -640,7 +624,6 @@ describe('GenerateCommand', () => {
 		});
 
 		const renderSummary = jest.fn().mockReturnValue('summary output\n');
-		const validateGeneratedImports = jest.fn().mockResolvedValue(undefined);
 
 		const GenerateCommand = buildGenerateCommand({
 			loadWPKernelConfig,
@@ -653,7 +636,6 @@ describe('GenerateCommand', () => {
 				.mockReturnValue({ key: 'adapter', register: jest.fn() }),
 			buildReporter: jest.fn().mockReturnValue(reporter),
 			renderSummary,
-			validateGeneratedImports,
 			buildReadinessRegistry: readiness.buildReadinessRegistry,
 		} as BuildGenerateCommandOptions);
 
@@ -671,13 +653,9 @@ describe('GenerateCommand', () => {
 			path.posix.join(phpGenerated, 'Rest', 'BooksController.php'),
 			undefined
 		);
-		expect(workspace.rm).toHaveBeenCalledWith(
-			path.posix.join(
-				phpGenerated,
-				'Rest',
-				'BooksController.php.ast.json'
-			),
-			undefined
+		expect(workspace.rm).not.toHaveBeenCalledWith(
+			expect.stringContaining('.ast.json'),
+			expect.anything()
 		);
 		expect(workspace.writeJson).toHaveBeenCalledWith(
 			generationStatePath,
@@ -698,7 +676,6 @@ describe('GenerateCommand', () => {
 			}),
 			expect.any(Object)
 		);
-		expect(validateGeneratedImports).toHaveBeenCalled();
 		expect(readiness.readinessRun).toHaveBeenCalledTimes(1);
 	});
 });

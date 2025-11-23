@@ -20,7 +20,7 @@ import type { Workspace } from '../../workspace';
 import { makeIr } from '@cli-tests/ir.test-support';
 import type { BuildIrOptions } from '../../ir/publicTypes';
 import { buildEmptyGenerationState } from '../../apply/manifest';
-import { loadTestLayout } from '@cli-tests/layout.test-support';
+import { loadTestLayout } from '@wpkernel/test-utils/layout.test-support';
 
 jest.mock('../../commands/run-generate/validation', () => ({
 	validateGeneratedImports: jest.fn().mockResolvedValue(undefined),
@@ -108,6 +108,13 @@ describe('createTsBuilder - admin screen creator', () => {
 				'admin',
 				'JobsAdminScreen.tsx'
 			);
+			const appliedScreenPath = path.join(
+				layout.resolve('ui.applied'),
+				'app',
+				'job',
+				'admin',
+				'JobsAdminScreen.tsx'
+			);
 			const screenContents = await workspace.readText(screenPathFs);
 
 			expect(screenContents).toContain(
@@ -135,16 +142,26 @@ describe('createTsBuilder - admin screen creator', () => {
 			const expectedResourceImport = normalise(
 				path
 					.relative(
-						path.dirname(workspace.resolve(screenPathFs)),
-						workspace.resolve('src/resources/job.ts')
+						path.dirname(appliedScreenPath),
+						path.join(
+							layout.resolve('ui.applied'),
+							'resources',
+							'job.ts'
+						)
 					)
 					.replace(/\.(ts|tsx|js|jsx|mjs|cjs)$/u, '')
 			);
 			expect(screenContents).toContain(
 				`import { job } from '${prefixRelative(expectedResourceImport)}';`
 			);
+			const expectedRuntimeImport = path.posix
+				.relative(
+					path.posix.dirname(appliedScreenPath),
+					path.posix.join(layout.resolve('ui.applied'), 'runtime.ts')
+				)
+				.replace(/\.(ts|tsx|js|jsx|mjs|cjs)$/u, '');
 			expect(screenContents).toContain(
-				"import { adminScreenRuntime } from '@/admin/runtime';"
+				`from '${prefixRelative(expectedRuntimeImport)}'`
 			);
 			expect(screenContents).toContain(
 				"export const jobsAdminScreenRoute = 'admin-jobs';"
@@ -231,13 +248,24 @@ describe('createTsBuilder - admin screen creator', () => {
 				'admin',
 				'JobBoardAdminScreen.tsx'
 			);
+			const appliedScreenPath = path.join(
+				layout.resolve('ui.applied'),
+				'app',
+				'Job Board',
+				'admin',
+				'JobBoardAdminScreen.tsx'
+			);
 			const screenContents = await workspace.readText(screenPath);
 
 			const expectedResourceImport = normalise(
 				path
 					.relative(
-						path.dirname(workspace.resolve(screenPath)),
-						workspace.resolve('src/resources/job-board.ts')
+						path.dirname(appliedScreenPath),
+						path.join(
+							layout.resolve('ui.applied'),
+							'resources',
+							'job-board.ts'
+						)
 					)
 					.replace(/\.(ts|tsx|js|jsx|mjs|cjs)$/u, '')
 			);
@@ -297,13 +325,24 @@ describe('createTsBuilder - admin screen creator', () => {
 				'admin',
 				'JobsAdminScreen.tsx'
 			);
+			const appliedScreenPath = path.join(
+				layout.resolve('ui.applied'),
+				'app',
+				'Job Board',
+				'admin',
+				'JobsAdminScreen.tsx'
+			);
 			const screenContents = await workspace.readText(screenPath);
 
 			const expectedResourceImport = normalise(
 				path
 					.relative(
-						path.dirname(workspace.resolve(screenPath)),
-						workspace.resolve('src/resources/job-board.ts')
+						path.dirname(appliedScreenPath),
+						path.join(
+							layout.resolve('ui.applied'),
+							'resources',
+							'job-board.ts'
+						)
 					)
 					.replace(/\.(ts|tsx|js|jsx|mjs|cjs)$/u, '')
 			);
@@ -311,8 +350,14 @@ describe('createTsBuilder - admin screen creator', () => {
 			expect(screenContents).toContain(
 				`import { jobBoard } from '${prefixRelative(expectedResourceImport)}';`
 			);
+			const expectedRuntimeImport = path.posix
+				.relative(
+					path.posix.dirname(appliedScreenPath),
+					path.posix.join(layout.resolve('ui.applied'), 'runtime.ts')
+				)
+				.replace(/\.(ts|tsx|js|jsx|mjs|cjs)$/u, '');
 			expect(screenContents).toContain(
-				"import { adminScreenRuntime } from '@/admin/runtime';"
+				`from '${prefixRelative(expectedRuntimeImport)}'`
 			);
 		});
 	});
@@ -383,11 +428,10 @@ describe('createTsBuilder - admin screen creator', () => {
 			);
 			const screenContents = await workspace.readText(screenPath);
 
+			const expectedRuntimeImport = '@/custom/kernel/runtime';
+			expect(screenContents).toContain(`from '${expectedRuntimeImport}'`);
 			expect(screenContents).toContain(
-				"import { customKernel } from '@/custom/kernel/runtime';"
-			);
-			expect(screenContents).toContain(
-				"import { jobResource } from '@/custom/resources/jobResource';"
+				"import { jobResource } from '../../../resources/job';"
 			);
 			expect(screenContents).toContain(
 				'<JobsAdminCustomScreenContent />'

@@ -87,6 +87,7 @@ export function createRootJestConfig(options = {}) {
 			'/node_modules/',
 			'/dist/',
 			'/build/',
+			'/.cache/',
 			'/.wp-env/',
 			'/packages/e2e-utils/tests/',
 			'/__tests__/e2e/',
@@ -114,6 +115,7 @@ export function createRootJestConfig(options = {}) {
 	config.modulePathIgnorePatterns = [
 		...(config.modulePathIgnorePatterns ?? []),
 		cliDistPath,
+		'/.cache/',
 	];
 	config.watchPathIgnorePatterns = [
 		...(config.watchPathIgnorePatterns ?? []),

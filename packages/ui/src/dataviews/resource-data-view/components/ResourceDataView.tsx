@@ -16,6 +16,11 @@ import { useDataViewsProps } from '../utils/build-data-views-props';
 import { ResourceDataViewBoundary } from './boundary/ResourceDataViewBoundary';
 import type { ListResultState, PermissionState } from '../types/state';
 import type { DataViewBoundaryState } from '../../../runtime/dataviews/events';
+import type {
+	ResourceDataViewController,
+	ResourceDataViewConfig,
+} from '../../types';
+import type { Reporter } from '@wpkernel/core/reporter';
 
 function computeBoundaryState<TItem>(
 	list: ListResultState<TItem>,
@@ -44,6 +49,186 @@ function computeBoundaryState<TItem>(
 	}
 
 	return 'content';
+}
+
+function useDebugLogDataView<TItem, TQuery>({
+	resourceName,
+	items,
+	listResult,
+	permission,
+	controller,
+	dataViewsProps,
+}: {
+	resourceName: string;
+	items: readonly TItem[];
+	listResult: ListResultState<TItem>;
+	permission: PermissionState;
+	controller: ResourceDataViewController<TItem, TQuery>;
+	dataViewsProps: ComponentProps<typeof DataViews>;
+}): void {
+	const payload = useMemo(() => {
+		const firstRow =
+			Array.isArray(dataViewsProps?.data) &&
+			dataViewsProps.data.length > 0
+				? dataViewsProps.data[0]
+				: undefined;
+
+		return {
+			resource: resourceName,
+			itemsLength: items.length,
+			listStatus: listResult.status,
+			permissionStatus: permission.status,
+			fields: controller.config.fields?.length ?? 0,
+			actions: controller.config.actions?.length ?? 0,
+			view: dataViewsProps.view,
+			dataLength: dataViewsProps?.data?.length,
+			firstRow,
+		};
+	}, [
+		controller.config.actions,
+		controller.config.fields,
+		dataViewsProps?.data,
+		dataViewsProps.view,
+		items.length,
+		listResult.status,
+		permission.status,
+		resourceName,
+	]);
+
+	useEffect(() => {
+		if (process.env.WPK_DATAVIEWS_DEBUG !== '1') {
+			return;
+		}
+		console.log('[wpk.ui.ResourceDataView]', JSON.stringify(payload));
+	}, [payload]);
+}
+
+function renderDataViewsNode(
+	props: ComponentProps<typeof DataViews>
+): JSX.Element | null {
+	try {
+		return <DataViews {...props} />;
+	} catch (_error) {
+		return (
+			<div data-wpk-debug="rdv-dataviews-error">
+				DataViews render error. See console.
+			</div>
+		);
+	}
+}
+
+function DataViewFallback<TItem, TQuery>({
+	items,
+	controller,
+}: {
+	items: readonly TItem[];
+	controller: { config: ResourceDataViewConfig<TItem, TQuery> };
+}): JSX.Element {
+	type FieldConfig = ResourceDataViewConfig<TItem, TQuery>['fields'][number];
+
+	const headers =
+		controller.config.fields?.map(
+			(field: FieldConfig, fieldIndex: number) => ({
+				key: String((field as { id?: string }).id ?? fieldIndex),
+				label:
+					field.label ??
+					(field as { id?: string }).id ??
+					String(fieldIndex),
+			})
+		) ?? [];
+
+	return (
+		<div data-wpk-debug="rdv-fallback">
+			<div>Fallback rows: {Array.isArray(items) ? items.length : 0}</div>
+			{Array.isArray(items) && items.length > 0 ? (
+				<table>
+					<thead>
+						<tr>
+							{headers.map((header) => (
+								<th key={header.key}>{header.label}</th>
+							))}
+						</tr>
+					</thead>
+					<tbody>
+						{items.map((row, rowIndex) => (
+							<tr key={rowIndex}>
+								{controller.config.fields?.map(
+									(
+										field: FieldConfig,
+										fieldIndex: number
+									) => {
+										const fieldId =
+											(field as { id?: string }).id ??
+											String(fieldIndex);
+										const value = (
+											row as Record<string, unknown>
+										)[fieldId];
+										return (
+											<td key={fieldId}>
+												{value === undefined
+													? ''
+													: String(value)}
+											</td>
+										);
+									}
+								)}
+							</tr>
+						))}
+					</tbody>
+				</table>
+			) : null}
+		</div>
+	);
+}
+
+function useReporter<TItem, TQuery>(
+	controller: ResourceDataViewController<TItem, TQuery>,
+	contextReporter?: Reporter
+): Reporter {
+	return useMemo(() => {
+		const fromController =
+			typeof controller.getReporter === 'function'
+				? controller.getReporter()
+				: undefined;
+
+		return fromController ?? contextReporter ?? createNoopReporter();
+	}, [controller, contextReporter]);
+}
+
+function useBoundaryTransition<TItem, TQuery>(
+	controller: ResourceDataViewController<TItem, TQuery>,
+	boundaryState: DataViewBoundaryState,
+	listResult: ListResultState<TItem>,
+	permission: PermissionState,
+	items: readonly TItem[],
+	totalItems: number
+): void {
+	const lastBoundaryRef = useRef<DataViewBoundaryState | undefined>();
+
+	useEffect(() => {
+		const previous = lastBoundaryRef.current;
+		if (previous === boundaryState) {
+			return;
+		}
+
+		controller.emitBoundaryTransition({
+			state: boundaryState,
+			previous,
+			listStatus: listResult.status,
+			permissionStatus: permission.status,
+			itemCount: items.length,
+			totalItems,
+		});
+
+		lastBoundaryRef.current = boundaryState;
+	}, [
+		boundaryState,
+		controller,
+		listResult.status,
+		permission.status,
+		items.length,
+		totalItems,
+	]);
 }
 
 /**
@@ -91,14 +276,7 @@ export function ResourceDataView<TItem, TQuery>({
 	});
 
 	const getItemId = useItemIdGetter(controller.config);
-	const reporter = useMemo(() => {
-		const fromController =
-			typeof controller.getReporter === 'function'
-				? controller.getReporter()
-				: undefined;
-
-		return fromController ?? context.reporter ?? createNoopReporter();
-	}, [controller, context.reporter]);
+	const reporter = useReporter(controller, context.reporter);
 	const actions = useDataViewActions(controller, getItemId, context);
 	const { selection, handleSelectionChange } = useSelection();
 	const paginationInfo = usePaginationInfo(totalItems, viewState.perPage);
@@ -119,32 +297,25 @@ export function ResourceDataView<TItem, TQuery>({
 	}) as ComponentProps<typeof DataViews>;
 
 	const boundaryState = computeBoundaryState(listResult, permission, items);
-	const lastBoundaryRef = useRef<DataViewBoundaryState | undefined>();
-
-	useEffect(() => {
-		const previous = lastBoundaryRef.current;
-		if (previous === boundaryState) {
-			return;
-		}
-
-		controller.emitBoundaryTransition({
-			state: boundaryState,
-			previous,
-			listStatus: listResult.status,
-			permissionStatus: permission.status,
-			itemCount: items.length,
-			totalItems,
-		});
-
-		lastBoundaryRef.current = boundaryState;
-	}, [
-		boundaryState,
+	const resourceName = controller.resourceName ?? resource?.name ?? '';
+	useDebugLogDataView({
+		resourceName,
+		items,
+		listResult,
+		permission,
 		controller,
-		listResult.status,
-		permission.status,
-		items.length,
-		totalItems,
-	]);
+		dataViewsProps,
+	});
+	const dataViewsNode = renderDataViewsNode(dataViewsProps);
+
+	useBoundaryTransition(
+		controller as ResourceDataViewController<TItem, TQuery>,
+		boundaryState,
+		listResult,
+		permission,
+		items,
+		totalItems
+	);
 
 	return (
 		<div
@@ -162,7 +333,10 @@ export function ResourceDataView<TItem, TQuery>({
 				permission={permission}
 				emptyState={emptyState}
 			>
-				<DataViews {...dataViewsProps} />
+				<div data-wpk-debug="rdv-rendered" />
+				{dataViewsNode}
+				{/* Debug-only fallback to visualise rows when DataViews renders nothing. */}
+				<DataViewFallback items={items} controller={controller} />
 			</ResourceDataViewBoundary>
 		</div>
 	);

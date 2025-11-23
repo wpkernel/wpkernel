@@ -4,7 +4,7 @@ import os from 'node:os';
 import type { GenerationManifestDiff } from '../../apply/manifest';
 import { collectDeletionInstructions } from '../plan.cleanups';
 import { buildWorkspace } from '../../workspace';
-import { loadTestLayoutSync } from '@cli-tests/layout.test-support';
+import { loadTestLayoutSync } from '@wpkernel/test-utils/layout.test-support';
 import { createReporterMock } from '@cli-tests/reporter';
 
 describe('plan.cleanups', () => {

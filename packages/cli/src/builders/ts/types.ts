@@ -24,18 +24,8 @@ export interface ResolveResourceImportOptions {
 	readonly resourceKey: string;
 	readonly resourceSymbol?: string;
 	readonly configPath?: string;
-	readonly configured?: string;
-}
-
-export interface ResolveWPKernelImportOptions {
-	readonly workspace: Workspace;
-	readonly from: string;
-	readonly configured?: string;
-}
-
-export interface ResolveAdminRuntimeImportOptions {
-	readonly workspace: Workspace;
-	readonly from: string;
+	readonly generatedResourcesDir: string;
+	readonly appliedResourcesDir: string;
 	readonly configured?: string;
 }
 export interface BlockRegistrarMetadata {

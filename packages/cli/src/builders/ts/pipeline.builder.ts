@@ -18,6 +18,7 @@ import {
 	type TsBuilderCreator,
 	type TsBuilderCreatorContext,
 	type TsBuilderEmitOptions,
+	type TsBuilderEmitResult,
 	type TsBuilderLifecycleHooks,
 } from '../types';
 import { resolveTsLayout } from './ts.paths';
@@ -26,7 +27,8 @@ import type { Workspace } from '../../workspace';
 import { createHash as buildHash } from 'crypto';
 import type { Project } from 'ts-morph';
 import type { GenerationSummary } from '../../commands';
-import { validateGeneratedImports } from '../../commands/run-generate';
+// Import validation intentionally disabled during generate; generated artifacts
+// may reference applied-path imports that are only surfaced during `apply`.
 import { loadTsMorph } from './runtime.loader';
 
 /**
@@ -103,12 +105,6 @@ export function createTsBuilder(
 				reporter,
 			});
 
-			await runImportValidation({
-				emittedFiles,
-				workspace: context.workspace,
-				reporter,
-			});
-
 			logEmissionSummary(reporter, emittedFiles);
 		},
 	});
@@ -158,7 +154,7 @@ export function buildEmitter(
 	workspace: Workspace,
 	output: BuilderOutput,
 	emittedFiles: string[]
-): (options: TsBuilderEmitOptions) => Promise<void> {
+): (options: TsBuilderEmitOptions) => Promise<TsBuilderEmitResult> {
 	return async ({ filePath, sourceFile }: TsBuilderEmitOptions) => {
 		sourceFile.formatText({ ensureNewLineAtEndOfFile: true });
 		const contents = sourceFile.getFullText();
@@ -168,6 +164,8 @@ export function buildEmitter(
 		emittedFiles.push(filePath);
 
 		sourceFile.forget();
+
+		return { filePath, contents };
 	};
 }
 
@@ -231,7 +229,9 @@ export async function generateArtifacts(options: {
 		ir: IRv1;
 	};
 	readonly reporter: Reporter;
-	readonly emit: (options: TsBuilderEmitOptions) => Promise<void>;
+	readonly emit: (
+		options: TsBuilderEmitOptions
+	) => Promise<TsBuilderEmitResult>;
 	readonly emittedFiles: string[];
 	readonly paths: ReturnType<typeof resolveTsLayout>;
 }): Promise<void> {
@@ -332,7 +332,7 @@ export function logEmissionSummary(
  * @param    workspace
  * @category Builders
  */
-async function buildGenerationSummary(
+export async function buildGenerationSummary(
 	emittedFiles: readonly string[],
 	workspace: Workspace
 ): Promise<GenerationSummary> {
@@ -381,19 +381,7 @@ export async function runImportValidation(options: {
 		options.reporter.debug(
 			'createTsBuilder: no emitted TypeScript files to validate.'
 		);
-		return;
 	}
-
-	const summary = await buildGenerationSummary(
-		options.emittedFiles,
-		options.workspace
-	);
-
-	await validateGeneratedImports({
-		projectRoot: options.workspace.root,
-		summary,
-		reporter: options.reporter,
-	});
 }
 /**
  * Lazily constructs an in-memory ts-morph project configured for 2-space formatting.

@@ -24,6 +24,12 @@ export interface PhpDriverConfigurationOptions {
 export interface CreatePhpProgramWriterHelperOptions {
 	readonly driver?: PhpDriverConfigurationOptions;
 	readonly key?: string;
+	/**
+	 * When true, emit `<file>.ast.json` and codemod diagnostics to disk.
+	 * Defaults to `true` for library usage; callers (e.g., CLI) can disable
+	 * this to avoid polluting generated output with debug artifacts.
+	 */
+	readonly emitAst?: boolean;
 }
 
 type BuilderApplyOptions<
@@ -56,6 +62,7 @@ export function createPhpProgramWriterHelper<
 			const { context, reporter, output } = helperOptions;
 			const channel = getPhpBuilderChannel(context);
 			const pending = channel.drain();
+			const emitAst = options.emitAst ?? true;
 
 			if (pending.length === 0) {
 				reporter.debug(
@@ -87,7 +94,8 @@ export function createPhpProgramWriterHelper<
 				output,
 				reporter,
 				pending,
-				prettyPrinter
+				prettyPrinter,
+				emitAst
 			);
 
 			await next?.();
@@ -100,7 +108,8 @@ async function processPendingPrograms(
 	output: BuilderOutput,
 	reporter: PipelineContext['reporter'],
 	pending: readonly PhpProgramAction[],
-	prettyPrinter: ReturnType<typeof buildPhpPrettyPrinter>
+	prettyPrinter: ReturnType<typeof buildPhpPrettyPrinter>,
+	emitAst: boolean
 ): Promise<void> {
 	for (const action of pending) {
 		const { code, ast } = await prettyPrinter.prettyPrint({
@@ -115,7 +124,8 @@ async function processPendingPrograms(
 			output,
 			action.file,
 			code,
-			finalAst
+			finalAst,
+			{ emitAst }
 		);
 
 		if (action.codemod) {
@@ -123,7 +133,8 @@ async function processPendingPrograms(
 				context,
 				output,
 				action.file,
-				action.codemod
+				action.codemod,
+				{ emitAst }
 			);
 		}
 

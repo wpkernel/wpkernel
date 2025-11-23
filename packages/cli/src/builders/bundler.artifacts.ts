@@ -140,12 +140,7 @@ function buildRollupDriverConfig(
 		format: 'iife',
 		external: inputs.externals,
 		globals: buildGlobalsMap(inputs.externals),
-		alias: [
-			{
-				find: '@/',
-				replacement: normaliseAliasReplacement(inputs.aliasRoot),
-			},
-		],
+		alias: buildAliasEntries(inputs.externals, inputs.aliasRoot),
 		sourcemap: {
 			development: true,
 			production: false,
@@ -172,6 +167,30 @@ function buildRollupDriverAssetManifest(
 
 function isWordPressModule(dependency: string): boolean {
 	return dependency.startsWith('@wordpress/');
+}
+
+function buildAliasEntries(
+	_externals: readonly string[],
+	aliasRoot: string
+): NonNullable<RollupDriverConfig['alias']> {
+	const entries: { find: string; replacement: string }[] = [
+		{
+			find: '@/',
+			replacement: normaliseAliasReplacement(aliasRoot),
+		},
+	];
+
+	entries.push({
+		find: '@wordpress/dataviews',
+		replacement: '@wordpress/dataviews/wp',
+	});
+
+	entries.push({
+		find: '@wordpress/element',
+		replacement: 'react',
+	});
+
+	return entries;
 }
 
 /**

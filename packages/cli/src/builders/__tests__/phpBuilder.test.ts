@@ -367,22 +367,9 @@ describe('createPhpBuilder', () => {
 				ensureDir: true,
 			}
 		);
-		const astPath = `${baseControllerPath}.ast.json`;
-		expect(workspace.write).toHaveBeenCalledWith(
-			astPath,
-			expect.any(String),
-			{
-				ensureDir: true,
-			}
-		);
-
 		expect(queueWrite).toHaveBeenCalledWith({
 			file: baseControllerPath,
 			contents: '<?php\n// pretty printed base controller\n',
-		});
-		expect(queueWrite).toHaveBeenCalledWith({
-			file: astPath,
-			contents: expect.stringMatching(/"Stmt_Class"/),
 		});
 
 		expect(reporter.info).toHaveBeenCalledWith(

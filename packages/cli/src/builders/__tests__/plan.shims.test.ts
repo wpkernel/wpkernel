@@ -5,7 +5,7 @@ import { buildPhpPrettyPrinter } from '@wpkernel/php-json-ast/php-driver';
 import { makeIr } from '@cli-tests/ir.test-support';
 import { collectResourceInstructions } from '../plan.shims';
 import { buildWorkspace } from '../../workspace';
-import { loadTestLayoutSync } from '@cli-tests/layout.test-support';
+import { loadTestLayoutSync } from '@wpkernel/test-utils/layout.test-support';
 
 function makeOptions(root: string) {
 	const workspace = buildWorkspace(root);

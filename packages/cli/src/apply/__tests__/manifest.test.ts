@@ -17,7 +17,7 @@ import {
 	writeGenerationState,
 	type GenerationManifest,
 } from '../manifest';
-import { loadTestLayout } from '@cli-tests/layout.test-support';
+import { loadTestLayout } from '@wpkernel/test-utils/layout.test-support';
 
 describe('generation manifest helpers', () => {
 	let phpGeneratedRoot: string;
@@ -77,10 +77,6 @@ describe('generation manifest helpers', () => {
 							artifacts: {
 								generated: [
 									`${phpGeneratedRoot}\\Rest\\BooksController.php`,
-									`./${path.posix.join(
-										phpGeneratedRoot,
-										'Rest/BooksController.php.ast.json'
-									)}`,
 									'',
 									42,
 								],
@@ -101,14 +97,18 @@ describe('generation manifest helpers', () => {
 					},
 					pluginLoader: {
 						file: './plugin.php',
-						ast: 'plugin.php.ast.json',
 					},
 					phpIndex: {
 						file: '.wpk/generate/php/index.php',
-						ast: './.wpk/generate/php/index.php.ast.json',
 					},
 					ui: {
 						handle: 'wp-demo-plugin-ui',
+						files: [
+							{
+								generated: '.wpk/generate/ui/index.tsx',
+								applied: 'src/ui/index.tsx',
+							},
+						],
 					},
 				});
 			}),
@@ -127,10 +127,6 @@ describe('generation manifest helpers', () => {
 								phpGeneratedRoot,
 								'Rest/BooksController.php'
 							),
-							path.posix.join(
-								phpGeneratedRoot,
-								'Rest/BooksController.php.ast.json'
-							),
 						],
 						shims: ['inc/Rest/BooksController.php'],
 					},
@@ -138,14 +134,18 @@ describe('generation manifest helpers', () => {
 			},
 			pluginLoader: {
 				file: 'plugin.php',
-				ast: 'plugin.php.ast.json',
 			},
 			phpIndex: {
 				file: path.posix.join(phpGeneratedRoot, 'index.php'),
-				ast: path.posix.join(phpGeneratedRoot, 'index.php.ast.json'),
 			},
 			ui: {
 				handle: 'wp-demo-plugin-ui',
+				files: [
+					{
+						generated: '.wpk/generate/ui/index.tsx',
+						applied: 'src/ui/index.tsx',
+					},
+				],
 			},
 		});
 	});
@@ -277,10 +277,6 @@ describe('generation manifest helpers', () => {
 						'Rest/BooksController.php'
 					),
 					path.posix.join(
-						phpGeneratedRoot,
-						'Rest/BooksController.php.ast.json'
-					),
-					path.posix.join(
 						uiGeneratedRoot,
 						'fixtures/dataviews/books.ts'
 					),
@@ -298,13 +294,79 @@ describe('generation manifest helpers', () => {
 		});
 		expect(manifest.pluginLoader).toEqual({
 			file: path.posix.join(phpGeneratedRoot, 'plugin.php'),
-			ast: path.posix.join(phpGeneratedRoot, 'plugin.php.ast.json'),
 		});
 		expect(manifest.phpIndex).toEqual({
 			file: path.posix.join(phpGeneratedRoot, 'index.php'),
-			ast: path.posix.join(phpGeneratedRoot, 'index.php.ast.json'),
 		});
-		expect(manifest.ui).toEqual({ handle: 'wp-demo-plugin-ui' });
+		expect(manifest.ui).toEqual({
+			handle: 'wp-demo-plugin-ui',
+			files: [
+				{
+					generated: path.posix.join(uiGeneratedRoot, 'index.tsx'),
+					applied: path.posix.join(
+						testLayout.resolve('ui.applied'),
+						'index.tsx'
+					),
+				},
+				{
+					generated: path.posix.join(uiGeneratedRoot, 'runtime.ts'),
+					applied: path.posix.join(
+						testLayout.resolve('ui.applied'),
+						'runtime.ts'
+					),
+				},
+				{
+					generated: path.posix.join(
+						uiGeneratedRoot,
+						'resources/books.ts'
+					),
+					applied: path.posix.join(
+						testLayout.resolve('ui.resources.applied'),
+						'books.ts'
+					),
+				},
+				{
+					generated: path.posix.join(
+						uiGeneratedRoot,
+						'registry/dataviews/books.ts'
+					),
+					applied: path.posix.join(
+						testLayout.resolve('ui.applied'),
+						'registry/dataviews/books.ts'
+					),
+				},
+				{
+					generated: path.posix.join(
+						uiGeneratedRoot,
+						'fixtures/dataviews/books.ts'
+					),
+					applied: path.posix.join(
+						testLayout.resolve('ui.applied'),
+						'fixtures/dataviews/books.ts'
+					),
+				},
+				{
+					generated: path.posix.join(
+						uiGeneratedRoot,
+						'fixtures/interactivity/books.ts'
+					),
+					applied: path.posix.join(
+						testLayout.resolve('ui.applied'),
+						'fixtures/interactivity/books.ts'
+					),
+				},
+				{
+					generated: path.posix.join(
+						uiGeneratedRoot,
+						'app/books/admin/BooksAdminScreen.tsx'
+					),
+					applied: path.posix.join(
+						testLayout.resolve('ui.applied'),
+						'app/books/admin/BooksAdminScreen.tsx'
+					),
+				},
+			],
+		});
 	});
 
 	it('returns an empty manifest when IR is null', () => {
@@ -464,10 +526,6 @@ describe('generation manifest helpers', () => {
 								phpGeneratedRoot,
 								'Rest/BooksController.php'
 							),
-							path.posix.join(
-								phpGeneratedRoot,
-								'Rest/BooksController.php.ast.json'
-							),
 						],
 						shims: ['inc/Rest/BooksController.php'],
 					},
@@ -486,10 +544,6 @@ describe('generation manifest helpers', () => {
 								serverRoot,
 								'Rest/BooksController.php'
 							),
-							path.posix.join(
-								serverRoot,
-								'Rest/BooksController.php.ast.json'
-							),
 						],
 						shims: ['inc/Rest/BooksController.php'],
 					},
@@ -505,10 +559,6 @@ describe('generation manifest helpers', () => {
 					path.posix.join(
 						phpGeneratedRoot,
 						'Rest/BooksController.php'
-					),
-					path.posix.join(
-						phpGeneratedRoot,
-						'Rest/BooksController.php.ast.json'
 					),
 				],
 				shims: [],

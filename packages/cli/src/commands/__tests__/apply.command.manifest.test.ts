@@ -11,7 +11,7 @@ import type {
 	ReadinessPlan,
 	ReadinessRegistry,
 } from '../../dx';
-import { loadTestLayoutSync } from '@cli-tests/layout.test-support';
+import { loadTestLayoutSync } from '@wpkernel/test-utils/layout.test-support';
 
 const withWorkspace = buildWorkspaceRunner({ prefix: TMP_PREFIX });
 

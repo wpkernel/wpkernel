@@ -244,7 +244,7 @@ export async function seedPlan(
 export async function readApplyLogEntries(
 	workspace: string
 ): Promise<ApplyLogEntry[]> {
-	const logPath = path.join(workspace, '.wpk-apply.log');
+	const logPath = path.join(workspace, '.wpk', 'apply', 'log.json');
 	const raw = await fs.readFile(logPath, 'utf8').catch(() => '');
 	const trimmed = raw.trim();
 

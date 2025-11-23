@@ -54,6 +54,21 @@ export function useDataViewsProps<TItem, TQuery>({
 	onChangeSelection,
 	emptyState,
 }: UseDataViewsPropsArgs<TItem, TQuery>): NormalizedDataViewsProps<TItem> {
+	const defaultLayouts = useMemo(() => {
+		const layouts: Record<string, unknown> = {
+			...(controller.config.defaultLayouts as
+				| Record<string, unknown>
+				| undefined),
+		};
+		const viewType = (view as { type?: string }).type;
+		if (viewType && !layouts[viewType]) {
+			const layout = (view as { layout?: Record<string, unknown> })
+				.layout;
+			layouts[viewType] = layout ? { layout } : {};
+		}
+		return layouts;
+	}, [controller.config.defaultLayouts, view]);
+
 	return useMemo(
 		() => ({
 			data: items,
@@ -68,9 +83,7 @@ export function useDataViewsProps<TItem, TQuery>({
 			onChangeSelection,
 			search: controller.config.search ?? true,
 			searchLabel: controller.config.searchLabel,
-			defaultLayouts:
-				(controller.config.defaultLayouts as Record<string, unknown>) ??
-				{},
+			defaultLayouts,
 			config: {
 				perPageSizes: controller.config.perPageSizes ?? [
 					10, 20, 50, 100,
@@ -80,11 +93,11 @@ export function useDataViewsProps<TItem, TQuery>({
 		}),
 		[
 			actions,
-			controller.config.defaultLayouts,
 			controller.config.fields,
 			controller.config.perPageSizes,
 			controller.config.search,
 			controller.config.searchLabel,
+			defaultLayouts,
 			emptyState,
 			getItemId,
 			isLoading,

@@ -68,12 +68,13 @@ export default {
 		'/node_modules/',
 		'/dist/',
 		'/build/',
+		'/.cache/',
 		'/.wp-env/',
 		'/tests/test-globals.d.ts',
 		'.spec.ts$', // Exclude Playwright spec files
 	],
 
-	modulePathIgnorePatterns: ['packages/cli/dist'],
+	modulePathIgnorePatterns: ['packages/cli/dist', '/.cache/'],
 
 	// Disable watchman - use node's fs.watch instead
 	// Watchman can cause issues in monorepos and isn't needed for one-off test runs

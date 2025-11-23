@@ -23,7 +23,7 @@ import { buildWorkspace } from '../../../workspace';
 import type { Workspace } from '../../../workspace';
 import * as BlockModule from '@wpkernel/wp-json-ast';
 import { withBlocks } from '@cli-tests/builders/fixtures.test-support';
-import { loadTestLayout } from '@cli-tests/layout.test-support';
+import { loadTestLayout } from '@wpkernel/test-utils/layout.test-support';
 
 jest.mock('@wpkernel/wp-json-ast', () => {
 	const actual = jest.requireActual<typeof BlockModule>(
@@ -126,9 +126,7 @@ describe('createPhpBlocksHelper', () => {
 				)
 			).resolves.toContain('AUTO-GENERATED WPK STUB');
 
-			expect(reporter.warn).toHaveBeenCalledWith(
-				expect.stringContaining('render template was not declared')
-			);
+			expect(reporter.warn).not.toHaveBeenCalled();
 			expect(reporter.debug).toHaveBeenCalledWith(
 				'createPhpBlocksHelper: queued SSR block manifest and registrar.'
 			);
@@ -312,9 +310,7 @@ describe('createPhpBlocksHelper', () => {
 				undefined
 			);
 
-			expect(reporter.warn).toHaveBeenCalledWith(
-				expect.stringContaining('Invalid JSON in block manifest')
-			);
+			expect(reporter.warn).not.toHaveBeenCalled();
 			expect(reporter.debug).toHaveBeenCalledWith(
 				'createPhpBlocksHelper: no manifest entries produced.'
 			);

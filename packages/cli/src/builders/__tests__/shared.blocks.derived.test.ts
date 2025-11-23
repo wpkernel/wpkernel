@@ -10,7 +10,7 @@ import type {
 } from '../../ir/publicTypes';
 import type { WPKernelConfigV1 } from '../../config/types';
 import path from 'path';
-import { loadTestLayoutSync } from '@cli-tests/layout.test-support';
+import { loadTestLayoutSync } from '@wpkernel/test-utils/layout.test-support';
 import { createDefaultResource } from '@cli-tests/ir/resource-builder.mock';
 
 const layout = loadTestLayoutSync();

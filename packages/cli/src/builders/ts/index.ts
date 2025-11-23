@@ -14,8 +14,7 @@ export { createJsBlocksBuilder } from './block.artifacts';
 export { createUiEntryBuilder } from './ui.entry';
 export {
 	resolveResourceImport,
-	resolveWPKernelImport,
-	resolveAdminRuntimeImport,
+	writeAdminRuntimeStub,
 	buildModuleSpecifier,
 } from './shared.imports';
 export {

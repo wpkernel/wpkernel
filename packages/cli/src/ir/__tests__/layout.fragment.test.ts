@@ -2,7 +2,7 @@ import path from 'node:path';
 import fs from 'node:fs/promises';
 import { buildIr } from '../buildIr';
 import { createBaseConfig, withTempWorkspace } from '../shared/test-helpers';
-import { loadTestLayoutSync } from '@cli-tests/layout.test-support';
+import { loadTestLayoutSync } from '@wpkernel/test-utils/layout.test-support';
 
 describe('layout fragment', () => {
 	it('exposes default layout paths from manifest', async () => {

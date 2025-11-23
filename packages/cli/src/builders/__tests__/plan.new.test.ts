@@ -5,7 +5,7 @@ import { createApplyPlanBuilder } from '../plan';
 import { buildWorkspace } from '../../workspace';
 import { buildEmptyGenerationState } from '../../apply/manifest';
 import { makeIr } from '@cli-tests/ir.test-support';
-import { loadTestLayout } from '@cli-tests/layout.test-support';
+import { loadTestLayout } from '@wpkernel/test-utils/layout.test-support';
 import { createReporterMock } from '@cli-tests/reporter';
 
 async function withTempWorkspace(

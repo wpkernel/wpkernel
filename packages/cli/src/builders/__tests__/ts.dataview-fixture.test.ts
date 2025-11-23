@@ -14,7 +14,7 @@ import {
 } from '@cli-tests/builders/ts.test-support';
 import { buildWorkspace } from '../../workspace';
 import type { Workspace } from '../../workspace';
-import { loadTestLayout } from '@cli-tests/layout.test-support';
+import { loadTestLayout } from '@wpkernel/test-utils/layout.test-support';
 import { buildEmptyGenerationState } from '../../apply/manifest';
 
 jest.mock('../../commands/run-generate/validation', () => ({

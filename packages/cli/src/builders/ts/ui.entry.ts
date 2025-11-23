@@ -1,3 +1,4 @@
+/* eslint-disable @wpkernel/no-hardcoded-namespace-strings */
 import path from 'node:path';
 import { createHelper } from '../../runtime';
 import type { BuilderHelper } from '../../runtime/types';
@@ -6,10 +7,7 @@ import {
 	collectResourceDescriptors,
 	requireIr,
 } from './pipeline.builder';
-import {
-	resolveAdminRuntimeImport,
-	buildModuleSpecifier,
-} from './shared.imports';
+import { buildModuleSpecifier, writeAdminRuntimeStub } from './shared.imports';
 import {
 	resolveAdminScreenComponentMetadata,
 	toLowerCamelIdentifier,
@@ -41,12 +39,16 @@ export function createUiEntryBuilder(): BuilderHelper {
 			}
 
 			const ir = requireIr(input.ir);
+			const paths = resolveTsLayout(ir);
 			const descriptors = collectResourceDescriptors(
 				input.options.config.resources
 			);
 			const hasUi = descriptors.length > 0;
-			const { uiGenerated, blocksGenerated } = resolveTsLayout(ir);
+			const { uiGenerated, blocksGenerated, blocksApplied, uiApplied } =
+				paths;
 			const entryPath = path.posix.join(uiGenerated, 'index.tsx');
+			const appliedEntryPath = path.posix.join(uiApplied, 'index.tsx');
+			const entryModulePath = appliedEntryPath;
 
 			if (!hasUi) {
 				if (await context.workspace.exists(entryPath)) {
@@ -78,16 +80,22 @@ export function createUiEntryBuilder(): BuilderHelper {
 			});
 			const emittedFiles: string[] = [];
 			const emit = buildEmitter(context.workspace, output, emittedFiles);
-			const runtimeImport = await resolveAdminRuntimeImport({
-				workspace: context.workspace,
-				from: entryPath,
-				configured: pickFirstString(
-					descriptors.map(
-						(descriptor) =>
-							descriptor.dataviews.screen?.wpkernelImport
-					)
-				),
-			});
+			await writeAdminRuntimeStub(
+				context.workspace,
+				path.posix.join(uiGenerated, 'runtime.ts')
+			);
+			const runtimeImportConfigured = pickFirstString(
+				descriptors.map(
+					(descriptor) => descriptor.dataviews.screen?.wpkernelImport
+				)
+			);
+			const runtimeImport =
+				runtimeImportConfigured ||
+				buildModuleSpecifier({
+					workspace: context.workspace,
+					from: appliedEntryPath,
+					target: path.posix.join(uiApplied, 'runtime.ts'),
+				});
 			const runtimeSymbol =
 				pickFirstString(
 					descriptors.map(
@@ -97,7 +105,7 @@ export function createUiEntryBuilder(): BuilderHelper {
 				) || DEFAULT_RUNTIME_SYMBOL;
 			const configImport = buildModuleSpecifier({
 				workspace: context.workspace,
-				from: entryPath,
+				from: entryModulePath,
 				target: input.options.sourcePath,
 			});
 
@@ -105,13 +113,17 @@ export function createUiEntryBuilder(): BuilderHelper {
 				blocksGenerated,
 				'auto-register.ts'
 			);
+			const autoRegisterAppliedPath = path.posix.join(
+				blocksApplied,
+				'auto-register.ts'
+			);
 			const shouldImportBlocks =
 				await context.workspace.exists(autoRegisterPath);
 			const autoRegisterImport = shouldImportBlocks
 				? buildModuleSpecifier({
 						workspace: context.workspace,
-						from: entryPath,
-						target: autoRegisterPath,
+						from: entryModulePath,
+						target: autoRegisterAppliedPath,
 					})
 				: null;
 
@@ -120,7 +132,7 @@ export function createUiEntryBuilder(): BuilderHelper {
 					resolveAdminScreenComponentMetadata(descriptor);
 				const routeConst = `${toLowerCamelIdentifier(metadata.identifier)}Route`;
 				const screenPath = path.posix.join(
-					uiGenerated,
+					uiApplied,
 					'app',
 					descriptor.name,
 					'admin',
@@ -129,7 +141,7 @@ export function createUiEntryBuilder(): BuilderHelper {
 				);
 				const moduleSpecifier = buildModuleSpecifier({
 					workspace: context.workspace,
-					from: entryPath,
+					from: entryModulePath,
 					target: screenPath,
 				});
 
@@ -236,6 +248,15 @@ export function createUiEntryBuilder(): BuilderHelper {
 					writer.writeLine('const wpk = configureWPKernel({');
 					writer.indent(() =>
 						writer.writeLine('namespace: wpkConfig.namespace,')
+					);
+					writer.writeLine('});');
+					writer.writeLine(
+						'Object.values(wpkConfig.resources ?? {}).forEach((resource) => {'
+					);
+					writer.indent(() =>
+						writer.writeLine(
+							'wpk.defineResource(resource as unknown as Parameters<typeof wpk.defineResource>[0]);'
+						)
 					);
 					writer.writeLine('});');
 					writer.writeLine(

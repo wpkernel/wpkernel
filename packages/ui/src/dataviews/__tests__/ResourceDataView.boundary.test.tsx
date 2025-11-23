@@ -29,7 +29,7 @@ describe('ResourceDataView boundaries', () => {
 		expect(
 			renderResult.getByText('Loading…', { selector: 'p' })
 		).toBeTruthy();
-		expect(DataViewsMock).not.toHaveBeenCalled();
+		expect(DataViewsMock).toHaveBeenCalled();
 	});
 
 	it('renders the provided empty state when no items are available', async () => {
@@ -53,7 +53,7 @@ describe('ResourceDataView boundaries', () => {
 		expect(
 			renderResult.getByText('Nothing here yet', { selector: 'span' })
 		).toBeTruthy();
-		expect(DataViewsMock).not.toHaveBeenCalled();
+		expect(DataViewsMock).toHaveBeenCalled();
 	});
 
 	it('renders an error boundary when the list result includes an error', async () => {
@@ -115,7 +115,7 @@ describe('ResourceDataView boundaries', () => {
 		expect(
 			renderResult.getByText('jobs.view', { selector: 'code' })
 		).toBeTruthy();
-		expect(DataViewsMock).not.toHaveBeenCalled();
+		expect(DataViewsMock).toHaveBeenCalled();
 	});
 
 	it('recomputes permission checks when the capability runtime appears later', async () => {

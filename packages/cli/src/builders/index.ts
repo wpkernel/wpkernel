@@ -10,6 +10,8 @@ export {
 	createUiEntryBuilder,
 	buildTsFormatter,
 } from './ts';
+export { createPlanBuilder, createApplyPlanBuilder } from './plan';
+export { createPatcher } from './patcher';
 export type {
 	CreateTsBuilderOptions,
 	TsBuilderCreator,
@@ -19,6 +21,4 @@ export type {
 	TsBuilderEmitOptions,
 	ResourceDescriptor,
 } from './types';
-export { createPatcher } from './patcher';
-export { createApplyPlanBuilder } from './plan';
 export { createPhpDriverInstaller } from '@wpkernel/php-json-ast';

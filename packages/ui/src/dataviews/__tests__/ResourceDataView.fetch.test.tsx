@@ -143,7 +143,7 @@ describe('ResourceDataView fetch integration', () => {
 		expect(renderResult.getByRole('alert').textContent).toContain(
 			'Network'
 		);
-		expect(DataViewsMock).not.toHaveBeenCalled();
+		expect(DataViewsMock).toHaveBeenCalled();
 	});
 
 	it('renders fetchList results when resource has no list hook', async () => {

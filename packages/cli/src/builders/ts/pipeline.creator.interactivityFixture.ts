@@ -8,7 +8,8 @@ import {
 import { loadTsMorph } from './runtime.loader';
 import {
 	resolveResourceImport,
-	resolveAdminRuntimeImport,
+	writeAdminRuntimeStub,
+	buildModuleSpecifier,
 } from './shared.imports';
 import { toCamelCase } from './shared.metadata';
 
@@ -55,31 +56,49 @@ export function buildDataViewInteractivityFixtureCreator(): TsBuilderCreator {
 			const interactivityFeature =
 				resolveInteractivityFeature(descriptor);
 
-			const fixturePath = path.join(
+			const generatedFixturePath = path.join(
 				context.paths.uiGenerated,
 				'fixtures',
 				'interactivity',
 				`${descriptor.key}.ts`
 			);
-
-			const [resourceImport, wpkernelImport] = await Promise.all([
+			const [resourceImport] = await Promise.all([
 				resolveResourceImport({
 					workspace: context.workspace,
-					from: fixturePath,
+					from: generatedFixturePath,
+					generatedResourcesDir: path.join(
+						context.paths.uiGenerated,
+						'resources'
+					),
+					appliedResourcesDir: path.join(
+						context.paths.uiResourcesApplied,
+						''
+					),
 					configured: screenConfig.resourceImport,
 					resourceKey: descriptor.key,
 					resourceSymbol,
 					configPath: context.sourcePath,
 				}),
-				resolveAdminRuntimeImport({
-					workspace: context.workspace,
-					from: fixturePath,
-					configured: screenConfig.wpkernelImport,
-				}),
 			]);
+			await writeAdminRuntimeStub(
+				context.workspace,
+				path.join(context.paths.uiGenerated, 'runtime.ts')
+			);
+			const wpkernelImport =
+				typeof screenConfig.wpkernelImport === 'string' &&
+				screenConfig.wpkernelImport.trim().length > 0
+					? screenConfig.wpkernelImport
+					: buildModuleSpecifier({
+							workspace: context.workspace,
+							from: generatedFixturePath,
+							target: path.join(
+								context.paths.uiApplied,
+								'runtime.ts'
+							),
+						});
 
 			const sourceFile = context.project.createSourceFile(
-				fixturePath,
+				generatedFixturePath,
 				'',
 				{
 					overwrite: true,
@@ -382,7 +401,7 @@ export function buildDataViewInteractivityFixtureCreator(): TsBuilderCreator {
 			});
 
 			await context.emit({
-				filePath: fixturePath,
+				filePath: generatedFixturePath,
 				sourceFile,
 			});
 		},

@@ -21,6 +21,13 @@ export interface TsBuilderEmitOptions {
 	readonly sourceFile: SourceFile;
 }
 /**
+ * Result returned by `emit`, including the formatted contents.
+ */
+export interface TsBuilderEmitResult {
+	readonly filePath: string;
+	readonly contents: string;
+}
+/**
  * Defines lifecycle hooks for the TypeScript builder.
  *
  * These hooks allow for custom logic to be executed at different stages
@@ -79,13 +86,18 @@ export interface TsBuilderCreatorContext {
 	/** Resolved layout paths required for TS generation. */
 	readonly paths: {
 		readonly blocksGenerated: string;
+		readonly blocksApplied: string;
 		readonly uiGenerated: string;
+		readonly uiApplied: string;
+		readonly uiResourcesApplied: string;
 		readonly jsGenerated: string;
 	};
 	/** The reporter instance for logging. */
 	readonly reporter: Reporter;
 	/** A function to emit a generated TypeScript file. */
-	readonly emit: (options: TsBuilderEmitOptions) => Promise<void>;
+	readonly emit: (
+		options: TsBuilderEmitOptions
+	) => Promise<TsBuilderEmitResult>;
 }
 /**
  * Defines a creator function for generating TypeScript artifacts.

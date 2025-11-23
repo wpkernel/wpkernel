@@ -6,7 +6,7 @@ import {
 	createCommandWorkspaceHarness,
 } from '@cli-tests/cli';
 import { makeWorkspaceMock } from '@cli-tests/workspace.test-support';
-import { loadTestLayoutSync } from '@cli-tests/layout.test-support';
+import { loadTestLayoutSync } from '@wpkernel/test-utils/layout.test-support';
 
 describe('workspace hygiene readiness wiring', () => {
 	beforeEach(() => {

@@ -52,21 +52,22 @@ export function ResourceDataViewBoundary<TItem>({
 	emptyState,
 	children,
 }: ResourceDataViewBoundaryProps<TItem>) {
+	let overlay: ReactNode | null = null;
+
 	if (permission.status === 'denied') {
-		return <PermissionDeniedState permission={permission} />;
+		overlay = <PermissionDeniedState permission={permission} />;
+	} else if (list.status === 'error') {
+		overlay = <ErrorState error={list.error} />;
+	} else if (shouldShowLoading(list, permission, items)) {
+		overlay = <LoadingState />;
+	} else if (shouldShowEmpty(list, items)) {
+		overlay = <EmptyState empty={emptyState} />;
 	}
 
-	if (list.status === 'error') {
-		return <ErrorState error={list.error} />;
-	}
-
-	if (shouldShowLoading(list, permission, items)) {
-		return <LoadingState />;
-	}
-
-	if (shouldShowEmpty(list, items)) {
-		return <EmptyState empty={emptyState} />;
-	}
-
-	return <>{children}</>;
+	return (
+		<>
+			{overlay}
+			{children}
+		</>
+	);
 }

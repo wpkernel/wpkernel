@@ -18,10 +18,13 @@
 				"base": "plan.base",
 				"incoming": "plan.incoming",
 				"plan.json": "plan.manifest",
+				"log.json": "apply.log",
 				"patch-manifest.json": "patch.manifest",
 				"state.json": "apply.state"
 			},
-			"tmp": "tmp",
+			"tmp": {
+				"$id": "workspace.tmp"
+			},
 			"bundler": {
 				"config.json": "bundler.config",
 				"assets": {
@@ -31,7 +34,11 @@
 			"debug-ui.json": "debug.ui"
 		},
 		"src": {
-			"blocks": "blocks.applied"
+			"blocks": "blocks.applied",
+			"ui": {
+				"$id": "ui.applied",
+				"resources": "ui.resources.applied"
+			}
 		},
 		"inc": {
 			"Rest": "controllers.applied"

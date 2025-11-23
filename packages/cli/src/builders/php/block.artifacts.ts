@@ -104,6 +104,7 @@ export function createPhpBlocksHelper(): BuilderHelper {
 			const { manifestEntries, renderStubs } = collatePhpBlockArtifacts({
 				processedBlocks,
 				reporter,
+				suppressWarnings: true,
 			});
 
 			if (Object.keys(manifestEntries).length === 0) {
@@ -217,22 +218,26 @@ function reportManifestValidationErrors({
  * warnings encountered during block processing. Used to prepare artifacts for
  * PHP plugin generation.
  *
- * @param    options                 - Processed blocks and reporter for warnings
- * @param    options.processedBlocks - Array of processed block definitions
- * @param    options.reporter        - Reporter instance for warnings
+ * @param    options                  - Processed blocks and reporter for warnings
+ * @param    options.processedBlocks  - Array of processed block definitions
+ * @param    options.reporter         - Reporter instance for warnings
+ * @param    options.suppressWarnings
  * @returns Collated artifacts with manifest entries and render stubs
  * @category AST Builders
  */
 export function collatePhpBlockArtifacts({
 	processedBlocks,
 	reporter,
+	suppressWarnings = false,
 }: CollatePhpBlockArtifactsOptions): CollatedPhpBlockArtifacts {
 	const manifestEntries: Record<string, BlockManifestEntry> = {};
 	const renderStubs: NonNullable<ProcessedBlockManifest['renderStub']>[] = [];
 
 	for (const processed of processedBlocks) {
-		for (const warning of processed.warnings) {
-			reporter.warn(warning);
+		if (!suppressWarnings) {
+			for (const warning of processed.warnings) {
+				reporter.warn(warning);
+			}
 		}
 
 		if (processed.manifestEntry) {

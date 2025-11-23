@@ -270,11 +270,11 @@ importers:
   examples/showcase:
     dependencies:
       '@wpkernel/core':
-        specifier: workspace:*
-        version: link:../../packages/core
+        specifier: latest
+        version: 0.12.1-beta.3(@loglayer/shared@3.0.1)(@loglayer/transport-simple-pretty-terminal@2.2.13)(@loglayer/transport@2.3.9)(@wordpress/api-fetch@7.35.0)(@wordpress/data@10.35.0(react@18.3.1))(@wordpress/element@6.35.0)(@wordpress/hooks@4.35.0)(@wordpress/interactivity@6.35.0)(loglayer@6.10.0)
       '@wpkernel/ui':
-        specifier: workspace:*
-        version: link:../../packages/ui
+        specifier: latest
+        version: 0.12.1-beta.3(@testing-library/react@16.3.0(@testing-library/dom@10.4.1)(@types/react-dom@18.3.7(@types/react@18.3.27))(@types/react@18.3.27)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/components@30.8.0(@emotion/is-prop-valid@1.4.0)(@types/react@18.3.27)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/data@10.35.0(react@18.3.1))(@wordpress/dataviews@9.1.0(@emotion/is-prop-valid@1.4.0)(@types/react@18.3.27)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/element@6.35.0)(@wpkernel/core@0.12.1-beta.3(@loglayer/shared@3.0.1)(@loglayer/transport-simple-pretty-terminal@2.2.13)(@loglayer/transport@2.3.9)(@wordpress/api-fetch@7.35.0)(@wordpress/data@10.35.0(react@18.3.1))(@wordpress/element@6.35.0)(@wordpress/hooks@4.35.0)(@wordpress/interactivity@6.35.0)(loglayer@6.10.0))(react@18.3.1)
     devDependencies:
       '@kucrut/vite-for-wp':
         specifier: ^0.12.0
@@ -315,9 +315,6 @@ importers:
       '@wordpress/interactivity':
         specifier: '>=6.34.0'
         version: 6.35.0
-      '@wpkernel/cli':
-        specifier: 0.12.3-beta.0
-        version: 0.12.3-beta.0(@wpkernel/core@packages+core)(@wpkernel/php-json-ast@0.12.3-beta.0(@wpkernel/core@packages+core)(@wpkernel/pipeline@0.12.3-beta.0))(@wpkernel/pipeline@0.12.3-beta.0)(@wpkernel/ui@packages+ui)(@wpkernel/wp-json-ast@0.12.3-beta.0(@wpkernel/core@packages+core)(@wpkernel/php-json-ast@0.12.3-beta.0(@wpkernel/core@packages+core)(@wpkernel/pipeline@0.12.3-beta.0)))
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -4587,30 +4584,32 @@ packages:
     resolution: {integrity: sha512-FbQruz+dBA/sWq+Xf3SaTl3O7uWI4NYPovTzFnf/f1TPswjyYWGg8cGcb3xpGYr8pENOiPTkV2jKWX/V9WX/nw==}
     engines: {node: '>=20.18.3', npm: '>=10.1.0'}
 
-  '@wpkernel/cli@0.12.3-beta.0':
-    resolution: {integrity: sha512-zos5u+hiCxlrGkSOVlrstawelwSppLipvBVY/vDYcRbxvpxCM/FHWnj67EIHdsr9aG82rCCuKTH9lWQQWFoNyg==}
-    hasBin: true
+  '@wpkernel/core@0.12.1-beta.3':
+    resolution: {integrity: sha512-t6bjh+4XHGk8vY0jJPr/KL1djjkZMEhMFk2+3aXTC94ua7FBEuiyXrc7KIZmsTzrEePFrzlHz5lXzTCq+P4OzQ==}
     peerDependencies:
-      '@wpkernel/core': 0.12.3-beta.0
-      '@wpkernel/php-json-ast': 0.12.3-beta.0
-      '@wpkernel/pipeline': 0.12.3-beta.0
-      '@wpkernel/ui': 0.12.3-beta.0
-      '@wpkernel/wp-json-ast': 0.12.3-beta.0
+      '@loglayer/shared': '>=2.4.0'
+      '@loglayer/transport': '>=2.3.0'
+      '@loglayer/transport-simple-pretty-terminal': '>=2.2.9'
+      '@wordpress/api-fetch': '>=7.32.0'
+      '@wordpress/data': '>=10.32.0'
+      '@wordpress/element': '>=6.32.0'
+      '@wordpress/hooks': '>=4.32.0'
+      '@wordpress/interactivity': '>=6.34.0'
+      loglayer: '>=6.7.2'
 
-  '@wpkernel/php-json-ast@0.12.3-beta.0':
-    resolution: {integrity: sha512-SbmNG8PUJurpyuGqdyG8AwVXVy9ZGaRSYEINhtPhVKs1+0nwdf3tPLBwgCdjnDpiGKiKOwuUf0ivJO40ez6Baw==}
+  '@wpkernel/pipeline@0.12.1-beta.3':
+    resolution: {integrity: sha512-xH1nPNg9YT5LzgSHP0Xv+OmxE7x0LZAygpTADwjxiQwlER6qqCTmff3578ZEhPvpUPDFIFpbJgahcASwjtmxuQ==}
+
+  '@wpkernel/ui@0.12.1-beta.3':
+    resolution: {integrity: sha512-U3g5Yed6hFW6P28fCDZpDH6xG8O5I9EIX4NV6q0dwIJ2Yl4+dSSQusQ/JUwZlCsCfiVSWrAwH5BVjoes5sjeDA==}
     peerDependencies:
-      '@wpkernel/core': 0.12.3-beta.0
-      '@wpkernel/pipeline': 0.12.3-beta.0
-
-  '@wpkernel/pipeline@0.12.3-beta.0':
-    resolution: {integrity: sha512-Y6FABONpnKjHQExWg5u8jjNd4ZEELRvcMc54RjzkP1TgZJB8xH3l7xgRaQeCTLPylMtobEInU42P8S0oNzPrGg==}
-
-  '@wpkernel/wp-json-ast@0.12.3-beta.0':
-    resolution: {integrity: sha512-ZrcPgmvGs7rmm/Tw/+o027utzpt5A/k3fqfEs+maNLRihiUFVbOJKWqjNcbkn0B1itQCne/LANZ+bZbOiNxBEg==}
-    peerDependencies:
-      '@wpkernel/core': 0.12.3-beta.0
-      '@wpkernel/php-json-ast': 0.12.3-beta.0
+      '@testing-library/react': '>=16.3.0'
+      '@wordpress/components': '>=30.5.0'
+      '@wordpress/data': '>=10.32.0'
+      '@wordpress/dataviews': '>=9.1.0'
+      '@wordpress/element': '>=6.32.0'
+      '@wpkernel/core': 0.12.1-beta.3
+      react: ^18.3.1
 
   '@xtuc/ieee754@1.2.0':
     resolution: {integrity: sha512-DX8nKgqcGwsc0eJSqYt5lwP4DH5FlHnmuWWBRy7X0NcaGR0ZtuyeESgMwTYVEtxmsNGY+qit4QYT/MIYTOTPeA==}
@@ -17050,34 +17049,30 @@ snapshots:
       - supports-color
       - utf-8-validate
 
-  '@wpkernel/cli@0.12.3-beta.0(@wpkernel/core@packages+core)(@wpkernel/php-json-ast@0.12.3-beta.0(@wpkernel/core@packages+core)(@wpkernel/pipeline@0.12.3-beta.0))(@wpkernel/pipeline@0.12.3-beta.0)(@wpkernel/ui@packages+ui)(@wpkernel/wp-json-ast@0.12.3-beta.0(@wpkernel/core@packages+core)(@wpkernel/php-json-ast@0.12.3-beta.0(@wpkernel/core@packages+core)(@wpkernel/pipeline@0.12.3-beta.0)))':
+  '@wpkernel/core@0.12.1-beta.3(@loglayer/shared@3.0.1)(@loglayer/transport-simple-pretty-terminal@2.2.13)(@loglayer/transport@2.3.9)(@wordpress/api-fetch@7.35.0)(@wordpress/data@10.35.0(react@18.3.1))(@wordpress/element@6.35.0)(@wordpress/hooks@4.35.0)(@wordpress/interactivity@6.35.0)(loglayer@6.10.0)':
     dependencies:
+      '@loglayer/shared': 3.0.1
+      '@loglayer/transport': 2.3.9
       '@loglayer/transport-simple-pretty-terminal': 2.2.13
-      '@wpkernel/core': link:packages/core
-      '@wpkernel/php-json-ast': 0.12.3-beta.0(@wpkernel/core@packages+core)(@wpkernel/pipeline@0.12.3-beta.0)
-      '@wpkernel/pipeline': 0.12.3-beta.0
-      '@wpkernel/ui': link:packages/ui
-      '@wpkernel/wp-json-ast': 0.12.3-beta.0(@wpkernel/core@packages+core)(@wpkernel/php-json-ast@0.12.3-beta.0(@wpkernel/core@packages+core)(@wpkernel/pipeline@0.12.3-beta.0))
-      chokidar: 4.0.3
-      clipanion: 4.0.0-rc.4(typanion@3.14.0)
-      cosmiconfig: 9.0.0(typescript@5.9.3)
+      '@wordpress/api-fetch': 7.35.0
+      '@wordpress/data': 10.35.0(react@18.3.1)
+      '@wordpress/element': 6.35.0
+      '@wordpress/hooks': 4.35.0
+      '@wordpress/interactivity': 6.35.0
+      '@wpkernel/pipeline': 0.12.1-beta.3
       loglayer: 6.10.0
-      picocolors: 1.1.1
-      ts-morph: 27.0.2
-      typanion: 3.14.0
-      typescript: 5.9.3
 
-  '@wpkernel/php-json-ast@0.12.3-beta.0(@wpkernel/core@packages+core)(@wpkernel/pipeline@0.12.3-beta.0)':
+  '@wpkernel/pipeline@0.12.1-beta.3': {}
+
+  '@wpkernel/ui@0.12.1-beta.3(@testing-library/react@16.3.0(@testing-library/dom@10.4.1)(@types/react-dom@18.3.7(@types/react@18.3.27))(@types/react@18.3.27)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/components@30.8.0(@emotion/is-prop-valid@1.4.0)(@types/react@18.3.27)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/data@10.35.0(react@18.3.1))(@wordpress/dataviews@9.1.0(@emotion/is-prop-valid@1.4.0)(@types/react@18.3.27)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/element@6.35.0)(@wpkernel/core@0.12.1-beta.3(@loglayer/shared@3.0.1)(@loglayer/transport-simple-pretty-terminal@2.2.13)(@loglayer/transport@2.3.9)(@wordpress/api-fetch@7.35.0)(@wordpress/data@10.35.0(react@18.3.1))(@wordpress/element@6.35.0)(@wordpress/hooks@4.35.0)(@wordpress/interactivity@6.35.0)(loglayer@6.10.0))(react@18.3.1)':
     dependencies:
-      '@wpkernel/core': link:packages/core
-      '@wpkernel/pipeline': 0.12.3-beta.0
-
-  '@wpkernel/pipeline@0.12.3-beta.0': {}
-
-  '@wpkernel/wp-json-ast@0.12.3-beta.0(@wpkernel/core@packages+core)(@wpkernel/php-json-ast@0.12.3-beta.0(@wpkernel/core@packages+core)(@wpkernel/pipeline@0.12.3-beta.0))':
-    dependencies:
-      '@wpkernel/core': link:packages/core
-      '@wpkernel/php-json-ast': 0.12.3-beta.0(@wpkernel/core@packages+core)(@wpkernel/pipeline@0.12.3-beta.0)
+      '@testing-library/react': 16.3.0(@testing-library/dom@10.4.1)(@types/react-dom@18.3.7(@types/react@18.3.27))(@types/react@18.3.27)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wordpress/components': 30.8.0(@emotion/is-prop-valid@1.4.0)(@types/react@18.3.27)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wordpress/data': 10.35.0(react@18.3.1)
+      '@wordpress/dataviews': 9.1.0(@emotion/is-prop-valid@1.4.0)(@types/react@18.3.27)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wordpress/element': 6.35.0
+      '@wpkernel/core': 0.12.1-beta.3(@loglayer/shared@3.0.1)(@loglayer/transport-simple-pretty-terminal@2.2.13)(@loglayer/transport@2.3.9)(@wordpress/api-fetch@7.35.0)(@wordpress/data@10.35.0(react@18.3.1))(@wordpress/element@6.35.0)(@wordpress/hooks@4.35.0)(@wordpress/interactivity@6.35.0)(loglayer@6.10.0)
+      react: 18.3.1
 
   '@xtuc/ieee754@1.2.0': {}
 

@@ -12,7 +12,7 @@ import { type IRv1 } from '../../ir';
 import { createPatcher } from '../patcher';
 import { makeIrMeta } from '@cli-tests/ir.test-support';
 import { buildWorkspace } from '../../workspace';
-import { loadTestLayoutSync } from '@cli-tests/layout.test-support';
+import { loadTestLayoutSync } from '@wpkernel/test-utils/layout.test-support';
 
 type PatcherWorkspaceContext = BuilderHarnessContext<
 	ReturnType<typeof buildWorkspace>
@@ -493,7 +493,7 @@ describe('patcher.apply', () => {
 				'<?php',
 				`// ${AUTO_GUARD_BEGIN}`,
 				"require_once __DIR__ . '/generated.php';",
-				'bootstrap_kernel();',
+				'bootstrap_wpk();',
 				`// ${AUTO_GUARD_END}`,
 				'',
 			].join('\n');
@@ -613,7 +613,7 @@ describe('patcher.apply', () => {
 				'<?php',
 				`// ${AUTO_GUARD_BEGIN}`,
 				"require_once __DIR__ . '/generated.php';",
-				'bootstrap_kernel();',
+				'bootstrap_wpk();',
 				`// ${AUTO_GUARD_END}`,
 				'',
 			].join('\n');

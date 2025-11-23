@@ -82,3 +82,65 @@ export function loadDefaultLayout(
 		},
 	};
 }
+
+/**
+ * Backwards-compatible async loader that resolves the default layout manifest
+ * using the production resolver. Mirrors the CLI test helper API.
+ * @param options
+ * @param options.cwd
+ * @param options.overrides
+ * @param options.strict
+ */
+export async function loadTestLayout(
+	options: {
+		readonly cwd?: string;
+		readonly overrides?: Record<string, string>;
+		readonly strict?: boolean;
+	} = {}
+): Promise<TestLayout> {
+	// The CLI tests previously used a wrapper that respected cwd/overrides/strict.
+	// For shared test-utils we ignore cwd/strict and apply overrides on top of the
+	// default manifest to preserve compatibility without duplicating logic.
+	return loadDefaultLayout(options.overrides);
+}
+
+/**
+ * Backwards-compatible sync loader that resolves the default layout manifest.
+ * Mirrors the CLI test helper API.
+ * @param options
+ * @param options.overrides
+ */
+export function loadTestLayoutSync(
+	options: {
+		readonly overrides?: Record<string, string>;
+	} = {}
+): TestLayout {
+	return loadDefaultLayout(options.overrides);
+}
+
+/**
+ * Computes a module specifier between two layout ids, optionally appending a filename,
+ * relative to a provided `fromPath` (or the inferred `fromId` path when omitted).
+ * @param fromId
+ * @param toId
+ * @param filename
+ */
+export function resolveLayoutRelativeSpecifier(
+	fromId: string,
+	toId: string,
+	filename?: string
+): string {
+	const layout = loadDefaultLayout();
+	const fromBase = filename
+		? path.posix.join(layout.resolve(fromId), filename)
+		: layout.resolve(fromId);
+	const to = filename
+		? path.posix.join(layout.resolve(toId), filename)
+		: layout.resolve(toId);
+
+	const relative = path.posix
+		.relative(path.posix.dirname(fromBase), to)
+		.replace(/\.(ts|tsx|js|jsx|mjs|cjs)$/iu, '');
+
+	return relative;
+}

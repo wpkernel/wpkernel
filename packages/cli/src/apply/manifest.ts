@@ -5,6 +5,9 @@ import { toPascalCase } from '../builders/php/utils';
 import type { Workspace } from '../workspace';
 import { sanitizeNamespace } from '../adapters/extensions';
 import { loadLayoutFromWorkspace } from '../layout/manifest';
+import { collectResourceDescriptors } from '../builders/ts/pipeline.builder';
+import { resolveAdminScreenComponentMetadata } from '../builders/ts/pipeline.creator.adminScreen';
+import { resolveTsLayout } from '../builders/ts/ts.paths';
 
 export const GENERATION_STATE_VERSION = 1 as const;
 
@@ -26,9 +29,13 @@ export async function resolveGenerationStatePath(
 	return layout.resolve('apply.state');
 }
 
-export interface GenerationManifestFilePair {
+export interface GenerationManifestFile {
 	readonly file: string;
-	readonly ast: string;
+}
+
+export interface GenerationManifestFilePair {
+	readonly generated: string;
+	readonly applied: string;
 }
 
 export interface GenerationManifestResourceArtifacts {
@@ -48,9 +55,12 @@ export interface GenerationManifestResourceEntry {
 export interface GenerationManifest {
 	readonly version: typeof GENERATION_STATE_VERSION;
 	readonly resources: Record<string, GenerationManifestResourceEntry>;
-	readonly pluginLoader?: GenerationManifestFilePair;
-	readonly phpIndex?: GenerationManifestFilePair;
+	readonly pluginLoader?: GenerationManifestFile;
+	readonly phpIndex?: GenerationManifestFile;
 	readonly ui?: GenerationManifestUiState;
+	readonly blocks?: {
+		readonly files: readonly GenerationManifestFilePair[];
+	};
 }
 
 /**
@@ -60,6 +70,7 @@ export interface GenerationManifest {
  */
 export interface GenerationManifestUiState {
 	readonly handle: string;
+	readonly files: readonly GenerationManifestFilePair[];
 }
 
 export interface RemovedResourceEntry {
@@ -133,14 +144,16 @@ export function buildGenerationManifestFromIr(
 	);
 	const phpIndex = buildFilePair(path.posix.join(phpOutput, 'index.php'));
 
-	const uiHandle = buildUiHandle(ir);
+	const ui = buildUiState(ir);
+	const blocks = buildBlocksState(ir);
 
 	return {
 		version: GENERATION_STATE_VERSION,
 		resources,
 		...(pluginLoader ? { pluginLoader } : {}),
 		...(phpIndex ? { phpIndex } : {}),
-		...(uiHandle ? { ui: { handle: uiHandle } } : {}),
+		...(ui ? { ui } : {}),
+		...(blocks ? { blocks } : {}),
 	} satisfies GenerationManifest;
 }
 
@@ -199,6 +212,7 @@ export function normaliseGenerationState(value: unknown): GenerationManifest {
 	const pluginLoader = normaliseFilePair(value.pluginLoader);
 	const phpIndex = normaliseFilePair(value.phpIndex);
 	const ui = normaliseUiState(value.ui);
+	const blocks = normaliseBlocksState(value.blocks);
 
 	return {
 		version: GENERATION_STATE_VERSION,
@@ -206,6 +220,7 @@ export function normaliseGenerationState(value: unknown): GenerationManifest {
 		...(pluginLoader ? { pluginLoader } : {}),
 		...(phpIndex ? { phpIndex } : {}),
 		...(ui ? { ui } : {}),
+		...(blocks ? { blocks } : {}),
 	} satisfies GenerationManifest;
 }
 
@@ -280,7 +295,27 @@ function normaliseUiState(
 		return undefined;
 	}
 
-	return { handle } satisfies GenerationManifestUiState;
+	const files = normaliseFilePairs(value.files);
+	if (files.length === 0) {
+		return undefined;
+	}
+
+	return { handle, files } satisfies GenerationManifestUiState;
+}
+
+function normaliseBlocksState(
+	value: unknown
+): { readonly files: readonly GenerationManifestFilePair[] } | undefined {
+	if (!isRecord(value)) {
+		return undefined;
+	}
+
+	const files = normaliseFilePairs(value.files);
+	if (files.length === 0) {
+		return undefined;
+	}
+
+	return { files };
 }
 
 function buildUiHandle(ir: IRv1): string | null {
@@ -300,6 +335,112 @@ function buildUiHandle(ir: IRv1): string | null {
 	}
 
 	return `wp-${slug}-ui`;
+}
+
+function buildUiFiles(ir: IRv1): GenerationManifestFilePair[] {
+	if (!ir.layout) {
+		throw new WPKernelError('DeveloperError', {
+			message:
+				'IR layout fragment did not resolve layout before building UI state.',
+		});
+	}
+
+	const { uiGenerated, uiApplied, uiResourcesApplied } = resolveTsLayout(ir);
+	const descriptors = collectResourceDescriptors(ir.config.resources);
+	if (descriptors.length === 0) {
+		return [];
+	}
+
+	const pairs: GenerationManifestFilePair[] = [];
+	const addPair = (generated: string, applied: string) => {
+		const normalisedGenerated = normaliseFilePath(generated);
+		const normalisedApplied = normaliseFilePath(applied);
+		if (!normalisedGenerated || !normalisedApplied) {
+			return;
+		}
+		pairs.push({
+			generated: normalisedGenerated,
+			applied: normalisedApplied,
+		});
+	};
+
+	addPair(
+		path.posix.join(uiGenerated, 'index.tsx'),
+		path.posix.join(uiApplied, 'index.tsx')
+	);
+	addPair(
+		path.posix.join(uiGenerated, 'runtime.ts'),
+		path.posix.join(uiApplied, 'runtime.ts')
+	);
+
+	for (const descriptor of descriptors) {
+		const resourceKey = descriptor.key;
+		const resourceFile = `${resourceKey}.ts`;
+		addPair(
+			path.posix.join(uiGenerated, 'resources', resourceFile),
+			path.posix.join(uiResourcesApplied, resourceFile)
+		);
+		addPair(
+			path.posix.join(uiGenerated, 'registry', 'dataviews', resourceFile),
+			path.posix.join(uiApplied, 'registry', 'dataviews', resourceFile)
+		);
+		addPair(
+			path.posix.join(uiGenerated, 'fixtures', 'dataviews', resourceFile),
+			path.posix.join(uiApplied, 'fixtures', 'dataviews', resourceFile)
+		);
+		addPair(
+			path.posix.join(
+				uiGenerated,
+				'fixtures',
+				'interactivity',
+				resourceFile
+			),
+			path.posix.join(
+				uiApplied,
+				'fixtures',
+				'interactivity',
+				resourceFile
+			)
+		);
+
+		const { fileName, directories } =
+			resolveAdminScreenComponentMetadata(descriptor);
+		const screenSuffix = path.posix.join(
+			'app',
+			descriptor.name,
+			'admin',
+			...directories,
+			`${fileName}.tsx`
+		);
+
+		addPair(
+			path.posix.join(uiGenerated, screenSuffix),
+			path.posix.join(uiApplied, screenSuffix)
+		);
+	}
+
+	return pairs;
+}
+
+function buildUiState(ir: IRv1): GenerationManifestUiState | null {
+	const handle = buildUiHandle(ir);
+	const files = buildUiFiles(ir);
+	if (!handle || files.length === 0) {
+		return null;
+	}
+
+	return {
+		handle,
+		files,
+	} satisfies GenerationManifestUiState;
+}
+
+function buildBlocksState(
+	_ir: IRv1
+): { readonly files: readonly GenerationManifestFilePair[] } | null {
+	// TODO: wire deterministic block surfacing via IR once block discovery
+	// is refactored away from globbing.
+	return null;
 }
 
 function buildResourceKeyLookup(
@@ -343,10 +484,7 @@ function buildResourceEntry({
 		`${pascal}Controller.php`
 	);
 
-	const generatedArtifacts = new Set<string>([
-		controllerFile,
-		`${controllerFile}.ast.json`,
-	]);
+	const generatedArtifacts = new Set<string>([controllerFile]);
 
 	const resourceKey = resourceKeyLookup.get(resource.name) ?? resource.name;
 	if (resource.ui?.admin?.dataviews) {
@@ -388,7 +526,7 @@ function buildResourceEntry({
 	} satisfies GenerationManifestResourceEntry;
 }
 
-function buildFilePair(file: string): GenerationManifestFilePair | null {
+function buildFilePair(file: string): GenerationManifestFile | null {
 	const normalised = normaliseFilePath(file);
 	if (!normalised) {
 		return null;
@@ -396,8 +534,7 @@ function buildFilePair(file: string): GenerationManifestFilePair | null {
 
 	return {
 		file: normalised,
-		ast: `${normalised}.ast.json`,
-	} satisfies GenerationManifestFilePair;
+	} satisfies GenerationManifestFile;
 }
 
 function normaliseDirectory(directory: string): string {
@@ -445,21 +582,49 @@ function normaliseResourceArtifacts(
 	} satisfies GenerationManifestResourceArtifacts;
 }
 
-function normaliseFilePair(value: unknown): GenerationManifestFilePair | null {
+function normaliseFilePair(value: unknown): GenerationManifestFile | null {
 	if (!isRecord(value)) {
 		return null;
 	}
 
 	const file =
 		typeof value.file === 'string' ? normaliseFilePath(value.file) : '';
-	const ast =
-		typeof value.ast === 'string' ? normaliseFilePath(value.ast) : '';
 
-	if (!file || !ast) {
+	if (!file) {
 		return null;
 	}
 
-	return { file, ast } satisfies GenerationManifestFilePair;
+	return { file } satisfies GenerationManifestFile;
+}
+
+function normaliseFilePairs(value: unknown): GenerationManifestFilePair[] {
+	if (!Array.isArray(value)) {
+		return [];
+	}
+
+	const results: GenerationManifestFilePair[] = [];
+	for (const entry of value) {
+		if (!isRecord(entry)) {
+			continue;
+		}
+
+		const generated =
+			typeof entry.generated === 'string'
+				? normaliseFilePath(entry.generated)
+				: '';
+		const applied =
+			typeof entry.applied === 'string'
+				? normaliseFilePath(entry.applied)
+				: '';
+
+		if (!generated || !applied) {
+			continue;
+		}
+
+		results.push({ generated, applied });
+	}
+
+	return results;
 }
 
 function normaliseFileList(value: unknown): string[] {

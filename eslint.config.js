@@ -68,6 +68,7 @@ export default [
 			'**/information/**',
 			'coverage/**',
 			'.changeset/**',
+			'.cache/**',
 			'**/*.php', // PHP files handled by PHPCS
 		],
 	},

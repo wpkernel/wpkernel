@@ -7,7 +7,7 @@ import type { BuildIrOptions, IRv1 } from '../../ir/publicTypes';
 import type { BuilderOutput } from '../../runtime/types';
 import type { Workspace } from '../../workspace/types';
 import { makeWorkspaceMock } from '@cli-tests/workspace.test-support';
-import { loadTestLayoutSync } from '@cli-tests/layout.test-support';
+import { loadTestLayoutSync } from '@wpkernel/test-utils/layout.test-support';
 import {
 	buildReporter,
 	buildOutput,

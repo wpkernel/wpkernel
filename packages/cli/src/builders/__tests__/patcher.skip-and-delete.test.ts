@@ -11,7 +11,7 @@ import {
 	buildOutput,
 } from '@cli-tests/builders/builder-harness.test-support';
 import type { BuilderHarnessContext } from '@cli-tests/builders/builder-harness.test-support';
-import { loadTestLayoutSync } from '@cli-tests/layout.test-support';
+import { loadTestLayoutSync } from '@wpkernel/test-utils/layout.test-support';
 
 type PatcherWorkspaceContext = BuilderHarnessContext<
 	ReturnType<typeof buildWorkspace>

@@ -22,7 +22,7 @@ import { makeIrMeta } from '@cli-tests/ir.test-support';
 import { withWorkspace as baseWithWorkspace } from '@cli-tests/builders/builder-harness.test-support';
 import type { BuilderHarnessContext } from '@cli-tests/builders/builder-harness.test-support';
 import { buildEmptyGenerationState } from '../../apply/manifest';
-import { loadTestLayoutSync } from '@cli-tests/layout.test-support';
+import { loadTestLayoutSync } from '@wpkernel/test-utils/layout.test-support';
 import { makeResource } from '@cli-tests/builders/fixtures.test-support';
 
 describe('createBundler', () => {
@@ -200,7 +200,6 @@ describe('createBundler', () => {
 				expect.arrayContaining([
 					'@wordpress/data',
 					'@wordpress/components',
-					'@wordpress/dataviews',
 					'@wordpress/block-editor',
 					'@wordpress/blocks',
 					'@wordpress/hooks',
@@ -211,10 +210,21 @@ describe('createBundler', () => {
 					'@wordpress/element',
 				])
 			);
+			expect(assetManifest.dependencies).toEqual(
+				expect.arrayContaining(['wp-interactivity'])
+			);
 			const aliasRoot = workspace.resolve('src').replace(/\\/g, '/');
 			expect(config.alias).toContainEqual({
 				find: '@/',
 				replacement: `${aliasRoot}/`,
+			});
+			expect(config.alias).toContainEqual({
+				find: '@wordpress/dataviews',
+				replacement: '@wordpress/dataviews/wp',
+			});
+			expect(config.alias).toContainEqual({
+				find: '@wordpress/element',
+				replacement: 'react',
 			});
 			expect(updatedPkg.scripts).toEqual(
 				expect.objectContaining({
@@ -276,9 +286,9 @@ describe('createBundler', () => {
 				])
 			);
 
-			const uiGenerated = layout.resolve('ui.generated');
+			const uiApplied = layout.resolve('ui.applied');
 			expect(config.input.index).toBe(
-				path.posix.join(uiGenerated, 'index.tsx')
+				path.posix.join(uiApplied, 'index.tsx')
 			);
 
 			const viteConfig = await workspace.readText('vite.config.ts');

@@ -183,8 +183,8 @@ function resolveUiEntryPoint(ir: IRv1 | null | undefined): string {
 	}
 
 	try {
-		const uiGenerated = ir.layout.resolve('ui.generated');
-		return `${uiGenerated}/index.tsx`;
+		const uiApplied = ir.layout.resolve('ui.applied');
+		return `${uiApplied}/index.tsx`;
 	} catch {
 		return DEFAULT_ENTRY_POINT;
 	}

@@ -126,7 +126,7 @@ describe('InitCommand', () => {
 				'utf8'
 			);
 			expect(pluginLoader).toContain('Plugin Name: Jobs Plugin');
-			expect(pluginLoader).toContain('function bootstrap_kernel(): void');
+			expect(pluginLoader).toContain('function bootstrap_wpk(): void');
 		});
 	});
 

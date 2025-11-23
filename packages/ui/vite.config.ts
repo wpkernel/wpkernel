@@ -17,5 +17,7 @@ export default createWPKLibConfig(
 	},
 	{
 		external,
+		// Keep console diagnostics in library builds while we debug DataViews wiring.
+		dropConsoleInProd: false,
 	}
 );

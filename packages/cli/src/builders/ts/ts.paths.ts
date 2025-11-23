@@ -3,7 +3,10 @@ import type { IRv1 } from '../../ir';
 
 export interface TsLayoutPaths {
 	readonly blocksGenerated: string;
+	readonly blocksApplied: string;
 	readonly uiGenerated: string;
+	readonly uiApplied: string;
+	readonly uiResourcesApplied: string;
 	readonly jsGenerated: string;
 }
 
@@ -22,7 +25,10 @@ export function resolveTsLayout(ir: IRv1): TsLayoutPaths {
 
 	return {
 		blocksGenerated: resolve('blocks.generated'),
+		blocksApplied: resolve('blocks.applied'),
 		uiGenerated: resolve('ui.generated'),
+		uiApplied: resolve('ui.applied'),
+		uiResourcesApplied: resolve('ui.resources.applied'),
 		jsGenerated: resolve('js.generated'),
 	};
 }

@@ -21,11 +21,15 @@ import { createWpProgramWriterHelper as createCoreProgramWriterHelper } from '@w
 export function createWpProgramWriterHelper(
 	options: CreatePhpProgramWriterHelperOptions = {}
 ): BuilderHelper {
+	const mergedOptions = {
+		emitAst: false,
+		...options,
+	} as CreatePhpProgramWriterHelperOptions;
 	return createCoreProgramWriterHelper<
 		PipelineContext,
 		BuilderInput,
 		BuilderOutput
-	>(options);
+	>(mergedOptions);
 }
 
 /**

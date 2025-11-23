@@ -601,10 +601,6 @@ describe('createPhpResourceControllerHelper', () => {
 				file: optionEntry.file,
 				contents: expect.stringContaining('// demo-option controller'),
 			});
-			expect(output.queueWrite).toHaveBeenCalledWith({
-				file: `${optionEntry.file}.ast.json`,
-				contents: expect.stringContaining('Stmt_ClassMethod'),
-			});
 		} finally {
 			prettyPrinterSpy.mockRestore();
 		}
@@ -672,12 +668,6 @@ describe('createPhpResourceControllerHelper', () => {
 			expect(output.queueWrite).toHaveBeenCalledWith({
 				file: transientEntry.file,
 				contents: expect.stringContaining('// job-cache controller'),
-			});
-			expect(output.queueWrite).toHaveBeenCalledWith({
-				file: `${transientEntry.file}.ast.json`,
-				contents: expect.stringContaining(
-					'normaliseJobCacheExpiration'
-				),
 			});
 		} finally {
 			prettyPrinterSpy.mockRestore();

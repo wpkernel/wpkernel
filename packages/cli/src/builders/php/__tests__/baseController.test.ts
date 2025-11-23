@@ -11,7 +11,7 @@ import {
 	createMinimalIr,
 	createPipelineContext,
 } from '../test-support/php-builder.test-support';
-import { loadTestLayoutSync } from '@cli-tests/layout.test-support';
+import { loadTestLayoutSync } from '@wpkernel/test-utils/layout.test-support';
 
 describe('createPhpBaseControllerHelper', () => {
 	it('skips generation when the IR artifact is not available', async () => {

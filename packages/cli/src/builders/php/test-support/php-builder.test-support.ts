@@ -11,7 +11,7 @@ import { buildPluginMeta } from '../../../ir/shared/pluginMeta';
 import { makeWorkspaceMock } from '@cli-tests/workspace.test-support';
 import type { Workspace } from '../../../workspace/types';
 import { buildEmptyGenerationState } from '../../../apply/manifest';
-import { loadTestLayoutSync } from '@cli-tests/layout.test-support';
+import { loadTestLayoutSync } from '@wpkernel/test-utils/layout.test-support';
 
 const DEFAULT_CONFIG_SOURCE = 'tests.config.ts';
 

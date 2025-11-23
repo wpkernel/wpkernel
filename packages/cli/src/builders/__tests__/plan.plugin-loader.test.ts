@@ -10,7 +10,7 @@ import type { PlanInstruction } from '../types';
 import { makeIr } from '@cli-tests/ir.test-support';
 import { buildPhpPrettyPrinter } from '@wpkernel/php-json-ast/php-driver';
 import { buildEmptyGenerationState } from '../../apply/manifest';
-import { loadTestLayoutSync } from '@cli-tests/layout.test-support';
+import { loadTestLayoutSync } from '@wpkernel/test-utils/layout.test-support';
 import { createReporterMock } from '@cli-tests/reporter';
 
 const prettyPrinter = buildPhpPrettyPrinter({
@@ -83,7 +83,7 @@ describe('plan.plugin-loader', () => {
 				options: makeOptions(root),
 				prettyPrinter,
 			});
-			expect(instr).toBeNull();
+			expect(instr).not.toBeNull();
 		} finally {
 			await fs.rm(root, { recursive: true, force: true });
 		}

@@ -2,8 +2,6 @@ import path from 'node:path';
 import type { Workspace } from '../../workspace/types';
 import {
 	type ResolveResourceImportOptions,
-	type ResolveWPKernelImportOptions,
-	type ResolveAdminRuntimeImportOptions,
 	type ModuleSpecifierOptions,
 } from './types';
 import { toCamelCase } from './shared.metadata';
@@ -32,6 +30,8 @@ export const MODULE_SOURCE_EXTENSIONS = [
  * @param    root0.resourceSymbol
  * @param    root0.configPath
  * @param    root0.configured
+ * @param    root0.generatedResourcesDir
+ * @param    root0.appliedResourcesDir
  * @category Builders
  */
 export async function resolveResourceImport({
@@ -40,26 +40,13 @@ export async function resolveResourceImport({
 	resourceKey,
 	resourceSymbol,
 	configPath,
-	configured,
+	generatedResourcesDir,
+	appliedResourcesDir,
 }: ResolveResourceImportOptions): Promise<string> {
-	if (configured) {
-		return configured;
-	}
-
-	const existingModule = await findWorkspaceModule(
-		workspace,
-		path.join('src', 'resources', resourceKey)
-	);
-	if (existingModule) {
-		return buildModuleSpecifier({
-			workspace,
-			from,
-			target: existingModule,
-		});
-	}
-
 	const stubPath = await ensureResourceModule({
 		workspace,
+		generatedResourcesDir,
+		appliedResourcesDir,
 		resourceKey,
 		resourceSymbol:
 			resourceSymbol && resourceSymbol.length > 0
@@ -72,61 +59,11 @@ export async function resolveResourceImport({
 		return buildModuleSpecifier({
 			workspace,
 			from,
-			target: stubPath,
+			target: path.join(appliedResourcesDir, `${resourceKey}.ts`),
 		});
 	}
 
 	return `@/resources/${resourceKey}`;
-}
-
-/**
- * Resolves the kernel bootstrap import path for generated modules.
- *
- * @param    root0
- * @param    root0.workspace
- * @param    root0.from
- * @param    root0.configured
- * @category Builders
- */
-export async function resolveWPKernelImport({
-	workspace,
-	from,
-	configured,
-}: ResolveWPKernelImportOptions): Promise<string> {
-	if (configured) {
-		return configured;
-	}
-
-	const resolved = await findWorkspaceModule(
-		workspace,
-		path.join('src', 'bootstrap', 'kernel')
-	);
-	if (resolved) {
-		return buildModuleSpecifier({ workspace, from, target: resolved });
-	}
-
-	return '@/bootstrap/kernel';
-}
-
-/**
- * Resolves the admin runtime module import path, creating a stub if needed.
- *
- * @param    root0
- * @param    root0.workspace
- * @param    root0.from
- * @param    root0.configured
- * @category Builders
- */
-export async function resolveAdminRuntimeImport({
-	workspace,
-	configured,
-}: ResolveAdminRuntimeImportOptions): Promise<string> {
-	if (configured) {
-		return configured;
-	}
-
-	await ensureAdminRuntimeModule({ workspace });
-	return '@/admin/runtime';
 }
 
 /**
@@ -201,11 +138,15 @@ function normaliseModuleSpecifier(specifier: string): string {
 
 async function ensureResourceModule({
 	workspace,
+	generatedResourcesDir,
+	appliedResourcesDir,
 	resourceKey,
 	resourceSymbol,
 	configPath,
 }: {
 	readonly workspace: Workspace;
+	readonly generatedResourcesDir: string;
+	readonly appliedResourcesDir: string;
 	readonly resourceKey: string;
 	readonly resourceSymbol: string;
 	readonly configPath?: string;
@@ -214,14 +155,10 @@ async function ensureResourceModule({
 		return null;
 	}
 
-	const resourcePath = path.join('src', 'resources', `${resourceKey}.ts`);
-	if (await workspace.exists(resourcePath)) {
-		return resourcePath;
-	}
-
+	const resourcePath = path.join(generatedResourcesDir, `${resourceKey}.ts`);
 	const configSpecifier = buildModuleSpecifier({
 		workspace,
-		from: resourcePath,
+		from: path.join(appliedResourcesDir, `${resourceKey}.ts`),
 		target: configPath,
 	});
 
@@ -240,14 +177,11 @@ async function ensureResourceModule({
 
 async function ensureAdminRuntimeModule({
 	workspace,
+	runtimePath,
 }: {
 	readonly workspace: Workspace;
+	readonly runtimePath: string;
 }): Promise<string> {
-	const runtimePath = path.join('src', 'admin', 'runtime.ts');
-	if (await workspace.exists(runtimePath)) {
-		return runtimePath;
-	}
-
 	const contents = [
 		"import type { WPKernelUIRuntime } from '@wpkernel/core/data';",
 		'',
@@ -266,6 +200,13 @@ async function ensureAdminRuntimeModule({
 
 	await workspace.write(runtimePath, contents, { ensureDir: true });
 	return runtimePath;
+}
+
+export async function writeAdminRuntimeStub(
+	workspace: Workspace,
+	runtimePath: string
+): Promise<void> {
+	await ensureAdminRuntimeModule({ workspace, runtimePath });
 }
 
 function buildResourceAccessor(resourceKey: string): string {

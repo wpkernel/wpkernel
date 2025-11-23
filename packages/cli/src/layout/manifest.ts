@@ -61,6 +61,8 @@ const USER_OVERRIDABLE_IDS: Record<string, string> = {
 	'blocks.applied': 'blocks.applied',
 	controllers: 'controllers.applied',
 	'controllers.applied': 'controllers.applied',
+	ui: 'ui.applied',
+	'ui.applied': 'ui.applied',
 	plugin: 'plugin.loader',
 	'plugin.loader': 'plugin.loader',
 };

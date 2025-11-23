@@ -21,7 +21,7 @@ import {
 	createPipelineContext,
 } from '../test-support/php-builder.test-support';
 import { buildEmptyGenerationState } from '../../../apply/manifest';
-import { loadTestLayoutSync } from '@cli-tests/layout.test-support';
+import { loadTestLayoutSync } from '@wpkernel/test-utils/layout.test-support';
 
 jest.mock('@wpkernel/php-json-ast/php-driver', () => {
 	const actual = jest.requireActual<typeof phpDriverModule>(
@@ -120,7 +120,7 @@ describe('createWpProgramWriterHelper', () => {
 			program,
 		});
 
-		const helper = createWpProgramWriterHelper();
+		const helper = createWpProgramWriterHelper({ emitAst: true });
 		await helper.apply(
 			{
 				context,
@@ -266,7 +266,7 @@ describe('createWpProgramWriterHelper', () => {
 				>
 		);
 
-		const helper = createWpProgramWriterHelper();
+		const helper = createWpProgramWriterHelper({ emitAst: true });
 		await helper.apply({
 			context,
 			input,

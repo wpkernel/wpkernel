@@ -17,7 +17,7 @@ import {
 	makeResource,
 	makeRoute,
 } from '@cli-tests/builders/fixtures.test-support';
-import { loadTestLayoutSync } from '@cli-tests/layout.test-support';
+import { loadTestLayoutSync } from '@wpkernel/test-utils/layout.test-support';
 
 describe('createPhpPluginLoaderHelper', () => {
 	it('skips when no IR is available', async () => {
@@ -93,6 +93,71 @@ describe('createPhpPluginLoaderHelper', () => {
 		expect(entry?.docblock).toEqual([]);
 		expect(entry?.metadata).toEqual({ kind: 'plugin-loader' });
 		expect(entry?.program).toMatchSnapshot('plugin-loader-program');
+	});
+
+	it('derives content model registration from wp-post storage', async () => {
+		const context = createPipelineContext();
+		resetPhpBuilderChannel(context);
+		resetPhpAstChannel(context);
+
+		const helper = createPhpPluginLoaderHelper();
+		const ir = createMinimalIr({
+			meta: {
+				sanitizedNamespace: 'acme-demo',
+				origin: 'wpk.config.ts',
+				namespace: 'acme-demo',
+			},
+			resources: [
+				makeResource({
+					name: 'job',
+					storage: {
+						mode: 'wp-post',
+						postType: 'acme_job',
+						statuses: ['closed'],
+						supports: ['title', 'editor'],
+						taxonomies: {
+							acme_job_department: {
+								taxonomy: 'acme_job_department',
+								hierarchical: false,
+								register: true,
+							},
+						},
+					},
+					ui: {
+						admin: {
+							view: 'dataviews',
+							dataviews: {
+								screen: {
+									menu: { slug: 'acme-jobs', title: 'Jobs' },
+								},
+								fields: [],
+								defaultView: { layout: 'table', columns: [] },
+							},
+						},
+					},
+					routes: [makeRoute({ path: '/kernel/v1/jobs' })],
+				}),
+			],
+		});
+
+		await helper.apply(
+			{
+				context,
+				input: createBuilderInput({ ir }),
+				output: createBuilderOutput(),
+				reporter: context.reporter,
+			},
+			undefined
+		);
+
+		const entry = getPhpBuilderChannel(context)
+			.pending()
+			.find((candidate) => candidate.metadata.kind === 'plugin-loader');
+
+		expect(entry).toBeDefined();
+		expect(entry?.program).toMatchSnapshot(
+			'plugin-loader-program-with-content-model'
+		);
 	});
 
 	it('emits UI asset registration when dataview metadata exists', async () => {

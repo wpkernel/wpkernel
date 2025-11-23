@@ -13,6 +13,15 @@ import {
 } from '@wpkernel/wp-json-ast';
 import { buildUiConfig } from './pluginLoader.ui';
 import { toPascalCase } from './utils';
+import {
+	type ContentModel,
+	type PostTypesMap,
+	type TaxonomiesMap,
+	type StatusesMap,
+	type Resource,
+	type WpPostStorage,
+	type WpTaxonomyStorage,
+} from './types';
 /**
  * Creates a PHP builder helper for generating the main plugin loader file (`plugin.php`).
  *
@@ -89,7 +98,7 @@ export function createPhpPluginLoaderHelper(): BuilderHelper {
 	});
 }
 
-type GeneratePhaseInput = BuilderApplyOptions['input'] & {
+export type GeneratePhaseInput = BuilderApplyOptions['input'] & {
 	phase: 'generate';
 	ir: NonNullable<BuilderApplyOptions['input']['ir']>;
 };
@@ -111,7 +120,7 @@ function buildResourceClassNames(ir: GeneratePhaseInput['ir']): string[] {
 }
 
 function resolvePluginRootDir(ir: GeneratePhaseInput['ir']): string {
-	return ir.layout?.resolve('php.generated') ?? ir.php.outputDir;
+	return ir.layout!.resolve('php.generated');
 }
 
 function buildLoaderConfig({
@@ -129,11 +138,307 @@ function buildLoaderConfig({
 		sanitizedNamespace: ir.meta.sanitizedNamespace,
 		plugin: ir.meta.plugin,
 		resourceClassNames,
-		phpGeneratedPath:
-			ir.layout?.resolve('php.generated') ?? ir.php.outputDir,
+		phpGeneratedPath: ir.layout!.resolve('php.generated'),
 	};
 
-	return uiConfig ? { ...base, ui: uiConfig } : base;
+	const contentModel = buildContentModelConfig(ir);
+
+	return uiConfig
+		? { ...base, ui: uiConfig, contentModel }
+		: { ...base, contentModel };
+}
+
+function buildContentModelConfig(ir: GeneratePhaseInput['ir']): ContentModel {
+	const postTypes: PostTypesMap = new Map();
+	const taxonomies: TaxonomiesMap = new Map();
+	const statuses: StatusesMap = new Map();
+
+	for (const resource of ir.resources) {
+		const storage = resource.storage;
+		if (!storage) {
+			continue;
+		}
+
+		if (storage.mode === 'wp-post') {
+			addPostTypeFromResource({
+				resource,
+				storage,
+				postTypes,
+				taxonomies,
+				statuses,
+			});
+			continue;
+		}
+
+		if (storage.mode === 'wp-taxonomy') {
+			addTaxonomyFromStorage({
+				storage,
+				taxonomies,
+			});
+		}
+	}
+
+	if (postTypes.size === 0 && taxonomies.size === 0 && statuses.size === 0) {
+		return undefined;
+	}
+
+	return {
+		postTypes: buildPostTypesArray(postTypes),
+		taxonomies: buildTaxonomiesArray(taxonomies),
+		statuses: buildStatusesArray(statuses),
+	};
+}
+
+function addPostTypeFromResource({
+	resource,
+	storage,
+	postTypes,
+	taxonomies,
+	statuses,
+}: {
+	resource: Resource;
+	storage: WpPostStorage;
+	postTypes: PostTypesMap;
+	taxonomies: TaxonomiesMap;
+	statuses: StatusesMap;
+}): void {
+	const postTypeSlug = storage.postType ?? resource.name;
+	const labels = buildLabelsFromResource(resource);
+	const existing = postTypes.get(postTypeSlug);
+	const taxonomySet = existing?.taxonomies ?? new Set<string>();
+
+	addTaxonomiesForPostType({
+		storage,
+		postTypeSlug,
+		taxonomySet,
+		taxonomies,
+	});
+
+	const supports = getSupportsForPostType(storage);
+
+	postTypes.set(postTypeSlug, {
+		labels,
+		supports,
+		taxonomies: taxonomySet,
+	});
+
+	addStatusesFromStorage(storage, statuses);
+}
+
+function addTaxonomiesForPostType({
+	storage,
+	postTypeSlug,
+	taxonomySet,
+	taxonomies,
+}: {
+	storage: WpPostStorage;
+	postTypeSlug: string;
+	taxonomySet: Set<string>;
+	taxonomies: TaxonomiesMap;
+}): void {
+	const storageTaxonomies = storage.taxonomies ?? {};
+	for (const descriptor of Object.values(storageTaxonomies)) {
+		if (!descriptor?.taxonomy) {
+			continue;
+		}
+
+		taxonomySet.add(descriptor.taxonomy);
+
+		if (!descriptor.register) {
+			continue;
+		}
+
+		upsertRegisteredTaxonomy({
+			slug: descriptor.taxonomy,
+			postTypeSlug,
+			hierarchical: descriptor.hierarchical,
+			taxonomies,
+		});
+	}
+}
+
+function getSupportsForPostType(
+	storage: WpPostStorage
+): readonly string[] | undefined {
+	if (!storage.supports || storage.supports.length === 0) {
+		return undefined;
+	}
+	return storage.supports;
+}
+
+function addStatusesFromStorage(
+	storage: WpPostStorage,
+	statuses: StatusesMap
+): void {
+	for (const status of storage.statuses ?? []) {
+		const label = toLabel(status);
+		statuses.set(status, {
+			label,
+			public: false,
+			showInAdminAllList: true,
+			showInAdminStatusList: true,
+		});
+	}
+}
+
+function addTaxonomyFromStorage({
+	storage,
+	taxonomies,
+}: {
+	storage: WpTaxonomyStorage;
+	taxonomies: TaxonomiesMap;
+}): void {
+	const slug = storage.taxonomy;
+	if (!slug) {
+		return;
+	}
+
+	const existing = taxonomies.get(slug) ?? {
+		objectTypes: new Set<string>(),
+		hierarchical: storage.hierarchical,
+		labels: buildTaxonomyLabels(slug),
+	};
+
+	if (typeof storage.hierarchical === 'boolean') {
+		existing.hierarchical = storage.hierarchical;
+	}
+
+	taxonomies.set(slug, existing);
+}
+
+function upsertRegisteredTaxonomy({
+	slug,
+	postTypeSlug,
+	hierarchical,
+	taxonomies,
+}: {
+	slug: string;
+	postTypeSlug: string;
+	hierarchical?: boolean;
+	taxonomies: TaxonomiesMap;
+}): void {
+	const existing = taxonomies.get(slug) ?? {
+		objectTypes: new Set<string>(),
+		hierarchical,
+		labels: buildTaxonomyLabels(slug),
+	};
+
+	existing.objectTypes.add(postTypeSlug);
+
+	if (typeof hierarchical === 'boolean') {
+		existing.hierarchical = hierarchical;
+	}
+
+	taxonomies.set(slug, existing);
+}
+
+function buildPostTypesArray(postTypes: PostTypesMap) {
+	return Array.from(postTypes.entries()).map(
+		([slug, { labels, supports, taxonomies: taxonomySet }]) => ({
+			slug,
+			labels,
+			supports,
+			taxonomies: Array.from(taxonomySet),
+			showUi: true,
+			showInMenu: true,
+			showInRest: true,
+			rewrite: false,
+			capabilityType: 'post',
+			mapMetaCap: true,
+			public: false,
+		})
+	);
+}
+
+function buildTaxonomiesArray(taxonomies: TaxonomiesMap) {
+	return Array.from(taxonomies.entries()).map(
+		([slug, { objectTypes, hierarchical, labels: taxonomyLabels }]) => ({
+			slug,
+			objectTypes: Array.from(objectTypes),
+			hierarchical,
+			labels: taxonomyLabels,
+			showUi: true,
+			showAdminColumn: true,
+			showInRest: true,
+		})
+	);
+}
+
+function buildStatusesArray(statuses: StatusesMap) {
+	return Array.from(statuses.entries()).map(
+		([
+			slug,
+			{
+				label,
+				public: isPublic,
+				showInAdminAllList,
+				showInAdminStatusList,
+			},
+		]) => ({
+			slug,
+			label,
+			public: isPublic,
+			showInAdminAllList,
+			showInAdminStatusList,
+		})
+	);
+}
+
+function buildLabelsFromResource(
+	resource: GeneratePhaseInput['ir']['resources'][number]
+): Record<string, string> {
+	const menuTitle =
+		resource.ui?.admin?.dataviews?.screen?.menu?.title?.trim();
+	const singular = toLabel(resource.name);
+	const plural =
+		menuTitle && menuTitle.length > 0 ? menuTitle : `${singular}s`;
+
+	return {
+		name: plural,
+		singular_name: singular,
+		add_new_item: `Add New ${singular}`,
+		edit_item: `Edit ${singular}`,
+		new_item: `New ${singular}`,
+		view_item: `View ${singular}`,
+		search_items: `Search ${plural}`,
+		not_found: `No ${plural.toLowerCase()} found`,
+		not_found_in_trash: `No ${plural.toLowerCase()} found in Trash`,
+		all_items: `All ${plural}`,
+		menu_name: plural,
+	};
+}
+
+function buildTaxonomyLabels(taxonomy: string): Record<string, string> {
+	const singular = toLabel(taxonomy);
+	const plural = `${singular}s`;
+	return {
+		name: plural,
+		singular_name: singular,
+		search_items: `Search ${plural}`,
+		all_items: `All ${plural}`,
+		parent_item: `Parent ${singular}`,
+		parent_item_colon: `Parent ${singular}:`,
+		edit_item: `Edit ${singular}`,
+		update_item: `Update ${singular}`,
+		add_new_item: `Add New ${singular}`,
+		new_item_name: `New ${singular} Name`,
+		menu_name: plural,
+	};
+}
+
+function toLabel(value: string): string {
+	const spaced = value
+		.replace(/[_-]+/g, ' ')
+		.replace(/([a-z])([A-Z])/g, '$1 $2')
+		.replace(/\s+/g, ' ')
+		.trim()
+		.toLowerCase();
+
+	return spaced
+		.split(' ')
+		.filter(Boolean)
+		.map((segment) => segment.charAt(0).toUpperCase() + segment.slice(1))
+		.join(' ');
 }
 
 async function writeDebugUiFile({

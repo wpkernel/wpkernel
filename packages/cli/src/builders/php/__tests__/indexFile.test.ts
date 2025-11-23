@@ -17,7 +17,7 @@ import {
 	makeRoute,
 } from '@cli-tests/builders/fixtures.test-support';
 import { buildEmptyGenerationState } from '../../../apply/manifest';
-import { loadTestLayoutSync } from '@cli-tests/layout.test-support';
+import { loadTestLayoutSync } from '@wpkernel/test-utils/layout.test-support';
 
 describe('createPhpIndexFileHelper', () => {
 	it('skips generation when no IR is present', async () => {

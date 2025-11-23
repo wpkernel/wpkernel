@@ -7,7 +7,8 @@ import {
 import { loadTsMorph } from './runtime.loader';
 import {
 	resolveResourceImport,
-	resolveAdminRuntimeImport,
+	writeAdminRuntimeStub,
+	buildModuleSpecifier,
 } from './shared.imports';
 import { toPascalCase, toCamelCase } from './shared.metadata';
 
@@ -182,36 +183,59 @@ export function buildAdminScreenCreator(): TsBuilderCreator {
 			const wpkernelSymbol =
 				screenConfig.wpkernelSymbol ?? 'adminScreenRuntime';
 
-			const screenDir = path.join(
+			const generatedScreenPath = path.join(
 				context.paths.uiGenerated,
 				'app',
 				descriptor.name,
-				'admin'
-			);
-			const screenPath = path.join(
-				screenDir,
+				'admin',
 				...componentDirectories,
 				`${componentFileName}.tsx`
 			);
-
-			const [resourceImport, wpkernelImport] = await Promise.all([
+			const appliedScreenPath = path.join(
+				context.paths.uiApplied,
+				'app',
+				descriptor.name,
+				'admin',
+				...componentDirectories,
+				`${componentFileName}.tsx`
+			);
+			const [resourceImport] = await Promise.all([
 				resolveResourceImport({
 					workspace: context.workspace,
-					from: screenPath,
+					from: appliedScreenPath,
+					generatedResourcesDir: path.join(
+						context.paths.uiGenerated,
+						'resources'
+					),
+					appliedResourcesDir: path.join(
+						context.paths.uiResourcesApplied,
+						''
+					),
 					configured: screenConfig.resourceImport,
 					resourceKey: descriptor.key,
 					resourceSymbol,
 					configPath: context.sourcePath,
 				}),
-				resolveAdminRuntimeImport({
-					workspace: context.workspace,
-					from: screenPath,
-					configured: screenConfig.wpkernelImport,
-				}),
 			]);
+			await writeAdminRuntimeStub(
+				context.workspace,
+				path.join(context.paths.uiGenerated, 'runtime.ts')
+			);
+			const wpkernelImport =
+				typeof screenConfig.wpkernelImport === 'string' &&
+				screenConfig.wpkernelImport.trim().length > 0
+					? screenConfig.wpkernelImport
+					: buildModuleSpecifier({
+							workspace: context.workspace,
+							from: appliedScreenPath,
+							target: path.join(
+								context.paths.uiApplied,
+								'runtime.ts'
+							),
+						});
 
 			const sourceFile = context.project.createSourceFile(
-				screenPath,
+				generatedScreenPath,
 				'',
 				{
 					overwrite: true,
@@ -417,7 +441,10 @@ export function buildAdminScreenCreator(): TsBuilderCreator {
 				},
 			});
 
-			await context.emit({ filePath: screenPath, sourceFile });
+			await context.emit({
+				filePath: generatedScreenPath,
+				sourceFile,
+			});
 		},
 	};
 }

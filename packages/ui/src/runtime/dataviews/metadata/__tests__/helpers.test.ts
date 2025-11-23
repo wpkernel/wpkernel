@@ -168,6 +168,20 @@ describe('metadata helpers', () => {
 			).toBeUndefined();
 			expect(issues.length).toBeGreaterThan(0);
 		});
+
+		it('adds a defaultLayouts entry for the active view type when missing', () => {
+			const issues = makeIssues();
+			const metadata: Record<string, unknown> = {
+				...createConfig({}),
+			};
+
+			const config = buildConfig(metadata, issues, [
+				'dataviews',
+			]) as NonNullable<ReturnType<typeof buildConfig>>;
+
+			expect(config.defaultLayouts?.table).toEqual({});
+			expect(issues).toHaveLength(0);
+		});
 	});
 
 	describe('normalizeFields', () => {

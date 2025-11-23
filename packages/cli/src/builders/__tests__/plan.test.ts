@@ -12,7 +12,7 @@ import type { GenerationManifest } from '../../apply/manifest';
 import {
 	loadTestLayout,
 	loadTestLayoutSync,
-} from '@cli-tests/layout.test-support';
+} from '@wpkernel/test-utils/layout.test-support';
 import { createReporterMock } from '@cli-tests/reporter';
 import { buildOutput } from '@cli-tests/builders/builder-harness.test-support';
 import { resolvePlanPaths } from '../plan.paths';
@@ -322,7 +322,7 @@ describe('plan (orchestrator)', () => {
 			const plugin = plan.instructions?.find(
 				(instr: any) => instr.file === pluginLoaderPath
 			);
-			expect(plugin).toBeUndefined();
+			expect(plugin).toBeDefined();
 		});
 	});
 
