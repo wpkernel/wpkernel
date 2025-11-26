@@ -1,4 +1,4 @@
-import { configureWPKernel } from '../configure-kernel';
+import { configureWPKernel } from '../configure-wpkernel';
 import { createReporter } from '../../reporter';
 import type { Reporter } from '../../reporter';
 import { invalidate as invalidateCache } from '../../resource/cache';

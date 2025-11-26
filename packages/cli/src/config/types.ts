@@ -2,7 +2,6 @@ import type { Reporter } from '@wpkernel/core/reporter';
 import type {
 	ResourceAdminUIConfig,
 	ResourceConfig,
-	ResourceDataViewsUIConfig,
 	ResourceUIConfig,
 } from '@wpkernel/core/resource';
 import type { WPKConfigSource } from '@wpkernel/core/contracts';
@@ -92,28 +91,15 @@ type ResourceConfigBase = Omit<
 	'cacheKeys' | 'store' | 'schema' | 'reporter' | 'ui'
 >;
 
-type RuntimeResourceDataViewsUIConfig = ResourceDataViewsUIConfig<
-	unknown,
-	unknown
->;
+type RuntimeResourceAdminUIConfig = ResourceAdminUIConfig;
 
-type RuntimeResourceAdminUIConfig = ResourceAdminUIConfig<unknown, unknown>;
-
-type RuntimeResourceUIConfig = ResourceUIConfig<unknown, unknown>;
-
-export type SerializableResourceDataViewsUIConfig = Omit<
-	RuntimeResourceDataViewsUIConfig,
-	'mapQuery' | 'getItemId'
-> & {
-	mapQuery?: never;
-	getItemId?: never;
-};
+type RuntimeResourceUIConfig = ResourceUIConfig;
 
 export type SerializableResourceAdminUIConfig = Omit<
 	RuntimeResourceAdminUIConfig,
 	'dataviews'
 > & {
-	dataviews?: SerializableResourceDataViewsUIConfig;
+	dataviews?: never;
 };
 
 export type SerializableResourceUIConfig = Omit<

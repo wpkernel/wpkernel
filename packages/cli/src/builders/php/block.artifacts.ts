@@ -1,5 +1,5 @@
 import path from 'node:path';
-import { createHelper } from '../../runtime';
+import { createHelper, requireIr } from '../../runtime';
 import type {
 	BuilderApplyOptions,
 	BuilderHelper,
@@ -35,9 +35,7 @@ type BlockModuleQueuedFile = ReturnType<
 type PlannerWorkspace = ProgramTargetPlannerOptions['workspace'];
 
 function resolveBlockManifestPath(ir: IRv1): string {
-	const candidate =
-		ir.layout?.resolve('blocks.manifest') ??
-		path.posix.join(ir.php.outputDir, 'build/blocks-manifest.php');
+	const candidate = ir.layout!.resolve('blocks.manifest');
 
 	const relative = path.posix.relative(ir.php.outputDir, candidate);
 	if (relative.startsWith('..') || relative === '') {
@@ -60,14 +58,25 @@ export function createPhpBlocksHelper(): BuilderHelper {
 	return createHelper({
 		key: 'builder.generate.php.blocks',
 		kind: 'builder',
+		dependsOn: [
+			'builder.generate.php.core',
+			'ir.blocks.core',
+			'ir.layout.core',
+			'ir.meta.core',
+		],
 		async apply(options: BuilderApplyOptions, next?: BuilderNext) {
 			const { input, context, output, reporter } = options;
-			if (input.phase !== 'generate' || !input.ir) {
+			if (input.phase !== 'generate') {
 				await next?.();
 				return;
 			}
 
-			const ir = input.ir;
+			const { ir } = requireIr(input, [
+				'blocks',
+				'layout',
+				'php',
+				'meta',
+			]);
 			const existingBlocks = new Map(
 				ir.blocks.map((block): [string, IRBlock] => [block.key, block])
 			);
@@ -92,7 +101,7 @@ export function createPhpBlocksHelper(): BuilderHelper {
 			const processedMap = await collectBlockManifests({
 				workspace: context.workspace,
 				blocks,
-				roots: resolveBlockRoots(input.ir),
+				roots: resolveBlockRoots(ir),
 			});
 
 			const processedBlocks = blocks

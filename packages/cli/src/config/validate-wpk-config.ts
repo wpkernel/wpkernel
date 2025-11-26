@@ -64,11 +64,6 @@ const functionValidator = t.makeValidator<
 		typeof value === 'function',
 });
 
-const nonEmptyStringValidator = t.makeValidator<unknown, string>({
-	test: (value): value is string =>
-		typeof value === 'string' && value.trim().length > 0,
-});
-
 const resourceRouteValidator = t.isObject(
 	{
 		path: t.isString(),
@@ -241,62 +236,9 @@ const readinessConfigValidator = t.isObject(
 	{ extra: t.isRecord(t.isUnknown()) }
 );
 
-const resourceDataViewsMenuValidator = t.isObject(
-	{
-		slug: t.isString(),
-		title: t.isString(),
-		capability: t.isOptional(t.isString()),
-		parent: t.isOptional(t.isString()),
-		position: t.isOptional(t.isNumber()),
-	},
-	{ extra: t.isRecord(t.isUnknown()) }
-);
-
-const resourceDataViewsScreenValidator = t.isObject(
-	{
-		component: t.isOptional(t.isString()),
-		route: t.isOptional(t.isString()),
-		resourceImport: t.isOptional(t.isString()),
-		resourceSymbol: t.isOptional(t.isString()),
-		wpkernelImport: t.isOptional(t.isString()),
-		wpkernelSymbol: t.isOptional(t.isString()),
-		menu: t.isOptional(resourceDataViewsMenuValidator),
-	},
-	{ extra: t.isRecord(t.isUnknown()) }
-);
-
-const resourceDataViewsSavedViewValidator = t.isObject(
-	{
-		id: nonEmptyStringValidator,
-		label: nonEmptyStringValidator,
-		view: t.isRecord(t.isUnknown()),
-		description: t.isOptional(nonEmptyStringValidator),
-		isDefault: t.isOptional(t.isBoolean()),
-	},
-	{ extra: t.isRecord(t.isUnknown()) }
-);
-
-const resourceDataViewsConfigValidator = t.isObject(
-	{
-		fields: t.isOptional(t.isArray(t.isRecord(t.isUnknown()))),
-		defaultView: t.isOptional(t.isRecord(t.isUnknown())),
-		actions: t.isOptional(t.isArray(t.isRecord(t.isUnknown()))),
-		search: t.isOptional(t.isBoolean()),
-		searchLabel: t.isOptional(t.isString()),
-		empty: t.isOptional(t.isUnknown()),
-		perPageSizes: t.isOptional(t.isArray(t.isNumber())),
-		defaultLayouts: t.isOptional(t.isRecord(t.isUnknown())),
-		views: t.isOptional(t.isArray(resourceDataViewsSavedViewValidator)),
-		preferencesKey: t.isOptional(nonEmptyStringValidator),
-		screen: t.isOptional(resourceDataViewsScreenValidator),
-	},
-	{ extra: t.isRecord(t.isUnknown()) }
-);
-
 const resourceAdminUIValidator = t.isObject(
 	{
 		view: t.isOptional(t.isString()),
-		dataviews: t.isOptional(resourceDataViewsConfigValidator),
 	},
 	{ extra: t.isRecord(t.isUnknown()) }
 );
@@ -428,7 +370,8 @@ export function validateWPKernelConfig(
 
 	const sanitizedNamespace = sanitizeNamespace(candidate.namespace);
 	if (!sanitizedNamespace) {
-		const message = `Invalid namespace "${candidate.namespace}" in ${options.sourcePath}. Namespaces must be lowercase kebab-case and avoid reserved words.`;
+		const message = `Invalid namespace "${candidate.namespace}" in ${options.sourcePath}. Namespaces must be lowercase keba
+	b-case and avoid reserved words.`;
 		validationReporter.error(message, {
 			namespace: candidate.namespace,
 			sourcePath: options.sourcePath,
@@ -494,7 +437,8 @@ export function normalizeVersion(
 ): WPKernelConfigVersion {
 	if (typeof version === 'undefined') {
 		reporter.warn(
-			`Kernel config at ${sourcePath} is missing "version". Defaulting to 1. Add \`version: 1\` to opt into CLI tooling guarantees.`,
+			`Kernel config at ${sourcePath} is missing "version". Defaulting to 1. Add \`version: 1\` to opt into CLI tooling guar
+	antees.`,
 			{ sourcePath }
 		);
 		return 1;
@@ -595,7 +539,8 @@ function validateIdentityParameter(
 	);
 
 	if (!hasMatchingParam) {
-		const message = `Identity param ":${expectedParam}" for resource "${resourceName}" is not present in any configured route.`;
+		const message = `Identity param ":${expectedParam}" for resource "${resourceName}" is not present in any configured rou
+	te.`;
 		reporter.error(message, {
 			resourceName,
 			identity,
@@ -628,7 +573,8 @@ function validateUniqueRoutes(
 		const existing = routeSignatures.get(signature);
 
 		if (existing) {
-			const message = `Resource "${resourceName}" has duplicate route: ${signature}. Routes must have unique method+path combinations.`;
+			const message = `Resource "${resourceName}" has duplicate route: ${signature}. Routes must have unique method+path com
+	binations.`;
 			reporter.error(message, {
 				resourceName,
 				method: route.method,
@@ -665,7 +611,8 @@ function validateWriteCapabilities(
 			!route.capability
 		) {
 			reporter.warn(
-				`Resource "${resourceName}" route ${route.key} (${route.method} ${route.path}) uses a write method but has no capability defined. This endpoint will be publicly accessible.`,
+				`Resource "${resourceName}" route ${route.key} (${route.method} ${route.path}) uses a write method but has no capabil
+	ity defined. This endpoint will be publicly accessible.`,
 				{
 					resourceName,
 					routeKey: route.key,
@@ -684,7 +631,8 @@ function validateStorageMode(
 ): void {
 	if (storage?.mode === 'wp-post' && !storage.postType) {
 		reporter.warn(
-			`Resource "${resourceName}" uses wp-post storage without specifying "postType". Generators will derive a default from the namespace.`,
+			`Resource "${resourceName}" uses wp-post storage without specifying "postType". Generators will derive a default from
+	the namespace.`,
 			{ resourceName }
 		);
 	}
@@ -696,7 +644,6 @@ function assertNoExecutableFields(
 	reporter: Reporter
 ): void {
 	const store = resource.store;
-	const dataviews = resource.ui?.admin?.dataviews;
 	const executableChecks: Array<{
 		condition: boolean;
 		field: string;
@@ -731,18 +678,6 @@ function assertNoExecutableFields(
 			field: 'schema',
 			message:
 				'Resource schemas must reference a shared key or inline JSON object. Functions and dynamic imports are not supported.',
-		},
-		{
-			condition: typeof dataviews?.mapQuery !== 'undefined',
-			field: 'ui.admin.dataviews.mapQuery',
-			message:
-				'DataViews config must be declarative. Remove mapQuery functions from wpk.config.ts.',
-		},
-		{
-			condition: typeof dataviews?.getItemId !== 'undefined',
-			field: 'ui.admin.dataviews.getItemId',
-			message:
-				'DataViews config must be declarative. Remove getItemId functions from wpk.config.ts.',
 		},
 	];
 

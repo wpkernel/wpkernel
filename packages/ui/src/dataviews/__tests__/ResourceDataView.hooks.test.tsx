@@ -16,7 +16,7 @@ import {
 	createResource,
 	createReporter,
 	flushDataViews,
-} from '../test-support/ResourceDataView.test-support';
+} from '../../../tests/ResourceDataView.test-support';
 
 type TestItem = { id: number };
 type TestQuery = { search?: string };

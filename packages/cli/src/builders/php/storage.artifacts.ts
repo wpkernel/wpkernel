@@ -64,6 +64,7 @@ export function createPhpTransientStorageHelper(): BuilderHelper {
 	return createHelper({
 		key: 'builder.generate.php.controller.resources.storage.transient',
 		kind: 'builder',
+		dependsOn: ['builder.generate.php.core'],
 		async apply(options: BuilderApplyOptions, next?: BuilderNext) {
 			const { input } = options;
 			if (input.phase !== 'generate' || !input.ir) {
@@ -98,6 +99,7 @@ export function createPhpWpOptionStorageHelper(): BuilderHelper {
 	return createHelper({
 		key: 'builder.generate.php.controller.resources.storage.wpOption',
 		kind: 'builder',
+		dependsOn: ['builder.generate.php.core'],
 		async apply(options: BuilderApplyOptions, next?: BuilderNext) {
 			const { input } = options;
 			if (input.phase !== 'generate' || !input.ir) {
@@ -132,6 +134,7 @@ export function createPhpWpTaxonomyStorageHelper(): BuilderHelper {
 	return createHelper({
 		key: 'builder.generate.php.controller.resources.storage.wpTaxonomy',
 		kind: 'builder',
+		dependsOn: ['builder.generate.php.core'],
 		async apply(options: BuilderApplyOptions, next?: BuilderNext) {
 			const { input } = options;
 			if (input.phase !== 'generate' || !input.ir) {

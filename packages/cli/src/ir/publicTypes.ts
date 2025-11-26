@@ -6,6 +6,7 @@ import type {
 	ResourceUIConfig,
 } from '@wpkernel/core/resource';
 import type { WPKernelConfigV1 } from '../config/types';
+import { type Pipeline } from '../runtime/types';
 
 /**
  * Defines the provenance of a schema, indicating how it was generated or provided.
@@ -222,6 +223,7 @@ export interface IRUiResourceDescriptor {
 	readonly resource: string;
 	readonly preferencesKey: string;
 	readonly menu?: IRUiMenuConfig;
+	readonly dataviews?: Record<string, unknown>;
 }
 
 export interface IRUiLoader {
@@ -566,4 +568,6 @@ export interface BuildIrOptions {
 	origin: string;
 	/** The namespace of the project. */
 	namespace: string;
+	/** Optional: Pipeline to use for building the IR. */
+	pipeline?: Pipeline;
 }

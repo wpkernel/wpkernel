@@ -53,6 +53,10 @@ export default {
 		'^@cli-tests/(.*)$': '<rootDir>/packages/cli/tests/$1',
 		'^@wordpress/interactivity$':
 			'<rootDir>/tests/mocks/wp-interactivity.ts',
+		'^@wordpress/dataviews/wp$':
+			'<rootDir>/packages/ui/tests/mocks/dataviews-wp.ts',
+		'^@wpkernel/ui/dataviews(?:/(.*))?$':
+			'<rootDir>/tests/mocks/ui-dataviews.ts',
 	},
 
 	// Test file patterns

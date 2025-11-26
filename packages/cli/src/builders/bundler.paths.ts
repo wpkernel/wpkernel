@@ -3,6 +3,7 @@ import type { IRv1 } from '../ir/publicTypes';
 export interface BundlerPaths {
 	config: string;
 	assets: string;
+	shimsDir: string;
 }
 
 export function resolveBundlerPaths(ir: IRv1 | null | undefined): BundlerPaths {
@@ -13,5 +14,6 @@ export function resolveBundlerPaths(ir: IRv1 | null | undefined): BundlerPaths {
 	return {
 		config: ir.layout.resolve('bundler.config'),
 		assets: ir.layout.resolve('bundler.assets'),
+		shimsDir: ir.layout.resolve('bundler.shims'),
 	};
 }

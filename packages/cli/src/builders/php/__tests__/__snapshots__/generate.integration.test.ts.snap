@@ -405,6 +405,20 @@ final class Capability
             return self::enforce($capability_key, $request);
         };
     }
+    private static function resolve_capability(string $capability, array $fallback): string
+    {
+        $fallback_capability = isset($fallback['capability']) && is_string($fallback['capability']) ? $fallback['capability'] : 'manage_options';
+        if ($capability === $fallback_capability) {
+            return $capability;
+        }
+        if (function_exists('get_role')) {
+            $role = get_role('administrator');
+            if ($role && $role->has_cap($capability)) {
+                return $capability;
+            }
+        }
+        return $fallback_capability;
+    }
     /**
      * Evaluate a capability against the current user.
      * @return bool|WP_Error
@@ -414,8 +428,9 @@ final class Capability
         $definition = self::get_definition($capability_key);
         $fallback = self::fallback();
         $capability = isset($definition['capability']) ? $definition['capability'] : $fallback['capability'];
+        $runtime_capability = self::resolve_capability($capability, $fallback);
         $scope = isset($definition['appliesTo']) ? $definition['appliesTo'] : $fallback['appliesTo'];
-        $allowed = current_user_can($capability);
+        $allowed = current_user_can($runtime_capability);
         if ('object' === $scope) {
             $binding = self::get_binding($definition);
             if ($binding === null) {
@@ -425,7 +440,7 @@ final class Capability
             if ($object_id === null) {
                 return self::create_error('wpk_capability_object_missing', sprintf('Object identifier parameter "%s" missing for capability "%s".', $binding, $capability_key));
             }
-            $allowed = current_user_can($capability, $object_id);
+            $allowed = current_user_can($runtime_capability, $object_id);
         }
         if ($allowed) {
             return true;

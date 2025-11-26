@@ -26,9 +26,11 @@ function buildDefaultAssetPath(outputDir: string, entryKey: string): string {
 type RollupDriverArtifactInputs = {
 	readonly externals: readonly string[];
 	readonly aliasRoot: string;
+	readonly shimDir: string;
 	readonly version: string;
 	readonly normalizedNamespace: string;
 	readonly hasUi: boolean;
+	readonly hasDataViews: boolean;
 	readonly entryKey: string;
 	readonly entryPoint: string;
 	readonly outputDir: string;
@@ -82,6 +84,7 @@ function resolveRollupDriverInputs(
 	pkg: PackageJsonLike | null,
 	options: {
 		readonly aliasRoot?: string;
+		readonly shimDir?: string;
 		readonly sanitizedNamespace?: string;
 		readonly hasUi?: boolean;
 		readonly entryPoint?: string;
@@ -89,6 +92,7 @@ function resolveRollupDriverInputs(
 		readonly outputDir?: string;
 		readonly assetPath?: string;
 		readonly version?: string;
+		readonly hasDataViews?: boolean;
 	}
 ): RollupDriverArtifactInputs {
 	const externals = buildExternalList(pkg);
@@ -101,11 +105,15 @@ function resolveRollupDriverInputs(
 		options.sanitizedNamespace,
 		options.hasUi
 	);
+	const hasDataViews = options.hasDataViews === true;
 	const entryKey = options.entryKey ?? DEFAULT_ENTRY_KEY;
 	const outputDir = options.outputDir ?? DEFAULT_OUTPUT_DIR;
 	const entryPoint = options.entryPoint ?? DEFAULT_ENTRY_POINT;
 	const assetPath =
 		options.assetPath ?? buildDefaultAssetPath(outputDir, entryKey);
+	const shimDir = (
+		options.shimDir ?? path.posix.join(aliasRoot, 'shims')
+	).replace(/\\/g, '/');
 	const uiEntry = buildOptionalUiEntry(
 		hasUi,
 		normalizedNamespace,
@@ -118,9 +126,11 @@ function resolveRollupDriverInputs(
 	return {
 		externals,
 		aliasRoot,
+		shimDir,
 		version,
 		normalizedNamespace,
 		hasUi,
+		hasDataViews,
 		entryKey,
 		entryPoint,
 		outputDir,
@@ -133,6 +143,13 @@ function resolveRollupDriverInputs(
 function buildRollupDriverConfig(
 	inputs: RollupDriverArtifactInputs
 ): RollupDriverConfig {
+	const aliasEntries = buildAliasEntries(
+		inputs.externals,
+		inputs.aliasRoot,
+		inputs.shimDir,
+		inputs.hasDataViews
+	);
+
 	return {
 		driver: 'rollup',
 		input: { [inputs.entryKey]: inputs.entryPoint },
@@ -140,7 +157,7 @@ function buildRollupDriverConfig(
 		format: 'iife',
 		external: inputs.externals,
 		globals: buildGlobalsMap(inputs.externals),
-		alias: buildAliasEntries(inputs.externals, inputs.aliasRoot),
+		alias: aliasEntries,
 		sourcemap: {
 			development: true,
 			production: false,
@@ -165,13 +182,20 @@ function buildRollupDriverAssetManifest(
 	};
 }
 
+const WP_INTERNALIZED = new Set([
+	'@wordpress/dataviews',
+	'@wordpress/dataviews/wp',
+]);
+
 function isWordPressModule(dependency: string): boolean {
 	return dependency.startsWith('@wordpress/');
 }
 
 function buildAliasEntries(
-	_externals: readonly string[],
-	aliasRoot: string
+	externals: readonly string[],
+	aliasRoot: string,
+	shimDir: string,
+	hasDataViews: boolean
 ): NonNullable<RollupDriverConfig['alias']> {
 	const entries: { find: string; replacement: string }[] = [
 		{
@@ -180,14 +204,58 @@ function buildAliasEntries(
 		},
 	];
 
-	entries.push({
-		find: '@wordpress/dataviews',
-		replacement: '@wordpress/dataviews/wp',
-	});
+	const wantsDataViews =
+		hasDataViews ||
+		externals.some((dep) => dep.startsWith('@wordpress/dataviews'));
+
+	if (wantsDataViews) {
+		entries.push(
+			{
+				find: '@wordpress/dataviews',
+				replacement: '@wordpress/dataviews/wp',
+			},
+			{
+				find: '@wordpress/dataviews/wp/components',
+				replacement: '@wordpress/dataviews/wp/components',
+			},
+			{
+				find: '@wordpress/dataviews/wp/dataform-layouts',
+				replacement: '@wordpress/dataviews/wp/dataform-layouts',
+			},
+			{
+				find: '@wordpress/dataviews/wp/dataform-controls',
+				replacement: '@wordpress/dataviews/wp/dataform-controls',
+			},
+			{
+				find: '@wordpress/dataviews/build-style',
+				replacement: '@wordpress/dataviews/build-style',
+			}
+		);
+	}
 
 	entries.push({
-		find: '@wordpress/element',
-		replacement: 'react',
+		find: 'react/jsx-dev-runtime',
+		replacement: path.posix.join(shimDir, 'wp-element-jsx-runtime.ts'),
+	});
+	entries.push({
+		find: 'react/jsx-runtime',
+		replacement: path.posix.join(shimDir, 'wp-element-jsx-runtime.ts'),
+	});
+	entries.push({
+		find: '@wordpress/element/jsx-runtime',
+		replacement: path.posix.join(shimDir, 'wp-element-jsx-runtime.ts'),
+	});
+	entries.push({
+		find: 'react-dom/client',
+		replacement: path.posix.join(shimDir, 'wp-element-client.ts'),
+	});
+	entries.push({
+		find: 'react-dom',
+		replacement: path.posix.join(shimDir, 'wp-react.ts'),
+	});
+	entries.push({
+		find: 'react',
+		replacement: path.posix.join(shimDir, 'wp-react.ts'),
 	});
 
 	return entries;
@@ -233,15 +301,32 @@ export function toWordPressHandle(slug: string): string {
 /**
  * Creates a list of external dependencies for the bundler configuration.
  *
- * @param pkg - The package.json data to analyze for dependencies.
+ * @param pkg                          - The package.json data to analyze for dependencies.
  *
+ * @param options
+ * @param options.internalizeDataViews
  * @returns An array of unique, sorted external dependency names.
  */
-export function buildExternalList(pkg: PackageJsonLike | null): string[] {
+export function buildExternalList(
+	pkg: PackageJsonLike | null,
+	options: { readonly internalizeDataViews?: boolean } = {}
+): string[] {
+	const internalized = new Set(WP_INTERNALIZED);
+
+	if (options.internalizeDataViews === false) {
+		internalized.delete('@wordpress/dataviews');
+		internalized.delete('@wordpress/dataviews/wp');
+	}
+
+	const isExternalWordPressModule = (dependency: string): boolean =>
+		isWordPressModule(dependency) && !internalized.has(dependency);
+
 	const peerDeps = Object.keys(pkg?.peerDependencies ?? {}).filter(
-		isWordPressModule
+		isExternalWordPressModule
 	);
-	const deps = Object.keys(pkg?.dependencies ?? {}).filter(isWordPressModule);
+	const deps = Object.keys(pkg?.dependencies ?? {}).filter(
+		isExternalWordPressModule
+	);
 
 	return sortUnique([...peerDeps, ...deps, ...DEFAULT_WORDPRESS_EXTERNALS]);
 }
@@ -335,14 +420,18 @@ export function normaliseAliasReplacement(replacement: string): string {
  * @param options.outputDir
  * @param options.assetPath
  * @param options.version
+ * @param options.shimDir
+ * @param options.hasDataViews
  * @returns An object containing the `RollupDriverConfig` and `AssetManifest`.
  */
 export function buildRollupDriverArtifacts(
 	pkg: PackageJsonLike | null,
 	options: {
 		readonly aliasRoot?: string;
+		readonly shimDir?: string;
 		readonly sanitizedNamespace?: string;
 		readonly hasUi?: boolean;
+		readonly hasDataViews?: boolean;
 		readonly entryPoint?: string;
 		readonly entryKey?: string;
 		readonly outputDir?: string;

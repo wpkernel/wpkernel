@@ -28,6 +28,7 @@ export function createPhpCodemodIngestionHelper(
 	return createHelper({
 		key: 'builder.generate.php.codemod-ingestion',
 		kind: 'builder',
+		dependsOn: ['builder.generate.php.core'],
 		async apply(
 			helperOptions: BuilderApplyOptions,
 			next?: BuilderNext

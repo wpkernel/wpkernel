@@ -167,6 +167,7 @@ describe('createPhpBuilder', () => {
 			'capability_map',
 			'fallback',
 			'callback',
+			'resolve_capability',
 			'enforce',
 			'get_definition',
 			'get_binding',

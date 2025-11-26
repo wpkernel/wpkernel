@@ -156,25 +156,16 @@ describe('buildIr - core behaviours', () => {
 			namespace: config.namespace,
 		});
 
-		const [resource] = ir.resources;
-		expect(resource.ui?.admin?.dataviews?.preferencesKey).toBe(
-			'jobs/admin'
+		const uiResource = ir.ui?.resources?.[0];
+		expect(uiResource?.resource).toBe('job');
+		expect(uiResource?.dataviews).toEqual(
+			expect.objectContaining({
+				preferencesKey: `${config.namespace}/dataviews/job`,
+				fields: [],
+				defaultView: { type: 'table' },
+			})
 		);
-		expect(resource.ui?.admin?.dataviews?.perPageSizes).toEqual([
-			10, 25, 50,
-		]);
-		expect(resource.ui?.admin?.dataviews?.defaultLayouts).toEqual({
-			table: { columns: ['title', 'status'] },
-		});
-		expect(resource.ui?.admin?.dataviews?.views).toEqual(
-			expect.arrayContaining([
-				expect.objectContaining({ id: 'all', isDefault: true }),
-				expect.objectContaining({ id: 'draft' }),
-			])
-		);
-		expect(resource.ui?.admin?.dataviews?.screen?.menu).toEqual(
-			expect.objectContaining({ slug: 'jobs-admin', title: 'Jobs' })
-		);
+		expect(typeof uiResource?.dataviews?.mapQuery).toBe('function');
 	});
 
 	it('synthesises schemas when resources use auto mode', async () => {

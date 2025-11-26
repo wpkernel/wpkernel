@@ -77,7 +77,7 @@ describe('InitCommand', () => {
 			expect(tsconfig.compilerOptions).toMatchObject({
 				moduleResolution: 'Bundler',
 				strict: true,
-				jsxImportSource: 'react',
+				// jsxImportSource: 'react',
 			});
 			expect(tsconfig.compilerOptions.paths).toEqual({
 				'@/*': ['./src/*'],

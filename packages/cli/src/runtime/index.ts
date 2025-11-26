@@ -9,11 +9,8 @@
  * @returns A `FragmentHelper` or `BuilderHelper` instance.
  */
 export { createHelper } from './createHelper';
-export type {
-	FragmentHelperOptions,
-	BuilderHelperOptions,
-	CliReporter,
-} from './createHelper';
+
+export { requireIr } from './ir';
 /**
  * Creates a new pipeline instance.
   ```

@@ -26,6 +26,7 @@ export function createPhpCapabilityHelper(): BuilderHelper {
 	return createHelper({
 		key: 'builder.generate.php.capability',
 		kind: 'builder',
+		dependsOn: ['builder.generate.php.core'],
 		async apply(options: BuilderApplyOptions, next?: BuilderNext) {
 			const { input } = options;
 			if (input.phase !== 'generate' || !input.ir) {

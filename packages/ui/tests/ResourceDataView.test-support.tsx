@@ -1,7 +1,6 @@
 import { act, type ComponentProps, type ReactNode } from 'react';
 import { render, type RenderResult } from '@testing-library/react';
 import { DataViews } from '@wordpress/dataviews';
-import { WPKernelUIProvider } from '../../runtime/context';
 import type { WPKernelUIRuntime } from '@wpkernel/core/data';
 import type { DefinedAction } from '@wpkernel/core/actions';
 import type { Reporter } from '@wpkernel/core/reporter';
@@ -11,9 +10,10 @@ import type {
 	ResourceDataViewConfig,
 	ResourceDataViewController,
 	ResourceDataViewActionConfig,
-} from '../types';
+} from '../src/dataviews/types';
 import { WPKernelError } from '@wpkernel/core/contracts';
-import { ResourceDataView } from '../ResourceDataView';
+import { WPKernelUIProvider } from '../src/runtime';
+import { ResourceDataView } from '../src/dataviews';
 
 jest.mock('@wordpress/dataviews', () => {
 	const mockComponent = jest.fn(() => null);

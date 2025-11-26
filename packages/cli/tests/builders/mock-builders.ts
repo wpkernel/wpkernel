@@ -44,6 +44,9 @@ export function buildBuildersMock() {
 		createTsIndexBuilder: jest.fn(() =>
 			createStubBuilder('builder.generate.stub.ts-index')
 		),
+		createTsConfigBuilder: jest.fn(() =>
+			createStubBuilder('builder.generate.stub.tsconfig')
+		),
 		createPhpDriverInstaller: actualBuilders.createPhpDriverInstaller,
 	};
 }

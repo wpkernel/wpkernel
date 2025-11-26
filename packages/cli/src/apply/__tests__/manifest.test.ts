@@ -21,7 +21,6 @@ import { loadTestLayout } from '@wpkernel/test-utils/layout.test-support';
 
 describe('generation manifest helpers', () => {
 	let phpGeneratedRoot: string;
-	let uiGeneratedRoot: string;
 	let applyStatePath: string;
 	let layoutManifestText: string;
 	let testLayout: Awaited<ReturnType<typeof loadTestLayout>>;
@@ -276,18 +275,6 @@ describe('generation manifest helpers', () => {
 						phpGeneratedRoot,
 						'Rest/BooksController.php'
 					),
-					path.posix.join(
-						uiGeneratedRoot,
-						'fixtures/dataviews/books.ts'
-					),
-					path.posix.join(
-						uiGeneratedRoot,
-						'fixtures/interactivity/books.ts'
-					),
-					path.posix.join(
-						uiGeneratedRoot,
-						'registry/dataviews/books.ts'
-					),
 				]),
 				shims: ['inc/Rest/BooksController.php'],
 			},
@@ -298,75 +285,7 @@ describe('generation manifest helpers', () => {
 		expect(manifest.phpIndex).toEqual({
 			file: path.posix.join(phpGeneratedRoot, 'index.php'),
 		});
-		expect(manifest.ui).toEqual({
-			handle: 'wp-demo-plugin-ui',
-			files: [
-				{
-					generated: path.posix.join(uiGeneratedRoot, 'index.tsx'),
-					applied: path.posix.join(
-						testLayout.resolve('ui.applied'),
-						'index.tsx'
-					),
-				},
-				{
-					generated: path.posix.join(uiGeneratedRoot, 'runtime.ts'),
-					applied: path.posix.join(
-						testLayout.resolve('ui.applied'),
-						'runtime.ts'
-					),
-				},
-				{
-					generated: path.posix.join(
-						uiGeneratedRoot,
-						'resources/books.ts'
-					),
-					applied: path.posix.join(
-						testLayout.resolve('ui.resources.applied'),
-						'books.ts'
-					),
-				},
-				{
-					generated: path.posix.join(
-						uiGeneratedRoot,
-						'registry/dataviews/books.ts'
-					),
-					applied: path.posix.join(
-						testLayout.resolve('ui.applied'),
-						'registry/dataviews/books.ts'
-					),
-				},
-				{
-					generated: path.posix.join(
-						uiGeneratedRoot,
-						'fixtures/dataviews/books.ts'
-					),
-					applied: path.posix.join(
-						testLayout.resolve('ui.applied'),
-						'fixtures/dataviews/books.ts'
-					),
-				},
-				{
-					generated: path.posix.join(
-						uiGeneratedRoot,
-						'fixtures/interactivity/books.ts'
-					),
-					applied: path.posix.join(
-						testLayout.resolve('ui.applied'),
-						'fixtures/interactivity/books.ts'
-					),
-				},
-				{
-					generated: path.posix.join(
-						uiGeneratedRoot,
-						'app/books/admin/BooksAdminScreen.tsx'
-					),
-					applied: path.posix.join(
-						testLayout.resolve('ui.applied'),
-						'app/books/admin/BooksAdminScreen.tsx'
-					),
-				},
-			],
-		});
+		expect(manifest.ui).toBeUndefined();
 	});
 
 	it('returns an empty manifest when IR is null', () => {

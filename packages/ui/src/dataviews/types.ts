@@ -6,7 +6,6 @@ import type {
 	InvalidateOptions,
 	ResourceObject,
 	ListResponse,
-	ResourceDataViewsScreenConfig,
 	ResourceDataViewsMenuConfig,
 } from '@wpkernel/core/resource';
 import type { WPKUICapabilityRuntime } from '@wpkernel/core/data';
@@ -143,19 +142,14 @@ export interface ResourceDataViewSavedView {
 export type ResourceDataViewMenuConfig = ResourceDataViewsMenuConfig;
 
 /**
- * Configuration for the screen in a ResourceDataView.
- *
- * @category DataViews Integration
- */
-export type ResourceDataViewScreenConfig = ResourceDataViewsScreenConfig;
-
-/**
  * Resource DataView configuration.
  */
 export interface ResourceDataViewConfig<TItem, TQuery> {
 	fields: Field<TItem>[];
 	defaultView: View;
 	mapQuery: QueryMapping<TQuery>;
+	preferencesKey?: string;
+	capability?: string;
 	actions?: Array<ResourceDataViewActionConfig<TItem, unknown, unknown>>;
 	search?: boolean;
 	searchLabel?: string;
@@ -166,6 +160,17 @@ export interface ResourceDataViewConfig<TItem, TQuery> {
 	views?: ResourceDataViewSavedView[];
 	screen?: ResourceDataViewScreenConfig;
 }
+
+export type ResourceDataViewScreenConfig = {
+	component?: string;
+	route?: string;
+	resourceImport?: string;
+	resourceSymbol?: string;
+	wpkernelImport?: string;
+	wpkernelSymbol?: string;
+	menu?: ResourceDataViewMenuConfig;
+	[key: string]: unknown;
+};
 
 /**
  * Source for the WPKUICapabilityRuntime.

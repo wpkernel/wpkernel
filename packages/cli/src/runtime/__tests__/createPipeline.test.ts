@@ -8,7 +8,15 @@ import {
 
 describe('createPipeline registration', () => {
 	it('throws when registering a fragment with wrong kind', () => {
-		const pipeline = createPipeline();
+		const pipeline = createPipeline({
+			builderProvidedKeys: [
+				'builder.generate.php.controller.resources',
+				'builder.generate.php.capability',
+				'builder.generate.php.registration.persistence',
+				'builder.generate.php.plugin-loader',
+				'builder.generate.php.index',
+			],
+		});
 
 		const builder = buildBuilderHelper({
 			key: 'builder.wrong-surface',
@@ -21,7 +29,15 @@ describe('createPipeline registration', () => {
 	});
 
 	it('throws when registering a builder with wrong kind', () => {
-		const pipeline = createPipeline();
+		const pipeline = createPipeline({
+			builderProvidedKeys: [
+				'builder.generate.php.controller.resources',
+				'builder.generate.php.capability',
+				'builder.generate.php.registration.persistence',
+				'builder.generate.php.plugin-loader',
+				'builder.generate.php.index',
+			],
+		});
 
 		const fragment = buildFragmentHelper({
 			key: 'ir.wrong-surface',
@@ -34,7 +50,15 @@ describe('createPipeline registration', () => {
 	});
 
 	it('throws on multiple overrides for same fragment key', () => {
-		const pipeline = createPipeline();
+		const pipeline = createPipeline({
+			builderProvidedKeys: [
+				'builder.generate.php.controller.resources',
+				'builder.generate.php.capability',
+				'builder.generate.php.registration.persistence',
+				'builder.generate.php.plugin-loader',
+				'builder.generate.php.index',
+			],
+		});
 
 		const first = buildFragmentHelper({
 			key: 'same',

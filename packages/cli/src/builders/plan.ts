@@ -1,4 +1,5 @@
 import { buildPhpPrettyPrinter } from '@wpkernel/php-json-ast/php-driver';
+import path from 'path';
 import { createHelper } from '../runtime';
 import type {
 	BuilderApplyOptions,
@@ -12,7 +13,6 @@ import {
 import {
 	buildGenerationManifestFromIr,
 	diffGenerationState,
-	readGenerationState,
 	type GenerationManifest,
 } from '../apply/manifest';
 import {
@@ -50,6 +50,13 @@ export function createPlanBuilder(): BuilderHelper {
 	return createHelper({
 		key: 'builder.generate.plan',
 		kind: 'builder',
+		dependsOn: [
+			'builder.generate.ts.core',
+			'builder.generate.ts.ui-entry',
+			'builder.generate.ts.blocks',
+			'builder.generate.php.core',
+			'ir.ordering.core',
+		],
 		async apply(options: BuilderApplyOptions, next?: BuilderNext) {
 			const { input, reporter } = options;
 			if (input.phase !== 'generate') {
@@ -115,6 +122,13 @@ export function createApplyPlanBuilder(): BuilderHelper {
 	return createHelper({
 		key: 'builder.generate.apply.plan',
 		kind: 'builder',
+		dependsOn: [
+			'builder.generate.ts.core',
+			'builder.generate.ts.ui-entry',
+			'builder.generate.ts.blocks',
+			'builder.generate.php.core',
+			'ir.ordering.core',
+		],
 		async apply(options: BuilderApplyOptions, next?: BuilderNext) {
 			const { input, reporter } = options;
 			if (input.phase !== 'generate') {
@@ -178,6 +192,12 @@ async function collectPlanInstructions({
 	const { instructions, paths, nextManifest, manifestForSurface } =
 		await initialisePlanState({ options, prettyPrinter });
 
+	const runtimeInstructions = await buildJsRuntimePlan({
+		options,
+		paths,
+	});
+	instructions.push(...runtimeInstructions);
+
 	const { instructions: blockInstructions, skipped: blockSkipped } =
 		await buildBlockPlan(options);
 	instructions.push(...blockInstructions);
@@ -214,14 +234,8 @@ async function initialisePlanState({
 	const instructions: PlanInstruction[] = [];
 	const paths = resolvePlanPaths(options);
 
-	const persistedManifest =
-		options.context.generationState ??
-		(await readGenerationState(options.context.workspace));
 	const nextManifest = buildGenerationManifestFromIr(input.ir ?? null);
-	const manifestForSurface =
-		(nextManifest.ui?.files?.length ?? 0) > 0
-			? nextManifest
-			: persistedManifest;
+	const manifestForSurface = nextManifest;
 
 	await addPluginLoaderInstruction({ options, prettyPrinter, instructions });
 	await addBundlerInstructions({ options, instructions });
@@ -330,4 +344,59 @@ async function buildCleanupPlan(
 		});
 
 	return { instructions, skipped: skippedDeletions };
+}
+
+async function buildJsRuntimePlan({
+	options,
+	paths,
+}: {
+	readonly options: BuilderApplyOptions;
+	readonly paths: ReturnType<typeof resolvePlanPaths>;
+}): Promise<PlanInstruction[]> {
+	const { reporter, context, output } = options;
+	const manifest = buildGenerationManifestFromIr(options.input.ir ?? null);
+	const files = manifest.jsRuntime?.files ?? [];
+
+	if (files.length === 0) {
+		return [];
+	}
+
+	const instructions: PlanInstruction[] = [];
+
+	for (const file of files) {
+		const contents = await context.workspace.readText(file);
+		if (contents === null) {
+			reporter.warn(
+				'createApplyPlanBuilder: capability runtime file missing; skipping.',
+				{ file }
+			);
+			continue;
+		}
+
+		const incomingPath = path.posix.join(paths.planIncoming, file);
+		const basePath = path.posix.join(paths.planBase, file);
+
+		await context.workspace.write(incomingPath, contents, {
+			ensureDir: true,
+		});
+		output.queueWrite({ file: incomingPath, contents });
+
+		const existingBase = await context.workspace.readText(basePath);
+		if (existingBase === null) {
+			await context.workspace.write(basePath, contents, {
+				ensureDir: true,
+			});
+			output.queueWrite({ file: basePath, contents });
+		}
+
+		instructions.push({
+			action: 'write',
+			file,
+			base: basePath,
+			incoming: incomingPath,
+			description: 'Update capability runtime',
+		});
+	}
+
+	return instructions;
 }

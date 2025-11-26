@@ -30,6 +30,10 @@ export async function collectUiSurfaceInstructions({
 			filePair,
 		});
 		if (!result) {
+			reporter.debug(
+				'createApplyPlanBuilder: skipped UI asset due to empty contents.',
+				{ file: filePair.generated }
+			);
 			continue;
 		}
 		const { instruction, suffix } = result;
@@ -62,8 +66,14 @@ async function buildUiInstruction({
 	readonly paths: ReturnType<typeof resolvePlanPaths>;
 	readonly filePair: NonNullable<GenerationManifest['ui']>['files'][number];
 }): Promise<{ instruction: PlanInstruction; suffix: string | null } | null> {
-	const sourceContents = await context.workspace.read(filePair.generated);
-	if (!sourceContents) {
+	const sourceContents =
+		(await context.workspace.readText(filePair.generated)) ?? '';
+
+	if (sourceContents.length === 0) {
+		context.reporter?.debug(
+			'createApplyPlanBuilder: generated UI asset is empty.',
+			{ file: filePair.generated }
+		);
 		return null;
 	}
 

@@ -258,7 +258,15 @@ describe('createPipeline', () => {
 	});
 
 	it('throws when multiple overrides register for the same key', async () => {
-		const pipeline = createPipeline();
+		const pipeline = createPipeline({
+			builderProvidedKeys: [
+				'builder.generate.php.controller.resources',
+				'builder.generate.php.capability',
+				'builder.generate.php.registration.persistence',
+				'builder.generate.php.plugin-loader',
+				'builder.generate.php.index',
+			],
+		});
 
 		pipeline.ir.use(
 			createHelper({
@@ -286,7 +294,15 @@ describe('createPipeline', () => {
 	});
 
 	it('rejects helpers registered under the wrong surface', () => {
-		const pipeline = createPipeline();
+		const pipeline = createPipeline({
+			builderProvidedKeys: [
+				'builder.generate.php.controller.resources',
+				'builder.generate.php.capability',
+				'builder.generate.php.registration.persistence',
+				'builder.generate.php.plugin-loader',
+				'builder.generate.php.index',
+			],
+		});
 
 		const builder = buildBuilderHelper({
 			key: 'builder.wrong-surface',

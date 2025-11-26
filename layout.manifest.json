@@ -29,7 +29,8 @@
 				"config.json": "bundler.config",
 				"assets": {
 					"index.asset.json": "bundler.assets"
-				}
+				},
+				"shims": "bundler.shims"
 			},
 			"debug-ui.json": "debug.ui"
 		},

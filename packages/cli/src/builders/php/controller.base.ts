@@ -28,6 +28,7 @@ export function createPhpBaseControllerHelper(): BuilderHelper {
 	return createHelper({
 		key: 'builder.generate.php.controller.base',
 		kind: 'builder',
+		dependsOn: ['builder.generate.php.core'],
 		async apply(options: BuilderApplyOptions, next?: BuilderNext) {
 			if (options.input.phase !== 'generate' || !options.input.ir) {
 				await next?.();

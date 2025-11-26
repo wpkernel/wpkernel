@@ -446,6 +446,18 @@ export interface CreatePipelineOptions<
 		readonly errorMetadata: PipelineExtensionRollbackErrorMetadata;
 		readonly context: TContext;
 	}) => void;
+	/**
+	 * Helper keys that should be treated as “already satisfied” for fragment
+	 * dependency resolution (useful when a run intentionally omits certain
+	 * fragments).
+	 */
+	readonly fragmentProvidedKeys?: readonly string[];
+	/**
+	 * Helper keys that should be treated as “already satisfied” for builder
+	 * dependency resolution (e.g. builders depending on IR helpers that are
+	 * executed in a different pipeline stage).
+	 */
+	readonly builderProvidedKeys?: readonly string[];
 	readonly createConflictDiagnostic?: (options: {
 		readonly helper: TFragmentHelper | TBuilderHelper;
 		readonly existing: TFragmentHelper | TBuilderHelper;

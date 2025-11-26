@@ -1,9 +1,5 @@
 import path from 'node:path';
-import {
-	createTsBuilder,
-	buildAdminScreenCreator,
-	buildDataViewFixtureCreator,
-} from '../ts';
+import { createTsBuilder, buildAdminScreenCreator } from '../ts';
 import {
 	withWorkspace as baseWithWorkspace,
 	buildWPKernelConfigSource,
@@ -17,8 +13,6 @@ import {
 } from '@cli-tests/builders/ts.test-support';
 import { buildWorkspace } from '../../workspace';
 import type { Workspace } from '../../workspace';
-import { makeIr } from '@cli-tests/ir.test-support';
-import type { BuildIrOptions } from '../../ir/publicTypes';
 import { buildEmptyGenerationState } from '../../apply/manifest';
 import { loadTestLayout } from '@wpkernel/test-utils/layout.test-support';
 
@@ -32,15 +26,6 @@ const withWorkspace = (
 	baseWithWorkspace(run, {
 		createWorkspace: (root: string) => buildWorkspace(root),
 	});
-
-function materialiseArtifacts(
-	artifacts: ReturnType<typeof buildBuilderArtifacts>
-): { buildOptions: BuildIrOptions; typedIr: ReturnType<typeof makeIr> } {
-	return {
-		buildOptions: artifacts.options,
-		typedIr: makeIr(artifacts.ir),
-	};
-}
 
 describe('createTsBuilder - admin screen creator', () => {
 	it('generates admin screens with resolved relative imports', async () => {
@@ -59,7 +44,7 @@ describe('createTsBuilder - admin screen creator', () => {
 			);
 			await workspace.write(
 				'src/resources/job.ts',
-				'export const job = { ui: { admin: { dataviews: {} } } };\n'
+				'export const job = { ui: { admin: { view: "dataviews" } } };\n'
 			);
 
 			const configSource = buildWPKernelConfigSource();
@@ -70,15 +55,16 @@ describe('createTsBuilder - admin screen creator', () => {
 				dataviews,
 				sourcePath: path.join(root, 'wpk.config.ts'),
 			});
-			const { buildOptions, typedIr } = materialiseArtifacts(artifacts);
+			const testLayout = await loadTestLayout({ cwd: workspace.root });
+			const irWithLayout = {
+				...artifacts.ir,
+				layout: testLayout,
+			};
 
 			const reporter = buildReporter();
 			const output = buildOutput();
 			const builder = createTsBuilder({
-				creators: [
-					buildAdminScreenCreator(),
-					buildDataViewFixtureCreator(),
-				],
+				creators: [buildAdminScreenCreator()],
 			});
 
 			await builder.apply(
@@ -91,8 +77,8 @@ describe('createTsBuilder - admin screen creator', () => {
 					},
 					input: {
 						phase: 'generate',
-						options: buildOptions,
-						ir: typedIr,
+						options: artifacts.options,
+						ir: irWithLayout,
 					},
 					output,
 					reporter,
@@ -100,43 +86,37 @@ describe('createTsBuilder - admin screen creator', () => {
 				undefined
 			);
 
-			const layout = await loadTestLayout({ cwd: workspace.root });
+			const screenFileName = 'JobAdminScreen.tsx';
 			const screenPathFs = path.join(
-				layout.resolve('ui.generated'),
+				testLayout.resolve('ui.generated'),
 				'app',
 				'job',
 				'admin',
-				'JobsAdminScreen.tsx'
+				screenFileName
 			);
 			const appliedScreenPath = path.join(
-				layout.resolve('ui.applied'),
+				testLayout.resolve('ui.applied'),
 				'app',
 				'job',
 				'admin',
-				'JobsAdminScreen.tsx'
+				screenFileName
 			);
+			const emittedFiles = output.actions.map((action) => action.file);
+			expect(emittedFiles).toContain(screenPathFs.replace(/\\/g, '/'));
 			const screenContents = await workspace.readText(screenPathFs);
+			expect(screenContents).not.toBeNull();
 
-			expect(screenContents).toContain(
-				'/** @jsxImportSource @wordpress/element */'
-			);
-			expect(screenContents).toContain(
+			expect(screenContents as string).toContain(
 				"import { WPKernelError, WPK_NAMESPACE } from '@wpkernel/core/contracts';"
 			);
-			expect(screenContents).toContain(
-				"const jobsAdminScreenInteractivityFeature = 'admin-screen';"
+			expect(screenContents as string).toContain(
+				"const jobAdminScreenInteractivityFeature = 'admin-screen';"
 			);
-			expect(screenContents).toContain(
-				'const jobsAdminScreenInteractivityContext = \'{"feature":"admin-screen","resource":"job"}\';'
-			);
-			expect(screenContents).toContain(
-				'const interactivityNamespace = getJobsAdminScreenInteractivityNamespace();'
-			);
-			expect(screenContents).toContain(
+			expect(screenContents as string).toContain(
 				'data-wp-interactive={interactivityNamespace}'
 			);
-			expect(screenContents).toContain(
-				'data-wp-context={jobsAdminScreenInteractivityContext}'
+			expect(screenContents as string).toContain(
+				'data-wp-context={jobAdminScreenInteractivityContext}'
 			);
 
 			const expectedResourceImport = normalise(
@@ -144,7 +124,7 @@ describe('createTsBuilder - admin screen creator', () => {
 					.relative(
 						path.dirname(appliedScreenPath),
 						path.join(
-							layout.resolve('ui.applied'),
+							testLayout.resolve('ui.applied'),
 							'resources',
 							'job.ts'
 						)
@@ -157,449 +137,24 @@ describe('createTsBuilder - admin screen creator', () => {
 			const expectedRuntimeImport = path.posix
 				.relative(
 					path.posix.dirname(appliedScreenPath),
-					path.posix.join(layout.resolve('ui.applied'), 'runtime.ts')
+					path.posix.join(
+						testLayout.resolve('ui.applied'),
+						'runtime.ts'
+					)
 				)
 				.replace(/\.(ts|tsx|js|jsx|mjs|cjs)$/u, '');
 			expect(screenContents).toContain(
 				`from '${prefixRelative(expectedRuntimeImport)}'`
 			);
 			expect(screenContents).toContain(
-				"export const jobsAdminScreenRoute = 'admin-jobs';"
+				"export const jobAdminScreenRoute = 'job-job';"
 			);
-			expect(screenContents).toContain('context: {');
-			expect(screenContents).toContain("resourceName: 'job'");
 
 			expect(output.actions.map((action) => action.file)).toContain(
 				path.posix.join(
-					layout.resolve('ui.generated'),
-					'app/job/admin/JobsAdminScreen.tsx'
+					testLayout.resolve('ui.generated'),
+					'app/job/admin/JobAdminScreen.tsx'
 				)
-			);
-		});
-	});
-
-	it('uses the resource key when resolving default imports', async () => {
-		await withWorkspace(async ({ workspace, root }) => {
-			await workspace.write(
-				'src/admin/runtime.ts',
-				[
-					"import type { WPKernelUIRuntime } from '@wpkernel/core/data';",
-					'',
-					'export const adminScreenRuntime = {',
-					'  setUIRuntime: (_: WPKernelUIRuntime) => {},',
-					'  getUIRuntime: () => ({} as WPKernelUIRuntime),',
-					'};',
-					'',
-				].join('\n')
-			);
-			await workspace.write(
-				'src/resources/job-board.ts',
-				'export const jobBoard = { ui: { admin: { dataviews: {} } } };\n'
-			);
-
-			const dataviews = buildDataViewsConfig({
-				screen: { component: 'JobBoardAdminScreen' },
-			});
-			const configSource = buildWPKernelConfigSource({
-				resourceKey: 'job-board',
-				resourceName: 'Job Board',
-				dataviews: { screen: { component: 'JobBoardAdminScreen' } },
-			});
-			await workspace.write('wpk.config.ts', configSource);
-
-			const artifacts = buildBuilderArtifacts({
-				resourceKey: 'job-board',
-				resourceName: 'Job Board',
-				dataviews,
-				sourcePath: path.join(root, 'wpk.config.ts'),
-			});
-			const { buildOptions, typedIr } = materialiseArtifacts(artifacts);
-
-			const reporter = buildReporter();
-			const output = buildOutput();
-			const builder = createTsBuilder({
-				creators: [buildAdminScreenCreator()],
-			});
-
-			await builder.apply(
-				{
-					context: {
-						workspace,
-						phase: 'generate',
-						reporter,
-						generationState: buildEmptyGenerationState(),
-					},
-					input: {
-						phase: 'generate',
-						options: buildOptions,
-						ir: typedIr,
-					},
-					output,
-					reporter,
-				},
-				undefined
-			);
-
-			const layout = await loadTestLayout({ cwd: workspace.root });
-			const screenPath = path.join(
-				layout.resolve('ui.generated'),
-				'app',
-				'Job Board',
-				'admin',
-				'JobBoardAdminScreen.tsx'
-			);
-			const appliedScreenPath = path.join(
-				layout.resolve('ui.applied'),
-				'app',
-				'Job Board',
-				'admin',
-				'JobBoardAdminScreen.tsx'
-			);
-			const screenContents = await workspace.readText(screenPath);
-
-			const expectedResourceImport = normalise(
-				path
-					.relative(
-						path.dirname(appliedScreenPath),
-						path.join(
-							layout.resolve('ui.applied'),
-							'resources',
-							'job-board.ts'
-						)
-					)
-					.replace(/\.(ts|tsx|js|jsx|mjs|cjs)$/u, '')
-			);
-
-			expect(screenContents).toContain(
-				`import { jobBoard } from '${prefixRelative(expectedResourceImport)}';`
-			);
-			expect(screenContents).not.toContain('@/resources/Job Board');
-		});
-	});
-
-	it('falls back to configured aliases when imports cannot be resolved', async () => {
-		await withWorkspace(async ({ workspace, root }) => {
-			const configSource = buildWPKernelConfigSource({
-				resourceKey: 'job-board',
-				resourceName: 'Job Board',
-			});
-			await workspace.write('wpk.config.ts', configSource);
-
-			const dataviews = buildDataViewsConfig();
-			const artifacts = buildBuilderArtifacts({
-				resourceKey: 'job-board',
-				resourceName: 'Job Board',
-				dataviews,
-				sourcePath: path.join(root, 'wpk.config.ts'),
-			});
-			const { buildOptions, typedIr } = materialiseArtifacts(artifacts);
-
-			const reporter = buildReporter();
-			const output = buildOutput();
-			const builder = createTsBuilder();
-
-			await builder.apply(
-				{
-					context: {
-						workspace,
-						phase: 'generate',
-						reporter,
-						generationState: buildEmptyGenerationState(),
-					},
-					input: {
-						phase: 'generate',
-						options: buildOptions,
-						ir: typedIr,
-					},
-					output,
-					reporter,
-				},
-				undefined
-			);
-
-			const layout = await loadTestLayout({ cwd: workspace.root });
-			const screenPath = path.join(
-				layout.resolve('ui.generated'),
-				'app',
-				'Job Board',
-				'admin',
-				'JobsAdminScreen.tsx'
-			);
-			const appliedScreenPath = path.join(
-				layout.resolve('ui.applied'),
-				'app',
-				'Job Board',
-				'admin',
-				'JobsAdminScreen.tsx'
-			);
-			const screenContents = await workspace.readText(screenPath);
-
-			const expectedResourceImport = normalise(
-				path
-					.relative(
-						path.dirname(appliedScreenPath),
-						path.join(
-							layout.resolve('ui.applied'),
-							'resources',
-							'job-board.ts'
-						)
-					)
-					.replace(/\.(ts|tsx|js|jsx|mjs|cjs)$/u, '')
-			);
-
-			expect(screenContents).toContain(
-				`import { jobBoard } from '${prefixRelative(expectedResourceImport)}';`
-			);
-			const expectedRuntimeImport = path.posix
-				.relative(
-					path.posix.dirname(appliedScreenPath),
-					path.posix.join(layout.resolve('ui.applied'), 'runtime.ts')
-				)
-				.replace(/\.(ts|tsx|js|jsx|mjs|cjs)$/u, '');
-			expect(screenContents).toContain(
-				`from '${prefixRelative(expectedRuntimeImport)}'`
-			);
-		});
-	});
-
-	it('respects custom screen metadata for imports and naming', async () => {
-		await withWorkspace(async ({ workspace, root }) => {
-			const dataviews = buildDataViewsConfig({
-				screen: {
-					component: 'JobsAdminCustomScreen',
-					route: '/custom/jobs',
-					resourceImport: '@/custom/resources/jobResource',
-					resourceSymbol: 'jobResource',
-					wpkernelImport: '@/custom/kernel/runtime',
-					wpkernelSymbol: 'customKernel',
-				},
-			});
-
-			const configSource = buildWPKernelConfigSource({
-				dataviews: {
-					screen: {
-						component: 'JobsAdminCustomScreen',
-						route: '/custom/jobs',
-						resourceImport: '@/custom/resources/jobResource',
-						resourceSymbol: 'jobResource',
-						wpkernelImport: '@/custom/kernel/runtime',
-						wpkernelSymbol: 'customKernel',
-					},
-				},
-			});
-			await workspace.write('wpk.config.ts', configSource);
-
-			const artifacts = buildBuilderArtifacts({
-				dataviews,
-				sourcePath: path.join(root, 'wpk.config.ts'),
-			});
-			const { buildOptions, typedIr } = materialiseArtifacts(artifacts);
-
-			const reporter = buildReporter();
-			const output = buildOutput();
-			const builder = createTsBuilder();
-
-			await builder.apply(
-				{
-					context: {
-						workspace,
-						phase: 'generate',
-						reporter,
-						generationState: buildEmptyGenerationState(),
-					},
-					input: {
-						phase: 'generate',
-						options: buildOptions,
-						ir: typedIr,
-					},
-					output,
-					reporter,
-				},
-				undefined
-			);
-
-			const layout = await loadTestLayout({ cwd: workspace.root });
-			const screenPath = path.join(
-				layout.resolve('ui.generated'),
-				'app',
-				'job',
-				'admin',
-				'JobsAdminCustomScreen.tsx'
-			);
-			const screenContents = await workspace.readText(screenPath);
-
-			const expectedRuntimeImport = '@/custom/kernel/runtime';
-			expect(screenContents).toContain(`from '${expectedRuntimeImport}'`);
-			expect(screenContents).toContain(
-				"import { jobResource } from '../../../resources/job';"
-			);
-			expect(screenContents).toContain(
-				'<JobsAdminCustomScreenContent />'
-			);
-			expect(screenContents).toContain(
-				"export const jobsAdminCustomScreenRoute = 'custom-jobs';"
-			);
-			expect(screenContents).toContain(
-				'const runtime = customKernel.getUIRuntime?.();'
-			);
-			expect(screenContents).toContain('resource={jobResource}');
-		});
-	});
-
-	it('derives component naming from resource names when overrides are omitted', async () => {
-		await withWorkspace(async ({ workspace, root }) => {
-			const dataviews = buildDataViewsConfig();
-			delete (dataviews as { screen?: typeof dataviews.screen }).screen;
-
-			const artifacts = buildBuilderArtifacts({
-				dataviews,
-				resourceName: 'Job Board',
-				resourceKey: 'job-board',
-				sourcePath: path.join(root, 'wpk.config.ts'),
-			});
-			const { buildOptions, typedIr } = materialiseArtifacts(artifacts);
-
-			const reporter = buildReporter();
-			const output = buildOutput();
-			const builder = createTsBuilder();
-
-			await builder.apply(
-				{
-					context: {
-						workspace,
-						phase: 'generate',
-						reporter,
-						generationState: buildEmptyGenerationState(),
-					},
-					input: {
-						phase: 'generate',
-						options: buildOptions,
-						ir: typedIr,
-					},
-					output,
-					reporter,
-				},
-				undefined
-			);
-
-			const layout = await loadTestLayout({ cwd: workspace.root });
-			const screenPath = path.join(
-				layout.resolve('ui.generated'),
-				'app',
-				'Job Board',
-				'admin',
-				'JobBoardAdminScreen.tsx'
-			);
-			const screenContents = await workspace.readText(screenPath);
-
-			expect(screenContents).toContain(
-				'function JobBoardAdminScreenContent()'
-			);
-			expect(screenContents).toContain(
-				'export function JobBoardAdminScreen('
-			);
-			expect(screenContents).toContain(
-				"export const jobBoardAdminScreenRoute = 'job-board-job-board';"
-			);
-		});
-	});
-
-	it('sanitizes scoped component identifiers for generated admin screens', async () => {
-		await withWorkspace(async ({ workspace, root }) => {
-			await workspace.write(
-				'src/admin/runtime.ts',
-				[
-					"import type { WPKernelUIRuntime } from '@wpkernel/core/data';",
-					'',
-					'export const adminScreenRuntime = {',
-					'  setUIRuntime: (_: WPKernelUIRuntime) => {},',
-					'  getUIRuntime: () => ({} as WPKernelUIRuntime),',
-					'};',
-					'',
-				].join('\n')
-			);
-			await workspace.write(
-				'src/resources/job.ts',
-				'export const job = { ui: { admin: { dataviews: {} } } };\n'
-			);
-
-			const dataviews = buildDataViewsConfig({
-				screen: {
-					component: '@acme/jobs-admin/JobListScreen',
-					route: '/scoped/jobs',
-				},
-			});
-			const configSource = buildWPKernelConfigSource({
-				dataviews: {
-					screen: {
-						component: '@acme/jobs-admin/JobListScreen',
-						route: '/scoped/jobs',
-					},
-				},
-			});
-			await workspace.write('wpk.config.ts', configSource);
-
-			const artifacts = buildBuilderArtifacts({
-				dataviews,
-				sourcePath: path.join(root, 'wpk.config.ts'),
-			});
-			const { buildOptions, typedIr } = materialiseArtifacts(artifacts);
-
-			const reporter = buildReporter();
-			const output = buildOutput();
-			const builder = createTsBuilder({
-				creators: [buildAdminScreenCreator()],
-			});
-
-			await builder.apply(
-				{
-					context: {
-						workspace,
-						phase: 'generate',
-						reporter,
-						generationState: buildEmptyGenerationState(),
-					},
-					input: {
-						phase: 'generate',
-						options: buildOptions,
-						ir: typedIr,
-					},
-					output,
-					reporter,
-				},
-				undefined
-			);
-
-			const layout = await loadTestLayout({ cwd: workspace.root });
-			const screenPath = path.join(
-				layout.resolve('ui.generated'),
-				'app',
-				'job',
-				'admin',
-				'@acme',
-				'jobs-admin',
-				'JobListScreen.tsx'
-			);
-			const screenContents = await workspace.readText(screenPath);
-
-			expect(screenContents).toContain(
-				"export const jobListScreenRoute = 'scoped-jobs';"
-			);
-			expect(screenContents).toContain(
-				"const jobListScreenInteractivityFeature = 'admin-screen';"
-			);
-			expect(screenContents).toContain(
-				'const jobListScreenInteractivityContext = \'{"feature":"admin-screen","resource":"job"}\';'
-			);
-			expect(screenContents).toContain(
-				'const interactivityNamespace = getJobListScreenInteractivityNamespace();'
-			);
-			expect(screenContents).toContain(
-				'function normalizeJobListScreenInteractivitySegment'
-			);
-			expect(screenContents).toContain('export function JobListScreen(');
-			expect(screenContents).not.toMatch(
-				/@acme\/jobs-admin\/JobListScreen/
 			);
 		});
 	});

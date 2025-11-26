@@ -1,3 +1,4 @@
+import path from 'node:path';
 import { resolveBundlerPaths } from './bundler.paths';
 import type {
 	BuilderApplyOptions,
@@ -26,8 +27,15 @@ import {
 import { BundlerError } from './errors/BundlerError';
 
 export function hasBundlerDataViews(input: BuilderInput): boolean {
+	return (input.ir?.resources ?? []).some((resource: IRResource) => {
+		const adminUi = resource.ui?.admin;
+		return Boolean(adminUi?.dataviews) || adminUi?.view === 'dataviews';
+	});
+}
+
+function hasUiResources(input: BuilderInput): boolean {
 	return (input.ir?.resources ?? []).some((resource: IRResource) =>
-		Boolean(resource.ui?.admin?.dataviews)
+		Boolean(resource.ui?.admin)
 	);
 }
 
@@ -46,7 +54,7 @@ export async function applyBundlerGeneration(
 		return;
 	}
 
-	if (!hasBundlerDataViews(input)) {
+	if (!hasUiResources(input)) {
 		reporter.debug(
 			'createBundler: no UI resources detected; skipping bundler artifacts.'
 		);
@@ -60,6 +68,11 @@ export async function applyBundlerGeneration(
 		const sanitizedNamespace = resolveBundlerNamespace(input);
 		const version = resolveBundlerVersion(input, pkg);
 		const entryPoint = resolveUiEntryPoint(input.ir);
+		const paths = resolveBundlerPaths(input.ir);
+		const aliasRoot = resolveUiAliasRoot(context.workspace, input.ir);
+		const hasDataViews = hasBundlerDataViews(input);
+		const hasUi = hasUiResources(input);
+		const shimsDir = context.workspace.resolve(paths.shimsDir);
 		const dependencyResult = await ensureBundlerDependencies({
 			workspaceRoot: context.workspace.root,
 			pkg,
@@ -70,13 +83,14 @@ export async function applyBundlerGeneration(
 
 		const scriptResult = ensureBundlerScripts(dependencyResult.pkg);
 		const artifacts = buildRollupDriverArtifacts(scriptResult.pkg, {
-			aliasRoot: context.workspace.resolve('src'),
+			aliasRoot,
+			shimDir: shimsDir,
 			sanitizedNamespace,
-			hasUi: true,
+			hasUi,
+			hasDataViews,
 			entryPoint,
 			version,
 		});
-		const paths = resolveBundlerPaths(input.ir);
 
 		await persistBundlerArtifacts({
 			context,
@@ -143,6 +157,101 @@ interface PersistBundlerArtifactsArgs {
 	};
 }
 
+async function writeBundlerShims(
+	workspace: Workspace,
+	shimsDir: string
+): Promise<void> {
+	const files: Array<{ name: string; contents: string }> = [
+		{
+			name: 'wp-react.ts',
+			contents: [
+				"import * as Element from '@wordpress/element';",
+				'',
+				"export * from '@wordpress/element';",
+				'',
+				'export const Fragment = Element.Fragment;',
+				'export default Element;',
+				'',
+				'export function jsx(type: unknown, props: Record<string, unknown> | null, key?: string) {',
+				'  return Element.createElement(type as any, { ...(props ?? {}), key });',
+				'}',
+				'',
+				'export const jsxs = jsx;',
+				'export const jsxDEV = jsx;',
+				'',
+				'export { createElement } from "@wordpress/element";',
+			].join('\n'),
+		},
+		{
+			name: 'wp-element-jsx-runtime.ts',
+			contents: [
+				"import { createElement, Fragment } from '@wordpress/element';",
+				'',
+				'export { Fragment };',
+				'',
+				'export function jsx(type: unknown, props: Record<string, unknown> | null, key?: string) {',
+				'  return createElement(type as any, { ...(props ?? {}), key });',
+				'}',
+				'',
+				'export const jsxs = jsx;',
+				'export const jsxDEV = jsx;',
+			].join('\n'),
+		},
+		{
+			name: 'wp-element-client.ts',
+			contents: [
+				"import * as Element from '@wordpress/element';",
+				'',
+				'function getReactDom(): any {',
+				'  return (Element as any).ReactDOM ?? (Element as any);',
+				'}',
+				'',
+				'export function createRoot(container: Element | HTMLElement | null) {',
+				'  const reactDom = getReactDom();',
+				'  const factory = reactDom?.createRoot;',
+				'',
+				'  if (typeof factory === "function") {',
+				'    return factory(container);',
+				'  }',
+				'',
+				'  const legacyRender = reactDom?.render ?? reactDom?.ReactDOM?.render;',
+				'  const legacyUnmount =',
+				'    reactDom?.unmountComponentAtNode ?? reactDom?.ReactDOM?.unmountComponentAtNode;',
+				'',
+				'  return {',
+				'    render(element: unknown) {',
+				'      if (typeof legacyRender === "function" && container) {',
+				'        legacyRender(element as any, container);',
+				'      }',
+				'    },',
+				'    unmount() {',
+				'      if (typeof legacyUnmount === "function" && container) {',
+				'        legacyUnmount(container);',
+				'      }',
+				'    },',
+				'  };',
+				'}',
+				'',
+				'export function hydrateRoot(...args: any[]) {',
+				'  const reactDom = getReactDom();',
+				'  const hydrate = reactDom?.hydrateRoot;',
+				'  if (typeof hydrate === "function") {',
+				'    return hydrate(...args);',
+				'  }',
+				"  throw new Error('hydrateRoot is not available in @wordpress/element runtime');",
+				'}',
+				'',
+				'export default { createRoot, hydrateRoot };',
+			].join('\n'),
+		},
+	];
+
+	for (const file of files) {
+		const target = path.posix.join(shimsDir, file.name);
+		await workspace.write(target, file.contents, { ensureDir: true });
+	}
+}
+
 async function persistBundlerArtifacts(
 	args: PersistBundlerArtifactsArgs
 ): Promise<void> {
@@ -168,6 +277,10 @@ async function persistBundlerArtifacts(
 	await context.workspace.write(VITE_CONFIG_FILENAME, viteConfigSource, {
 		ensureDir: true,
 	});
+	await writeBundlerShims(
+		context.workspace,
+		context.workspace.resolve(paths.shimsDir)
+	);
 
 	const manifest = await context.workspace.commit(BUNDLER_TRANSACTION_LABEL);
 	await queueManifestWrites(context, output, manifest.writes);
@@ -187,5 +300,20 @@ function resolveUiEntryPoint(ir: IRv1 | null | undefined): string {
 		return `${uiApplied}/index.tsx`;
 	} catch {
 		return DEFAULT_ENTRY_POINT;
+	}
+}
+
+function resolveUiAliasRoot(
+	workspace: Workspace,
+	ir: IRv1 | null | undefined
+): string {
+	if (!ir?.layout) {
+		return workspace.resolve('src');
+	}
+
+	try {
+		return workspace.resolve(ir.layout.resolve('ui.applied'));
+	} catch {
+		return workspace.resolve('src');
 	}
 }

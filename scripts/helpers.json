@@ -1,0 +1,853 @@
+{
+	"helpers": [
+		{
+			"key": "builder.generate.bundler.core",
+			"file": "packages/cli/src/builders/bundler.ts",
+			"functionName": "createBundler",
+			"returnType": "BuilderHelper",
+			"kind": "builder",
+			"dependsOn": ["builder.generate.ts.core", "ir.bundler.core"]
+		},
+		{
+			"key": "builder.apply.patch.core",
+			"file": "packages/cli/src/builders/patcher.ts",
+			"functionName": "createPatcher",
+			"returnType": "BuilderHelper",
+			"kind": "builder",
+			"dependsOn": ["builder.generate.apply.plan", "ir.layout.core"]
+		},
+		{
+			"key": "builder.generate.php.blocks",
+			"file": "packages/cli/src/builders/php/block.artifacts.ts",
+			"functionName": "createPhpBlocksHelper",
+			"returnType": "BuilderHelper",
+			"kind": "builder",
+			"dependsOn": [
+				"builder.generate.php.core",
+				"ir.blocks.core",
+				"ir.layout.core",
+				"ir.meta.core"
+			]
+		},
+		{
+			"key": "builder.generate.php.controller.base",
+			"file": "packages/cli/src/builders/php/controller.base.ts",
+			"functionName": "createPhpBaseControllerHelper",
+			"returnType": "BuilderHelper",
+			"kind": "builder",
+			"dependsOn": ["builder.generate.php.core", "ir.meta.core"]
+		},
+		{
+			"key": "builder.generate.php.controller.resources",
+			"file": "packages/cli/src/builders/php/controller.resources.ts",
+			"functionName": "createPhpResourceControllerHelper",
+			"returnType": "BuilderHelper",
+			"kind": "builder",
+			"dependsOn": [
+				"builder.generate.php.core",
+				"builder.generate.php.controller.resources.storage.transient",
+				"builder.generate.php.controller.resources.storage.wpOption",
+				"builder.generate.php.controller.resources.storage.wpTaxonomy",
+				"builder.generate.php.controller.resources.wpPostRoutes",
+				"ir.resources.core"
+			]
+		},
+		{
+			"key": "builder.generate.php.controller.resources.wpPostRoutes",
+			"file": "packages/cli/src/builders/php/controller.wpPostRoutes.ts",
+			"functionName": "createPhpWpPostRoutesHelper",
+			"returnType": "BuilderHelper",
+			"kind": "builder",
+			"dependsOn": ["builder.generate.php.core", "ir.resources.core"]
+		},
+		{
+			"key": "builder.generate.php.capability",
+			"file": "packages/cli/src/builders/php/entry.capabilities.ts",
+			"functionName": "createPhpCapabilityHelper",
+			"returnType": "BuilderHelper",
+			"kind": "builder",
+			"dependsOn": ["builder.generate.php.core", "ir.capability-map.core"]
+		},
+		{
+			"key": "builder.generate.php.index",
+			"file": "packages/cli/src/builders/php/entry.index.ts",
+			"functionName": "createPhpIndexFileHelper",
+			"returnType": "BuilderHelper",
+			"kind": "builder",
+			"dependsOn": [
+				"builder.generate.php.core",
+				"builder.generate.php.plugin-loader",
+				"builder.generate.php.controller.resources",
+				"builder.generate.php.capability",
+				"builder.generate.php.registration.persistence",
+				"ir.resources.core",
+				"ir.capability-map.core",
+				"ir.layout.core"
+			]
+		},
+		{
+			"key": "builder.generate.php.plugin-loader",
+			"file": "packages/cli/src/builders/php/entry.plugin.ts",
+			"functionName": "createPhpPluginLoaderHelper",
+			"returnType": "BuilderHelper",
+			"kind": "builder",
+			"dependsOn": [
+				"builder.generate.php.core",
+				"builder.generate.php.controller.resources",
+				"builder.generate.php.capability",
+				"builder.generate.php.registration.persistence",
+				"ir.resources.core",
+				"ir.capability-map.core",
+				"ir.layout.core"
+			]
+		},
+		{
+			"key": "builder.generate.php.registration.persistence",
+			"file": "packages/cli/src/builders/php/entry.registry.ts",
+			"functionName": "createPhpPersistenceRegistryHelper",
+			"returnType": "BuilderHelper",
+			"kind": "builder",
+			"dependsOn": ["builder.generate.php.core", "ir.resources.core"]
+		},
+		{
+			"key": "builder.generate.php.core",
+			"file": "packages/cli/src/builders/php/pipeline.builder.ts",
+			"functionName": "createPhpBuilder",
+			"returnType": "BuilderHelper",
+			"kind": "builder",
+			"dependsOn": [
+				"builder.generate.php.driver",
+				"builder.generate.ts.core",
+				"ir.resources.core",
+				"ir.capability-map.core",
+				"ir.blocks.core",
+				"ir.layout.core",
+				"ir.meta.core",
+				"ir.schemas.core"
+			]
+		},
+		{
+			"key": "builder.generate.php.codemod-ingestion",
+			"file": "packages/cli/src/builders/php/pipeline.codemods.ts",
+			"functionName": "createPhpCodemodIngestionHelper",
+			"returnType": "BuilderHelper",
+			"kind": "builder",
+			"dependsOn": ["builder.generate.php.core"]
+		},
+		{
+			"key": "builder.generate.php.controller.resources.storage.transient",
+			"file": "packages/cli/src/builders/php/storage.artifacts.ts",
+			"functionName": "createPhpTransientStorageHelper",
+			"returnType": "BuilderHelper",
+			"kind": "builder",
+			"dependsOn": ["builder.generate.php.core", "ir.resources.core"]
+		},
+		{
+			"key": "builder.generate.php.controller.resources.storage.wpOption",
+			"file": "packages/cli/src/builders/php/storage.artifacts.ts",
+			"functionName": "createPhpWpOptionStorageHelper",
+			"returnType": "BuilderHelper",
+			"kind": "builder",
+			"dependsOn": ["builder.generate.php.core", "ir.resources.core"]
+		},
+		{
+			"key": "builder.generate.php.controller.resources.storage.wpTaxonomy",
+			"file": "packages/cli/src/builders/php/storage.artifacts.ts",
+			"functionName": "createPhpWpTaxonomyStorageHelper",
+			"returnType": "BuilderHelper",
+			"kind": "builder",
+			"dependsOn": ["builder.generate.php.core", "ir.resources.core"]
+		},
+		{
+			"key": "builder.generate.plan",
+			"file": "packages/cli/src/builders/plan.ts",
+			"functionName": "createPlanBuilder",
+			"returnType": "BuilderHelper",
+			"kind": "builder",
+			"dependsOn": [
+				"builder.generate.ts.core",
+				"builder.generate.ts.ui-entry",
+				"builder.generate.ts.blocks",
+				"builder.generate.php.core",
+				"ir.ordering.core"
+			]
+		},
+		{
+			"key": "builder.generate.apply.plan",
+			"file": "packages/cli/src/builders/plan.ts",
+			"functionName": "createApplyPlanBuilder",
+			"returnType": "BuilderHelper",
+			"kind": "builder",
+			"dependsOn": [
+				"builder.generate.ts.core",
+				"builder.generate.ts.ui-entry",
+				"builder.generate.ts.blocks",
+				"builder.generate.php.core",
+				"ir.ordering.core"
+			]
+		},
+		{
+			"key": "builder.generate.ts.blocks",
+			"file": "packages/cli/src/builders/ts/block.artifacts.ts",
+			"functionName": "createJsBlocksBuilder",
+			"returnType": "BuilderHelper",
+			"kind": "builder",
+			"dependsOn": [
+				"builder.generate.ts.core",
+				"ir.resources.core",
+				"ir.blocks.core",
+				"ir.layout.core",
+				"ir.meta.core"
+			]
+		},
+		{
+			"key": "ts-capability-builder",
+			"file": "packages/cli/src/builders/ts/entry.capabilities.ts",
+			"functionName": "createTsCapabilityBuilder",
+			"kind": "builder",
+			"dependsOn": ["builder.generate.ts.core", "ir.capability-map.core"]
+		},
+		{
+			"key": "ts-index-builder",
+			"file": "packages/cli/src/builders/ts/entry.index.ts",
+			"functionName": "createTsIndexBuilder",
+			"kind": "builder",
+			"dependsOn": ["builder.generate.ts.core", "ir.ordering.core"]
+		},
+		{
+			"key": "builder.generate.ts.core",
+			"file": "packages/cli/src/builders/ts/pipeline.builder.ts",
+			"functionName": "createTsBuilder",
+			"returnType": "BuilderHelper",
+			"kind": "builder",
+			"dependsOn": [
+				"ir.resources.core",
+				"ir.capability-map.core",
+				"ir.blocks.core",
+				"ir.layout.core",
+				"ir.meta.core",
+				"ir.schemas.core",
+				"ir.ordering.core"
+			]
+		},
+		{
+			"key": "builder.generate.ts.ui-entry",
+			"file": "packages/cli/src/builders/ts/ui.entry.ts",
+			"functionName": "createUiEntryBuilder",
+			"returnType": "BuilderHelper",
+			"kind": "builder",
+			"dependsOn": [
+				"builder.generate.ts.core",
+				"ir.resources.core",
+				"ir.capability-map.core",
+				"ir.blocks.core",
+				"ir.layout.core",
+				"ir.meta.core"
+			]
+		},
+		{
+			"key": "builder.generate.tsconfig",
+			"file": "packages/cli/src/builders/tsconfig.ts",
+			"functionName": "createTsConfigBuilder",
+			"returnType": "BuilderHelper",
+			"kind": "builder",
+			"dependsOn": ["builder.generate.ts.core", "ir.layout.core"]
+		},
+		{
+			"key": "ir.blocks.core",
+			"file": "packages/cli/src/ir/fragments/blocks.ts",
+			"functionName": "createBlocksFragment",
+			"returnType": "IrFragment",
+			"kind": "fragment",
+			"dependsOn": ["ir.meta.core", "ir.layout.core"]
+		},
+		{
+			"key": "ir.bundler.core",
+			"file": "packages/cli/src/ir/fragments/bundler.ts",
+			"functionName": "createBundlerFragment",
+			"returnType": "IrFragment",
+			"kind": "fragment",
+			"dependsOn": ["ir.layout.core"]
+		},
+		{
+			"key": "ir.capabilities.core",
+			"file": "packages/cli/src/ir/fragments/capabilities.ts",
+			"functionName": "createCapabilitiesFragment",
+			"returnType": "IrFragment",
+			"kind": "fragment",
+			"dependsOn": ["ir.resources.core"]
+		},
+		{
+			"key": "ir.capability-map.core",
+			"file": "packages/cli/src/ir/fragments/capability-map.ts",
+			"functionName": "createCapabilityMapFragment",
+			"returnType": "IrFragment",
+			"kind": "fragment",
+			"dependsOn": ["ir.resources.core", "ir.capabilities.core"]
+		},
+		{
+			"key": "ir.layout.core",
+			"file": "packages/cli/src/ir/fragments/layout.ts",
+			"functionName": "createLayoutFragment",
+			"returnType": "IrFragment",
+			"kind": "fragment"
+		},
+		{
+			"key": "ir.meta.core",
+			"file": "packages/cli/src/ir/fragments/meta.ts",
+			"functionName": "createMetaFragment",
+			"returnType": "IrFragment",
+			"kind": "fragment",
+			"mode": "override",
+			"dependsOn": ["ir.layout.core"]
+		},
+		{
+			"key": "ir.ordering.core",
+			"file": "packages/cli/src/ir/fragments/ordering.ts",
+			"functionName": "createOrderingFragment",
+			"returnType": "IrFragment",
+			"kind": "fragment",
+			"dependsOn": [
+				"ir.schemas.core",
+				"ir.resources.core",
+				"ir.capabilities.core",
+				"ir.blocks.core"
+			]
+		},
+		{
+			"key": "ir.resources.core",
+			"file": "packages/cli/src/ir/fragments/resources.ts",
+			"functionName": "createResourcesFragment",
+			"returnType": "IrFragment",
+			"kind": "fragment",
+			"dependsOn": []
+		},
+		{
+			"key": "ir.schemas.core",
+			"file": "packages/cli/src/ir/fragments/schemas.ts",
+			"functionName": "createSchemasFragment",
+			"returnType": "IrFragment",
+			"kind": "fragment"
+		},
+		{
+			"key": "ir.validation.core",
+			"file": "packages/cli/src/ir/fragments/validation.ts",
+			"functionName": "createValidationFragment",
+			"returnType": "IrFragment",
+			"kind": "fragment",
+			"dependsOn": [
+				"ir.meta.core",
+				"ir.resources.core",
+				"ir.capability-map.core"
+			]
+		},
+		{
+			"key": "action.context.assemble",
+			"file": "packages/core/src/pipeline/actions/helpers/createActionContextAssembler.ts",
+			"functionName": "createActionContextAssembler",
+			"returnType": "ActionFragmentHelper<TArgs, TResult>",
+			"mode": "extend",
+			"priority": 90,
+			"dependsOn": ["action.options.resolve"]
+		},
+		{
+			"key": "action.execute.handler",
+			"file": "packages/core/src/pipeline/actions/helpers/createActionExecutionBuilder.ts",
+			"functionName": "createActionExecutionBuilder",
+			"returnType": "ActionBuilderHelper<TArgs, TResult>",
+			"mode": "extend",
+			"priority": 70
+		},
+		{
+			"key": "action.lifecycle.initialize",
+			"file": "packages/core/src/pipeline/actions/helpers/createActionLifecycleFragment.ts",
+			"functionName": "createActionLifecycleFragment",
+			"returnType": "ActionFragmentHelper<TArgs, TResult>",
+			"mode": "extend",
+			"priority": 80,
+			"dependsOn": ["action.context.assemble"]
+		},
+		{
+			"key": "action.options.resolve",
+			"file": "packages/core/src/pipeline/actions/helpers/createActionOptionsResolver.ts",
+			"functionName": "createActionOptionsResolver",
+			"returnType": "ActionFragmentHelper<TArgs, TResult>",
+			"mode": "extend",
+			"priority": 100
+		},
+		{
+			"key": "action.registry.record",
+			"file": "packages/core/src/pipeline/actions/helpers/createActionRegistryRecorder.ts",
+			"functionName": "createActionRegistryRecorder",
+			"returnType": "ActionBuilderHelper<TArgs, TResult>",
+			"mode": "extend",
+			"priority": 60,
+			"dependsOn": ["action.execute.handler"]
+		},
+		{
+			"key": "resource.cacheKeys.build",
+			"file": "packages/core/src/pipeline/resources/helpers/createResourceCacheKeysFragment.ts",
+			"functionName": "createResourceCacheKeysFragment",
+			"returnType": "ResourceFragmentHelper<T, TQuery>",
+			"dependsOn": ["resource.config.validate"]
+		},
+		{
+			"key": "resource.client.build",
+			"file": "packages/core/src/pipeline/resources/helpers/createResourceClientFragment.ts",
+			"functionName": "createResourceClientFragment",
+			"returnType": "ResourceFragmentHelper<T, TQuery>",
+			"dependsOn": ["resource.config.validate"]
+		},
+		{
+			"key": "resource.object.build",
+			"file": "packages/core/src/pipeline/resources/helpers/createResourceObjectBuilder.ts",
+			"functionName": "createResourceObjectBuilder",
+			"returnType": "ResourceBuilderHelper<\n\tT,\n\tTQuery\n>"
+		},
+		{
+			"key": "resource.config.validate",
+			"file": "packages/core/src/pipeline/resources/helpers/createResourceValidationFragment.ts",
+			"functionName": "createResourceValidationFragment",
+			"returnType": "ResourceFragmentHelper<T, TQuery>"
+		},
+		{
+			"key": "builder.generate.php.driver",
+			"file": "packages/php-json-ast/src/installer.ts",
+			"functionName": "createPhpDriverInstaller",
+			"returnType": "DriverHelper",
+			"kind": "builder"
+		}
+	],
+	"tests": [
+		{
+			"key": "test.helper",
+			"file": "packages/cli/src/__tests__/helper.test.ts",
+			"functionName": "helper",
+			"kind": "fragment"
+		},
+		{
+			"key": "sync.helper",
+			"file": "packages/cli/src/__tests__/helper.test.ts",
+			"functionName": "helper",
+			"kind": "builder"
+		},
+		{
+			"key": "custom-helper",
+			"file": "packages/cli/src/dx/readiness/__tests__/configure.test.ts",
+			"functionName": "registry",
+			"returnType": "ReadinessRegistry"
+		},
+		{
+			"key": "ir.layout.test",
+			"file": "packages/cli/src/runtime/__tests__/pipeline.test.ts",
+			"functionName": "withConfiguredPipeline",
+			"kind": "fragment",
+			"mode": "override"
+		},
+		{
+			"key": "builder.test",
+			"file": "packages/cli/src/runtime/__tests__/pipeline.test.ts",
+			"functionName": "builderHelper",
+			"kind": "builder"
+		},
+		{
+			"key": "ir.meta.test",
+			"file": "packages/cli/src/runtime/__tests__/pipeline.test.ts",
+			"kind": "fragment",
+			"mode": "override"
+		},
+		{
+			"key": "ir.meta.test",
+			"file": "packages/cli/src/runtime/__tests__/pipeline.test.ts",
+			"kind": "fragment",
+			"mode": "override"
+		},
+		{
+			"key": "ir.first",
+			"file": "packages/cli/src/runtime/__tests__/pipeline.test.ts",
+			"kind": "fragment",
+			"dependsOn": ["ir.second"]
+		},
+		{
+			"key": "ir.second",
+			"file": "packages/cli/src/runtime/__tests__/pipeline.test.ts",
+			"kind": "fragment",
+			"dependsOn": ["ir.first"]
+		},
+		{
+			"key": "builder.inline",
+			"file": "packages/cli/src/runtime/__tests__/pipeline.test.ts",
+			"functionName": "builderHelper",
+			"kind": "builder"
+		},
+		{
+			"key": "builder.extension",
+			"file": "packages/cli/src/runtime/__tests__/pipeline.test.ts",
+			"functionName": "extensionBuilder",
+			"kind": "builder"
+		},
+		{
+			"key": "builder.async",
+			"file": "packages/cli/src/runtime/__tests__/pipeline.test.ts",
+			"kind": "builder"
+		},
+		{
+			"key": "builder.writer",
+			"file": "packages/cli/src/runtime/__tests__/pipeline.test.ts",
+			"kind": "builder"
+		},
+		{
+			"key": "ir.meta.priority",
+			"file": "packages/cli/src/runtime/__tests__/pipeline.test.ts",
+			"kind": "fragment",
+			"mode": "override"
+		},
+		{
+			"key": "ir.collection.priority",
+			"file": "packages/cli/src/runtime/__tests__/pipeline.test.ts",
+			"kind": "fragment",
+			"dependsOn": ["ir.meta.priority"]
+		},
+		{
+			"key": "ir.capability-map.priority",
+			"file": "packages/cli/src/runtime/__tests__/pipeline.test.ts",
+			"kind": "fragment",
+			"dependsOn": ["ir.collection.priority"]
+		},
+		{
+			"key": "ir.validation.priority",
+			"file": "packages/cli/src/runtime/__tests__/pipeline.test.ts",
+			"kind": "fragment",
+			"dependsOn": ["ir.capability-map.priority"]
+		},
+		{
+			"key": "builder.high-priority",
+			"file": "packages/cli/src/runtime/__tests__/pipeline.test.ts",
+			"functionName": "builderHigh",
+			"kind": "builder",
+			"priority": 5
+		},
+		{
+			"key": "builder.alpha",
+			"file": "packages/cli/src/runtime/__tests__/pipeline.test.ts",
+			"functionName": "builderAlpha",
+			"kind": "builder",
+			"priority": 1
+		},
+		{
+			"key": "builder.beta",
+			"file": "packages/cli/src/runtime/__tests__/pipeline.test.ts",
+			"functionName": "builderBeta",
+			"kind": "builder",
+			"priority": 1
+		},
+		{
+			"key": "builder.duplicate",
+			"file": "packages/cli/src/runtime/__tests__/pipeline.test.ts",
+			"functionName": "duplicateFirst",
+			"kind": "builder"
+		},
+		{
+			"key": "builder.duplicate",
+			"file": "packages/cli/src/runtime/__tests__/pipeline.test.ts",
+			"functionName": "duplicateSecond",
+			"kind": "builder"
+		},
+		{
+			"key": "ir.meta.commit",
+			"file": "packages/cli/src/runtime/__tests__/pipeline.test.ts",
+			"kind": "fragment",
+			"mode": "override"
+		},
+		{
+			"key": "ir.resources.commit",
+			"file": "packages/cli/src/runtime/__tests__/pipeline.test.ts",
+			"kind": "fragment",
+			"dependsOn": ["ir.meta.commit"]
+		},
+		{
+			"key": "ir.validation.commit",
+			"file": "packages/cli/src/runtime/__tests__/pipeline.test.ts",
+			"kind": "fragment",
+			"dependsOn": ["ir.resources.commit"]
+		},
+		{
+			"key": "builder.commit",
+			"file": "packages/cli/src/runtime/__tests__/pipeline.test.ts",
+			"kind": "builder"
+		},
+		{
+			"key": "ir.meta.extension-failure",
+			"file": "packages/cli/src/runtime/__tests__/pipeline.test.ts",
+			"kind": "fragment",
+			"mode": "override"
+		},
+		{
+			"key": "ir.resources.extension-failure",
+			"file": "packages/cli/src/runtime/__tests__/pipeline.test.ts",
+			"kind": "fragment",
+			"dependsOn": ["ir.meta.extension-failure"]
+		},
+		{
+			"key": "ir.validation.extension-failure",
+			"file": "packages/cli/src/runtime/__tests__/pipeline.test.ts",
+			"kind": "fragment",
+			"dependsOn": ["ir.resources.extension-failure"]
+		},
+		{
+			"key": "ir.meta.rollback",
+			"file": "packages/cli/src/runtime/__tests__/pipeline.test.ts",
+			"kind": "fragment",
+			"mode": "override"
+		},
+		{
+			"key": "ir.resources.rollback",
+			"file": "packages/cli/src/runtime/__tests__/pipeline.test.ts",
+			"kind": "fragment",
+			"dependsOn": ["ir.meta.rollback"]
+		},
+		{
+			"key": "ir.validation.rollback",
+			"file": "packages/cli/src/runtime/__tests__/pipeline.test.ts",
+			"kind": "fragment",
+			"dependsOn": ["ir.resources.rollback"]
+		},
+		{
+			"key": "builder.rollback",
+			"file": "packages/cli/src/runtime/__tests__/pipeline.test.ts",
+			"kind": "builder"
+		},
+		{
+			"key": "ir.meta.rollback-missing",
+			"file": "packages/cli/src/runtime/__tests__/pipeline.test.ts",
+			"kind": "fragment",
+			"mode": "override"
+		},
+		{
+			"key": "ir.resources.rollback-missing",
+			"file": "packages/cli/src/runtime/__tests__/pipeline.test.ts",
+			"kind": "fragment",
+			"dependsOn": ["ir.meta.rollback-missing"]
+		},
+		{
+			"key": "ir.validation.rollback-missing",
+			"file": "packages/cli/src/runtime/__tests__/pipeline.test.ts",
+			"kind": "fragment",
+			"dependsOn": ["ir.resources.rollback-missing"]
+		},
+		{
+			"key": "builder.rollback-missing",
+			"file": "packages/cli/src/runtime/__tests__/pipeline.test.ts",
+			"kind": "builder"
+		},
+		{
+			"key": "ir.meta.rollback-warning",
+			"file": "packages/cli/src/runtime/__tests__/pipeline.test.ts",
+			"kind": "fragment",
+			"mode": "override"
+		},
+		{
+			"key": "ir.resources.rollback-warning",
+			"file": "packages/cli/src/runtime/__tests__/pipeline.test.ts",
+			"kind": "fragment",
+			"dependsOn": ["ir.meta.rollback-warning"]
+		},
+		{
+			"key": "ir.validation.rollback-warning",
+			"file": "packages/cli/src/runtime/__tests__/pipeline.test.ts",
+			"kind": "fragment",
+			"dependsOn": ["ir.resources.rollback-warning"]
+		},
+		{
+			"key": "builder.rollback-warning",
+			"file": "packages/cli/src/runtime/__tests__/pipeline.test.ts",
+			"kind": "builder"
+		},
+		{
+			"key": "fragment.one",
+			"file": "packages/core/src/pipeline/__tests__/createPipeline.run.test.ts"
+		},
+		{
+			"key": "builder.one",
+			"file": "packages/core/src/pipeline/__tests__/createPipeline.run.test.ts"
+		},
+		{
+			"key": "fragment.async",
+			"file": "packages/core/src/pipeline/__tests__/createPipeline.run.test.ts"
+		},
+		{
+			"key": "builder.async",
+			"file": "packages/core/src/pipeline/__tests__/createPipeline.run.test.ts"
+		},
+		{
+			"key": "fragment.one",
+			"file": "packages/core/src/pipeline/__tests__/createPipeline.run.test.ts"
+		},
+		{
+			"key": "builder.one",
+			"file": "packages/core/src/pipeline/__tests__/createPipeline.run.test.ts"
+		},
+		{
+			"key": "fragment.one",
+			"file": "packages/core/src/pipeline/__tests__/createPipeline.run.test.ts"
+		},
+		{
+			"key": "builder.error",
+			"file": "packages/core/src/pipeline/__tests__/createPipeline.run.test.ts"
+		},
+		{
+			"key": "fragment.audit",
+			"file": "packages/core/src/pipeline/__tests__/createPipeline.run.test.ts",
+			"dependsOn": ["fragment.missing"]
+		},
+		{
+			"key": "fragment.audit",
+			"file": "packages/core/src/pipeline/__tests__/createPipeline.run.test.ts",
+			"dependsOn": ["fragment.missing"]
+		},
+		{
+			"key": "fragment.seed",
+			"file": "packages/core/tests/__tests__/pipeline.test.ts",
+			"functionName": "seedFragment",
+			"kind": "fragment"
+		},
+		{
+			"key": "fragment.double",
+			"file": "packages/core/tests/__tests__/pipeline.test.ts",
+			"functionName": "doubleFragment",
+			"kind": "fragment",
+			"dependsOn": ["fragment.seed"]
+		},
+		{
+			"key": "builder.log",
+			"file": "packages/core/tests/__tests__/pipeline.test.ts",
+			"functionName": "logBuilder",
+			"kind": "builder"
+		},
+		{
+			"key": "fragment.override",
+			"file": "packages/core/tests/__tests__/pipeline.test.ts",
+			"functionName": "overrideA",
+			"kind": "fragment",
+			"mode": "override"
+		},
+		{
+			"key": "fragment.override",
+			"file": "packages/core/tests/__tests__/pipeline.test.ts",
+			"functionName": "overrideB",
+			"kind": "fragment",
+			"mode": "override"
+		},
+		{
+			"key": "builder.override",
+			"file": "packages/core/tests/__tests__/pipeline.test.ts",
+			"functionName": "overrideA",
+			"kind": "builder",
+			"mode": "override"
+		},
+		{
+			"key": "builder.override",
+			"file": "packages/core/tests/__tests__/pipeline.test.ts",
+			"functionName": "overrideB",
+			"kind": "builder",
+			"mode": "override"
+		},
+		{
+			"key": "fragment.alpha",
+			"file": "packages/core/tests/__tests__/pipeline.test.ts",
+			"functionName": "firstFragment",
+			"kind": "fragment"
+		},
+		{
+			"key": "fragment.beta",
+			"file": "packages/core/tests/__tests__/pipeline.test.ts",
+			"functionName": "secondFragment",
+			"kind": "fragment",
+			"dependsOn": ["fragment.alpha"]
+		},
+		{
+			"key": "builder.core",
+			"file": "packages/core/tests/__tests__/pipeline.test.ts",
+			"functionName": "builder",
+			"kind": "builder"
+		},
+		{
+			"key": "fragment.orphan",
+			"file": "packages/core/tests/__tests__/pipeline.test.ts",
+			"functionName": "orphanFragment",
+			"kind": "fragment",
+			"dependsOn": ["fragment.missing"]
+		},
+		{
+			"key": "fragment.first",
+			"file": "packages/core/tests/__tests__/pipeline.test.ts",
+			"functionName": "first",
+			"kind": "fragment",
+			"dependsOn": ["fragment.second"]
+		},
+		{
+			"key": "fragment.second",
+			"file": "packages/core/tests/__tests__/pipeline.test.ts",
+			"functionName": "second",
+			"kind": "fragment",
+			"dependsOn": ["fragment.first"]
+		},
+		{
+			"key": "fragment.core",
+			"file": "packages/pipeline/src/__tests__/createExtension.test.ts",
+			"functionName": "createTestPipeline",
+			"returnType": "{\n\tpipeline: TestPipeline;\n\treporter: TestReporter;\n}"
+		},
+		{
+			"key": "builder.core",
+			"file": "packages/pipeline/src/__tests__/createExtension.test.ts",
+			"functionName": "createTestPipeline",
+			"returnType": "{\n\tpipeline: TestPipeline;\n\treporter: TestReporter;\n}",
+			"priority": 0
+		},
+		{
+			"key": "builder.extension",
+			"file": "packages/pipeline/src/__tests__/createExtension.test.ts",
+			"functionName": "extensionBuilder",
+			"priority": 10
+		},
+		{
+			"key": "builder.async-extension",
+			"file": "packages/pipeline/src/__tests__/createExtension.test.ts",
+			"priority": 5
+		},
+		{
+			"key": "fragment.extra",
+			"file": "packages/pipeline/src/__tests__/createExtension.test.ts",
+			"functionName": "register"
+		},
+		{
+			"key": "fragment.core",
+			"file": "packages/pipeline/src/__tests__/createPipeline.test.ts",
+			"functionName": "createTestPipeline",
+			"returnType": "{\n\tpipeline: TestPipeline;\n\treporter: TestReporter;\n}"
+		},
+		{
+			"key": "builder.core",
+			"file": "packages/pipeline/src/__tests__/createPipeline.test.ts",
+			"functionName": "createTestPipeline",
+			"returnType": "{\n\tpipeline: TestPipeline;\n\treporter: TestReporter;\n}",
+			"priority": 0
+		},
+		{
+			"key": "builder.failure",
+			"file": "packages/pipeline/src/__tests__/createPipeline.test.ts",
+			"priority": 1
+		},
+		{
+			"key": "fragment.conflict",
+			"file": "packages/pipeline/src/__tests__/createPipeline.test.ts",
+			"mode": "override"
+		},
+		{
+			"key": "fragment.conflict",
+			"file": "packages/pipeline/src/__tests__/createPipeline.test.ts",
+			"mode": "override"
+		}
+	]
+}

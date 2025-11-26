@@ -45,6 +45,7 @@ export function createJsBlocksBuilder(): BuilderHelper {
 	return createHelper({
 		key: 'builder.generate.ts.blocks',
 		kind: 'builder',
+		dependsOn: ['builder.generate.ts.core'],
 		async apply(options: BuilderApplyOptions, next?: BuilderNext) {
 			const { input, context, output, reporter } = options;
 			if (input.phase !== 'generate') {

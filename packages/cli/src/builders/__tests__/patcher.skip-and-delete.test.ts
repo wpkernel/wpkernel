@@ -293,12 +293,16 @@ describe('createPatcher', () => {
 					expect.objectContaining({
 						status: 'skipped',
 						description: 'missing incoming',
-						details: { reason: 'empty-target' },
+						details: expect.objectContaining({
+							reason: 'empty-target',
+						}),
 					}),
 					expect.objectContaining({
 						file: 'php/Skip.php',
 						status: 'skipped',
-						details: { reason: 'missing-incoming' },
+						details: expect.objectContaining({
+							reason: 'missing-incoming',
+						}),
 					}),
 				])
 			);

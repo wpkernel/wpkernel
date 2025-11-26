@@ -1,5 +1,5 @@
 import path from 'path';
-import { createHelper } from '../../runtime';
+import { createHelper, requireIr } from '../../runtime';
 import { resolveTsLayout } from './ts.paths';
 
 /**
@@ -11,15 +11,17 @@ export function createTsIndexBuilder() {
 	return createHelper({
 		key: 'ts-index-builder',
 		kind: 'builder',
+		dependsOn: ['builder.generate.ts.core', 'ir.ordering.core'],
 		async apply({ input, output, reporter }) {
-			if (!input.ir || !input.ir.capabilityMap.definitions.length) {
+			const { ir } = requireIr(input, ['capabilityMap']);
+			if (!ir.capabilityMap.definitions.length) {
 				reporter.debug(
 					'Skipping TypeScript index module generation (no capabilities defined).'
 				);
 				return;
 			}
 
-			const { jsGenerated } = resolveTsLayout(input.ir);
+			const { jsGenerated } = resolveTsLayout(ir);
 			const indexPath = path.posix.join(jsGenerated, 'index.ts');
 			const dtsPath = path.posix.join(jsGenerated, 'index.d.ts');
 

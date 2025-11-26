@@ -131,6 +131,7 @@ export function initPipelineRunner<
 		const fragmentOrder = createDependencyGraph(
 			dependencies.fragmentEntries,
 			{
+				providedKeys: dependencies.options.fragmentProvidedKeys,
 				onMissingDependency: ({ dependant, dependencyKey }) => {
 					const helper = dependant.helper as HelperDescriptor;
 					dependencies.diagnosticManager.flagMissingDependency(
@@ -177,6 +178,7 @@ export function initPipelineRunner<
 
 		const builderGraphOptions: CreateDependencyGraphOptions<TBuilderHelper> =
 			{
+				providedKeys: dependencies.options.builderProvidedKeys,
 				onMissingDependency: ({ dependant, dependencyKey }) => {
 					const helper = dependant.helper as HelperDescriptor;
 					dependencies.diagnosticManager.flagMissingDependency(

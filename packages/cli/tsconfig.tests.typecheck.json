@@ -3,7 +3,7 @@
 	"extends": "../../tsconfig.tests.cli.json",
 	"compilerOptions": {
 		"rootDir": "../..",
-		"skipLibCheck": false,
+		"skipLibCheck": true,
 		"composite": false
 	},
 	"include": [

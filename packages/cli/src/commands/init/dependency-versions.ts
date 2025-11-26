@@ -28,6 +28,7 @@ interface VersionsManifest {
 const KERNEL_DEPENDENCIES: Record<string, string> = {
 	'@wpkernel/core': 'latest',
 	'@wpkernel/ui': 'latest',
+	'@wordpress/url': '^4.35.0',
 };
 
 const FALLBACK_PEER_VERSIONS: Record<string, string> = {
@@ -42,6 +43,7 @@ const FALLBACK_PEER_VERSIONS: Record<string, string> = {
 	'@wordpress/i18n': '^6.5.0',
 	'@wordpress/blocks': '>=13.0.0',
 	'@wordpress/block-editor': '>=13.0.0',
+	'@wordpress/interactivity': '>=6.34.0',
 	loglayer: '>=6.7.2',
 	'@loglayer/shared': '>=2.4.0',
 	'@loglayer/transport': '>=2.3.0',

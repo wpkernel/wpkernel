@@ -17,19 +17,18 @@ import { loadTsMorph } from './runtime.loader';
 
 const DEFAULT_RUNTIME_SYMBOL = 'adminScreenRuntime';
 
-function pickFirstString(values: readonly (string | undefined)[]): string {
-	for (const value of values) {
-		if (typeof value === 'string' && value.trim().length > 0) {
-			return value.trim();
-		}
-	}
-	return '';
-}
-
 export function createUiEntryBuilder(): BuilderHelper {
 	return createHelper({
 		key: 'builder.generate.ts.ui-entry',
 		kind: 'builder',
+		dependsOn: [
+			'builder.generate.ts.core',
+			'ir.resources.core',
+			'ir.capability-map.core',
+			'ir.blocks.core',
+			'ir.layout.core',
+			'ir.meta.core',
+		],
 		async apply({ context, input, output, reporter }) {
 			if (input.phase !== 'generate') {
 				reporter.debug('createUiEntryBuilder: skipping phase.', {
@@ -41,6 +40,7 @@ export function createUiEntryBuilder(): BuilderHelper {
 			const ir = requireIr(input.ir);
 			const paths = resolveTsLayout(ir);
 			const descriptors = collectResourceDescriptors(
+				ir,
 				input.options.config.resources
 			);
 			const hasUi = descriptors.length > 0;
@@ -49,6 +49,19 @@ export function createUiEntryBuilder(): BuilderHelper {
 			const entryPath = path.posix.join(uiGenerated, 'index.tsx');
 			const appliedEntryPath = path.posix.join(uiApplied, 'index.tsx');
 			const entryModulePath = appliedEntryPath;
+			const wpkConfigModule = buildModuleSpecifier({
+				workspace: context.workspace,
+				from: entryModulePath,
+				target: path.posix.join(
+					context.workspace.cwd(),
+					'wpk.config.ts'
+				),
+			});
+			const capabilityModule = buildModuleSpecifier({
+				workspace: context.workspace,
+				from: entryModulePath,
+				target: path.posix.join(paths.jsGenerated, 'capabilities.ts'),
+			});
 
 			if (!hasUi) {
 				if (await context.workspace.exists(entryPath)) {
@@ -78,37 +91,24 @@ export function createUiEntryBuilder(): BuilderHelper {
 			const sourceFile = project.createSourceFile(entryPath, '', {
 				overwrite: true,
 			});
+
+			// Always include DataViews base styles; harmless if unused.
+			sourceFile.addImportDeclaration({
+				moduleSpecifier: '@wordpress/dataviews/build-style/style.css',
+			});
+
 			const emittedFiles: string[] = [];
 			const emit = buildEmitter(context.workspace, output, emittedFiles);
 			await writeAdminRuntimeStub(
 				context.workspace,
 				path.posix.join(uiGenerated, 'runtime.ts')
 			);
-			const runtimeImportConfigured = pickFirstString(
-				descriptors.map(
-					(descriptor) => descriptor.dataviews.screen?.wpkernelImport
-				)
-			);
-			const runtimeImport =
-				runtimeImportConfigured ||
-				buildModuleSpecifier({
-					workspace: context.workspace,
-					from: appliedEntryPath,
-					target: path.posix.join(uiApplied, 'runtime.ts'),
-				});
-			const runtimeSymbol =
-				pickFirstString(
-					descriptors.map(
-						(descriptor) =>
-							descriptor.dataviews.screen?.wpkernelSymbol
-					)
-				) || DEFAULT_RUNTIME_SYMBOL;
-			const configImport = buildModuleSpecifier({
+			const runtimeImport = buildModuleSpecifier({
 				workspace: context.workspace,
-				from: entryModulePath,
-				target: input.options.sourcePath,
+				from: appliedEntryPath,
+				target: path.posix.join(uiApplied, 'runtime.ts'),
 			});
-
+			const runtimeSymbol = DEFAULT_RUNTIME_SYMBOL;
 			const autoRegisterPath = path.posix.join(
 				blocksGenerated,
 				'auto-register.ts'
@@ -151,10 +151,6 @@ export function createUiEntryBuilder(): BuilderHelper {
 					moduleSpecifier,
 				};
 			});
-
-			sourceFile.addStatements(
-				'/** @jsxImportSource @wordpress/element */'
-			);
 			sourceFile.addImportDeclaration({
 				moduleSpecifier: '@wpkernel/core/data',
 				namedImports: [
@@ -167,12 +163,16 @@ export function createUiEntryBuilder(): BuilderHelper {
 				namedImports: ['attachUIBindings'],
 			});
 			sourceFile.addImportDeclaration({
-				moduleSpecifier: 'react-dom/client',
-				namedImports: ['createRoot'],
+				moduleSpecifier: '@wordpress/element',
+				namedImports: ['render'],
 			});
 			sourceFile.addImportDeclaration({
-				moduleSpecifier: configImport,
+				moduleSpecifier: wpkConfigModule,
 				namedImports: ['wpkConfig'],
+			});
+			sourceFile.addImportDeclaration({
+				moduleSpecifier: capabilityModule,
+				namedImports: ['capabilities'],
 			});
 			if (autoRegisterImport) {
 				sourceFile.addImportDeclaration({
@@ -235,8 +235,7 @@ export function createUiEntryBuilder(): BuilderHelper {
 					writer.indent(() => writer.writeLine('return;'));
 					writer.writeLine('}');
 					writer.blankLine();
-					writer.writeLine('const root = createRoot(container);');
-					writer.writeLine('root.render(<Screen />);');
+					writer.writeLine('render(<Screen />, container);');
 				},
 			});
 
@@ -245,19 +244,85 @@ export function createUiEntryBuilder(): BuilderHelper {
 				isExported: true,
 				returnType: 'WPKInstance',
 				statements: (writer) => {
+					writer.writeLine(
+						'if (!(globalThis as { __WP_KERNEL_ACTION_RUNTIME__?: { capability?: typeof capabilities } }).__WP_KERNEL_ACTION_RUNTIME__) {'
+					);
+					writer.indent(() => {
+						writer.writeLine(
+							'(globalThis as { __WP_KERNEL_ACTION_RUNTIME__?: { capability?: typeof capabilities } }).__WP_KERNEL_ACTION_RUNTIME__ = {'
+						);
+						writer.indent(() => {
+							writer.writeLine('capability: capabilities,');
+						});
+						writer.writeLine('};');
+					});
+					writer.writeLine('} else {');
+					writer.indent(() => {
+						writer.writeLine(
+							'const runtime = (globalThis as { __WP_KERNEL_ACTION_RUNTIME__?: { capability?: typeof capabilities } }).__WP_KERNEL_ACTION_RUNTIME__;'
+						);
+						writer.writeLine(
+							'if (runtime && !runtime.capability) {'
+						);
+						writer.indent(() =>
+							writer.writeLine(
+								'runtime.capability = capabilities;'
+							)
+						);
+						writer.writeLine('}');
+					});
+					writer.writeLine('}');
+					writer.blankLine();
+					writer.writeLine('const dataviewConfigs = {');
+					writer.indent(() => {
+						for (const descriptor of descriptors) {
+							writer.write(
+								`[${JSON.stringify(descriptor.key)}]: {`
+							);
+							writer.newLine();
+							writer.indent(() => {
+								writer.writeLine('fields: [],');
+								writer.writeLine(
+									'defaultView: { type: "table" },'
+								);
+								writer.writeLine(
+									`preferencesKey: ${JSON.stringify(
+										`${ir.meta.namespace}/dataviews/${descriptor.name}`
+									)},`
+								);
+								writer.writeLine(
+									'mapQuery: (query: Record<string, unknown>) => query ?? {},'
+								);
+							});
+							writer.writeLine('},');
+						}
+					});
+					writer.writeLine('} as const;');
 					writer.writeLine('const wpk = configureWPKernel({');
 					writer.indent(() =>
 						writer.writeLine('namespace: wpkConfig.namespace,')
 					);
 					writer.writeLine('});');
 					writer.writeLine(
-						'Object.values(wpkConfig.resources ?? {}).forEach((resource) => {'
+						'Object.entries(wpkConfig.resources ?? {}).forEach(([name, resource]) => {'
 					);
-					writer.indent(() =>
+					writer.indent(() => {
 						writer.writeLine(
-							'wpk.defineResource(resource as unknown as Parameters<typeof wpk.defineResource>[0]);'
-						)
-					);
+							'const normalizedDataviews = (dataviewConfigs as Record<string, unknown>)[name];'
+						);
+						writer.writeLine(
+							'const resourceWithUI = normalizedDataviews'
+						);
+						writer.indent(() => {
+							writer.writeLine(
+								'? { ...resource, ui: { ...(resource as { ui?: unknown }).ui, admin: { ...(resource as { ui?: { admin?: unknown } }).ui?.admin, dataviews: normalizedDataviews } } }'
+							);
+							writer.writeLine(': resource;');
+						});
+						writer.writeLine(
+							'wpk.defineResource(resourceWithUI as unknown as Parameters<typeof wpk.defineResource>[0]);'
+						);
+					});
 					writer.writeLine('});');
 					writer.writeLine(
 						'const uiRuntime = attachUIBindings(wpk, { dataviews: { enable: true } });'

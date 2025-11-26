@@ -12,11 +12,7 @@ import {
 	setWPKernelEventBus,
 	WPKernelEventBus,
 } from '../../events/bus';
-import type {
-	ResourceObject,
-	ResourceStore,
-	ResourceDataViewsUIConfig,
-} from '../types';
+import type { ResourceObject, ResourceStore } from '../types';
 import {
 	createApiFetchHarness,
 	withWordPressData,
@@ -272,40 +268,6 @@ describe('defineResource - integration', () => {
 					expect(mockRegister).toHaveBeenCalledWith(mockCreatedStore);
 				}
 			);
-		});
-	});
-
-	describe('ui metadata', () => {
-		it('preserves admin dataview metadata on the resource object', () => {
-			const dataviewConfig: ResourceDataViewsUIConfig<Thing, ThingQuery> =
-				{
-					fields: [{ id: 'title', label: 'Title' }],
-					defaultView: {
-						type: 'table',
-						fields: ['title'],
-					},
-					search: true,
-					preferencesKey: 'demo/dataviews/job',
-					screen: {
-						component: 'JobsAdminScreen',
-						route: '/admin/jobs',
-					},
-				};
-
-			const resource = defineResource<Thing>({
-				name: 'thing',
-				routes: {
-					list: { path: '/my-plugin/v1/things', method: 'GET' },
-				},
-				ui: {
-					admin: {
-						view: 'dataviews',
-						dataviews: dataviewConfig,
-					},
-				},
-			});
-
-			expect(resource.ui?.admin?.dataviews).toEqual(dataviewConfig);
 		});
 	});
 

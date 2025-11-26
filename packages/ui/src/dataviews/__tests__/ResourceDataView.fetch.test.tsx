@@ -8,7 +8,7 @@ import {
 	createWPKernelRuntime,
 	type ResourceDataViewTestProps,
 	type RuntimeWithDataViews,
-} from '../test-support/ResourceDataView.test-support';
+} from '../../../tests/ResourceDataView.test-support';
 import { WPKernelError } from '@wpkernel/core/error';
 import { listLoadFailedMessage } from '../resource-data-view/i18n';
 import type {

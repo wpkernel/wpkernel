@@ -28,6 +28,7 @@ import {
 	createTsIndexBuilder,
 	createTsBuilder,
 	createUiEntryBuilder,
+	createTsConfigBuilder,
 } from '../builders';
 import { buildAdapterExtensionsExtension } from '../runtime/adapterExtensions';
 import { buildEmptyGenerationState } from '../apply/manifest';
@@ -86,6 +87,7 @@ function registerCoreBuilders(pipeline: Pipeline): void {
 	pipeline.builders.use(createJsBlocksBuilder());
 	pipeline.builders.use(createTsBuilder());
 	pipeline.builders.use(createUiEntryBuilder());
+	pipeline.builders.use(createTsConfigBuilder());
 	pipeline.builders.use(createBundler());
 	pipeline.builders.use(createPhpDriverInstaller());
 	pipeline.builders.use(createPhpBuilder());

@@ -10,6 +10,7 @@ export {
 	createUiEntryBuilder,
 	buildTsFormatter,
 } from './ts';
+export { createTsConfigBuilder } from './tsconfig';
 export { createPlanBuilder, createApplyPlanBuilder } from './plan';
 export { createPatcher } from './patcher';
 export type {

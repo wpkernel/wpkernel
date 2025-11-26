@@ -6,7 +6,7 @@ import {
 	DATA_VIEWS_EVENT_VIEW_CHANGED,
 	type DataViewChangedPayload,
 } from '../../runtime/dataviews/events';
-import { createWPKernelRuntime } from '../test-support/ResourceDataView.test-support';
+import { createWPKernelRuntime } from '../../../tests/ResourceDataView.test-support';
 
 describe('subscribeToDataViewsEvent', () => {
 	it('invokes listeners when events fire', () => {

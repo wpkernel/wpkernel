@@ -1,7 +1,6 @@
 import type {
 	ResourceDataViewConfig,
 	ResourceDataViewSavedView,
-	ResourceDataViewScreenConfig,
 } from '../../../dataviews/types';
 import type { DataViewMetadataIssue, MetadataPath } from './types';
 import {
@@ -15,7 +14,6 @@ import { normalizeFields } from './fields';
 import { normalizeView, normalizeSavedViews } from './views';
 import { normalizeActions } from './actions';
 import { normalizePerPageSizes, normalizeDefaultLayouts } from './pagination';
-import { normalizeScreen } from './screen';
 
 export function buildConfig<TItem, TQuery>(
 	metadata: Record<string, unknown>,
@@ -181,14 +179,6 @@ function applyOptionalAssignments<TItem, TQuery>({
 				normalizeSavedViews(value, issues, fieldPath),
 			assign: (views) => {
 				config.views = views as ResourceDataViewSavedView[];
-			},
-		},
-		{
-			key: 'screen',
-			normalize: (value, fieldPath) =>
-				normalizeScreen(value, issues, fieldPath),
-			assign: (screen) => {
-				config.screen = screen as ResourceDataViewScreenConfig;
 			},
 		},
 	];

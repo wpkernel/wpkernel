@@ -1,9 +1,5 @@
 import { WPK_CONFIG_SOURCES } from '@wpkernel/core/contracts';
-import type {
-	ResourceConfig,
-	ResourceDataViewsScreenConfig,
-	ResourceDataViewsUIConfig,
-} from '@wpkernel/core/resource';
+import type { ResourceConfig } from '@wpkernel/core/resource';
 import type {
 	BuildIrOptions,
 	IRHashProvenance,
@@ -18,7 +14,6 @@ export {
 	normalise,
 	prefixRelative,
 } from './builder-harness.test-support.js';
-
 export type {
 	BuilderHarnessContext,
 	WorkspaceFactoryOptions,
@@ -40,7 +35,7 @@ export interface WPKernelConfigSourceOptions {
 	readonly resourceKey?: string;
 	readonly resourceName?: string;
 	readonly dataviews?: {
-		readonly screen?: Partial<ResourceDataViewsScreenConfig>;
+		readonly view?: string;
 	} | null;
 }
 
@@ -55,65 +50,12 @@ export function buildWPKernelConfigSource(
 	} = options;
 
 	const includeDataViews = dataviews !== null;
-	const camelResourceKey = toCamelCase(resourceKey);
-	const identifier = `${camelResourceKey}DataViewsConfig`;
-
-	const screenBlock = includeDataViews
-		? buildScreenBlock(dataviews?.screen ?? {})
-		: undefined;
-
-	const dataViewsDeclaration = includeDataViews
-		? `const ${identifier}: ResourceDataViewConfig<unknown, unknown> = {
-        fields: [
-                { id: 'title', label: 'Title' },
-                { id: 'status', label: 'Status' },
-        ],
-        defaultView: {
-                type: 'table',
-                fields: ['title', 'status'],
-        },
-        mapQuery: (viewState: Record<string, unknown>) => {
-                const search = toTrimmedString(viewState.search);
-                return search ? { q: search } : {};
-        },
-        search: true,
-        searchLabel: 'Search jobs',
-        perPageSizes: [10, 25, 50],
-        defaultLayouts: {
-                table: { columns: ['title', 'status'] },
-        },
-        views: [
-                {
-                        id: 'all',
-                        label: 'All jobs',
-                        view: { type: 'table', fields: ['title', 'status'] },
-                        isDefault: true,
-                },
-                {
-                        id: 'draft',
-                        label: 'Draft jobs',
-                        view: {
-                                type: 'table',
-                                fields: ['title', 'status'],
-                                filters: { status: ['draft'] },
-                        },
-                        description: 'Jobs awaiting publication.',
-                },
-        ],
-        preferencesKey: 'jobs/admin',
-        screen: ${screenBlock ?? '{}'},
-};
-
-`
-		: '';
-
 	const dataviewsAssignment = includeDataViews
-		? `                        ui: { admin: { dataviews: ${identifier} } },
+		? `                        ui: { admin: { view: 'dataviews' } },
 `
 		: '';
 
-	return `import type { ResourceDataViewConfig } from '@wpkernel/ui/dataviews';
-
+	return `
 const toTrimmedString = (value: unknown): string | undefined => {
         if (typeof value !== 'string') {
                 return undefined;
@@ -123,7 +65,7 @@ const toTrimmedString = (value: unknown): string | undefined => {
         return trimmed.length > 0 ? trimmed : undefined;
 };
 
-${dataViewsDeclaration}export const wpkConfig = {
+export const wpkConfig = {
         version: 1,
         namespace: '${namespace}',
         schemas: {},
@@ -139,91 +81,29 @@ ${dataviewsAssignment}                },
 `;
 }
 
-export interface DataViewsConfigOverrides
-	extends Partial<Omit<ResourceDataViewsUIConfig, 'screen'>> {
-	readonly screen?: Partial<ResourceDataViewsScreenConfig> | null;
+export interface DataViewsConfigOverrides {
+	readonly view?: string | null;
 }
 
 export function buildDataViewsConfig(
 	overrides: DataViewsConfigOverrides = {}
-): ResourceDataViewsUIConfig {
-	const { screen: screenOverrides, ...rest } = overrides;
-
-	const baseScreen: ResourceDataViewsScreenConfig = {
-		component: 'JobsAdminScreen',
-		route: '/admin/jobs',
-		menu: {
-			slug: 'jobs-admin',
-			title: 'Jobs',
-			capability: 'manage_options',
-			parent: 'admin.php',
-			position: 25,
-		},
-	};
-
-	const screenConfig =
-		screenOverrides === null
-			? undefined
-			: {
-					...baseScreen,
-					...(screenOverrides ?? {}),
-				};
-
-	const base: ResourceDataViewsUIConfig = {
-		fields: [
-			{ id: 'title', label: 'Title' },
-			{ id: 'status', label: 'Status' },
-		],
-		defaultView: { type: 'table', fields: ['title', 'status'] },
-		mapQuery: (viewState: Record<string, unknown>) => {
-			const search = (viewState as { search?: string }).search ?? '';
-			return search.trim().length > 0 ? { q: search.trim() } : {};
-		},
-		search: true,
-		searchLabel: 'Search jobs',
-		perPageSizes: [10, 25, 50],
-		defaultLayouts: {
-			table: { columns: ['title', 'status'] },
-		},
-		views: [
-			{
-				id: 'all',
-				label: 'All jobs',
-				view: { type: 'table', fields: ['title', 'status'] },
-				isDefault: true,
-			},
-			{
-				id: 'draft',
-				label: 'Draft jobs',
-				view: {
-					type: 'table',
-					fields: ['title', 'status'],
-					filters: { status: ['draft'] },
-				},
-				description: 'Jobs awaiting publication.',
-			},
-		],
-		preferencesKey: 'jobs/admin',
-		...(screenConfig ? { screen: screenConfig } : {}),
-	} satisfies ResourceDataViewsUIConfig;
-
-	return {
-		...base,
-		...rest,
-		...(screenConfig ? { screen: screenConfig } : {}),
-	} satisfies ResourceDataViewsUIConfig;
+): { view?: string } {
+	if (overrides.view === null) {
+		return {};
+	}
+	return { view: overrides.view ?? 'dataviews' };
 }
 
 export interface BuilderArtifactOptions {
 	readonly namespace?: string;
 	readonly resourceKey?: string;
 	readonly resourceName?: string;
-	readonly dataviews?: ResourceDataViewsUIConfig | null;
+	readonly dataviews?: { view?: string } | null;
 	readonly sourcePath: string;
 }
 
 export interface BuilderArtifacts {
-	readonly config: WPKernelConfigV1;
+	// readonly config: WPKernelConfigV1;
 	readonly ir: IRv1;
 	readonly options: BuildIrOptions;
 }
@@ -245,11 +125,7 @@ export function buildBuilderArtifacts(
 		schema: 'auto',
 		routes: {},
 		cacheKeys: {},
-		...(dataviews
-			? {
-					ui: { admin: { dataviews } },
-				}
-			: {}),
+		...(dataviews ? { ui: { admin: { view: 'dataviews' } } } : {}),
 	} as ResourceConfig;
 
 	const config: WPKernelConfigV1 = {
@@ -267,7 +143,19 @@ export function buildBuilderArtifacts(
 		controllerClass: buildControllerClassName(namespace, resourceName),
 		schemaKey: resourceKey,
 		schemaProvenance: 'manual',
-		routes: [],
+		routes: [
+			{
+				method: 'GET',
+				path: `/${namespace}/v1/${resourceName}`,
+				capability: undefined,
+				hash: {
+					algo: 'sha256',
+					inputs: ['method', 'path'],
+					value: `${resourceName}-list`,
+				},
+				transport: 'local',
+			},
+		],
 		cacheKeys: {
 			list: { segments: [resourceKey, 'list'], source: 'config' },
 			get: { segments: [resourceKey, 'get'], source: 'config' },
@@ -304,7 +192,17 @@ export function buildBuilderArtifacts(
 		},
 		config,
 		schemas: [],
-		resources: [irResource],
+		resources: [
+			{
+				...irResource,
+				ui:
+					resourceConfig.ui?.admin?.view === 'dataviews'
+						? {
+								admin: { view: 'dataviews' },
+							}
+						: resourceConfig.ui,
+			} as IRResource,
+		],
 		capabilities: [],
 		capabilityMap: {
 			sourcePath: undefined,
@@ -324,6 +222,25 @@ export function buildBuilderArtifacts(
 			outputDir: layout.resolve('php.generated'),
 		},
 		layout,
+		ui:
+			resourceConfig.ui?.admin?.view === 'dataviews'
+				? {
+						loader: undefined,
+						resources: [
+							{
+								resource: resourceKey,
+								preferencesKey: `${namespace}/dataviews/${resourceName}`,
+								dataviews: {
+									fields: [],
+									defaultView: { type: 'table' },
+									mapQuery: (view: Record<string, unknown>) =>
+										view ?? {},
+									preferencesKey: `${namespace}/dataviews/${resourceName}`,
+								},
+							},
+						],
+					}
+				: { resources: [] },
 	} as IRv1;
 
 	const buildOptions: BuildIrOptions = {
@@ -333,53 +250,7 @@ export function buildBuilderArtifacts(
 		sourcePath,
 	} as BuildIrOptions;
 
-	return { config, ir, options: buildOptions } satisfies BuilderArtifacts;
-}
-
-function buildScreenBlock(
-	overrides: Partial<ResourceDataViewsScreenConfig>
-): string {
-	const screen: ResourceDataViewsScreenConfig = {
-		component: 'JobsAdminScreen',
-		route: '/admin/jobs',
-		...overrides,
-	};
-
-	const lines: string[] = [`component: '${screen.component}',`];
-	if (screen.route) {
-		lines.push(`route: '${screen.route}',`);
-	}
-	if (screen.resourceImport) {
-		lines.push(`resourceImport: '${screen.resourceImport}',`);
-	}
-	if (screen.resourceSymbol) {
-		lines.push(`resourceSymbol: '${screen.resourceSymbol}',`);
-	}
-	if (screen.wpkernelImport) {
-		lines.push(`wpkernelImport: '${screen.wpkernelImport}',`);
-	}
-	if (screen.wpkernelSymbol) {
-		lines.push(`wpkernelSymbol: '${screen.wpkernelSymbol}',`);
-	}
-	if (screen.menu) {
-		const menuLines: string[] = [];
-		for (const [key, value] of Object.entries(screen.menu)) {
-			if (typeof value === 'string') {
-				menuLines.push(`${key}: '${value}',`);
-				continue;
-			}
-
-			menuLines.push(`${key}: ${JSON.stringify(value)},`);
-		}
-
-		lines.push(`menu: {
-                ${menuLines.join('\n                ')}
-        },`);
-	}
-
-	return `{
-        ${lines.join('\n        ')}
-}`;
+	return { ir, options: buildOptions } satisfies BuilderArtifacts;
 }
 
 function toPascalCase(value: string): string {
@@ -391,12 +262,4 @@ function toPascalCase(value: string): string {
 				segment.charAt(0).toUpperCase() + segment.slice(1).toLowerCase()
 		)
 		.join('');
-}
-
-function toCamelCase(value: string): string {
-	const pascal = toPascalCase(value);
-	if (pascal.length === 0) {
-		return pascal;
-	}
-	return pascal.charAt(0).toLowerCase() + pascal.slice(1);
 }

@@ -312,6 +312,13 @@ export default [
 	},
 
 	{
+		files: ['packages/ui/src/runtime/attachUIBindings.ts'],
+		rules: {
+			'@typescript-eslint/consistent-type-imports': 'off',
+		},
+	},
+
+	{
 		files: ['packages/cli/**/*.{js,ts,tsx}'],
 		rules: {
 			'import/no-extraneous-dependencies': 'off',

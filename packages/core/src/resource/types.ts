@@ -113,6 +113,39 @@ export type ResourceStorageConfig =
 	  };
 
 /**
+ * Shallow admin UI configuration.
+ *
+ * Public config does *not* describe DataViews internals or menu wiring.
+ * Those are inferred from schema/storage/capabilities + layout manifest.
+ */
+export interface ResourceAdminUIConfig {
+	/**
+	 * Selected admin view implementation.
+	 * 'dataviews' is the canonical value; others reserved for future.
+	 */
+	view?: 'dataviews' | string;
+
+	/**
+	 * Optional positional hint if you *really* want it.
+	 * Everything else (slug, title, capability, parent) is inferred.
+	 */
+	position?: number;
+
+	/**
+	 * Reserved for future extensions / internal tagging.
+	 */
+	[key: string]: unknown;
+}
+
+/**
+ * Top-level UI metadata attached to a resource.
+ */
+export interface ResourceUIConfig {
+	admin?: ResourceAdminUIConfig;
+	[key: string]: unknown;
+}
+
+/**
  * Standard CRUD routes for a resource
  *
  * All routes are optional. At minimum, define the operations your resource supports.
@@ -379,7 +412,7 @@ export type ResourceConfig<
 	/**
 	 * Optional UI metadata surfaced to runtime integrations (e.g., DataViews).
 	 */
-	ui?: ResourceUIConfig<T, TQuery>;
+	ui?: ResourceUIConfig;
 
 	/**
 	 * Optional inline capability mappings.
@@ -414,219 +447,6 @@ export interface ResourceDataViewsMenuConfig {
 	capability?: string;
 	parent?: string;
 	position?: number;
-	[key: string]: unknown;
-}
-
-/**
- * Screen configuration for an admin DataViews entry point.
- *
- * Controls the generated React component, routing, and how the CLI resolves
- * imports between resource modules, wpk bootstrap, and UI runtime.
- *
- * All fields are optional; sensible defaults are derived from the resource name.
- *
- * @category Resource
- */
-export interface ResourceDataViewsScreenConfig {
-	component?: string;
-	route?: string;
-	resourceImport?: string;
-	resourceSymbol?: string;
-	wpkernelImport?: string;
-	wpkernelSymbol?: string;
-	menu?: ResourceDataViewsMenuConfig;
-	[key: string]: unknown;
-}
-
-/**
- * Definition of a saved DataViews preset.
- *
- * These entries are forwarded to `@wordpress/dataviews` and can be used as
- * initial layouts before user preferences are hydrated.
- *
- * @category Resource
- */
-/**
- * Definition of a saved DataViews preset.
- *
- * These entries are forwarded to `@wordpress/dataviews` and can be used as
- * initial layouts before user preferences are hydrated.
- *
- * @category DataViews Integration
- */
-export interface ResourceDataViewsSavedViewConfig {
-	id: string;
-	label: string;
-	view: Record<string, unknown>;
-	description?: string;
-	isDefault?: boolean;
-	[key: string]: unknown;
-}
-
-/**
- * Interactivity metadata for a DataViews screen.
- *
- * Used to derive stable `data-wp-interactive` namespaces and feature identifiers
- * for WordPress Interactivity bindings.
- *
- * @category Resource
- */
-/**
- * Interactivity metadata for a DataViews screen.
- *
- * Used to derive stable `data-wp-interactive` namespaces and feature identifiers
- * for WordPress Interactivity bindings.
- *
- * @category DataViews Integration
- */
-export interface ResourceDataViewsInteractivityConfig {
-	/** Optional feature identifier used for wp-interactivity namespaces. */
-	feature?: string;
-	[key: string]: unknown;
-}
-
-/**
- * DataViews integration contract for a resource's admin UI.
- *
- * Describes how `@wpkernel/ui` and generators should:
- * - map DataViews state into query objects,
- * - resolve item identities,
- * - expose saved views, layouts, and actions,
- * - and attach interactivity and screen metadata.
- *
- * @typeParam TItem  - Entity shape rendered in the view.
- * @typeParam TQuery - Query shape produced by `mapQuery`.
- *
- * @category Resource
- */
-export interface ResourceDataViewsUIConfig<TItem = unknown, TQuery = unknown> {
-	/**
-	 * Column/field descriptors forwarded to DataViews.
-	 */
-	fields?: ReadonlyArray<Record<string, unknown>> | Record<string, unknown>[];
-
-	/**
-	 * Default view configuration used when no preference is stored.
-	 */
-	defaultView?: Record<string, unknown>;
-
-	/**
-	 * Action descriptors (row and bulk actions).
-	 * The CLI and runtime use these to wire interactivity bindings.
-	 */
-	actions?:
-		| ReadonlyArray<Record<string, unknown>>
-		| Record<string, unknown>[];
-
-	/**
-	 * Maps DataViews state into the resource's query shape.
-	 * This function is the primary bridge between UI filters and REST queries.
-	 */
-	mapQuery?: (viewState: Record<string, unknown>) => TQuery;
-
-	/**
-	 * Enables search UI and, optionally, customizes its label.
-	 */
-	search?: boolean;
-	searchLabel?: string;
-
-	/**
-	 * Extracts a stable identifier for rows rendered by the DataView.
-	 * Defaults to `item.id` when omitted.
-	 */
-	getItemId?: (item: TItem) => string;
-
-	/**
-	 * Optional empty state configuration; forwarded to UI helpers.
-	 */
-	empty?: unknown;
-
-	/**
-	 * Page size options exposed in the DataView.
-	 */
-	perPageSizes?: ReadonlyArray<number> | number[];
-
-	/**
-	 * Per-layout defaults (e.g. table/grid) merged with user preferences.
-	 */
-	defaultLayouts?: Record<string, Record<string, unknown> | null | undefined>;
-
-	/**
-	 * Server-defined saved views available on first render.
-	 */
-	views?:
-		| ReadonlyArray<ResourceDataViewsSavedViewConfig>
-		| ResourceDataViewsSavedViewConfig[];
-
-	/**
-	 * Key used to persist user preferences for this DataView.
-	 */
-	preferencesKey?: string;
-
-	/**
-	 * Interactivity metadata used to derive namespaces and features.
-	 */
-	interactivity?: ResourceDataViewsInteractivityConfig;
-
-	/**
-	 * Admin screen configuration for this DataView.
-	 */
-	screen?: ResourceDataViewsScreenConfig;
-
-	/**
-	 * Additional fields reserved for future extensions.
-	 */
-	[key: string]: unknown;
-}
-
-/**
- * Admin UI configuration for a resource.
- *
- * Currently models the DataViews-based admin surface; additional admin
- * integrations can extend this shape over time.
- *
- * @typeParam TItem  - Entity shape used in admin views.
- * @typeParam TQuery - Query shape used by admin list operations.
- *
- * @category Resource
- */
-export interface ResourceAdminUIConfig<TItem = unknown, TQuery = unknown> {
-	/**
-	 * Selected admin view implementation. `'dataviews'` is the canonical value.
-	 */
-	view?: 'dataviews' | string;
-
-	/**
-	 * DataViews configuration for this resource's admin screen.
-	 */
-	dataviews?: ResourceDataViewsUIConfig<TItem, TQuery>;
-
-	/**
-	 * Additional fields reserved for future extensions.
-	 */
-	[key: string]: unknown;
-}
-
-/**
- * Top-level UI metadata attached to a resource.
- *
- * Feeds CLI generators and `@wpkernel/ui` so that admin surfaces, fixtures,
- * and interactivity bindings can be derived from a single source of truth.
- *
- * @typeParam TItem  - Entity shape used in admin views.
- * @typeParam TQuery - Query shape used by admin list operations.
- *
- * @category Resource
- */
-export interface ResourceUIConfig<TItem = unknown, TQuery = unknown> {
-	/**
-	 * Admin-specific UI configuration (e.g. DataViews).
-	 */
-	admin?: ResourceAdminUIConfig<TItem, TQuery>;
-
-	/**
-	 * Additional fields reserved for future extensions.
-	 */
 	[key: string]: unknown;
 }
 
@@ -710,7 +530,7 @@ export type ResourceClient<T = unknown, TQuery = unknown> = {
 	/**
 	 * Optional UI metadata carried over from ResourceConfig.ui.
 	 */
-	ui?: ResourceUIConfig<T, TQuery>;
+	ui?: ResourceUIConfig;
 };
 
 /**

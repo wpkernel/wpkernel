@@ -168,7 +168,7 @@ export interface BuildTsFormatterOptions {
 }
 type ResourceUiConfig = NonNullable<ResourceConfig['ui']>;
 type ResourceAdminConfig = NonNullable<ResourceUiConfig['admin']>;
-export type AdminDataViews = NonNullable<ResourceAdminConfig['dataviews']>;
+export type AdminDataViews = ResourceAdminConfig['dataviews'];
 /**
  * Describes a resource with its associated configuration and dataviews.
  *
@@ -183,7 +183,9 @@ export interface ResourceDescriptor {
 	/** The configuration object for the resource. */
 	readonly config: ResourceConfig;
 	/** The admin dataviews configuration for the resource. */
-	readonly dataviews: AdminDataViews;
+	readonly dataviews?: AdminDataViews;
+	/** Selected admin view implementation (e.g., 'dataviews'). */
+	readonly adminView?: string;
 }
 export type PlanInstruction =
 	| {

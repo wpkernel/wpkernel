@@ -1,3 +1,4 @@
+import path from 'node:path';
 import { WPKernelError } from '@wpkernel/core/error';
 import type { ResourceConfig } from '@wpkernel/core/resource';
 import type { Reporter } from '@wpkernel/core/reporter';
@@ -7,10 +8,9 @@ import type {
 	BuilderOutput,
 	PipelinePhase,
 } from '../../runtime/types';
-import { buildDataViewRegistryCreator } from './pipeline.creator.registry';
-import { buildDataViewInteractivityFixtureCreator } from './pipeline.creator.interactivityFixture';
-import { buildDataViewFixtureCreator } from './pipeline.creator.dataViewFixture';
+// Legacy fixture/registry creators are intentionally unused with IR-driven dataviews.
 import { buildAdminScreenCreator } from './pipeline.creator.adminScreen';
+import { printCapabilityModule } from './entry.capability';
 import {
 	type AdminDataViews,
 	type CreateTsBuilderOptions,
@@ -55,9 +55,7 @@ export function createTsBuilder(
 ): BuilderHelper {
 	const creators = options.creators?.slice() ?? [
 		buildAdminScreenCreator(),
-		buildDataViewFixtureCreator(),
-		buildDataViewInteractivityFixtureCreator(),
-		buildDataViewRegistryCreator(),
+		// Fixtures/registry removed; IR drives admin screens only.
 	];
 	const projectFactory = options.projectFactory ?? buildProject;
 	const lifecycleHooks = options.hooks ?? {};
@@ -65,6 +63,15 @@ export function createTsBuilder(
 	return createHelper({
 		key: 'builder.generate.ts.core',
 		kind: 'builder',
+		dependsOn: [
+			'ir.resources.core',
+			'ir.capability-map.core',
+			'ir.blocks.core',
+			'ir.layout.core',
+			'ir.meta.core',
+			'ir.schemas.core',
+			'ir.ordering.core',
+		],
 		async apply({ context, input, output, reporter }: BuilderApplyOptions) {
 			if (!isGeneratePhase(input.phase, reporter)) {
 				return;
@@ -74,6 +81,7 @@ export function createTsBuilder(
 
 			const emittedFiles: string[] = [];
 			const descriptors = collectResourceDescriptors(
+				ir,
 				input.options.config.resources
 			);
 
@@ -85,6 +93,64 @@ export function createTsBuilder(
 			const project = await Promise.resolve(projectFactory());
 			const emit = buildEmitter(context.workspace, output, emittedFiles);
 			const paths = resolveTsLayout(ir);
+
+			const capabilityModule = await printCapabilityModule(ir);
+			const capabilityModulePath = path.posix.join(
+				paths.jsGenerated,
+				'capabilities.ts'
+			);
+			const capabilityDtsPath = path.posix.join(
+				paths.jsGenerated,
+				'capabilities.d.ts'
+			);
+			const indexModulePath = path.posix.join(
+				paths.jsGenerated,
+				'index.ts'
+			);
+			const indexDtsPath = path.posix.join(
+				paths.jsGenerated,
+				'index.d.ts'
+			);
+
+			await context.workspace.write(
+				capabilityModulePath,
+				capabilityModule.source,
+				{ ensureDir: true }
+			);
+			output.queueWrite({
+				file: capabilityModulePath,
+				contents: capabilityModule.source,
+			});
+
+			await context.workspace.write(
+				capabilityDtsPath,
+				capabilityModule.declaration,
+				{ ensureDir: true }
+			);
+			output.queueWrite({
+				file: capabilityDtsPath,
+				contents: capabilityModule.declaration,
+			});
+
+			const indexSource =
+				"export { capabilities } from './capabilities';\nexport type { CapabilityConfig, CapabilityKey, CapabilityRuntime } from './capabilities';\n";
+
+			await context.workspace.write(indexModulePath, indexSource, {
+				ensureDir: true,
+			});
+			output.queueWrite({
+				file: indexModulePath,
+				contents: indexSource,
+			});
+
+			await context.workspace.write(indexDtsPath, indexSource, {
+				ensureDir: true,
+			});
+			output.queueWrite({
+				file: indexDtsPath,
+				contents: indexSource,
+			});
+
 			await generateArtifacts({
 				descriptors,
 				creators,
@@ -113,33 +179,37 @@ export function createTsBuilder(
 /**
  * Extracts resource descriptors from CLI config entries that declare admin DataViews.
  *
+ * @param    ir
  * @param    resources
  * @category Builders
  */
 export function collectResourceDescriptors(
+	ir: IRv1,
 	resources: Record<string, ResourceConfig> | undefined
 ): ResourceDescriptor[] {
-	const descriptors: ResourceDescriptor[] = [];
-
-	if (!resources) {
-		return descriptors;
+	const uiResources = ir.ui?.resources ?? [];
+	if (!resources || uiResources.length === 0) {
+		return [];
 	}
 
-	for (const [key, resourceConfig] of Object.entries(resources)) {
-		const dataviews = resourceConfig.ui?.admin?.dataviews;
-		if (!dataviews) {
-			continue;
+	return uiResources.reduce<ResourceDescriptor[]>((acc, uiResource) => {
+		const resourceConfig = resources[uiResource.resource];
+		if (
+			!resourceConfig ||
+			resourceConfig.ui?.admin?.view !== 'dataviews' ||
+			!uiResource.dataviews
+		) {
+			return acc;
 		}
-
-		descriptors.push({
-			key,
-			name: resourceConfig.name ?? key,
+		acc.push({
+			key: uiResource.resource,
+			name: resourceConfig.name ?? uiResource.resource,
 			config: resourceConfig,
-			dataviews: dataviews as AdminDataViews,
+			adminView: resourceConfig.ui?.admin?.view,
+			dataviews: uiResource.dataviews as AdminDataViews,
 		});
-	}
-
-	return descriptors;
+		return acc;
+	}, []);
 }
 
 /**

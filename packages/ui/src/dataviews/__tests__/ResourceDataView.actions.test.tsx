@@ -7,9 +7,9 @@ import {
 	renderActionScenario,
 	createAction,
 	createDataViewsTestController,
+	createNoticeRegistry,
 	type DefaultActionInput,
-} from '../test-support/ResourceDataView.test-support';
-import { createNoticeRegistry } from '../test-support/ResourceDataView.test-support';
+} from '../../../tests/ResourceDataView.test-support';
 import { act } from 'react';
 import { WPKernelError } from '@wpkernel/core/error';
 import type { CacheKeyPattern } from '@wpkernel/core/resource';

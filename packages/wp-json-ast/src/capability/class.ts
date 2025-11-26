@@ -7,7 +7,7 @@ import {
 
 import type { CapabilityMapConfig } from './types';
 import { buildCallbackMethod } from './callback';
-import { buildEnforceMethod } from './enforce';
+import { buildEnforceMethod, buildResolveCapabilityMethod } from './enforce';
 import { buildFallbackMethod, buildCapabilityMapMethod } from './map';
 import {
 	buildCreateErrorMethod,
@@ -31,6 +31,7 @@ export function buildCapabilityClass(
 		buildCapabilityMapMethod(capabilityMap.definitions),
 		buildFallbackMethod(capabilityMap.fallback),
 		buildCallbackMethod(),
+		buildResolveCapabilityMethod(),
 		buildEnforceMethod(),
 		buildGetDefinitionMethod(),
 		buildGetBindingMethod(),

@@ -5,7 +5,8 @@
 		"baseUrl": "../../../",
 		"rootDir": "../..",
 		"outDir": "../dist-test-support",
-		"noEmit": true
+		"noEmit": true,
+		"skipLibCheck": true
 	},
 	"files": ["../package.json"],
 	"include": ["./**/*.ts", "./**/*.tsx"],

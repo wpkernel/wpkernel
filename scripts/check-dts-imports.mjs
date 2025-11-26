@@ -6,6 +6,7 @@ import ts from 'typescript';
 
 const PACKAGES = ['core', 'cli', 'pipeline', 'php-json-ast', 'ui', 'wp-json-ast'];
 const mode = process.argv.includes('--fix') ? 'fix' : 'check';
+const stripMaps = process.argv.includes('--strip-maps');
 const distGlobs = ['packages/*/dist/**/*.d.ts'];
 const offenders = [];
 
@@ -19,11 +20,27 @@ function printFile(node, sourceFile) {
 }
 
 function toPackageAlias(specifier) {
-	const regex = new RegExp(String.raw`^\.\.\/\.\.\/(?:packages\/)?(${PACKAGES.join('|')})\/src\/(.+)$`);
-	const match = specifier.match(regex);
-	if (!match) return null;
-	const [, pkg, rest] = match;
-	return `@wpkernel/${pkg}/${rest.replace(/(\.d)?\.ts$/, '').replace(/\.js$/, '')}`;
+	const pkgPattern = `(${PACKAGES.join('|')})`;
+	const relPattern = new RegExp(
+		String.raw`^(?:\.\.\/)+(?:packages\/)?${pkgPattern}\/src\/(.+)$`
+	);
+	const scopedPattern = new RegExp(
+		String.raw`^@wpkernel\/${pkgPattern}\/src\/(.+)$`
+	);
+
+	const relMatch = specifier.match(relPattern);
+	if (relMatch) {
+		const [, pkg, rest] = relMatch;
+		return `@wpkernel/${pkg}/${rest.replace(/(\.d)?\.ts$/, '').replace(/\.js$/, '')}`;
+	}
+
+	const scopedMatch = specifier.match(scopedPattern);
+	if (scopedMatch) {
+		const [, pkg, rest] = scopedMatch;
+		return `@wpkernel/${pkg}/${rest.replace(/(\.d)?\.ts$/, '').replace(/\.js$/, '')}`;
+	}
+
+	return null;
 }
 
 function normalizeModuleSpecifier(specifier) {
@@ -119,6 +136,12 @@ async function main() {
 	const files = await glob(distGlobs, { posix: true });
 	for (const file of files) {
 		await processFile(file);
+	}
+
+	if (mode === 'fix' && stripMaps) {
+		const mapGlobs = distGlobs.map((pattern) => pattern.replace(/\.d\.ts$/, '.d.ts.map'));
+		const maps = await glob(mapGlobs, { posix: true });
+		await Promise.all(maps.map((file) => fs.rm(file, { force: true })));
 	}
 
 	if (mode === 'check' && offenders.length > 0) {

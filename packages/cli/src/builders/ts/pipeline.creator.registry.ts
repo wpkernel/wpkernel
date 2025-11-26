@@ -1,7 +1,13 @@
 import path from 'path';
-import { type TsBuilderCreator } from '../types';
+import {
+	type TsBuilderCreator,
+	type TsBuilderCreatorContext,
+	type ResourceDescriptor,
+} from '../types';
+import type * as tsMorph from 'ts-morph';
+type VariableDeclarationKindValue = typeof tsMorph.VariableDeclarationKind;
+type SourceFile = tsMorph.SourceFile;
 import { loadTsMorph } from './runtime.loader';
-import { buildModuleSpecifier } from './shared.imports';
 import { toCamelCase } from './shared.metadata';
 
 /**
@@ -24,25 +30,12 @@ export function buildDataViewRegistryCreator(): TsBuilderCreator {
 	return {
 		key: 'builder.generate.ts.dataviewRegistry.core',
 		async create(context) {
+			ensureRegistryDataViews(context.descriptor);
 			const { VariableDeclarationKind } = await loadTsMorph();
 			const { descriptor } = context;
-			const registryPath = path.join(
-				context.paths.uiGenerated,
-				'registry',
-				'dataviews',
-				`${descriptor.key}.ts`
-			);
-			const configImport = buildModuleSpecifier({
-				workspace: context.workspace,
-				from: registryPath,
-				target: context.sourcePath,
-			});
-			const identifier = `${toCamelCase(
-				descriptor.name
-			)}DataViewRegistryEntry`;
-			const preferencesKey =
-				descriptor.dataviews.preferencesKey ??
-				`${context.ir.meta.namespace}/dataviews/${descriptor.name}`;
+			const listRoutePath = resolveListRoutePath(descriptor);
+			const registryPath = buildRegistryPath(context);
+			const names = buildRegistryNames(descriptor, context);
 
 			const sourceFile = context.project.createSourceFile(
 				registryPath,
@@ -50,47 +43,14 @@ export function buildDataViewRegistryCreator(): TsBuilderCreator {
 				{ overwrite: true }
 			);
 
-			sourceFile.addImportDeclaration({
-				moduleSpecifier: '@wpkernel/ui/dataviews',
-				namedImports: [
-					{
-						name: 'DataViewRegistryEntry',
-						isTypeOnly: true,
-					},
-				],
-			});
-			sourceFile.addImportDeclaration({
-				moduleSpecifier: configImport,
-				namespaceImport: 'wpkConfigModule',
-			});
-			sourceFile.addVariableStatement({
-				isExported: true,
-				declarationKind: VariableDeclarationKind.Const,
-				declarations: [
-					{
-						name: identifier,
-						type: 'DataViewRegistryEntry',
-						initializer: (writer) => {
-							writer.writeLine('{');
-							writer.indent(() => {
-								writer.write('resource: ');
-								writer.quote(descriptor.name);
-								writer.writeLine(',');
-								writer.write('preferencesKey: ');
-								writer.quote(preferencesKey);
-								writer.writeLine(',');
-								writer.write('metadata: ');
-								writer.write(
-									`wpkConfigModule.wpkConfig.resources[${JSON.stringify(
-										descriptor.key
-									)}].ui!.admin!.dataviews as unknown as Record<string, unknown>`
-								);
-								writer.writeLine(',');
-							});
-							writer.write('}');
-						},
-					},
-				],
+			addRegistryImports(sourceFile, listRoutePath);
+			addRegistryEntry({
+				sourceFile,
+				VariableDeclarationKind,
+				descriptor,
+				listRoutePath,
+				identifier: names.identifier,
+				preferencesKey: names.preferencesKey,
 			});
 
 			await context.emit({
@@ -99,4 +59,135 @@ export function buildDataViewRegistryCreator(): TsBuilderCreator {
 			});
 		},
 	};
+}
+
+function ensureRegistryDataViews(descriptor: ResourceDescriptor): void {
+	if (!descriptor.dataviews) {
+		throw new Error('Registry fixture requires inferred dataviews in IR');
+	}
+}
+
+function resolveListRoutePath(descriptor: ResourceDescriptor): string | null {
+	const routePath = descriptor.config.routes?.list?.path;
+	return typeof routePath === 'string' ? routePath : null;
+}
+
+function buildRegistryPath(context: TsBuilderCreatorContext) {
+	return path.join(
+		context.paths.uiGenerated,
+		'registry',
+		'dataviews',
+		`${context.descriptor.key}.ts`
+	);
+}
+
+function buildRegistryNames(
+	descriptor: ResourceDescriptor,
+	context: TsBuilderCreatorContext
+) {
+	return {
+		identifier: `${toCamelCase(descriptor.name)}DataViewRegistryEntry`,
+		preferencesKey: `${context.ir.meta.namespace}/dataviews/${descriptor.name}`,
+	};
+}
+
+function addRegistryImports(
+	sourceFile: SourceFile,
+	listRoutePath: string | null
+) {
+	sourceFile.addImportDeclaration({
+		moduleSpecifier: '@wpkernel/ui/dataviews',
+		namedImports: [
+			{
+				name: 'DataViewRegistryEntry',
+				isTypeOnly: true,
+			},
+		],
+	});
+	if (listRoutePath) {
+		sourceFile.addImportDeclaration({
+			moduleSpecifier: '@wordpress/api-fetch',
+			defaultImport: 'apiFetch',
+		});
+		sourceFile.addImportDeclaration({
+			moduleSpecifier: '@wordpress/url',
+			namedImports: [{ name: 'addQueryArgs' }],
+		});
+		sourceFile.addImportDeclaration({
+			moduleSpecifier: '@wpkernel/core/resource',
+			namedImports: [
+				{
+					name: 'ListResponse',
+					isTypeOnly: true,
+				},
+			],
+		});
+	}
+}
+
+function addRegistryEntry(options: {
+	sourceFile: SourceFile;
+	VariableDeclarationKind: VariableDeclarationKindValue;
+	descriptor: ResourceDescriptor;
+	listRoutePath: string | null;
+	identifier: string;
+	preferencesKey: string;
+}) {
+	const {
+		sourceFile,
+		VariableDeclarationKind,
+		descriptor,
+		listRoutePath,
+		identifier,
+		preferencesKey,
+	} = options;
+
+	sourceFile.addVariableStatement({
+		isExported: true,
+		declarationKind: VariableDeclarationKind.Const,
+		declarations: [
+			{
+				name: identifier,
+				type: 'DataViewRegistryEntry',
+				initializer: (writer) => {
+					writer.writeLine('{');
+					writer.indent(() => {
+						writer.write('resource: ');
+						writer.quote(descriptor.name);
+						writer.writeLine(',');
+						writer.write('preferencesKey: ');
+						writer.quote(preferencesKey);
+						writer.writeLine(',');
+						writer.write('metadata: ');
+						writer.write(
+							'{ fields: [], defaultView: { type: "table" }, mapQuery: (query: Record<string, unknown>) => query ?? {} } as Record<string, unknown>'
+						);
+						writer.writeLine(',');
+						if (listRoutePath) {
+							writer.write(
+								'fetchList: async (query: Record<string, unknown>): Promise<ListResponse<unknown>> => '
+							);
+							writer.inlineBlock(() => {
+								writer.writeLine(
+									`const path = addQueryArgs('${listRoutePath}', query);`
+								);
+								writer.writeLine(
+									'const response = (await apiFetch({ path })) as { items?: unknown[]; total?: number } | undefined;'
+								);
+								writer.writeLine(
+									'const items = Array.isArray(response?.items) ? response.items : [];'
+								);
+								writer.writeLine(
+									"const total = typeof response?.total === 'number' ? response.total : items.length;"
+								);
+								writer.writeLine('return { items, total };');
+							});
+							writer.writeLine(',');
+						}
+					});
+					writer.write('}');
+				},
+			},
+		],
+	});
 }

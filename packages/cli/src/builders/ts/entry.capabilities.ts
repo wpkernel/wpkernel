@@ -14,6 +14,7 @@ export function createTsCapabilityBuilder() {
 	return createHelper({
 		key: 'ts-capability-builder',
 		kind: 'builder',
+		dependsOn: ['builder.generate.ts.core', 'ir.capability-map.core'],
 		async apply({ input, output, reporter }) {
 			if (!input.ir || !input.ir.capabilityMap.definitions.length) {
 				reporter.debug(

@@ -167,7 +167,7 @@ export function createPatcher(): BuilderHelper {
 	return createHelper({
 		key: 'builder.apply.patch.core',
 		kind: 'builder',
-		dependsOn: ['builder.generate.apply.plan'],
+		dependsOn: ['builder.generate.apply.plan', 'ir.layout.core'],
 		async apply({ context, input, output, reporter }: BuilderApplyOptions) {
 			const supportedPhase =
 				input.phase === 'generate' || input.phase === 'apply';
@@ -178,7 +178,9 @@ export function createPatcher(): BuilderHelper {
 				return;
 			}
 
-			const paths = resolvePatchPaths({ layout: input.ir?.layout });
+			const paths = resolvePatchPaths(
+				input.ir ? { layout: input.ir.layout } : {}
+			);
 			const plan = await readPlan(context.workspace, paths.planPath);
 
 			if (!hasPlanInstructions(plan)) {

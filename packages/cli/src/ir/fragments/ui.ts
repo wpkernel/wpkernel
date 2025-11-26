@@ -64,20 +64,35 @@ function collectUiResourceDescriptors(
 	const descriptors: IRUiResourceDescriptor[] = [];
 
 	for (const resource of resources) {
-		const dataviews = resource.ui?.admin?.dataviews;
-		if (!dataviews) {
+		const admin = resource.ui?.admin;
+		const usesDataViews = admin?.view === 'dataviews';
+		if (!usesDataViews) {
 			continue;
 		}
 
-		const preferencesKey =
-			dataviews.preferencesKey ??
-			`${namespace}/dataviews/${resource.name}`;
-		const menu = normaliseMenu(dataviews.screen?.menu);
+		const inferredDataviews: Record<string, unknown> = {
+			fields: [],
+			defaultView: { type: 'table' },
+			mapQuery: (view: Record<string, unknown>) => view ?? {},
+			preferencesKey: `${namespace}/dataviews/${resource.name}`,
+		};
+
+		const preferencesKey = `${namespace}/dataviews/${resource.name}`;
+		const menu = normaliseMenu(undefined);
 
 		descriptors.push(
 			menu
-				? { resource: resource.name, preferencesKey, menu }
-				: { resource: resource.name, preferencesKey }
+				? {
+						resource: resource.name,
+						preferencesKey,
+						menu,
+						dataviews: inferredDataviews,
+					}
+				: {
+						resource: resource.name,
+						preferencesKey,
+						dataviews: inferredDataviews,
+					}
 		);
 	}
 
@@ -96,28 +111,6 @@ function normaliseMenu(
 	}
 
 	const normalized: MutableMenuConfig = {};
-
-	type MenuStringKey = Extract<
-		keyof IRUiMenuConfig,
-		'slug' | 'title' | 'capability' | 'parent'
-	>;
-
-	const stringFields: Array<{
-		readonly key: MenuStringKey;
-		readonly value: unknown;
-	}> = [
-		{ key: 'slug', value: menu.slug },
-		{ key: 'title', value: menu.title },
-		{ key: 'capability', value: menu.capability },
-		{ key: 'parent', value: menu.parent },
-	];
-
-	for (const { key, value } of stringFields) {
-		if (typeof value === 'string' && value.length > 0) {
-			const stringValue = value;
-			normalized[key] = stringValue;
-		}
-	}
 
 	if (typeof menu.position === 'number' && Number.isFinite(menu.position)) {
 		normalized.position = menu.position;

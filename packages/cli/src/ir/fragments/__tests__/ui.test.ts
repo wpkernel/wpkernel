@@ -58,6 +58,7 @@ describe('createUiFragment', () => {
 					name: 'jobs',
 					ui: {
 						admin: {
+							view: 'dataviews',
 							dataviews: {
 								preferencesKey: 'jobs/admin',
 								screen: {
@@ -76,8 +77,13 @@ describe('createUiFragment', () => {
 			resources: [
 				{
 					resource: 'jobs',
-					preferencesKey: 'jobs/admin',
-					menu: { slug: 'jobs', title: 'Jobs' },
+					preferencesKey: 'demo/dataviews/jobs',
+					dataviews: {
+						fields: [],
+						defaultView: { type: 'table' },
+						mapQuery: expect.any(Function),
+						preferencesKey: 'demo/dataviews/jobs',
+					},
 				},
 			],
 			loader: {
@@ -98,6 +104,7 @@ describe('createUiFragment', () => {
 					name: 'applications',
 					ui: {
 						admin: {
+							view: 'dataviews',
 							dataviews: {
 								screen: {
 									menu: { slug: '', title: '' },
@@ -116,6 +123,12 @@ describe('createUiFragment', () => {
 				{
 					resource: 'applications',
 					preferencesKey: 'demo/dataviews/applications',
+					dataviews: {
+						fields: [],
+						defaultView: { type: 'table' },
+						mapQuery: expect.any(Function),
+						preferencesKey: 'demo/dataviews/applications',
+					},
 				},
 			],
 			loader: {

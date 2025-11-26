@@ -5,7 +5,7 @@ import { loadTestLayoutSync } from '@wpkernel/test-utils/layout.test-support';
 import { makeResource } from '@cli-tests/builders/fixtures.test-support';
 
 describe('createUiEntryBuilder', () => {
-	it('emits admin entry that bootstraps dataviews with permissive capabilities', async () => {
+	it('emits an admin entry that wires IR dataview configs', async () => {
 		const layout = loadTestLayoutSync();
 		const workspace = makeWorkspaceMock({
 			root: process.cwd(),
@@ -27,28 +27,7 @@ describe('createUiEntryBuilder', () => {
 		const builder = createUiEntryBuilder();
 		const resource = makeResource({
 			name: 'jobs',
-			ui: {
-				admin: {
-					dataviews: {
-						fields: [{ id: 'title', label: 'Title' }],
-						defaultView: { type: 'table', fields: ['title'] },
-						mapQuery: () => ({ search: undefined }),
-						screen: {
-							component: 'JobsAdminScreen',
-							route: 'jobs',
-							resourceImport: '@/resources/job',
-							resourceSymbol: 'job',
-							wpkernelImport: '@/admin/runtime',
-							wpkernelSymbol: 'adminScreenRuntime',
-							menu: {
-								slug: 'jobs',
-								title: 'Jobs',
-								capability: 'manage_options',
-							},
-						},
-					},
-				},
-			},
+			ui: { admin: { view: 'dataviews' } },
 		});
 
 		await builder.apply(
@@ -119,9 +98,31 @@ describe('createUiEntryBuilder', () => {
 								...resource,
 								namespace: 'Demo',
 								schemaKey: 'job',
+								schemaProvenance: {
+									type: 'inline',
+									sourcePath: 'wpk.config.ts',
+								},
 								routes: [],
+								identity: { type: 'auto-increment' },
 								storage: { mode: 'transient' },
+								queryParams: [],
 								cacheKeys: {},
+								ui: {
+									admin: {
+										view: 'dataviews',
+										dataviews: {
+											fields: [
+												{ id: 'title', label: 'Title' },
+											],
+											defaultView: {
+												type: 'table',
+												fields: ['title'],
+											},
+											preferencesKey:
+												'demo/dataviews/jobs',
+										},
+									},
+								},
 								hash: {
 									algo: 'sha256',
 									inputs: [],
@@ -149,6 +150,28 @@ describe('createUiEntryBuilder', () => {
 							outputDir: layout.resolve('php.generated'),
 						},
 						layout,
+						ui: {
+							loader: undefined,
+							resources: [
+								{
+									resource: 'jobs',
+									preferencesKey: 'demo/dataviews/jobs',
+									dataviews: {
+										fields: [
+											{ id: 'title', label: 'Title' },
+										],
+										defaultView: {
+											type: 'table',
+											fields: ['title'],
+										},
+										mapQuery: (
+											query: Record<string, unknown>
+										) => query ?? {},
+										preferencesKey: 'demo/dataviews/jobs',
+									},
+								},
+							],
+						},
 					},
 				},
 				output,
@@ -160,16 +183,15 @@ describe('createUiEntryBuilder', () => {
 		const writeCall = output.queueWrite.mock.calls.find(
 			([call]) =>
 				typeof call.file === 'string' &&
-				call.file.includes(layout.resolve('ui.generated'))
+				call.file.includes(layout.resolve('ui.generated')) &&
+				String(call.file).endsWith('index.tsx')
 		);
 		expect(writeCall).toBeDefined();
 		const contents = writeCall?.[0]?.contents as string;
 		expect(contents).toContain('attachUIBindings');
 		expect(contents).toContain('dataviews: { enable: true }');
-		expect(contents).toContain(
-			'Object.values(wpkConfig.resources ?? {}).forEach((resource)'
-		);
-		expect(contents).toContain('wpk.defineResource(resource');
-		expect(contents).toContain('createRoot(container)');
+		expect(contents).toContain('Object.entries(wpkConfig.resources ?? {})');
+		expect(contents).toContain('const dataviewConfigs = {');
+		expect(contents).toContain('render(<Screen />, container);');
 	});
 });

@@ -36,6 +36,15 @@ export function createPhpPluginLoaderHelper(): BuilderHelper {
 	return createHelper({
 		key: 'builder.generate.php.plugin-loader',
 		kind: 'builder',
+		dependsOn: [
+			'builder.generate.php.core',
+			'builder.generate.php.controller.resources',
+			'builder.generate.php.capability',
+			'builder.generate.php.registration.persistence',
+			'ir.resources.core',
+			'ir.capability-map.core',
+			'ir.layout.core',
+		],
 		async apply(options: BuilderApplyOptions, next?: BuilderNext) {
 			const { input, context, reporter } = options;
 			if (!canGeneratePluginLoader(input)) {
@@ -387,11 +396,8 @@ function buildStatusesArray(statuses: StatusesMap) {
 function buildLabelsFromResource(
 	resource: GeneratePhaseInput['ir']['resources'][number]
 ): Record<string, string> {
-	const menuTitle =
-		resource.ui?.admin?.dataviews?.screen?.menu?.title?.trim();
 	const singular = toLabel(resource.name);
-	const plural =
-		menuTitle && menuTitle.length > 0 ? menuTitle : `${singular}s`;
+	const plural = `${singular}s`;
 
 	return {
 		name: plural,

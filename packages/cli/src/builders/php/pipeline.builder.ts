@@ -63,7 +63,16 @@ export function createPhpBuilder(
 	return createHelper({
 		key: 'builder.generate.php.core',
 		kind: 'builder',
-		dependsOn: ['builder.generate.php.driver'],
+		dependsOn: [
+			'builder.generate.php.driver',
+			'builder.generate.ts.core',
+			'ir.resources.core',
+			'ir.capability-map.core',
+			'ir.blocks.core',
+			'ir.layout.core',
+			'ir.meta.core',
+			'ir.schemas.core',
+		],
 		async apply(applyOptions: BuilderApplyOptions, next?: BuilderNext) {
 			const { input, reporter } = applyOptions;
 			if (input.phase !== 'generate') {

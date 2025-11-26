@@ -16,10 +16,7 @@ import { useDataViewsProps } from '../utils/build-data-views-props';
 import { ResourceDataViewBoundary } from './boundary/ResourceDataViewBoundary';
 import type { ListResultState, PermissionState } from '../types/state';
 import type { DataViewBoundaryState } from '../../../runtime/dataviews/events';
-import type {
-	ResourceDataViewController,
-	ResourceDataViewConfig,
-} from '../../types';
+import type { ResourceDataViewController } from '../../types';
 import type { Reporter } from '@wpkernel/core/reporter';
 
 function computeBoundaryState<TItem>(
@@ -115,70 +112,6 @@ function renderDataViewsNode(
 			</div>
 		);
 	}
-}
-
-function DataViewFallback<TItem, TQuery>({
-	items,
-	controller,
-}: {
-	items: readonly TItem[];
-	controller: { config: ResourceDataViewConfig<TItem, TQuery> };
-}): JSX.Element {
-	type FieldConfig = ResourceDataViewConfig<TItem, TQuery>['fields'][number];
-
-	const headers =
-		controller.config.fields?.map(
-			(field: FieldConfig, fieldIndex: number) => ({
-				key: String((field as { id?: string }).id ?? fieldIndex),
-				label:
-					field.label ??
-					(field as { id?: string }).id ??
-					String(fieldIndex),
-			})
-		) ?? [];
-
-	return (
-		<div data-wpk-debug="rdv-fallback">
-			<div>Fallback rows: {Array.isArray(items) ? items.length : 0}</div>
-			{Array.isArray(items) && items.length > 0 ? (
-				<table>
-					<thead>
-						<tr>
-							{headers.map((header) => (
-								<th key={header.key}>{header.label}</th>
-							))}
-						</tr>
-					</thead>
-					<tbody>
-						{items.map((row, rowIndex) => (
-							<tr key={rowIndex}>
-								{controller.config.fields?.map(
-									(
-										field: FieldConfig,
-										fieldIndex: number
-									) => {
-										const fieldId =
-											(field as { id?: string }).id ??
-											String(fieldIndex);
-										const value = (
-											row as Record<string, unknown>
-										)[fieldId];
-										return (
-											<td key={fieldId}>
-												{value === undefined
-													? ''
-													: String(value)}
-											</td>
-										);
-									}
-								)}
-							</tr>
-						))}
-					</tbody>
-				</table>
-			) : null}
-		</div>
-	);
 }
 
 function useReporter<TItem, TQuery>(
@@ -335,8 +268,6 @@ export function ResourceDataView<TItem, TQuery>({
 			>
 				<div data-wpk-debug="rdv-rendered" />
 				{dataViewsNode}
-				{/* Debug-only fallback to visualise rows when DataViews renders nothing. */}
-				<DataViewFallback items={items} controller={controller} />
 			</ResourceDataViewBoundary>
 		</div>
 	);

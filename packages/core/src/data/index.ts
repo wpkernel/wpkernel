@@ -1,4 +1,4 @@
-export { configureWPKernel } from './configure-kernel';
+export { configureWPKernel } from './configure-wpkernel';
 export { registerWPKernelStore } from './store';
 export { wpkEventsPlugin } from './plugins/events';
 export type {

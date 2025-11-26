@@ -1,13 +1,9 @@
 import {
-	buildArg,
 	buildArray,
 	buildArrayItem,
 	buildBinaryOperation,
-	buildExpressionStatement,
-	buildFuncCall,
 	buildName,
 	buildReturn,
-	buildScalarInt,
 	buildScalarString,
 	type PhpExpr,
 	type PhpStmt,
@@ -31,7 +27,6 @@ export function buildIndexProgram(config: IndexProgramConfig): IndexProgram {
 		config.augment
 	);
 	const statements: PhpStmt[] = [
-		buildPluginLoaderRequireStatement(),
 		buildReturn(buildIndexArray(plannedEntries)),
 	];
 
@@ -44,23 +39,6 @@ export function buildIndexProgram(config: IndexProgramConfig): IndexProgram {
 				: { kind: 'index-file', name: config.metadataName },
 		statements,
 	} satisfies IndexProgram;
-}
-
-function buildPluginLoaderRequireStatement(): PhpStmt {
-	const loaderPath = buildBinaryOperation(
-		'Concat',
-		buildFuncCall(buildName(['dirname']), [
-			buildArg(buildDirectoryConstFetch()),
-			buildArg(buildScalarInt(2)),
-		]),
-		buildScalarString('/plugin.php')
-	);
-
-	const requireCall = buildFuncCall(buildName(['require_once']), [
-		buildArg(loaderPath),
-	]);
-
-	return buildExpressionStatement(requireCall);
 }
 
 function applyModuleIndexAugmentors(

@@ -12,6 +12,7 @@ import {
 	buildModuleSpecifier,
 } from './shared.imports';
 import { toCamelCase } from './shared.metadata';
+import type { AdminDataViewsWithInteractivity } from './pipeline.creator.adminScreen';
 
 /**
  * Builds a `TsBuilderCreator` for generating interactivity fixtures.
@@ -42,9 +43,16 @@ export function buildDataViewInteractivityFixtureCreator(): TsBuilderCreator {
 	return {
 		key: 'builder.generate.ts.dataviewInteractivityFixture.core',
 		async create(context) {
+			if (!context.descriptor.dataviews) {
+				throw new Error(
+					'Interactivity fixture requires inferred dataviews in IR'
+				);
+			}
 			const { VariableDeclarationKind } = await loadTsMorph();
 			const { descriptor } = context;
-			const screenConfig = descriptor.dataviews.screen ?? {};
+			const dataviews =
+				descriptor.dataviews as AdminDataViewsWithInteractivity;
+			const screenConfig = dataviews.screen ?? {};
 			const { identifier: componentIdentifier } =
 				resolveAdminScreenComponentMetadata(descriptor);
 			const componentIdentifierCamel =
@@ -62,10 +70,17 @@ export function buildDataViewInteractivityFixtureCreator(): TsBuilderCreator {
 				'interactivity',
 				`${descriptor.key}.ts`
 			);
+			const appliedFixturePath = path.join(
+				context.paths.uiApplied,
+				'fixtures',
+				'interactivity',
+				`${descriptor.key}.ts`
+			);
+
 			const [resourceImport] = await Promise.all([
 				resolveResourceImport({
 					workspace: context.workspace,
-					from: generatedFixturePath,
+					from: appliedFixturePath,
 					generatedResourcesDir: path.join(
 						context.paths.uiGenerated,
 						'resources'
@@ -90,7 +105,7 @@ export function buildDataViewInteractivityFixtureCreator(): TsBuilderCreator {
 					? screenConfig.wpkernelImport
 					: buildModuleSpecifier({
 							workspace: context.workspace,
-							from: generatedFixturePath,
+							from: appliedFixturePath,
 							target: path.join(
 								context.paths.uiApplied,
 								'runtime.ts'

@@ -37,4 +37,5 @@ export { useNextPagePrefetch } from './hooks/useNextPagePrefetch';
 export type { NextPagePrefetchOptions } from './hooks/useNextPagePrefetch';
 export { useAction } from './hooks/useAction';
 export type { UseActionOptions, UseActionResult } from './hooks/useAction';
-export * from './dataviews';
+export { useTaxonomyOptions } from './hooks/useTaxonomyOptions';
+export type { TaxonomyOption } from './hooks/useTaxonomyOptions';

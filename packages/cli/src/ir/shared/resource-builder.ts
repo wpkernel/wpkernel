@@ -142,6 +142,21 @@ async function buildResourceEntry(options: {
 
 	const queryParams = normaliseQueryParams(resourceConfig.queryParams);
 
+	// Infer minimal dataviews config when the admin view declares DataViews
+	const inferredUi =
+		resourceConfig.ui?.admin?.view === 'dataviews'
+			? {
+					admin: {
+						...resourceConfig.ui.admin,
+						dataviews: resourceConfig.ui.admin.dataviews ?? {
+							fields: [],
+							defaultView: { type: 'table' },
+							preferencesKey: `${namespace}/dataviews/${resourceConfig.name}`,
+						},
+					},
+				}
+			: resourceConfig.ui;
+
 	const irResource: IRResource = {
 		id: createResourceId({
 			namespace: sanitizedNamespace,
@@ -161,7 +176,7 @@ async function buildResourceEntry(options: {
 		identity: identityResult.identity,
 		storage: storageResult.storage,
 		queryParams,
-		ui: resourceConfig.ui,
+		ui: inferredUi,
 		blocks: normaliseResourceBlocks(resourceConfig.blocks),
 		capabilities: resourceConfig.capabilities,
 		hash: hashResource({

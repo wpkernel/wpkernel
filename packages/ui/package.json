@@ -36,6 +36,11 @@
 			"import": "./dist/hooks/useAction.js",
 			"default": "./dist/hooks/useAction.js"
 		},
+		"./hooks/useTaxonomyOptions": {
+			"types": "./dist/hooks/useTaxonomyOptions.d.ts",
+			"import": "./dist/hooks/useTaxonomyOptions.js",
+			"default": "./dist/hooks/useTaxonomyOptions.js"
+		},
 		"./hooks/useCapability": {
 			"types": "./dist/hooks/useCapability.d.ts",
 			"import": "./dist/hooks/useCapability.js",
@@ -66,10 +71,19 @@
 			"import": "./dist/hooks/useNextPagePrefetch.js",
 			"default": "./dist/hooks/useNextPagePrefetch.js"
 		},
+		"./dataviews/types": {
+			"types": "./dist/dataviews/types.d.ts",
+			"default": "./dist/dataviews/types.d.ts"
+		},
 		"./dataviews": {
 			"types": "./dist/dataviews/index.d.ts",
 			"import": "./dist/dataviews.js",
 			"default": "./dist/dataviews.js"
+		},
+		"./dataviews/data-form-controller": {
+			"types": "./dist/dataviews/data-form-controller.d.ts",
+			"import": "./dist/dataviews/data-form-controller.js",
+			"default": "./dist/dataviews/data-form-controller.js"
 		},
 		"./package.json": "./package.json"
 	},

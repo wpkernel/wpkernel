@@ -213,7 +213,12 @@ describe('createBundler', () => {
 			expect(assetManifest.dependencies).toEqual(
 				expect.arrayContaining(['wp-interactivity'])
 			);
-			const aliasRoot = workspace.resolve('src').replace(/\\/g, '/');
+			const aliasRoot = workspace
+				.resolve(layout.resolve('ui.applied'))
+				.replace(/\\/g, '/');
+			const shimDir = workspace
+				.resolve(layout.resolve('bundler.shims'))
+				.replace(/\\/g, '/');
 			expect(config.alias).toContainEqual({
 				find: '@/',
 				replacement: `${aliasRoot}/`,
@@ -223,8 +228,28 @@ describe('createBundler', () => {
 				replacement: '@wordpress/dataviews/wp',
 			});
 			expect(config.alias).toContainEqual({
-				find: '@wordpress/element',
-				replacement: 'react',
+				find: 'react',
+				replacement: `${shimDir}/wp-react.ts`,
+			});
+			expect(config.alias).toContainEqual({
+				find: 'react-dom',
+				replacement: `${shimDir}/wp-react.ts`,
+			});
+			expect(config.alias).toContainEqual({
+				find: 'react-dom/client',
+				replacement: `${shimDir}/wp-element-client.ts`,
+			});
+			expect(config.alias).toContainEqual({
+				find: 'react/jsx-runtime',
+				replacement: `${shimDir}/wp-element-jsx-runtime.ts`,
+			});
+			expect(config.alias).toContainEqual({
+				find: '@wordpress/element/jsx-runtime',
+				replacement: `${shimDir}/wp-element-jsx-runtime.ts`,
+			});
+			expect(config.alias).toContainEqual({
+				find: 'react/jsx-dev-runtime',
+				replacement: `${shimDir}/wp-element-jsx-runtime.ts`,
 			});
 			expect(updatedPkg.scripts).toEqual(
 				expect.objectContaining({
@@ -249,10 +274,10 @@ describe('createBundler', () => {
 				expect.arrayContaining([
 					'wp-data',
 					'wp-components',
-					'wp-dataviews',
 					'wp-block-editor',
 					'wp-blocks',
 					'wp-hooks',
+					'wp-date',
 					'wp-i18n',
 					'wp-interactivity',
 					'wp-api-fetch',

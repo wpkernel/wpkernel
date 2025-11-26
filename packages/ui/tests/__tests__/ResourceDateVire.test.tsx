@@ -1,5 +1,4 @@
 import { render } from '@testing-library/react';
-import { WPKernelUIProvider } from '../../../runtime/context';
 import {
 	DataViewsMock,
 	createWPKernelRuntime,
@@ -14,6 +13,7 @@ import {
 	buildListResource,
 } from '../ResourceDataView.test-support';
 import { act } from 'react';
+import { WPKernelUIProvider } from '../../src/runtime';
 
 describe('ResourceDataView test support helpers', () => {
 	it('persists preferences through adapter helpers', async () => {
@@ -32,10 +32,10 @@ describe('ResourceDataView test support helpers', () => {
 
 	it('renders UI within WPKernelUIProvider', () => {
 		const runtime = createWPKernelRuntime();
-		const result = renderWithProvider(<div>hello</div>, runtime);
+		const result = renderWithProvider(<div>hello </div>, runtime);
 		expect(result.getByText('hello')).toBeTruthy();
 
-		result.rerenderWithProvider(<div>world</div>);
+		result.rerenderWithProvider(<div>world </div>);
 		expect(result.getByText('world')).toBeTruthy();
 	});
 

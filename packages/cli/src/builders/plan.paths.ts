@@ -9,6 +9,7 @@ export type PlanLayoutPaths = {
 	blocksApplied: string;
 	uiGenerated: string;
 	uiApplied: string;
+	jsGenerated: string;
 	phpGenerated: string;
 	pluginLoader: string;
 	bundlerConfig: string;
@@ -41,6 +42,7 @@ export function resolvePlanPaths(
 		blocksApplied: layout.resolve('blocks.applied'),
 		uiGenerated: layout.resolve('ui.generated'),
 		uiApplied: layout.resolve('ui.applied'),
+		jsGenerated: layout.resolve('js.generated'),
 		phpGenerated: layout.resolve('php.generated'),
 		pluginLoader: layout.resolve('plugin.loader'),
 		bundlerConfig: layout.resolve('bundler.config'),

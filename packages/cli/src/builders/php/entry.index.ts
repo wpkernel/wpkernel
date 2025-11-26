@@ -29,6 +29,16 @@ export function createPhpIndexFileHelper(): BuilderHelper {
 	return createHelper({
 		key: 'builder.generate.php.index',
 		kind: 'builder',
+		dependsOn: [
+			'builder.generate.php.core',
+			'builder.generate.php.plugin-loader',
+			'builder.generate.php.controller.resources',
+			'builder.generate.php.capability',
+			'builder.generate.php.registration.persistence',
+			'ir.resources.core',
+			'ir.capability-map.core',
+			'ir.layout.core',
+		],
 		async apply(options: BuilderApplyOptions, next?: BuilderNext) {
 			const { input } = options;
 			if (input.phase !== 'generate' || !input.ir) {

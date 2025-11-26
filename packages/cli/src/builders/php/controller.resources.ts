@@ -35,6 +35,7 @@ export function createPhpResourceControllerHelper(): BuilderHelper {
 		key: 'builder.generate.php.controller.resources',
 		kind: 'builder',
 		dependsOn: [
+			'builder.generate.php.core',
 			'builder.generate.php.controller.resources.storage.transient',
 			'builder.generate.php.controller.resources.storage.wpOption',
 			'builder.generate.php.controller.resources.storage.wpTaxonomy',

@@ -18,6 +18,7 @@ export function createBundler(): BuilderHelper {
 	return createHelper({
 		key: 'builder.generate.bundler.core',
 		kind: 'builder',
+		dependsOn: ['builder.generate.ts.core', 'ir.bundler.core'],
 		async apply(applyOptions: BuilderApplyOptions) {
 			await applyBundlerGeneration(applyOptions);
 		},

@@ -59,7 +59,7 @@ export function deriveResourceBlocks(options: {
 
 		const blockKind = determineBlockType(resource, desiredMode);
 
-		const slug = toBlockSlug(resource.name);
+		const slug = toBlockSlug(resource.name).replace(/-/gu, '');
 		const blockKey = `${ir.config.namespace}/${slug}`;
 		if (existingBlocks.has(blockKey)) {
 			continue;

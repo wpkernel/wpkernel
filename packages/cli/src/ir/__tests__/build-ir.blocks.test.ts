@@ -3,6 +3,7 @@ import fs from 'node:fs/promises';
 import type { WPKernelConfigV1 } from '../../config/types';
 import { buildIr } from '../buildIr';
 import { createBaseConfig, withTempWorkspace } from '../shared/test-helpers';
+import { createPipeline } from '../../runtime/createPipeline';
 
 describe('buildIr - block discovery', () => {
 	it('discovers JS-only and SSR blocks while respecting ignore rules', async () => {
@@ -72,6 +73,24 @@ describe('buildIr - block discovery', () => {
 						sourcePath: path.join(root, 'wpk.config.ts'),
 						origin: 'wpk.config.ts',
 						namespace: config.namespace,
+						// Provide builder deps so the strict graph is satisfied in this fragment-only test
+						pipeline: createPipeline({
+							builderProvidedKeys: [
+								'builder.generate.php.controller.resources',
+								'builder.generate.php.capability',
+								'builder.generate.php.registration.persistence',
+								'builder.generate.php.plugin-loader',
+								'builder.generate.php.index',
+								'ir.resources.core',
+								'ir.capability-map.core',
+								'ir.blocks.core',
+								'ir.layout.core',
+								'ir.meta.core',
+								'ir.schemas.core',
+								'ir.ordering.core',
+								'ir.bundler.core',
+							],
+						}),
 					});
 
 					expect(ir.blocks).toEqual([

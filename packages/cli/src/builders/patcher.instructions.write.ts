@@ -27,7 +27,7 @@ export interface ApplyProcessWriteOptions {
 
 export interface RestoreTargetOptions {
 	readonly currentOriginal: string | null;
-	readonly incoming: string;
+	readonly incoming: string | null;
 	readonly file: string;
 	readonly basePath: string;
 	readonly workspace: Workspace;
@@ -63,42 +63,192 @@ export async function applyWrite({
 	const incomingPath = normalisePath(instruction.incoming);
 	const description = instruction.description;
 
+	if (!file || !basePath || !incomingPath) {
+		recordPatchResult(manifest, {
+			file: file ?? '',
+			status: 'skipped',
+			description,
+			details: { reason: 'empty-target' },
+		});
+		return;
+	}
+
 	const base = (await workspace.readText(basePath)) ?? '';
 	const incoming = await workspace.readText(incomingPath);
 
+	reporter.debug('createPatcher: read apply instruction files.', {
+		file,
+		incomingBytes: incoming?.length ?? 0,
+		baseBytes: base.length,
+	});
+
+	const currentOriginal = await workspace.readText(file);
+
+	if (
+		await shortCircuitApply({
+			incoming,
+			file,
+			basePath,
+			incomingPath,
+			description,
+			manifest,
+			reporter,
+			currentOriginal,
+			workspace,
+			output,
+		})
+	) {
+		return;
+	}
+
+	await applyMerge({
+		workspace,
+		file,
+		basePath,
+		base,
+		current: currentOriginal ?? '',
+		incoming: incoming as string,
+		output,
+		manifest,
+		description,
+		reporter,
+	});
+}
+
+function shouldSkipApply(
+	incoming: string | null,
+	file: string,
+	basePath: string,
+	incomingPath: string,
+	description: string | undefined,
+	manifest: PatchManifest,
+	reporter: BuilderApplyOptions['reporter']
+): boolean {
+	return handleSkip(
+		file,
+		basePath,
+		incomingPath,
+		incoming,
+		description,
+		manifest,
+		reporter
+	);
+}
+
+function handleSkip(
+	file: string,
+	basePath: string,
+	incomingPath: string,
+	incoming: string | null,
+	description: string | undefined,
+	manifest: PatchManifest,
+	reporter: BuilderApplyOptions['reporter']
+): boolean {
 	if (!file) {
-		reporter.warn('createPatcher: skipping instruction with empty file.', {
-			base: basePath,
-			incoming: incomingPath,
-		});
 		recordPatchResult(manifest, {
 			file,
 			status: 'skipped',
 			description,
 			details: {
 				reason: 'empty-target',
+				base: basePath,
+				incoming: incomingPath,
 			},
 		});
-		return;
+		reporter.warn('createPatcher: skipping instruction with empty file.', {
+			base: basePath,
+			incoming: incomingPath,
+		});
+		return true;
 	}
 
 	if (incoming === null) {
-		reporter.warn('createPatcher: incoming file missing.', {
-			file,
-			source: incomingPath,
-		});
 		recordPatchResult(manifest, {
 			file,
 			status: 'skipped',
 			description,
 			details: {
 				reason: 'missing-incoming',
+				source: incomingPath,
 			},
 		});
-		return;
+		reporter.warn('createPatcher: incoming file missing.', {
+			file,
+			source: incomingPath,
+		});
+		return true;
 	}
 
-	const currentOriginal = await workspace.readText(file);
+	return false;
+}
+
+function isUpToDate(
+	currentOriginal: string | null,
+	incoming: string | null,
+	file: string,
+	description: string | undefined,
+	manifest: PatchManifest,
+	reporter: BuilderApplyOptions['reporter']
+): boolean {
+	if (incoming === null) {
+		return false;
+	}
+
+	const current = currentOriginal ?? '';
+	if (current === incoming) {
+		reporter.debug('createPatcher: target already up-to-date.', {
+			file,
+		});
+		recordPatchResult(manifest, {
+			file,
+			status: 'skipped',
+			description,
+			details: { reason: 'no-op' },
+		});
+		return true;
+	}
+	return false;
+}
+
+async function shortCircuitApply(options: {
+	incoming: string | null;
+	file: string;
+	basePath: string;
+	incomingPath: string;
+	description: string | undefined;
+	manifest: PatchManifest;
+	reporter: BuilderApplyOptions['reporter'];
+	currentOriginal: string | null;
+	workspace: Workspace;
+	output: BuilderOutput;
+}): Promise<boolean> {
+	const {
+		incoming,
+		file,
+		basePath,
+		incomingPath,
+		description,
+		manifest,
+		reporter,
+		currentOriginal,
+		workspace,
+		output,
+	} = options;
+
+	if (
+		shouldSkipApply(
+			incoming,
+			file,
+			basePath,
+			incomingPath,
+			description,
+			manifest,
+			reporter
+		)
+	) {
+		return true;
+	}
+
 	if (
 		await restoreTargetIfMissing({
 			currentOriginal,
@@ -112,22 +262,43 @@ export async function applyWrite({
 			reporter,
 		})
 	) {
-		return;
+		return true;
 	}
-	const current = currentOriginal ?? '';
 
-	if (current === incoming) {
-		reporter.debug('createPatcher: target already up-to-date.', { file });
-		recordPatchResult(manifest, {
-			file,
-			status: 'skipped',
-			description,
-			details: {
-				reason: 'no-op',
-			},
-		});
-		return;
-	}
+	return isUpToDate(
+		currentOriginal,
+		incoming,
+		file,
+		description,
+		manifest,
+		reporter
+	);
+}
+
+async function applyMerge(options: {
+	workspace: Workspace;
+	file: string;
+	basePath: string;
+	base: string;
+	current: string;
+	incoming: string;
+	output: BuilderOutput;
+	manifest: PatchManifest;
+	description: string | undefined;
+	reporter: BuilderApplyOptions['reporter'];
+}): Promise<void> {
+	const {
+		workspace,
+		file,
+		basePath,
+		base,
+		current,
+		incoming,
+		output,
+		manifest,
+		description,
+		reporter,
+	} = options;
 
 	const { status, result } = await mergeWithGitThreeWay(
 		workspace,
@@ -151,6 +322,14 @@ export async function applyWrite({
 		description,
 	});
 
+	reportMergeResult(status, reporter, file);
+}
+
+function reportMergeResult(
+	status: 'clean' | 'conflict',
+	reporter: BuilderApplyOptions['reporter'],
+	file: string
+): void {
 	if (status === 'conflict') {
 		reporter.warn('createPatcher: merge conflict detected.', {
 			file,
@@ -268,6 +447,9 @@ export async function restoreTargetIfMissing({
 	description,
 	reporter,
 }: RestoreTargetOptions): Promise<boolean> {
+	if (incoming === null) {
+		return false;
+	}
 	const targetMissingOrEmpty =
 		currentOriginal === null || currentOriginal.trim().length === 0;
 	if (!targetMissingOrEmpty || incoming.trim().length === 0) {
