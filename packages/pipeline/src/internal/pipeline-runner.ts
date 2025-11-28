@@ -1,4 +1,4 @@
-import { maybeThen, maybeTry } from '../async-utils.js';
+import { maybeThen, maybeTry, isPromiseLike } from '../async-utils.js';
 import {
 	createDependencyGraph,
 	type CreateDependencyGraphOptions,
@@ -23,6 +23,7 @@ import {
 	buildExecutionSnapshot,
 } from './helper-execution.js';
 import { initExtensionCoordinator } from './extension-coordinator';
+import { runRollbackStack, type PipelineRollback } from '../rollback.js';
 import type {
 	PipelineRunContext,
 	PipelineRunner,
@@ -337,7 +338,14 @@ export function initPipelineRunner<
 					buildOptions,
 					draft,
 				}),
-			(helper, args, next) => helper.apply(args, next),
+			(helper, args, next) => {
+				const result = helper.apply(args, next);
+				if (isPromiseLike(result)) {
+					// ignore HelperApplyResult, just wait for completion
+					return result.then(() => undefined);
+				}
+				return undefined;
+			},
 			(entry) => pushStep(entry)
 		);
 
@@ -401,13 +409,83 @@ export function initPipelineRunner<
 
 			return maybeThen(extensionResult, (extensionState) => {
 				artifact = extensionState.artifact;
+				const builderRollbacks: Array<{
+					helper: TBuilderHelper;
+					rollback: PipelineRollback;
+				}> = [];
 
-				const rollbackAndRethrowWith = <T>() =>
-					extensionCoordinator.createRollbackHandler<T>(
-						extensionState
-					);
+				const registerBuilderRollback = (
+					helper: TBuilderHelper,
+					result: unknown
+				): void => {
+					if (
+						!result ||
+						typeof result !== 'object' ||
+						!('rollback' in result)
+					) {
+						return;
+					}
+					const descriptor = (
+						result as { rollback?: PipelineRollback }
+					).rollback;
+					if (!descriptor) {
+						return;
+					}
+					builderRollbacks.push({ helper, rollback: descriptor });
+				};
 
-				const handleRunFailure = rollbackAndRethrowWith<TRunResult>();
+				// Create a wrapped rollback handler that also executes helper rollbacks
+				const createHelperAwareRollbackHandler = <T>(): ((
+					error: unknown
+				) => MaybePromise<T>) => {
+					const extensionHandler =
+						extensionCoordinator.createRollbackHandler<T>(
+							extensionState
+						);
+
+					return (error: unknown): MaybePromise<T> => {
+						// First run helper rollbacks, then extension rollbacks
+						return maybeThen(
+							runRollbackStack(
+								builderRollbacks.map((entry) => ({
+									...entry.rollback,
+									key: entry.helper.key,
+								})),
+								{
+									source: 'helper',
+									onError: ({
+										error: rbError,
+										metadata,
+										entry: rollbackEntry,
+									}) => {
+										const helperEntry =
+											builderRollbacks.find(
+												(h) =>
+													h.helper.key ===
+													(rollbackEntry.key ?? '')
+											);
+										if (helperEntry) {
+											dependencies.options.onHelperRollbackError?.(
+												{
+													error: rbError,
+													helper: helperEntry.helper,
+													errorMetadata: metadata,
+													context,
+												}
+											);
+										}
+									},
+								}
+							),
+							() => extensionHandler(error)
+						);
+					};
+				};
+
+				const handleRunFailure =
+					createHelperAwareRollbackHandler<TRunResult>();
+				const handleCommitFailure =
+					createHelperAwareRollbackHandler<void>();
 
 				const handleBuilderVisited = (
 					builderVisited: Set<string>
@@ -450,8 +528,6 @@ export function initPipelineRunner<
 							},
 						});
 
-					const handleCommitFailure = rollbackAndRethrowWith<void>();
-
 					const commitAndFinalize = (): MaybePromise<TRunResult> =>
 						maybeThen(
 							maybeTry(
@@ -465,36 +541,48 @@ export function initPipelineRunner<
 					return commitAndFinalize();
 				};
 
-				const runBuilders = (): MaybePromise<TRunResult> =>
-					maybeThen(
-						executeHelpers<
+				const runBuilders = (): MaybePromise<TRunResult> => {
+					const run = executeHelpers<
+						TContext,
+						TBuilderInput,
+						TBuilderOutput,
+						TReporter,
+						TBuilderKind,
+						TBuilderHelper,
+						HelperApplyOptions<
 							TContext,
 							TBuilderInput,
 							TBuilderOutput,
-							TReporter,
-							TBuilderKind,
-							TBuilderHelper,
-							HelperApplyOptions<
-								TContext,
-								TBuilderInput,
-								TBuilderOutput,
-								TReporter
-							>
-						>(
-							builderOrder,
-							(entry) =>
-								dependencies.options.createBuilderArgs({
-									helper: entry.helper,
-									options: runOptions,
-									context,
-									buildOptions,
-									artifact,
-								}),
-							(helper, args, next) => helper.apply(args, next),
-							(entry) => pushStep(entry)
-						),
-						handleBuilderVisited
+							TReporter
+						>
+					>(
+						builderOrder,
+						(entry) =>
+							dependencies.options.createBuilderArgs({
+								helper: entry.helper,
+								options: runOptions,
+								context,
+								buildOptions,
+								artifact,
+							}),
+						(helper, args, next) => {
+							const result = helper.apply(args, next);
+
+							if (isPromiseLike(result)) {
+								return result.then((resolved) => {
+									registerBuilderRollback(helper, resolved);
+									return undefined;
+								});
+							}
+
+							registerBuilderRollback(helper, result);
+							return undefined;
+						},
+						(entry) => pushStep(entry)
 					);
+
+					return maybeThen(run, handleBuilderVisited);
+				};
 
 				return maybeTry(runBuilders, handleRunFailure);
 			});

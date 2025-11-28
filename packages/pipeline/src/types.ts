@@ -1,3 +1,5 @@
+import type { PipelineRollback } from './rollback.js';
+
 /**
  * A type that can be either a value or a Promise of a value.
  * @public
@@ -75,6 +77,18 @@ export interface HelperApplyOptions<
 	readonly output: TOutput;
 	readonly reporter: TReporter;
 }
+/**
+ * Result returned from a helper's apply function.
+ *
+ * Helpers can declare rollback operations to be executed if the pipeline
+ * encounters a failure after the helper completes.
+ *
+ * @public
+ */
+export interface HelperApplyResult<TOutput> {
+	readonly output?: TOutput;
+	readonly rollback?: PipelineRollback;
+}
 
 /**
  * Function signature for a pipeline helper's apply method.
@@ -82,13 +96,16 @@ export interface HelperApplyOptions<
  * This function is responsible for transforming the pipeline's input and output.
  * It can optionally call `next()` to pass control to the next helper in the pipeline.
  *
+ * Helpers can also return a result object with transformed output and optional rollback
+ * for cleanup if the pipeline fails after the helper executes.
+ *
  * @template TContext - The type of the pipeline context.
  * @template TInput - The type of the input artifact.
  * @template TOutput - The type of the output artifact.
  * @template TReporter - The type of the reporter used for logging.
  * @param    options - Options for the apply function, including context, input, output, and reporter.
  * @param    next    - Optional function to call the next helper in the pipeline.
- * @returns A promise that resolves when the helper has finished its work.
+ * @returns A promise that resolves when the helper has finished its work, or a result object with optional output and rollback.
  * @public
  */
 export type HelperApplyFn<
@@ -99,7 +116,7 @@ export type HelperApplyFn<
 > = (
 	options: HelperApplyOptions<TContext, TInput, TOutput, TReporter>,
 	next?: () => MaybePromise<void>
-) => MaybePromise<void>;
+) => MaybePromise<HelperApplyResult<TOutput> | void>;
 
 /**
  * A complete pipeline helper with descriptor and apply function.
@@ -446,8 +463,14 @@ export interface CreatePipelineOptions<
 		readonly errorMetadata: PipelineExtensionRollbackErrorMetadata;
 		readonly context: TContext;
 	}) => void;
+	readonly onHelperRollbackError?: (options: {
+		readonly error: unknown;
+		readonly helper: TFragmentHelper | TBuilderHelper;
+		readonly errorMetadata: PipelineExtensionRollbackErrorMetadata;
+		readonly context: TContext;
+	}) => void;
 	/**
-	 * Helper keys that should be treated as “already satisfied” for fragment
+	 * Helper keys that should be treated as "already satisfied" for fragment
 	 * dependency resolution (useful when a run intentionally omits certain
 	 * fragments).
 	 */

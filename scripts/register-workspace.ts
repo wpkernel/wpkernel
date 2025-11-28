@@ -706,9 +706,7 @@ function ensureTsconfigBasePaths(
 
 	let content = fs.readFileSync(baseConfigPath, 'utf8');
 	let parsed = parse(content) as {
-		compilerOptions?: {
-			paths?: Record<string, readonly string[]>;
-		};
+		compilerOptions?: { paths?: Record<string, readonly string[]> };
 	};
 
 	if (!parsed || typeof parsed !== 'object') {
@@ -790,9 +788,7 @@ function removeTsconfigBasePaths(
 
 	let content = fs.readFileSync(baseConfigPath, 'utf8');
 	const parsed = parse(content) as {
-		compilerOptions?: {
-			paths?: Record<string, readonly string[]>;
-		};
+		compilerOptions?: { paths?: Record<string, readonly string[]> };
 	};
 
 	if (!parsed?.compilerOptions?.paths) {

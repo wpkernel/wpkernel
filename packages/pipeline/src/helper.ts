@@ -39,6 +39,14 @@ import type {
  * - Validates dependency chains and reports missing/circular dependencies
  * - Ensures helpers run in correct order regardless of registration sequence
  *
+ * ### Apply results & rollback
+ * Helpers typically perform their work by mutating the provided `fragment` or `output` in place and optionally calling `next()` to continue the chain.
+ * For more advanced scenarios, a helper can **also return** a result object:
+ * - `output` — an updated output value to feed into subsequent helpers
+ * - `rollback` — a rollback operation created via `createPipelineRollback`, which will be executed if the pipeline fails after this helper completes
+ *
+ * Returning a result object is opt-in; existing helpers that return `void` remain valid and continue to behave as before.
+ *
  * ## Architecture
  *
  * Helpers form directed acyclic graphs (DAGs) where each node represents a transformation
@@ -48,7 +56,7 @@ import type {
  * This design enables:
  * - **Composability**: Combine helpers from different packages without conflicts
  * - **Extensibility**: Third-party helpers integrate seamlessly via dependency declarations
- * - **Reliability**: Rollback support ensures atomic operations across helper chains
+ * - **Reliability**: Helper-level rollback (via `createPipelineRollback`) ensures atomic behaviour across helper chains
  * - **Observability**: Built-in diagnostics and reporter integration for debugging
  *
  * @param    options
@@ -91,46 +99,49 @@ import type {
  * });
  * ```
  *
- * @example Builder helper with rollback
+ * @example Builder helper with rollback result
  * ```typescript
- * import { createPipelineCommit, createPipelineRollback } from '@wpkernel/pipeline';
+ * import { createHelper, createPipelineRollback } from '@wpkernel/pipeline';
  *
  * const writeFileHelper = createHelper({
  *   key: 'write-file',
  *   kind: 'builder',
- *   apply: ({ draft, context }) => {
+ *   apply: ({ output, context }) => {
  *     const path = context.outputPath;
- *     const backup = readFileSync(path, 'utf-8'); // Capture current state
+ *     const before = [...output]; // Capture current in-memory state
  *
- *     writeFileSync(path, draft);
+ *     output.push(context.fileContent);
  *
  *     return {
- *       commit: createPipelineCommit(
- *         () => context.reporter.info(`Wrote ${path}`)
- *       ),
  *       rollback: createPipelineRollback(
- *         () => writeFileSync(path, backup), // Restore on error
- *         () => context.reporter.warn(`Rolled back ${path}`)
+ *         () => {
+ *           output.length = 0;
+ *           output.push(...before);
+ *         },
+ *         {
+ *           key: 'write-file',
+ *           label: 'Restore file output state',
+ *         }
  *       ),
  *     };
  *   },
  * });
  * ```
  *
- * @example Async helper with error handling
+ * @example Async helper with transformed output and error handling
  * ```typescript
  * const formatCodeHelper = createHelper({
  *   key: 'format-code',
  *   kind: 'builder',
  *   dependsOn: ['write-file'],
- *   apply: async ({ artifact, context }) => {
+ *   apply: async ({ output, context }) => {
  *     try {
- *       const formatted = await prettier.format(artifact, {
+ *       const formatted = await prettier.format(output.join(''), {
  *         parser: 'php',
  *       });
- *       return { artifact: formatted };
+ *       return { output: formatted.split('') }; // Optionally return a new output value
  *     } catch (error) {
- *       context.reporter.error('Formatting failed', { error });
+ *       context.reporter.warn?.('Formatting failed', { error });
  *       throw error;
  *     }
  *   },

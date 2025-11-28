@@ -25,7 +25,6 @@ export { usePersistentDataFormState } from './state/persistent-form';
 export { useCapability, useCapabilityGuard } from './capability';
 export { DataViewsDebugPanel } from './debug/DataViewsDebugPanel';
 export { DataFormDebugPanel } from './debug/DataFormDebugPanel';
-export { DataForm } from '@wordpress/dataviews';
 export { useDataFormHelper } from './form-helper';
 export {
 	useResourceAdminController,
