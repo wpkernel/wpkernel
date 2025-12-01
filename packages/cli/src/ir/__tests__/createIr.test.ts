@@ -11,18 +11,12 @@ import {
 } from '../shared/test-helpers';
 import { buildWorkspace } from '../../workspace';
 import * as workspaceExports from '../../workspace';
-import { createIr } from '../createIr';
+import { createIrWithBuilders } from '../createIr';
 import {
 	withWorkspace,
 	makeWorkspaceMock,
 } from '@cli-tests/workspace.test-support';
 import { makeWPKernelConfigFixture } from '@cli-tests/printers.test-support';
-jest.mock('../../builders', () => {
-	const { buildBuildersMock } = jest.requireActual(
-		'@cli-tests/builders/mock-builders'
-	);
-	return buildBuildersMock();
-});
 
 jest.setTimeout(60000);
 
@@ -38,9 +32,6 @@ describe('createIr', () => {
 			schemas: {
 				todo: {
 					path: schemaPath,
-					generated: {
-						types: './generated/todo.ts',
-					},
 				},
 			} satisfies WPKernelConfigV1['schemas'],
 			resources: {
@@ -75,7 +66,7 @@ describe('createIr', () => {
 				} as const;
 
 				const workspace = buildWorkspace(workspaceRoot);
-				const ir = await createIr(options, {
+				const ir = await createIrWithBuilders(options, {
 					workspace,
 					reporter: buildNoopReporter(),
 				});
@@ -89,7 +80,6 @@ describe('createIr', () => {
 					})
 				);
 
-				expect(ir.config).toBe(config);
 				expect(ir.schemas).toHaveLength(1);
 				expect(ir.schemas[0]).toEqual(
 					expect.objectContaining({
@@ -177,7 +167,7 @@ describe('createIr', () => {
 				} as const;
 
 				const workspace = buildWorkspace(workspaceRoot);
-				const ir = await createIr(options, {
+				const ir = await createIrWithBuilders(options, {
 					workspace,
 					reporter: buildNoopReporter(),
 				});
@@ -221,7 +211,7 @@ describe('createIr', () => {
 				} as const;
 
 				const workspace = buildWorkspace(workspaceRoot);
-				const ir = await createIr(options, {
+				const ir = await createIrWithBuilders(options, {
 					workspace,
 					reporter: buildNoopReporter(),
 				});
@@ -273,7 +263,7 @@ describe('createIr', () => {
 		} as unknown as ReturnType<typeof buildNoopReporter>;
 		reporterChild.mockReturnValue(reporter);
 
-		const ir = await createIr(options, {
+		const ir = await createIrWithBuilders(options, {
 			pipeline: pipeline as never,
 			workspace,
 			reporter,
@@ -334,7 +324,9 @@ describe('createIr', () => {
 			}),
 		};
 
-		const ir = await createIr(options, { pipeline: pipeline as never });
+		const ir = await createIrWithBuilders(options, {
+			pipeline: pipeline as never,
+		});
 
 		expect(ir).toBe(pipelineRunResult.ir);
 		expect(pipeline.ir.use).toHaveBeenCalled();

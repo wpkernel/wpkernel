@@ -37,13 +37,9 @@ export interface MakeWPKernelConfigFixtureOptions {
 export function makeWPKernelConfigFixture(
 	options: MakeWPKernelConfigFixtureOptions = {}
 ): WPKernelConfigV1 {
-	const typesRoot = testLayout.resolve('php.generated');
 	const defaultSchemas: WPKernelConfigV1['schemas'] = {
 		job: {
 			path: './contracts/job.schema.json',
-			generated: {
-				types: `./${typesRoot}/../types/job.d.ts`,
-			},
 		},
 	};
 	const defaultResources: WPKernelConfigV1['resources'] = {};

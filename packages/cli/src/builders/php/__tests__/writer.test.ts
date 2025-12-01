@@ -295,7 +295,7 @@ describe('createWpProgramWriterHelper', () => {
 		);
 	});
 
-	it('logs when no programs are queued and awaits the next helper', async () => {
+	it('logs when no programs are queued and exits early', async () => {
 		const context = buildPipelineContext();
 		const input = buildBuilderInput();
 		const output: BuilderOutput = {
@@ -307,7 +307,6 @@ describe('createWpProgramWriterHelper', () => {
 		resetPhpAstChannel(context);
 
 		const helper = createWpProgramWriterHelper();
-		const next = jest.fn(async () => undefined);
 
 		await helper.apply(
 			{
@@ -316,7 +315,7 @@ describe('createWpProgramWriterHelper', () => {
 				output,
 				reporter: context.reporter,
 			},
-			next
+			undefined
 		);
 
 		expect(buildPhpPrettyPrinterMock).not.toHaveBeenCalled();
@@ -324,6 +323,5 @@ describe('createWpProgramWriterHelper', () => {
 		expect(context.reporter.debug).toHaveBeenCalledWith(
 			'createPhpProgramWriterHelper: no programs queued.'
 		);
-		expect(next).toHaveBeenCalledTimes(1);
 	});
 });

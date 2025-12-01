@@ -1,7 +1,6 @@
 import path from 'node:path';
 import fs from 'node:fs/promises';
 import os from 'node:os';
-import { buildWorkspace } from '../../workspace';
 import {
 	addPluginLoaderInstruction,
 	emitPluginLoader,
@@ -12,14 +11,19 @@ import { buildPhpPrettyPrinter } from '@wpkernel/php-json-ast/php-driver';
 import { buildEmptyGenerationState } from '../../apply/manifest';
 import { loadTestLayoutSync } from '@wpkernel/test-utils/layout.test-support';
 import { createReporterMock } from '@cli-tests/reporter';
+import { buildWorkspace } from '../../workspace';
 
-const prettyPrinter = buildPhpPrettyPrinter({
-	workspace: buildWorkspace(process.cwd()),
+const makeConfig = (namespace: string) => ({
+	version: 1,
+	namespace,
+	schemas: {},
+	resources: {},
 });
 
 function makeOptions(root: string, ir = makeIr()) {
 	const workspace = buildWorkspace(root);
 	const reporter = createReporterMock();
+	const config = makeConfig(ir.meta.namespace);
 	return {
 		reporter,
 		context: {
@@ -31,8 +35,8 @@ function makeOptions(root: string, ir = makeIr()) {
 		input: {
 			phase: 'generate' as const,
 			options: {
-				config: ir.config,
-				namespace: ir.meta.namespace,
+				config,
+				namespace: config.namespace,
 				origin: ir.meta.origin,
 				sourcePath: path.join(root, 'wpk.config.ts'),
 			},
@@ -49,6 +53,9 @@ describe('plan.plugin-loader', () => {
 		try {
 			const layout = loadTestLayoutSync();
 			const options = makeOptions(root, makeIr({ layout }));
+			const prettyPrinter = buildPhpPrettyPrinter({
+				workspace: options.context.workspace,
+			});
 			const instructions: PlanInstruction[] = [];
 			await addPluginLoaderInstruction({
 				options,
@@ -81,7 +88,9 @@ describe('plan.plugin-loader', () => {
 			);
 			const instr = await emitPluginLoader({
 				options: makeOptions(root),
-				prettyPrinter,
+				prettyPrinter: buildPhpPrettyPrinter({
+					workspace: buildWorkspace(root),
+				}),
 			});
 			expect(instr).not.toBeNull();
 		} finally {

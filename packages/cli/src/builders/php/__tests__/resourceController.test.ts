@@ -7,15 +7,14 @@ import {
 	type ResolvedIdentity,
 } from '@wpkernel/wp-json-ast';
 import type { IRv1 } from '../../../ir/publicTypes';
-import type { BuilderOutput } from '../../../runtime/types';
 import type { Workspace } from '../../../workspace/types';
-import { buildEmptyGenerationState } from '../../../apply/manifest';
 import { makeWorkspaceMock } from '@cli-tests/workspace.test-support';
 import {
 	createBuilderInput,
 	createBuilderOutput,
 	createMinimalIr,
 	createPipelineContext,
+	seedArtifacts,
 } from '../test-support/php-builder.test-support';
 import * as phpPrinter from '@wpkernel/php-json-ast/php-driver';
 import type {
@@ -41,11 +40,19 @@ import {
 	createPhpWpTaxonomyStorageHelper,
 	createPhpWpPostRoutesHelper,
 	createPhpResourceControllerHelper,
+	createPhpBuilderConfigHelper,
 	createWpProgramWriterHelper,
 	getPhpBuilderChannel,
 } from '../index';
 import { makeCapabilityProtectedResource } from '../test-support/capabilityProtectedResource.test-support';
 import { buildCacheKeyPlan } from '../controller.storageArtifacts';
+
+const makeConfig = (namespace: string) => ({
+	version: 1,
+	namespace,
+	schemas: {},
+	resources: {},
+});
 
 function buildReporter(): Reporter {
 	return {
@@ -66,11 +73,74 @@ function buildWorkspace(): Workspace {
 	});
 }
 
+async function buildApplyOptionsWithArtifacts(
+	ir: IRv1,
+	overrides?: { workspace?: Workspace; reporter?: Reporter }
+) {
+	const reporter = overrides?.reporter ?? buildReporter();
+	ir.resources = ir.resources.map((resource, index) => ({
+		id: resource.id ?? resource.name ?? `res-${index}`,
+		...resource,
+	}));
+	await seedArtifacts(ir, reporter);
+	if (!ir.artifacts?.php) {
+		ir.artifacts ??= {} as IRv1['artifacts'];
+		const generatedRoot = ir.layout.resolve('php.generated');
+		const appliedRoot =
+			ir.layout.resolve('controllers.applied') ?? generatedRoot;
+		const controllers = Object.fromEntries(
+			ir.resources.map((resource, index) => [
+				resource.id ?? `res-${index}`,
+				{
+					className: `${resource.name}Controller`,
+					namespace: `${ir.php.namespace}\\Rest`,
+					appliedPath: path.posix.join(
+						appliedRoot,
+						`${resource.name}Controller.php`
+					),
+					generatedPath: path.posix.join(
+						generatedRoot,
+						`${resource.name}Controller.php`
+					),
+				},
+			])
+		);
+		ir.artifacts.php = {
+			pluginLoaderPath: path.posix.join(generatedRoot, 'plugin.php'),
+			autoload: {
+				strategy: 'composer',
+				autoloadPath: path.posix.join(
+					generatedRoot,
+					'vendor',
+					'autoload.php'
+				),
+			},
+			blocksManifestPath: path.posix.join(
+				generatedRoot,
+				'blocks-manifest.php'
+			),
+			blocksRegistrarPath: path.posix.join(
+				generatedRoot,
+				'Blocks',
+				'Register.php'
+			),
+			blocks: {},
+			controllers,
+			debugUiPath: path.posix.join(generatedRoot, 'debug-ui.php'),
+		};
+	}
+	return buildApplyOptions(ir, overrides);
+}
+
 async function runResourceControllerPipeline(
 	applyOptions: Parameters<
 		ReturnType<typeof createPhpResourceControllerHelper>['apply']
 	>[0]
 ): Promise<void> {
+	if (applyOptions.input.ir && !applyOptions.input.ir.artifacts?.php) {
+		await seedArtifacts(applyOptions.input.ir, applyOptions.reporter);
+	}
+	await createPhpBuilderConfigHelper().apply(applyOptions, undefined);
 	await createPhpChannelHelper().apply(applyOptions, undefined);
 	await createPhpTransientStorageHelper().apply(applyOptions, undefined);
 	await createPhpWpOptionStorageHelper().apply(applyOptions, undefined);
@@ -240,7 +310,7 @@ describe('createPhpResourceControllerHelper', () => {
 
 	it('queues resource controllers with resolved identity and route kinds', async () => {
 		const ir = buildIr();
-		const applyOptions = buildApplyOptions(ir);
+		const applyOptions = await buildApplyOptionsWithArtifacts(ir);
 		const { reporter } = applyOptions;
 
 		await runResourceControllerPipeline(applyOptions);
@@ -332,7 +402,7 @@ describe('createPhpResourceControllerHelper', () => {
 
 	it('emits wp-post helpers derived from storage config', async () => {
 		const ir = buildIr();
-		const applyOptions = buildApplyOptions(ir);
+		const applyOptions = await buildApplyOptionsWithArtifacts(ir);
 		await runResourceControllerPipeline(applyOptions);
 
 		const channel = getPhpBuilderChannel(applyOptions.context);
@@ -376,7 +446,7 @@ describe('createPhpResourceControllerHelper', () => {
 			resources: [makeCapabilityProtectedResource()],
 			php: { namespace: 'Demo\\Plugin' },
 		});
-		const applyOptions = buildApplyOptions(ir);
+		const applyOptions = await buildApplyOptionsWithArtifacts(ir);
 		const { context } = applyOptions;
 
 		await runResourceControllerPipeline(applyOptions);
@@ -434,7 +504,7 @@ describe('createPhpResourceControllerHelper', () => {
 			resources: [makeCapabilityProtectedResource()],
 			php: { namespace: 'Demo\\Plugin' },
 		});
-		const applyOptions = buildApplyOptions(ir);
+		const applyOptions = await buildApplyOptionsWithArtifacts(ir);
 		const { context } = applyOptions;
 
 		await runResourceControllerPipeline(applyOptions);
@@ -468,34 +538,14 @@ describe('createPhpResourceControllerHelper', () => {
 	it('queues taxonomy controllers with pagination helpers and term shaping', async () => {
 		const reporter = buildReporter();
 		const workspace = buildWorkspace();
-		const context = {
-			workspace,
-			reporter,
-			phase: 'generate' as const,
-			generationState: buildEmptyGenerationState(),
-		};
-		const output: BuilderOutput = {
-			actions: [],
-			queueWrite: jest.fn(),
-		};
 
 		const ir = buildIr();
 
-		const applyOptions = {
-			context,
-			input: {
-				phase: 'generate' as const,
-				options: {
-					config: ir.config,
-					namespace: ir.meta.namespace,
-					origin: ir.meta.origin,
-					sourcePath: ir.meta.sourcePath,
-				},
-				ir,
-			},
-			output,
+		const applyOptions = await buildApplyOptionsWithArtifacts(ir, {
+			workspace,
 			reporter,
-		};
+		});
+		const { context } = applyOptions;
 
 		await runResourceControllerPipeline(applyOptions);
 
@@ -536,7 +586,7 @@ describe('createPhpResourceControllerHelper', () => {
 
 	it('queues wp-option controllers with autoload helpers', async () => {
 		const ir = createMinimalIr({ resources: [makeWpOptionResource()] });
-		const applyOptions = buildApplyOptions(ir);
+		const applyOptions = await buildApplyOptionsWithArtifacts(ir);
 		const { context, output } = applyOptions;
 
 		await runResourceControllerPipeline(applyOptions);
@@ -608,7 +658,7 @@ describe('createPhpResourceControllerHelper', () => {
 
 	it('queues transient controllers with TTL helpers and cache metadata', async () => {
 		const ir = createMinimalIr({ resources: [makeTransientResource()] });
-		const applyOptions = buildApplyOptions(ir);
+		const applyOptions = await buildApplyOptionsWithArtifacts(ir);
 		const { context, output } = applyOptions;
 
 		await runResourceControllerPipeline(applyOptions);
@@ -853,14 +903,15 @@ function buildApplyOptions(
 	const workspace = overrides?.workspace ?? buildWorkspace();
 	const context = createPipelineContext({ workspace, reporter });
 	const output = createBuilderOutput();
+	const config = makeConfig(ir.meta.namespace);
 
 	return {
 		context,
 		input: createBuilderInput({
 			ir,
 			options: {
-				config: ir.config,
-				namespace: ir.meta.namespace,
+				config,
+				namespace: config.namespace,
 				origin: ir.meta.origin,
 				sourcePath: ir.meta.sourcePath,
 			},

@@ -1,10 +1,10 @@
 export {
+	createIrWithBuilders,
 	createIr,
 	registerCoreFragments,
 	registerCoreBuilders,
 } from './createIr';
 export type { CreateIrEnvironment } from './createIr';
-export { buildIr } from './buildIr';
 export { createMetaFragment, META_EXTENSION_KEY } from './fragments/meta';
 export {
 	createSchemasFragment,

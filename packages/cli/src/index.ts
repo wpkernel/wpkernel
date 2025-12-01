@@ -59,7 +59,6 @@ export type {
 	IRPhpProject,
 	BuildIrOptions,
 } from './ir/publicTypes';
-export { buildIr } from './ir/buildIr';
 export type {
 	Helper,
 	HelperApplyFn,

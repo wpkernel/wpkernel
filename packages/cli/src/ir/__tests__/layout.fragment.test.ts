@@ -1,6 +1,6 @@
 import path from 'node:path';
 import fs from 'node:fs/promises';
-import { buildIr } from '../buildIr';
+import { createIr } from '../createIr';
 import { createBaseConfig, withTempWorkspace } from '../shared/test-helpers';
 import { loadTestLayoutSync } from '@wpkernel/test-utils/layout.test-support';
 
@@ -11,8 +11,18 @@ describe('layout fragment', () => {
 				const manifest = {
 					directories: {
 						'.wpk': {
-							generate: { php: 'php.generated' },
+							generate: {
+								php: 'php.generated',
+								blocks: 'blocks.generated',
+								js: 'js.generated',
+								ui: 'ui.generated',
+							},
 							apply: { base: 'plan.base' },
+							'debug-ui.json': 'debug.ui',
+							ui: {
+								$id: 'ui.applied',
+								resources: 'ui.resources.applied',
+							},
 						},
 						src: { blocks: 'blocks.applied' },
 						'plugin.php': 'plugin.loader',
@@ -27,7 +37,7 @@ describe('layout fragment', () => {
 			},
 			async (root) => {
 				const config = createBaseConfig();
-				const ir = await buildIr({
+				const ir = await createIr({
 					config,
 					sourcePath: path.join(root, 'wpk.config.ts'),
 					origin: 'wpk.config.ts',
@@ -48,8 +58,21 @@ describe('layout fragment', () => {
 			async (root) => {
 				const manifest = {
 					directories: {
-						'.wpk': { generate: { php: 'php.generated' } },
+						'.wpk': {
+							generate: {
+								php: 'php.generated',
+								blocks: 'blocks.generated',
+								js: 'js.generated',
+								ui: 'ui.generated',
+							},
+							'debug-ui.json': 'debug.ui',
+							ui: {
+								$id: 'ui.applied',
+								resources: 'ui.resources.applied',
+							},
+						},
 						src: { blocks: 'blocks.applied' },
+						'plugin.php': 'plugin.loader',
 					},
 				};
 
@@ -65,7 +88,7 @@ describe('layout fragment', () => {
 					blocks: 'custom/blocks',
 				} as Record<string, string>;
 
-				const ir = await buildIr({
+				const ir = await createIr({
 					config,
 					sourcePath: path.join(root, 'wpk.config.ts'),
 					origin: 'wpk.config.ts',
@@ -90,7 +113,7 @@ describe('layout fragment', () => {
 				} as Record<string, string>;
 
 				await expect(
-					buildIr({
+					createIr({
 						config,
 						sourcePath: path.join(root, 'wpk.config.ts'),
 						origin: 'wpk.config.ts',
@@ -110,7 +133,7 @@ describe('layout fragment', () => {
 			async () => {},
 			async (root) => {
 				const config = createBaseConfig();
-				const ir = await buildIr({
+				const ir = await createIr({
 					config,
 					sourcePath: path.join(root, 'wpk.config.ts'),
 					origin: 'wpk.config.ts',
@@ -137,7 +160,7 @@ describe('layout fragment', () => {
 			async (root) => {
 				const config = createBaseConfig();
 				await expect(
-					buildIr({
+					createIr({
 						config,
 						sourcePath: path.join(root, 'wpk.config.ts'),
 						origin: 'wpk.config.ts',
@@ -153,8 +176,21 @@ describe('layout fragment', () => {
 			async (root) => {
 				const manifest = {
 					directories: {
-						'.wpk': { generate: { php: 'php.generated' } },
+						'.wpk': {
+							generate: {
+								php: 'php.generated',
+								blocks: 'blocks.generated',
+								js: 'js.generated',
+								ui: 'ui.generated',
+							},
+							'debug-ui.json': 'debug.ui',
+							ui: {
+								$id: 'ui.applied',
+								resources: 'ui.resources.applied',
+							},
+						},
 						src: { blocks: 'blocks.applied' },
+						'plugin.php': 'plugin.loader',
 					},
 				};
 
@@ -166,7 +202,7 @@ describe('layout fragment', () => {
 			},
 			async (root) => {
 				const config = createBaseConfig();
-				const ir = await buildIr({
+				const ir = await createIr({
 					config,
 					sourcePath: path.join(root, 'wpk.config.ts'),
 					origin: 'wpk.config.ts',
@@ -176,6 +212,35 @@ describe('layout fragment', () => {
 				expect(() => ir.layout.resolve('not-here')).toThrow(
 					/Unknown layout id "not-here"/
 				);
+			}
+		);
+	});
+
+	it('returns null in non-strict mode when manifest cannot be parsed', async () => {
+		await withTempWorkspace(
+			async (root) => {
+				await fs.writeFile(
+					path.join(root, 'layout.manifest.json'),
+					'{',
+					'utf8'
+				);
+			},
+			async (root) => {
+				const workspace = {
+					root,
+					readText: (file?: string) =>
+						fs.readFile(path.join(root, file ?? ''), 'utf8'),
+					resolve: (...parts: string[]) => path.join(root, ...parts),
+				} as any;
+
+				const layout = await import('../../layout/manifest').then((m) =>
+					m.loadLayoutFromWorkspace({
+						workspace,
+						strict: false,
+					})
+				);
+
+				expect(layout).toBeNull();
 			}
 		);
 	});

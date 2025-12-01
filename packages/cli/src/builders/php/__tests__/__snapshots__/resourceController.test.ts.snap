@@ -178,7 +178,7 @@ exports[`createPhpResourceControllerHelper queues resource controllers with reso
         "implements": [],
         "name": {
           "attributes": {},
-          "name": "BooksController",
+          "name": "booksController",
           "nodeType": "Identifier",
         },
         "namespacedName": null,
@@ -8809,7 +8809,7 @@ exports[`createPhpResourceControllerHelper queues taxonomy controllers with pagi
         "implements": [],
         "name": {
           "attributes": {},
-          "name": "JobCategoriesController",
+          "name": "jobCategoriesController",
           "nodeType": "Identifier",
         },
         "namespacedName": null,

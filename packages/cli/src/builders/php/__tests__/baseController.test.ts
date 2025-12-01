@@ -10,6 +10,7 @@ import {
 	createBuilderOutput,
 	createMinimalIr,
 	createPipelineContext,
+	seedArtifacts,
 } from '../test-support/php-builder.test-support';
 import { loadTestLayoutSync } from '@wpkernel/test-utils/layout.test-support';
 
@@ -20,7 +21,6 @@ describe('createPhpBaseControllerHelper', () => {
 		resetPhpAstChannel(context);
 
 		const helper = createPhpBaseControllerHelper();
-		const next = jest.fn();
 		const output = createBuilderOutput();
 
 		await helper.apply(
@@ -30,10 +30,9 @@ describe('createPhpBaseControllerHelper', () => {
 				output,
 				reporter: context.reporter,
 			},
-			next
+			undefined
 		);
 
-		expect(next).toHaveBeenCalledTimes(1);
 		expect(getPhpBuilderChannel(context).pending()).toHaveLength(0);
 	});
 
@@ -54,6 +53,7 @@ describe('createPhpBaseControllerHelper', () => {
 				autoload: 'inc/',
 			},
 		});
+		await seedArtifacts(ir, context.reporter);
 
 		const reporter = context.reporter;
 		jest.spyOn(reporter, 'debug');

@@ -13,11 +13,13 @@ import {
 	buildGenerationManifestFromIr,
 	diffGenerationState,
 	normaliseGenerationState,
+	resolveGenerationStatePath,
 	readGenerationState,
 	writeGenerationState,
 	type GenerationManifest,
 } from '../manifest';
 import { loadTestLayout } from '@wpkernel/test-utils/layout.test-support';
+import * as layoutManifest from '../../layout/manifest';
 
 describe('generation manifest helpers', () => {
 	let phpGeneratedRoot: string;
@@ -39,7 +41,6 @@ describe('generation manifest helpers', () => {
 	beforeAll(async () => {
 		testLayout = await loadTestLayout();
 		phpGeneratedRoot = testLayout.resolve('php.generated');
-		uiGeneratedRoot = testLayout.resolve('ui.generated');
 		applyStatePath = testLayout.resolve('apply.state');
 		const manifestPath = path.resolve(
 			__dirname,
@@ -59,6 +60,26 @@ describe('generation manifest helpers', () => {
 
 		expect(result).toEqual(buildEmptyGenerationState());
 		expect(workspace.readText).toHaveBeenCalledWith(applyStatePath);
+	});
+
+	it('throws when layout.manifest.json cannot be loaded', async () => {
+		const workspace = makeWorkspaceMock({
+			root: '/',
+			readText: jest.fn(async () => null),
+		});
+
+		const spy = jest
+			.spyOn(layoutManifest, 'loadLayoutFromWorkspace')
+			.mockResolvedValue(null as never);
+
+		await expect(
+			resolveGenerationStatePath(workspace)
+		).rejects.toMatchObject({
+			message:
+				'layout.manifest.json not found; cannot resolve apply state path.',
+		});
+
+		spy.mockRestore();
 	});
 
 	it('normalises manifest contents from disk', async () => {
@@ -152,6 +173,26 @@ describe('generation manifest helpers', () => {
 	it('returns an empty state when parsing invalid structures', () => {
 		const malformed = normaliseGenerationState({ version: 2 });
 		expect(malformed).toEqual(buildEmptyGenerationState());
+	});
+
+	it('normalises empty or malformed shapes to empty state', () => {
+		expect(normaliseGenerationState(null)).toEqual(
+			buildEmptyGenerationState()
+		);
+
+		const normalised = normaliseGenerationState({
+			version: 1,
+			resources: {
+				'': { hash: null },
+			},
+			pluginLoader: { file: '' },
+			phpIndex: { file: null },
+			jsRuntime: { files: [42, ''] },
+			ui: { handle: ' ', files: [{ generated: '', applied: null }] },
+			blocks: { files: [{ generated: '', applied: '' }] },
+		});
+
+		expect(normalised).toEqual(buildEmptyGenerationState());
 	});
 
 	it('throws when the state file contains invalid JSON', async () => {
@@ -348,6 +389,164 @@ describe('generation manifest helpers', () => {
 		});
 
 		expect(manifest.resources).toEqual({});
+	});
+
+	it('throws when the IR layout fragment is missing', () => {
+		expect(() =>
+			buildGenerationManifestFromIr({
+				meta: makeIrMeta('DemoPlugin', {
+					sourcePath: 'wpk.config.ts',
+					origin: 'typescript',
+				}),
+				config: {
+					version: 1,
+					namespace: 'DemoPlugin',
+					resources: {},
+					schemas: {},
+				},
+				schemas: [],
+				resources: [],
+				capabilities: [],
+				capabilityMap: {
+					definitions: [],
+					fallback: {
+						capability: 'manage_demo',
+						appliesTo: 'resource',
+					},
+					missing: [],
+					unused: [],
+					warnings: [],
+				},
+				blocks: [],
+				php: {
+					namespace: 'DemoPlugin',
+					autoload: 'inc/',
+					outputDir: phpGeneratedRoot,
+				},
+				layout: undefined as unknown as typeof testLayout,
+				diagnostics: [],
+			})
+		).toThrow(
+			'IR layout fragment did not resolve layout before building generation manifest.'
+		);
+	});
+
+	it('builds UI and JS runtime state when capability map and admin screens exist', () => {
+		const resource = createDefaultResource();
+		const ir = makeIr({
+			namespace: 'demo-plugin',
+			meta: makeIrMeta('demo-plugin', {
+				sourcePath: 'wpk.config.ts',
+				origin: 'typescript',
+				namespace: 'DemoPlugin',
+				sanitizedNamespace: 'demo-plugin',
+			}),
+			config: {
+				version: 1,
+				namespace: 'demo-plugin',
+				resources: {},
+				schemas: {},
+			},
+			schemas: [],
+			resources: [
+				{
+					...resource,
+					id: 'res:books',
+					name: 'books',
+					schemaKey: 'books',
+					hash: { ...resource.hash, value: 'xyz' },
+					ui: {
+						admin: {
+							dataviews: {
+								fields: [{ id: 'title', label: 'Title' }],
+								defaultView: {
+									type: 'table',
+									fields: ['title'],
+								},
+								preferencesKey: 'books/admin',
+							},
+						},
+					},
+				},
+			],
+			capabilities: [],
+			capabilityMap: {
+				definitions: [
+					{
+						id: 'cap:manage',
+						name: 'manage',
+						description: '',
+					},
+				],
+				fallback: { capability: 'manage_demo', appliesTo: 'resource' },
+				missing: [],
+				unused: [],
+				warnings: [],
+			},
+			blocks: [],
+			php: {
+				namespace: 'DemoPlugin',
+				autoload: 'inc/',
+				outputDir: phpGeneratedRoot,
+			},
+			ui: {
+				resources: [
+					{
+						resource: 'books',
+						dataviews: {
+							fields: [{ id: 'title', label: 'Title' }],
+							defaultView: { type: 'table', fields: ['title'] },
+							preferencesKey: 'books/admin',
+						},
+					},
+				],
+			},
+			layout: testLayout,
+			diagnostics: [],
+		});
+
+		const manifest = buildGenerationManifestFromIr(ir);
+		expect(manifest.jsRuntime?.files).toEqual([
+			path.posix.join(
+				testLayout.resolve('js.generated'),
+				'capabilities.ts'
+			),
+			path.posix.join(
+				testLayout.resolve('js.generated'),
+				'capabilities.d.ts'
+			),
+			path.posix.join(testLayout.resolve('js.generated'), 'index.ts'),
+			path.posix.join(testLayout.resolve('js.generated'), 'index.d.ts'),
+		]);
+
+		expect(manifest.ui?.handle).toBe('wp-demo-plugin-ui');
+		const files = manifest.ui?.files ?? [];
+		expect(
+			files.some(({ generated }) =>
+				generated.endsWith('resources/books.ts')
+			)
+		).toBe(true);
+		expect(
+			files.some(({ generated }) =>
+				generated.endsWith('app/books/admin/page.tsx')
+			)
+		).toBe(true);
+		const generatedArtifacts = manifest.resources.books.artifacts.generated;
+		expect(
+			generatedArtifacts.some((file) =>
+				file.includes('/registry/dataviews/')
+			)
+		).toBe(true);
+		expect(
+			generatedArtifacts.some((file) =>
+				file.includes('/fixtures/dataviews/')
+			)
+		).toBe(true);
+		expect(
+			generatedArtifacts.some((file) =>
+				file.includes('/fixtures/interactivity/')
+			)
+		).toBe(true);
 	});
 
 	it('diffs manifests to capture removed resources', () => {

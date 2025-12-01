@@ -1,10 +1,6 @@
 import path from 'node:path';
 import { createHelper } from '../../runtime';
-import type {
-	BuilderApplyOptions,
-	BuilderHelper,
-	BuilderNext,
-} from '../../runtime/types';
+import type { BuilderApplyOptions, BuilderHelper } from '../../runtime/types';
 import {
 	AUTO_GUARD_BEGIN,
 	buildPluginLoaderProgram,
@@ -37,73 +33,94 @@ export function createPhpPluginLoaderHelper(): BuilderHelper {
 		key: 'builder.generate.php.plugin-loader',
 		kind: 'builder',
 		dependsOn: [
-			'builder.generate.php.core',
+			'builder.generate.php.channel.bootstrap',
 			'builder.generate.php.controller.resources',
 			'builder.generate.php.capability',
 			'builder.generate.php.registration.persistence',
 			'ir.resources.core',
 			'ir.capability-map.core',
 			'ir.layout.core',
+			'ir.artifacts.plan',
 		],
-		async apply(options: BuilderApplyOptions, next?: BuilderNext) {
+		async apply(options: BuilderApplyOptions) {
 			const { input, context, reporter } = options;
 			if (!canGeneratePluginLoader(input)) {
-				await next?.();
 				return;
 			}
 
 			const ir = input.ir;
-			const resourceClassNames = buildResourceClassNames(ir);
-			const uiConfig = buildUiConfig(ir);
-
-			await writeDebugUiFile({
-				workspace: context.workspace,
-				ir,
-				uiResources: ir.ui?.resources ?? [],
-				uiConfig,
-			});
-
-			if (
-				await pluginLoaderIsUserOwned({
-					workspace: context.workspace,
-					reporter,
-				})
-			) {
-				await next?.();
+			const phpPlan = ir.artifacts?.php;
+			if (!phpPlan) {
+				reporter.debug(
+					'createPhpPluginLoaderHelper: missing PHP artifacts plan; skipping.'
+				);
 				return;
 			}
 
-			const loaderConfig = buildLoaderConfig({
+			await generatePluginLoader({
 				ir,
-				resourceClassNames,
-				uiConfig,
+				phpPlan,
+				context,
+				reporter,
 			});
-
-			const program = buildPluginLoaderProgram(loaderConfig);
-			const pluginRootDir = resolvePluginRootDir(ir);
-
-			const planner = buildProgramTargetPlanner({
-				workspace: context.workspace,
-				outputDir: pluginRootDir,
-				channel: getPhpBuilderChannel(context),
-			});
-
-			planner.queueFile({
-				fileName: 'plugin.php',
-				program,
-				metadata: { kind: 'plugin-loader' },
-				docblock: [],
-				uses: [],
-				statements: [],
-			});
-
-			reporter.debug(
-				'createPhpPluginLoaderHelper: queued plugin loader.',
-				{ outputDir: pluginRootDir }
-			);
-
-			await next?.();
 		},
+	});
+}
+
+async function generatePluginLoader(options: {
+	readonly ir: GeneratePhaseInput['ir'];
+	readonly phpPlan: NonNullable<GeneratePhaseInput['ir']['artifacts']['php']>;
+	readonly context: BuilderApplyOptions['context'];
+	readonly reporter: BuilderApplyOptions['reporter'];
+}): Promise<void> {
+	const { ir, phpPlan, context, reporter } = options;
+	const resourceClassNames = buildResourceClassNames(ir, phpPlan);
+	const uiConfig = buildUiConfig(ir);
+
+	await writeDebugUiFile({
+		workspace: context.workspace,
+		ir,
+		uiResources: ir.ui?.resources ?? [],
+		uiConfig,
+		phpPlan,
+	});
+
+	if (
+		await pluginLoaderIsUserOwned({
+			workspace: context.workspace,
+			reporter,
+		})
+	) {
+		return;
+	}
+
+	const loaderConfig = buildLoaderConfig({
+		ir,
+		resourceClassNames,
+		uiConfig,
+		phpPlan,
+	});
+
+	const program = buildPluginLoaderProgram(loaderConfig);
+	const pluginRootDir = path.posix.dirname(phpPlan.pluginLoaderPath);
+
+	const planner = buildProgramTargetPlanner({
+		workspace: context.workspace,
+		outputDir: pluginRootDir,
+		channel: getPhpBuilderChannel(context),
+	});
+
+	planner.queueFile({
+		fileName: path.posix.basename(phpPlan.pluginLoaderPath),
+		program,
+		metadata: { kind: 'plugin-loader' },
+		docblock: [],
+		uses: [],
+		statements: [],
+	});
+
+	reporter.debug('createPhpPluginLoaderHelper: queued plugin loader.', {
+		outputDir: pluginRootDir,
 	});
 }
 
@@ -118,8 +135,15 @@ function canGeneratePluginLoader(
 	return input.phase === 'generate' && Boolean(input.ir);
 }
 
-function buildResourceClassNames(ir: GeneratePhaseInput['ir']): string[] {
+function buildResourceClassNames(
+	ir: GeneratePhaseInput['ir'],
+	phpPlan: NonNullable<GeneratePhaseInput['ir']['artifacts']['php']>
+): string[] {
 	return ir.resources.map((resource) => {
+		const planned = phpPlan.controllers[resource.id];
+		if (planned?.className) {
+			return planned.className;
+		}
 		if (resource.controllerClass) {
 			return resource.controllerClass;
 		}
@@ -128,18 +152,16 @@ function buildResourceClassNames(ir: GeneratePhaseInput['ir']): string[] {
 	});
 }
 
-function resolvePluginRootDir(ir: GeneratePhaseInput['ir']): string {
-	return ir.layout!.resolve('php.generated');
-}
-
 function buildLoaderConfig({
 	ir,
 	resourceClassNames,
 	uiConfig,
+	phpPlan,
 }: {
 	ir: GeneratePhaseInput['ir'];
 	resourceClassNames: string[];
 	uiConfig: ReturnType<typeof buildUiConfig>;
+	phpPlan: NonNullable<GeneratePhaseInput['ir']['artifacts']['php']>;
 }): Parameters<typeof buildPluginLoaderProgram>[0] {
 	const base = {
 		origin: ir.meta.origin,
@@ -147,7 +169,14 @@ function buildLoaderConfig({
 		sanitizedNamespace: ir.meta.sanitizedNamespace,
 		plugin: ir.meta.plugin,
 		resourceClassNames,
-		phpGeneratedPath: ir.layout!.resolve('php.generated'),
+		phpGeneratedPath: path.posix.dirname(phpPlan.pluginLoaderPath),
+		autoload:
+			phpPlan.autoload.strategy === 'composer'
+				? {
+						strategy: phpPlan.autoload.strategy,
+						autoloadPath: phpPlan.autoload.autoloadPath,
+					}
+				: { strategy: phpPlan.autoload.strategy },
 	};
 
 	const contentModel = buildContentModelConfig(ir);
@@ -168,6 +197,8 @@ function buildContentModelConfig(ir: GeneratePhaseInput['ir']): ContentModel {
 			continue;
 		}
 
+		const usesDataViews = resource.ui?.admin?.view === 'dataviews';
+
 		if (storage.mode === 'wp-post') {
 			addPostTypeFromResource({
 				resource,
@@ -175,6 +206,7 @@ function buildContentModelConfig(ir: GeneratePhaseInput['ir']): ContentModel {
 				postTypes,
 				taxonomies,
 				statuses,
+				usesDataViews,
 			});
 			continue;
 		}
@@ -183,6 +215,7 @@ function buildContentModelConfig(ir: GeneratePhaseInput['ir']): ContentModel {
 			addTaxonomyFromStorage({
 				storage,
 				taxonomies,
+				usesDataViews,
 			});
 		}
 	}
@@ -204,17 +237,21 @@ function addPostTypeFromResource({
 	postTypes,
 	taxonomies,
 	statuses,
+	usesDataViews,
 }: {
 	resource: Resource;
 	storage: WpPostStorage;
 	postTypes: PostTypesMap;
 	taxonomies: TaxonomiesMap;
 	statuses: StatusesMap;
+	usesDataViews: boolean;
 }): void {
 	const postTypeSlug = storage.postType ?? resource.name;
 	const labels = buildLabelsFromResource(resource);
 	const existing = postTypes.get(postTypeSlug);
 	const taxonomySet = existing?.taxonomies ?? new Set<string>();
+	const showUi = existing?.showUi ?? true;
+	const showInMenu = existing?.showInMenu ?? true;
 
 	addTaxonomiesForPostType({
 		storage,
@@ -229,6 +266,8 @@ function addPostTypeFromResource({
 		labels,
 		supports,
 		taxonomies: taxonomySet,
+		showUi: usesDataViews ? false : showUi,
+		showInMenu: usesDataViews ? false : showInMenu,
 	});
 
 	addStatusesFromStorage(storage, statuses);
@@ -293,9 +332,11 @@ function addStatusesFromStorage(
 function addTaxonomyFromStorage({
 	storage,
 	taxonomies,
+	usesDataViews,
 }: {
 	storage: WpTaxonomyStorage;
 	taxonomies: TaxonomiesMap;
+	usesDataViews: boolean;
 }): void {
 	const slug = storage.taxonomy;
 	if (!slug) {
@@ -306,10 +347,17 @@ function addTaxonomyFromStorage({
 		objectTypes: new Set<string>(),
 		hierarchical: storage.hierarchical,
 		labels: buildTaxonomyLabels(slug),
+		showUi: true,
+		showAdminColumn: true,
 	};
 
 	if (typeof storage.hierarchical === 'boolean') {
 		existing.hierarchical = storage.hierarchical;
+	}
+
+	if (usesDataViews) {
+		existing.showUi = false;
+		existing.showAdminColumn = false;
 	}
 
 	taxonomies.set(slug, existing);
@@ -330,6 +378,8 @@ function upsertRegisteredTaxonomy({
 		objectTypes: new Set<string>(),
 		hierarchical,
 		labels: buildTaxonomyLabels(slug),
+		showUi: true,
+		showAdminColumn: true,
 	};
 
 	existing.objectTypes.add(postTypeSlug);
@@ -343,13 +393,16 @@ function upsertRegisteredTaxonomy({
 
 function buildPostTypesArray(postTypes: PostTypesMap) {
 	return Array.from(postTypes.entries()).map(
-		([slug, { labels, supports, taxonomies: taxonomySet }]) => ({
+		([
+			slug,
+			{ labels, supports, taxonomies: taxonomySet, showUi, showInMenu },
+		]) => ({
 			slug,
 			labels,
 			supports,
 			taxonomies: Array.from(taxonomySet),
-			showUi: true,
-			showInMenu: true,
+			showUi,
+			showInMenu,
 			showInRest: true,
 			rewrite: false,
 			capabilityType: 'post',
@@ -361,13 +414,22 @@ function buildPostTypesArray(postTypes: PostTypesMap) {
 
 function buildTaxonomiesArray(taxonomies: TaxonomiesMap) {
 	return Array.from(taxonomies.entries()).map(
-		([slug, { objectTypes, hierarchical, labels: taxonomyLabels }]) => ({
+		([
+			slug,
+			{
+				objectTypes,
+				hierarchical,
+				labels: taxonomyLabels,
+				showUi,
+				showAdminColumn,
+			},
+		]) => ({
 			slug,
 			objectTypes: Array.from(objectTypes),
 			hierarchical,
 			labels: taxonomyLabels,
-			showUi: true,
-			showAdminColumn: true,
+			showUi,
+			showAdminColumn,
 			showInRest: true,
 		})
 	);
@@ -452,18 +514,16 @@ async function writeDebugUiFile({
 	ir,
 	uiResources,
 	uiConfig,
+	phpPlan,
 }: {
 	workspace: BuilderApplyOptions['context']['workspace'];
 	ir: GeneratePhaseInput['ir'];
 	uiResources: NonNullable<GeneratePhaseInput['ir']['ui']>['resources'] | [];
 	uiConfig: ReturnType<typeof buildUiConfig>;
+	phpPlan: NonNullable<GeneratePhaseInput['ir']['artifacts']['php']>;
 }): Promise<void> {
-	const debugUiPath =
-		ir.layout?.resolve('debug.ui') ??
-		path.posix.join('.wpk', 'debug-ui.json');
-
 	await workspace.write(
-		debugUiPath,
+		phpPlan.debugUiPath,
 		JSON.stringify(
 			{
 				namespace: ir.meta.namespace,

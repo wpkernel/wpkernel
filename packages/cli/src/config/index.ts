@@ -1,5 +1,5 @@
 /**
- * Kernel config types and utilities.
+ * WPKernel config types and utilities.
  */
 export type {
 	WPKernelConfigV1,

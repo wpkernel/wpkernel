@@ -9,57 +9,7 @@ import {
 	runResourceChecks,
 	formatValidationErrors,
 } from '../validate-wpk-config';
-
-interface TestResourceConfig {
-	name: string;
-	routes: {
-		list?: {
-			path: string;
-			method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
-			capability?: string;
-		};
-		get?: {
-			path: string;
-			method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
-			capability?: string;
-		};
-		create?: {
-			path: string;
-			method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
-			capability?: string;
-		};
-		update?: {
-			path: string;
-			method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
-			capability?: string;
-		};
-		remove?: {
-			path: string;
-			method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
-			capability?: string;
-		};
-	};
-	identity?:
-		| { type: 'number'; param?: 'id' }
-		| { type: 'string'; param?: 'id' | 'slug' | 'uuid' };
-	storage?: Record<string, unknown>;
-	ui?: unknown;
-}
-
-interface TestConfig {
-	version?: 1 | 2;
-	namespace: string;
-	schemas: Record<
-		string,
-		{
-			path: string;
-			generated: { types: string };
-			description?: string;
-		}
-	>;
-	resources: Record<string, TestResourceConfig>;
-	adapters?: { php?: unknown };
-}
+import type { WPKernelConfigV1 } from '../types';
 
 function createMockReporter(): {
 	reporter: Reporter;
@@ -71,16 +21,14 @@ function createMockReporter(): {
 }
 
 describe('validateWPKernelConfig', () => {
-	const baseSchema = {
+	const baseSchema: WPKernelConfigV1['schemas'] = {
 		default: {
 			path: 'schemas/default.json',
-			generated: {
-				types: 'types/default.d.ts',
-			},
+			description: 'Default schema',
 		},
 	} as const;
 
-	function createValidConfig(): TestConfig {
+	function createValidConfig(): WPKernelConfigV1 {
 		return {
 			version: 1,
 			namespace: 'valid-namespace',
@@ -96,7 +44,7 @@ describe('validateWPKernelConfig', () => {
 					},
 				},
 			},
-		};
+		} as WPKernelConfigV1;
 	}
 
 	it('returns sanitized namespace when required', () => {
@@ -135,7 +83,7 @@ describe('validateWPKernelConfig', () => {
 				},
 				cacheKeys: {} as ResourceConfig['cacheKeys'],
 			},
-		} as unknown as TestConfig['resources'];
+		};
 
 		expect(() =>
 			validateWPKernelConfig(config, {
@@ -162,7 +110,7 @@ describe('validateWPKernelConfig', () => {
 					getId: () => 'invalid',
 				},
 			},
-		} as unknown as TestConfig['resources'];
+		};
 
 		expect(() =>
 			validateWPKernelConfig(config, {
@@ -187,7 +135,7 @@ describe('validateWPKernelConfig', () => {
 				},
 				schema: (() => ({})) as unknown as ResourceConfig['schema'],
 			},
-		} as unknown as TestConfig['resources'];
+		};
 
 		expect(() =>
 			validateWPKernelConfig(config, {
@@ -212,7 +160,7 @@ describe('validateWPKernelConfig', () => {
 				},
 				reporter: (() => ({})) as unknown as ResourceConfig['reporter'],
 			},
-		} as unknown as TestConfig['resources'];
+		};
 
 		expect(() =>
 			validateWPKernelConfig(config, {
@@ -245,7 +193,7 @@ describe('validateWPKernelConfig', () => {
 					},
 				},
 			},
-		} as unknown as TestConfig['resources'];
+		};
 
 		expect(() =>
 			validateWPKernelConfig(config, {
@@ -278,7 +226,7 @@ describe('validateWPKernelConfig', () => {
 					},
 				},
 			},
-		} as unknown as TestConfig['resources'];
+		};
 
 		expect(() =>
 			validateWPKernelConfig(config, {
@@ -306,10 +254,16 @@ describe('validateWPKernelConfig', () => {
 
 	it('defaults version to 1 with warning when omitted', () => {
 		const { reporter, child } = createMockReporter();
-		const config = createValidConfig();
-		delete config.version;
 
-		const result = validateWPKernelConfig(config, {
+		// Treat as raw loader output, not as a typed config.
+		const rawConfig = createValidConfig() as unknown as {
+			version?: number;
+			[key: string]: unknown;
+		};
+
+		delete rawConfig.version;
+
+		const result = validateWPKernelConfig(rawConfig, {
 			reporter,
 			origin: 'wpk.config.js',
 			sourcePath: '/tmp/wpk.config.js',
@@ -324,11 +278,16 @@ describe('validateWPKernelConfig', () => {
 
 	it('throws when version is unsupported', () => {
 		const { reporter, child } = createMockReporter();
-		const config = createValidConfig();
-		config.version = 2;
+
+		const rawConfig = createValidConfig() as unknown as {
+			version?: number;
+			[key: string]: unknown;
+		};
+
+		rawConfig.version = 2;
 
 		expect(() =>
-			validateWPKernelConfig(config, {
+			validateWPKernelConfig(rawConfig, {
 				reporter,
 				origin: 'wpk.config.js',
 				sourcePath: '/tmp/wpk.config.js',
@@ -403,12 +362,32 @@ describe('validateWPKernelConfig', () => {
 			expect.objectContaining({ resourceName: 'thing' })
 		);
 	});
+
 	it('throws when adapters.php is not a function', () => {
 		const { reporter, child } = createMockReporter();
-		const config = createValidConfig();
-		config.adapters = {
-			php: 'not-a-function',
-		};
+
+		const rawConfig = {
+			...createValidConfig(),
+			adapters: {
+				// Intentionally invalid: runtime validator should reject this.
+				php: 'not-a-function',
+			},
+		} as unknown;
+
+		expect(() =>
+			validateWPKernelConfig(rawConfig, {
+				reporter,
+				origin: 'wpk.config.js',
+				sourcePath: '/tmp/wpk.config.js',
+			})
+		).toThrow(WPKernelError);
+		expect(child.error).toHaveBeenCalled();
+	});
+
+	it('accepts blocks.mode "ssr"', () => {
+		const { reporter } = createMockReporter();
+		const config: any = createValidConfig();
+		config.resources.thing.blocks = { mode: 'ssr' };
 
 		expect(() =>
 			validateWPKernelConfig(config, {
@@ -416,8 +395,7 @@ describe('validateWPKernelConfig', () => {
 				origin: 'wpk.config.js',
 				sourcePath: '/tmp/wpk.config.js',
 			})
-		).toThrow(WPKernelError);
-		expect(child.error).toHaveBeenCalled();
+		).not.toThrow();
 	});
 });
 

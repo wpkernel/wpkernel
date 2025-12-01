@@ -1,0 +1,42 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`PHP helpers integration (flat pipeline) queues PHP programs with channel + helpers sequence 1`] = `
+[
+  {
+    "file": ".wpk/generate/php/Rest/BaseController.php",
+    "kind": "base-controller",
+  },
+  {
+    "file": ".wpk/generate/php/Rest/BooksController.php",
+    "kind": "resource-controller",
+  },
+  {
+    "file": ".wpk/generate/php/Rest/JobCategoriesController.php",
+    "kind": "resource-controller",
+  },
+  {
+    "file": ".wpk/generate/php/Rest/DemoOptionController.php",
+    "kind": "resource-controller",
+  },
+  {
+    "file": ".wpk/generate/php/Rest/JobCacheController.php",
+    "kind": "resource-controller",
+  },
+  {
+    "file": ".wpk/generate/php/Capability/Capability.php",
+    "kind": "capability-helper",
+  },
+  {
+    "file": ".wpk/generate/php/Registration/PersistenceRegistry.php",
+    "kind": "persistence-registry",
+  },
+  {
+    "file": "plugin.php",
+    "kind": "plugin-loader",
+  },
+  {
+    "file": ".wpk/generate/php/index.php",
+    "kind": "index-file",
+  },
+]
+`;

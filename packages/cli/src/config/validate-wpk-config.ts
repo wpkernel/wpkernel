@@ -1,5 +1,5 @@
 /**
- * Kernel Config Validator
+ * WPKernel Config Validator
  *
  * Validates `wpk.config.ts` structure and enforces framework contracts
  * before code generation. This is the first line of defense against invalid
@@ -206,12 +206,6 @@ const resourceStorageValidator = t.isOptional(
 const schemaConfigValidator = t.isObject(
 	{
 		path: t.isString(),
-		generated: t.isObject(
-			{
-				types: t.isString(),
-			},
-			{ extra: t.isRecord(t.isUnknown()) }
-		),
 		description: t.isOptional(t.isString()),
 	},
 	{ extra: t.isRecord(t.isUnknown()) }
@@ -250,9 +244,11 @@ const resourceUIValidator = t.isObject(
 	{ extra: t.isRecord(t.isUnknown()) }
 );
 
+const resourceBlocksModeValidator = t.isEnum(['js', 'ssr']);
+
 const resourceBlocksConfigValidator = t.isObject(
 	{
-		mode: t.isOptional(t.isOneOf([t.isLiteral('js'), t.isLiteral('ssr')])),
+		mode: t.isOptional(resourceBlocksModeValidator),
 	},
 	{ extra: t.isRecord(t.isUnknown()) }
 );

@@ -1,9 +1,9 @@
 import type { ResourceConfig } from '@wpkernel/core/resource';
-import type { SerializableResourceConfig } from '../../config/types';
 import { sortObject } from './canonical';
 import type {
 	BuildIrOptions,
 	IRResource,
+	IRResourceBlocksConfig,
 	IRWarning,
 	SchemaProvenance,
 } from '../publicTypes';
@@ -19,6 +19,10 @@ interface ResourceBuilderState {
 	duplicateDetector: Map<string, { resource: string; route: string }>;
 	postTypeRegistry: Map<string, string>;
 }
+
+type ResourceConfigWithBlocks = ResourceConfig & {
+	blocks?: IRResourceBlocksConfig | { mode?: unknown };
+};
 
 /**
  * Builds the full IR representation for all declared resources.
@@ -47,13 +51,16 @@ export async function buildResources(
 	const resources: IRResource[] = [];
 	const resourceEntries = Object.entries(options.config.resources);
 
-	for (const [resourceKey, resourceConfig] of resourceEntries) {
+	for (const [resourceKey, rawConfig] of resourceEntries) {
+		const resourceConfig = rawConfig as ResourceConfigWithBlocks;
+
 		const name =
 			typeof resourceConfig.name === 'string' &&
 			resourceConfig.name.length > 0
 				? resourceConfig.name
 				: resourceKey;
-		(resourceConfig as SerializableResourceConfig).name = name;
+
+		resourceConfig.name = name;
 
 		const resource = await buildResourceEntry({
 			accumulator,
@@ -88,7 +95,7 @@ async function buildResourceEntry(options: {
 	accumulator: SchemaAccumulator;
 	sanitizedNamespace: string;
 	resourceKey: string;
-	resourceConfig: SerializableResourceConfig;
+	resourceConfig: ResourceConfigWithBlocks;
 	state: ResourceBuilderState;
 	namespace: string;
 }): Promise<IRResource> {
@@ -143,19 +150,7 @@ async function buildResourceEntry(options: {
 	const queryParams = normaliseQueryParams(resourceConfig.queryParams);
 
 	// Infer minimal dataviews config when the admin view declares DataViews
-	const inferredUi =
-		resourceConfig.ui?.admin?.view === 'dataviews'
-			? {
-					admin: {
-						...resourceConfig.ui.admin,
-						dataviews: resourceConfig.ui.admin.dataviews ?? {
-							fields: [],
-							defaultView: { type: 'table' },
-							preferencesKey: `${namespace}/dataviews/${resourceConfig.name}`,
-						},
-					},
-				}
-			: resourceConfig.ui;
+	const ui = resourceConfig.ui;
 
 	const irResource: IRResource = {
 		id: createResourceId({
@@ -176,7 +171,7 @@ async function buildResourceEntry(options: {
 		identity: identityResult.identity,
 		storage: storageResult.storage,
 		queryParams,
-		ui: inferredUi,
+		ui,
 		blocks: normaliseResourceBlocks(resourceConfig.blocks),
 		capabilities: resourceConfig.capabilities,
 		hash: hashResource({
@@ -266,7 +261,7 @@ export function normaliseQueryParams(
 }
 
 function normaliseResourceBlocks(
-	blocks: SerializableResourceConfig['blocks']
+	blocks: ResourceConfigWithBlocks['blocks']
 ): IRResource['blocks'] | undefined {
 	if (!blocks || typeof blocks !== 'object') {
 		return undefined;
@@ -281,7 +276,6 @@ function normaliseResourceBlocks(
 	}
 	return undefined;
 }
-
 /**
  * Records collisions in inferred WordPress post types across resources.
  *
@@ -549,7 +543,7 @@ export function inferPostType(options: {
  * @category IR
  */
 export function hashResource(options: {
-	resourceConfig: SerializableResourceConfig;
+	resourceConfig: ResourceConfigWithBlocks;
 	schemaKey: string;
 	schemaProvenance: SchemaProvenance;
 	routes: IRResource['routes'];

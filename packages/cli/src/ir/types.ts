@@ -14,7 +14,9 @@ import type {
 	IRBundler,
 	IRUiSurface,
 	IRv1,
+	IRArtifactsPlan,
 } from './publicTypes';
+import type { WPKernelConfigV1 } from '../config/types';
 import type {
 	FragmentFinalizationMetadata,
 	Helper,
@@ -24,7 +26,7 @@ import type { PipelineContext } from '../runtime/types';
 
 export interface MutableIr {
 	meta: IRv1['meta'] | null;
-	readonly config: IRv1['config'];
+	readonly config: WPKernelConfigV1;
 	schemas: IRSchema[];
 	resources: IRResource[];
 	capabilities: IRCapabilityHint[];
@@ -34,6 +36,7 @@ export interface MutableIr {
 	layout: IRLayout | null;
 	ui: IRUiSurface | null;
 	bundler: IRBundler | null;
+	artifacts: IRArtifactsPlan;
 	diagnostics: IRDiagnostic[];
 	references: IRReferenceSummary | null;
 	extensions: Record<string, unknown>;
@@ -52,6 +55,7 @@ export function buildIrDraft(options: BuildIrOptions): MutableIr {
 		layout: null,
 		ui: null,
 		bundler: null,
+		artifacts: createEmptyArtifactsPlan(),
 		diagnostics: [],
 		references: null,
 		extensions: Object.create(null),
@@ -138,13 +142,19 @@ export function finalizeIrDraft(
 		});
 	}
 
+	if (!draft.artifacts) {
+		throw new WPKernelError('ValidationError', {
+			message:
+				'IR artifacts fragment did not resolve artifact plans before pipeline completion.',
+		});
+	}
+
 	const diagnostics =
 		draft.diagnostics.length > 0 ? draft.diagnostics.slice() : undefined;
 	const references = draft.references ? { ...draft.references } : undefined;
 
 	return {
 		meta: draft.meta,
-		config: draft.config,
 		schemas: draft.schemas,
 		resources: draft.resources,
 		capabilities: draft.capabilities,
@@ -154,8 +164,21 @@ export function finalizeIrDraft(
 		bundler: draft.bundler ?? undefined,
 		layout: draft.layout,
 		ui: draft.ui ?? undefined,
+		artifacts: draft.artifacts,
 		diagnostics,
 		references,
+	};
+}
+
+function createEmptyArtifactsPlan(): IRArtifactsPlan {
+	return {
+		pluginLoader: undefined,
+		controllers: Object.create(null),
+		resources: Object.create(null),
+		uiResources: Object.create(null),
+		blocks: Object.create(null),
+		schemas: Object.create(null),
+		js: undefined,
 	};
 }
 

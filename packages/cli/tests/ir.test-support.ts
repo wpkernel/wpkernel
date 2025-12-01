@@ -11,11 +11,7 @@ import type {
 	IRCapabilityScope,
 	IRWarning,
 } from '../src/ir/publicTypes';
-import type {
-	WPKernelConfigV1,
-	ResourceRegistry,
-	SchemaRegistry,
-} from '../src/config/types';
+import type {} from '../src/config/types';
 import { buildPluginMeta } from '../src/ir/shared/pluginMeta';
 import { loadTestLayoutSync } from './layout.test-support';
 
@@ -97,7 +93,6 @@ function makePhpProject(
 export function makeIr({
 	namespace = 'demo-namespace',
 	meta,
-	config,
 	schemas,
 	resources,
 	capabilities,
@@ -112,19 +107,11 @@ export function makeIr({
 }: DeepPartial<IRv1> & { namespace?: string } = {}): IRv1 {
 	const layoutMap = loadTestLayoutSync();
 	const resolvedMeta = makeIrMeta(namespace, meta ?? {});
-	const resolvedConfig: WPKernelConfigV1 = {
-		version: 1,
-		namespace,
-		...(config ?? {}),
-		schemas: ((config?.schemas ?? {}) as SchemaRegistry) || {},
-		resources: ((config?.resources ?? {}) as ResourceRegistry) || {},
-	};
 	const resolvedLayout: IRv1['layout'] =
 		(layout as IRv1['layout'] | undefined) ?? layoutMap;
 
 	return {
 		meta: resolvedMeta,
-		config: resolvedConfig,
 		schemas: (schemas as IRSchema[] | undefined) ?? [],
 		resources: (resources as IRResource[] | undefined) ?? [],
 		capabilities: (capabilities as IRCapabilityHint[] | undefined) ?? [],
@@ -133,6 +120,14 @@ export function makeIr({
 		php: makePhpProject(resolvedMeta.namespace, php ?? {}),
 		layout: resolvedLayout,
 		ui: ui as IRUiSurface | undefined,
+		artifacts: {
+			pluginLoader: undefined,
+			controllers: Object.create(null),
+			resources: Object.create(null),
+			uiResources: Object.create(null),
+			blocks: Object.create(null),
+			schemas: Object.create(null),
+		},
 		diagnostics: diagnostics ?? [],
 		adapterAudit,
 		references,

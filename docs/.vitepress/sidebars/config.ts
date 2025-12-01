@@ -1,6 +1,6 @@
 import type { DefaultTheme } from 'vitepress';
 
-export const configSidebar: DefaultTheme.Sidebar = [
+export const configSidebar: DefaultTheme.SidebarItem[] = [
 	{
 		text: 'Config',
 		collapsed: false,

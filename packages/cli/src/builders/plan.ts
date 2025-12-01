@@ -1,11 +1,7 @@
 import { buildPhpPrettyPrinter } from '@wpkernel/php-json-ast/php-driver';
 import path from 'path';
 import { createHelper } from '../runtime';
-import type {
-	BuilderApplyOptions,
-	BuilderHelper,
-	BuilderNext,
-} from '../runtime/types';
+import type { BuilderApplyOptions, BuilderHelper } from '../runtime/types';
 import {
 	resolveBundledPhpDriverPrettyPrintPath,
 	resolveBundledComposerAutoloadPath,
@@ -51,16 +47,16 @@ export function createPlanBuilder(): BuilderHelper {
 		key: 'builder.generate.plan',
 		kind: 'builder',
 		dependsOn: [
-			'builder.generate.ts.core',
+			'builder.generate.ts.adminScreen.core',
+			'builder.generate.ts.appConfig.core',
 			'builder.generate.ts.ui-entry',
 			'builder.generate.ts.blocks',
-			'builder.generate.php.core',
+			'builder.generate.php.channel.bootstrap',
 			'ir.ordering.core',
 		],
-		async apply(options: BuilderApplyOptions, next?: BuilderNext) {
+		async apply(options: BuilderApplyOptions) {
 			const { input, reporter } = options;
 			if (input.phase !== 'generate') {
-				await next?.();
 				return;
 			}
 
@@ -101,8 +97,6 @@ export function createPlanBuilder(): BuilderHelper {
 					}
 				);
 			}
-
-			await next?.();
 		},
 	});
 }
@@ -123,16 +117,16 @@ export function createApplyPlanBuilder(): BuilderHelper {
 		key: 'builder.generate.apply.plan',
 		kind: 'builder',
 		dependsOn: [
-			'builder.generate.ts.core',
+			'builder.generate.ts.adminScreen.core',
+			'builder.generate.ts.appConfig.core',
 			'builder.generate.ts.ui-entry',
 			'builder.generate.ts.blocks',
 			'builder.generate.php.core',
 			'ir.ordering.core',
 		],
-		async apply(options: BuilderApplyOptions, next?: BuilderNext) {
+		async apply(options: BuilderApplyOptions) {
 			const { input, reporter } = options;
 			if (input.phase !== 'generate') {
-				await next?.();
 				return;
 			}
 
@@ -176,8 +170,6 @@ export function createApplyPlanBuilder(): BuilderHelper {
 					}
 				);
 			}
-
-			await next?.();
 		},
 	});
 }

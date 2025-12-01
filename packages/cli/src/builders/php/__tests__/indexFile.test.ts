@@ -11,6 +11,7 @@ import {
 	createBuilderOutput,
 	createMinimalIr,
 	createPipelineContext,
+	seedArtifacts,
 } from '../test-support/php-builder.test-support';
 import {
 	makeResource,
@@ -28,7 +29,6 @@ describe('createPhpIndexFileHelper', () => {
 		resetPhpAstChannel(context);
 
 		const helper = createPhpIndexFileHelper();
-		const next = jest.fn();
 
 		await helper.apply(
 			{
@@ -37,10 +37,9 @@ describe('createPhpIndexFileHelper', () => {
 				output: createBuilderOutput(),
 				reporter: context.reporter,
 			},
-			next
+			undefined
 		);
 
-		expect(next).toHaveBeenCalledTimes(1);
 		expect(getPhpBuilderChannel(context).pending()).toHaveLength(0);
 	});
 
@@ -79,6 +78,7 @@ describe('createPhpIndexFileHelper', () => {
 				autoload: 'inc/',
 			},
 		});
+		await seedArtifacts(ir, context.reporter);
 
 		const reporter = context.reporter;
 		jest.spyOn(reporter, 'debug');

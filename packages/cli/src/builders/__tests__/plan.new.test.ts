@@ -8,6 +8,13 @@ import { makeIr } from '@cli-tests/ir.test-support';
 import { loadTestLayout } from '@wpkernel/test-utils/layout.test-support';
 import { createReporterMock } from '@cli-tests/reporter';
 
+const makeConfig = (namespace: string) => ({
+	version: 1,
+	namespace,
+	schemas: {},
+	resources: {},
+});
+
 async function withTempWorkspace(
 	populate: (root: string) => Promise<void>,
 	run: (root: string) => Promise<void>
@@ -26,6 +33,7 @@ async function runPlanBuilder(root: string, ir = makeIr()): Promise<void> {
 	const reporter = createReporterMock();
 	const actions: unknown[] = [];
 	const helper = createApplyPlanBuilder();
+	const config = makeConfig(ir.meta.namespace);
 
 	await helper.apply({
 		context: {
@@ -37,8 +45,8 @@ async function runPlanBuilder(root: string, ir = makeIr()): Promise<void> {
 		input: {
 			phase: 'generate',
 			options: {
-				config: ir.config,
-				namespace: ir.meta.namespace,
+				config,
+				namespace: config.namespace,
 				origin: ir.meta.origin,
 				sourcePath: path.join(root, 'wpk.config.ts'),
 			},

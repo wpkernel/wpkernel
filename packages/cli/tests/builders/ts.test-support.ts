@@ -1,3 +1,4 @@
+import path from 'node:path';
 import { WPK_CONFIG_SOURCES } from '@wpkernel/core/contracts';
 import type { ResourceConfig } from '@wpkernel/core/resource';
 import type {
@@ -6,7 +7,6 @@ import type {
 	IRResource,
 	IRv1,
 } from '../../src/ir/publicTypes';
-import type { WPKernelConfigV1 } from '../../src/config/types';
 export { withWorkspace } from './builder-harness.test-support.js';
 export {
 	buildReporter,
@@ -19,10 +19,29 @@ export type {
 	WorkspaceFactoryOptions,
 } from './builder-harness.test-support.js';
 import { loadDefaultLayout } from '../layout.test-support.js';
+type TestArtifactsPlan = {
+	pluginLoader?: unknown;
+	controllers: Record<string, unknown>;
+	resources: Record<
+		string,
+		{
+			modulePath: string;
+			typeDefPath: string;
+			typeSource: 'inferred' | 'schema';
+			schemaKey?: string;
+		}
+	>;
+	uiResources: Record<string, unknown>;
+	blocks: Record<string, unknown>;
+	schemas: Record<string, unknown>;
+	js?: IRv1['artifacts']['js'];
+	php?: IRv1['artifacts']['php'];
+};
 import {
 	buildControllerClassName,
 	buildPluginMetaFixture,
 } from '../ir/meta.test-support.js';
+import { type WPKernelConfigV1 } from '../../src/config';
 
 const makeHash = (value: string): IRHashProvenance => ({
 	algo: 'sha256',
@@ -103,7 +122,7 @@ export interface BuilderArtifactOptions {
 }
 
 export interface BuilderArtifacts {
-	// readonly config: WPKernelConfigV1;
+	readonly config: WPKernelConfigV1;
 	readonly ir: IRv1;
 	readonly options: BuildIrOptions;
 }
@@ -135,7 +154,7 @@ export function buildBuilderArtifacts(
 		resources: {
 			[resourceKey]: resourceConfig,
 		},
-	} as WPKernelConfigV1;
+	};
 
 	const irResource: IRResource = {
 		id: `${resourceKey}:resource`,
@@ -190,7 +209,6 @@ export function buildBuilderArtifacts(
 				policy: 'truncate',
 			},
 		},
-		config,
 		schemas: [],
 		resources: [
 			{
@@ -222,6 +240,12 @@ export function buildBuilderArtifacts(
 			outputDir: layout.resolve('php.generated'),
 		},
 		layout,
+		artifacts: buildArtifactsPlan({
+			layout,
+			resourceId: irResource.id,
+			resourceName,
+			resourceKey,
+		}) as unknown as IRv1['artifacts'],
 		ui:
 			resourceConfig.ui?.admin?.view === 'dataviews'
 				? {
@@ -250,7 +274,7 @@ export function buildBuilderArtifacts(
 		sourcePath,
 	} as BuildIrOptions;
 
-	return { ir, options: buildOptions } satisfies BuilderArtifacts;
+	return { ir, options: buildOptions, config } satisfies BuilderArtifacts;
 }
 
 function toPascalCase(value: string): string {
@@ -262,4 +286,74 @@ function toPascalCase(value: string): string {
 				segment.charAt(0).toUpperCase() + segment.slice(1).toLowerCase()
 		)
 		.join('');
+}
+
+function buildArtifactsPlan(options: {
+	layout: IRv1['layout'];
+	resourceId: string;
+	resourceName: string;
+	resourceKey: string;
+}): TestArtifactsPlan {
+	const resourceModule = path.posix.join(
+		options.layout.resolve('ui.resources.applied'),
+		`${options.resourceKey}.ts`
+	);
+	const typeDefPath = path.posix.join(
+		options.layout.resolve('ui.resources.applied'),
+		'../types',
+		`${options.resourceKey}.d.ts`
+	);
+	const appDir = path.posix.join(
+		options.layout.resolve('ui.applied'),
+		'app',
+		options.resourceKey
+	);
+	const generatedAppDir = path.posix.join(
+		options.layout.resolve('ui.generated'),
+		'app',
+		options.resourceKey
+	);
+	const uiGeneratedRoot = options.layout.resolve('ui.generated');
+	const blocksGenerated = options.layout.resolve('blocks.generated');
+	return {
+		pluginLoader: undefined,
+		controllers: Object.create(null),
+		resources: {
+			[options.resourceId]: {
+				modulePath: resourceModule,
+				typeDefPath,
+				typeSource: 'inferred',
+			},
+		},
+		uiResources: {
+			[options.resourceId]: {
+				appDir,
+				generatedAppDir,
+				pagePath: path.posix.join(appDir, 'page.tsx'),
+				formPath: path.posix.join(appDir, 'form.tsx'),
+				configPath: path.posix.join(appDir, 'config.tsx'),
+			},
+		},
+		blocks: Object.create(null),
+		schemas: Object.create(null),
+		js: {
+			capabilities: {
+				modulePath: path.posix.join(uiGeneratedRoot, 'capabilities.ts'),
+				declarationPath: path.posix.join(
+					uiGeneratedRoot,
+					'capabilities.d.ts'
+				),
+			},
+			index: {
+				modulePath: path.posix.join(uiGeneratedRoot, 'index.ts'),
+				declarationPath: path.posix.join(uiGeneratedRoot, 'index.d.ts'),
+			},
+			uiRuntimePath: path.posix.join(uiGeneratedRoot, 'runtime.ts'),
+			uiEntryPath: path.posix.join(uiGeneratedRoot, 'index.tsx'),
+			blocksRegistrarPath: path.posix.join(
+				blocksGenerated,
+				'auto-register.ts'
+			),
+		},
+	};
 }

@@ -1,267 +1,125 @@
-import path from 'node:path';
-import { createPhpBuilder } from '../pipeline.builder';
 import {
-	createBuilderInput,
-	createBuilderOutput,
-	createMinimalIr,
-	createPipelineContext,
-} from '../test-support/php-builder.test-support';
-import { loadTestLayoutSync } from '@wpkernel/test-utils/layout.test-support';
+	createPhpBuilderConfigHelper,
+	getPhpBuilderConfigState,
+} from '../pipeline.builder';
+import { createReporterMock } from '@cli-tests/reporter';
+import { makeIr } from '@cli-tests/ir.test-support';
 
-const codemodApplyMock = jest.fn(async (_options, next) => {
-	await next?.();
-});
-const createCodemodHelperImpl = jest.fn((options?: unknown) => ({
-	key: 'builder.generate.php.codemod-ingestion',
-	kind: 'builder' as const,
-	apply: codemodApplyMock,
-	options,
-}));
+const buildOptions = (overrides: Partial<unknown> = {}) =>
+	({
+		namespace: 'demo-plugin',
+		config: {},
+		...overrides,
+	}) as any;
 
-const writerApplyMock = jest.fn(async (_options, next) => {
-	await next?.();
-});
-const createWriterHelperImpl = jest.fn((options?: unknown) => ({
-	key: 'builder.generate.php.writer',
-	kind: 'builder' as const,
-	apply: writerApplyMock,
-	options,
-}));
+describe('php builder pipeline config helper', () => {
+	it('does nothing outside generate phase or without IR', async () => {
+		const helper = createPhpBuilderConfigHelper();
+		const context = { workspace: {} };
+		const reporter = createReporterMock();
 
-jest.mock('../pipeline.codemods', () => ({
-	createPhpCodemodIngestionHelper: jest.fn((options) =>
-		createCodemodHelperImpl(options)
-	),
-}));
+		await helper.apply({
+			input: { phase: 'init', ir: null, options: buildOptions() },
+			context,
+			reporter,
+			output: { queueWrite: jest.fn() },
+		} as any);
 
-jest.mock('../pipeline.writer', () => ({
-	createWpProgramWriterHelper: jest.fn((options) =>
-		createWriterHelperImpl(options)
-	),
-}));
-
-const { createPhpCodemodIngestionHelper } = jest.requireMock(
-	'../pipeline.codemods'
-) as {
-	createPhpCodemodIngestionHelper: jest.Mock;
-};
-const { createWpProgramWriterHelper } = jest.requireMock(
-	'../pipeline.writer'
-) as {
-	createWpProgramWriterHelper: jest.Mock;
-};
-
-describe('createPhpBuilder - adapter codemods', () => {
-	beforeEach(() => {
-		jest.clearAllMocks();
-		codemodApplyMock.mockImplementation(async (_options, next) => {
-			await next?.();
-		});
-		writerApplyMock.mockImplementation(async (_options, next) => {
-			await next?.();
+		expect(getPhpBuilderConfigState(context as any)).toEqual({
+			driver: undefined,
+			codemods: null,
 		});
 	});
 
-	it('threads adapter codemods through the helper pipeline', async () => {
-		const builder = createPhpBuilder({
+	it('merges adapter driver options and codemod defaults', async () => {
+		const helper = createPhpBuilderConfigHelper({
 			driver: {
-				binary: '/base/php',
-				scriptPath: '/base/program-writer.php',
-				importMetaUrl: 'file:///base/dist/index.js',
+				binary: 'base-php',
+				autoloadPaths: ['/base', '/shared '],
 			},
 		});
+		const context = { workspace: {} };
+		const reporter = createReporterMock();
 
-		const layout = loadTestLayoutSync();
-		const pluginPath = path.posix.join(
-			layout.resolve('php.generated'),
-			'plugin.php'
-		);
-		const ir = createMinimalIr({
-			config: {
-				adapters: {
-					php() {
-						return {
-							driver: {
-								scriptPath: '/adapter/program-writer.php',
-							},
-							codemods: {
-								files: [pluginPath, ''],
-								configurationPath: 'codemods/baseline.json',
-								diagnostics: { nodeDumps: true },
+		await helper.apply({
+			input: {
+				phase: 'generate',
+				ir: makeIr(),
+				options: buildOptions({
+					config: {
+						adapters: {
+							php: () => ({
 								driver: {
-									binary: '/adapter/php',
-									scriptPath: '/adapter/codemod.php',
-									importMetaUrl:
-										'file:///adapter/dist/index.js',
+									binary: 'adapter-php',
+									autoloadPaths: ['/adapter', '/base'],
+									scriptPath: 'adapter.php',
 								},
-							},
-						};
+								codemods: {
+									files: [' file.php ', '', 42 as any],
+									configurationPath: '/path/to/codemods.json',
+									diagnostics: { nodeDumps: true },
+									driver: {
+										binary: '',
+										scriptPath: 'codemod.php',
+										autoloadPaths: ['/codemod', '/adapter'],
+									},
+								},
+							}),
+						},
 					},
-				},
+				}),
 			},
+			context,
+			reporter,
+			output: { queueWrite: jest.fn() },
+		} as any);
+
+		const state = getPhpBuilderConfigState(context as any);
+
+		expect(state.driver).toMatchObject({
+			binary: 'adapter-php',
+			scriptPath: 'adapter.php',
+			autoloadPaths: ['/adapter', '/base', '/shared'],
 		});
-
-		const context = createPipelineContext();
-		const input = createBuilderInput({
-			ir,
-			options: {
-				config: ir.config,
-				namespace: ir.config.namespace,
-				sourcePath: '',
-				origin: '',
-			},
-		});
-		const output = createBuilderOutput();
-
-		await builder.apply(
-			{ context, input, output, reporter: context.reporter },
-			undefined
-		);
-
-		expect(createPhpCodemodIngestionHelper).toHaveBeenCalledTimes(1);
-		expect(createCodemodHelperImpl).toHaveBeenCalledWith({
-			files: [pluginPath, ''],
-			configurationPath: 'codemods/baseline.json',
+		expect(state.codemods).toEqual({
+			files: [' file.php ', ''],
+			configurationPath: '/path/to/codemods.json',
 			enableDiagnostics: true,
-			phpBinary: '/adapter/php',
-			scriptPath: '/adapter/codemod.php',
-			importMetaUrl: 'file:///adapter/dist/index.js',
-			autoloadPaths: undefined,
+			phpBinary: 'adapter-php',
+			scriptPath: 'codemod.php',
+			importMetaUrl: undefined,
+			autoloadPaths: ['/codemod', '/adapter', '/base', '/shared'],
 		});
-		expect(createWpProgramWriterHelper).toHaveBeenCalledTimes(1);
-		expect(createWriterHelperImpl).toHaveBeenCalledWith({
-			driver: {
-				binary: '/base/php',
-				scriptPath: '/adapter/program-writer.php',
-				importMetaUrl: 'file:///base/dist/index.js',
-				autoloadPaths: undefined,
-			},
-		});
-		expect(codemodApplyMock).toHaveBeenCalled();
-		expect(writerApplyMock).toHaveBeenCalled();
 	});
 
-	it('skips codemod helper when no valid target files are declared', async () => {
-		const builder = createPhpBuilder();
+	it('uses bundled defaults when no driver or codemods are provided', async () => {
+		const helper = createPhpBuilderConfigHelper();
+		const context = { workspace: {} };
+		const reporter = createReporterMock();
 
-		const ir = createMinimalIr({
-			config: {
-				adapters: {
-					php() {
-						return {
-							codemods: {
-								files: [123 as unknown as string],
-							},
-						};
+		await helper.apply({
+			input: {
+				phase: 'generate',
+				ir: makeIr(),
+				options: buildOptions({
+					config: {
+						adapters: {
+							php: () => ({
+								driver: undefined,
+								codemods: { files: [], driver: {} },
+							}),
+						},
 					},
-				},
+				}),
 			},
-		});
+			context,
+			reporter,
+			output: { queueWrite: jest.fn() },
+		} as any);
 
-		const context = createPipelineContext();
-		const input = createBuilderInput({
-			ir,
-			options: {
-				config: ir.config,
-				namespace: ir.config.namespace,
-				sourcePath: '',
-				origin: '',
-			},
-		});
-		const output = createBuilderOutput();
-
-		await builder.apply(
-			{ context, input, output, reporter: context.reporter },
-			undefined
-		);
-
-		expect(createPhpCodemodIngestionHelper).not.toHaveBeenCalled();
-		expect(createWpProgramWriterHelper).toHaveBeenCalledTimes(1);
-	});
-
-	it('defaults codemod driver overrides to the merged PHP driver options', async () => {
-		const builder = createPhpBuilder({
-			driver: {
-				binary: '/base/php',
-				scriptPath: '/base/codemod.php',
-				importMetaUrl: 'file:///base/dist/index.js',
-			},
-		});
-
-		const ir = createMinimalIr({
-			config: {
-				adapters: {
-					php() {
-						return {
-							codemods: {
-								files: ['plugin.php'],
-								driver: {
-									// no overrides provided
-								},
-							},
-						};
-					},
-				},
-			},
-		});
-
-		const context = createPipelineContext();
-		const input = createBuilderInput({
-			ir,
-			options: {
-				config: ir.config,
-				namespace: ir.config.namespace,
-				sourcePath: '',
-				origin: '',
-			},
-		});
-		const output = createBuilderOutput();
-
-		await builder.apply(
-			{ context, input, output, reporter: context.reporter },
-			undefined
-		);
-
-		expect(createPhpCodemodIngestionHelper).toHaveBeenCalledTimes(1);
-		expect(createCodemodHelperImpl).toHaveBeenCalledWith(
-			expect.objectContaining({
-				phpBinary: '/base/php',
-				scriptPath: '/base/codemod.php',
-				importMetaUrl: 'file:///base/dist/index.js',
-				autoloadPaths: undefined,
-			})
-		);
-	});
-
-	it('does not override importMetaUrl-only driver configs', async () => {
-		const builder = createPhpBuilder({
-			driver: {
-				importMetaUrl: 'file:///custom/driver/index.js',
-			},
-		});
-
-		const ir = createMinimalIr();
-		const context = createPipelineContext();
-		const input = createBuilderInput({
-			ir,
-			options: {
-				config: ir.config,
-				namespace: ir.config.namespace,
-				sourcePath: '',
-				origin: '',
-			},
-		});
-		const output = createBuilderOutput();
-
-		await builder.apply(
-			{ context, input, output, reporter: context.reporter },
-			undefined
-		);
-
-		expect(createWpProgramWriterHelper).toHaveBeenCalledWith({
-			driver: {
-				importMetaUrl: 'file:///custom/driver/index.js',
-			},
-		});
+		const state = getPhpBuilderConfigState(context as any);
+		expect(state.driver?.scriptPath).toBeTruthy();
+		expect(state.driver?.binary).toBeUndefined();
+		expect(state.codemods).toBeNull();
 	});
 });

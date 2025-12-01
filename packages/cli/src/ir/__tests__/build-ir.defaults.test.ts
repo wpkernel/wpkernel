@@ -1,19 +1,10 @@
 import type { WPKernelConfigV1 } from '../../config/types';
-import { buildIr } from '../buildIr';
+import { createIr } from '../createIr';
 import {
 	FIXTURE_CONFIG_PATH,
 	canonicalHash,
 	createBaseConfig,
 } from '../shared/test-helpers';
-import { createPipeline } from '../../runtime/createPipeline';
-
-const builderProvidedKeys = [
-	'builder.generate.php.controller.resources',
-	'builder.generate.php.capability',
-	'builder.generate.php.registration.persistence',
-	'builder.generate.php.plugin-loader',
-	'builder.generate.php.index',
-];
 
 describe('buildIr - defaults and inference', () => {
 	it('derives default cache keys when not provided', async () => {
@@ -35,12 +26,11 @@ describe('buildIr - defaults and inference', () => {
 			},
 		} as unknown as WPKernelConfigV1['resources'];
 
-		const ir = await buildIr({
+		const ir = await createIr({
 			config,
 			sourcePath: FIXTURE_CONFIG_PATH,
 			origin: 'wpk.config.ts',
 			namespace: config.namespace,
-			pipeline: createPipeline({ builderProvidedKeys }),
 		});
 
 		const cacheKeys = ir.resources[0]!.cacheKeys;
@@ -86,12 +76,11 @@ describe('buildIr - defaults and inference', () => {
 			},
 		} as unknown as WPKernelConfigV1['resources'];
 
-		const ir = await buildIr({
+		const ir = await createIr({
 			config,
 			sourcePath: FIXTURE_CONFIG_PATH,
 			origin: 'wpk.config.ts',
 			namespace: config.namespace,
-			pipeline: createPipeline({ builderProvidedKeys }),
 		});
 
 		const [capability] = ir.capabilities.filter(
@@ -126,12 +115,11 @@ describe('buildIr - defaults and inference', () => {
 			},
 		} as unknown as WPKernelConfigV1['resources'];
 
-		const ir = await buildIr({
+		const ir = await createIr({
 			config,
 			sourcePath: FIXTURE_CONFIG_PATH,
 			origin: 'wpk.config.ts',
 			namespace: config.namespace,
-			pipeline: createPipeline({ builderProvidedKeys }),
 		});
 
 		const paths = ir.resources[0]!.routes.map((route) => [
@@ -165,12 +153,11 @@ describe('buildIr - defaults and inference', () => {
 			},
 		} as unknown as WPKernelConfigV1['resources'];
 
-		const ir = await buildIr({
+		const ir = await createIr({
 			config,
 			sourcePath: FIXTURE_CONFIG_PATH,
 			origin: 'wpk.config.ts',
 			namespace: config.namespace,
-			pipeline: createPipeline({ builderProvidedKeys }),
 		});
 
 		const [resource] = ir.resources;
@@ -196,12 +183,11 @@ describe('buildIr - defaults and inference', () => {
 			},
 		} as unknown as WPKernelConfigV1['resources'];
 
-		const ir = await buildIr({
+		const ir = await createIr({
 			config,
 			sourcePath: FIXTURE_CONFIG_PATH,
 			origin: 'wpk.config.ts',
 			namespace: config.namespace,
-			pipeline: createPipeline({ builderProvidedKeys }),
 		});
 
 		const [resource] = ir.resources;
@@ -226,12 +212,11 @@ describe('buildIr - defaults and inference', () => {
 			},
 		} as unknown as WPKernelConfigV1['resources'];
 
-		const ir = await buildIr({
+		const ir = await createIr({
 			config,
 			sourcePath: FIXTURE_CONFIG_PATH,
 			origin: 'wpk.config.ts',
 			namespace: config.namespace,
-			pipeline: createPipeline({ builderProvidedKeys }),
 		});
 
 		const [resource] = ir.resources;
@@ -256,12 +241,11 @@ describe('buildIr - defaults and inference', () => {
 			},
 		} as unknown as WPKernelConfigV1['resources'];
 
-		const ir = await buildIr({
+		const ir = await createIr({
 			config,
 			sourcePath: FIXTURE_CONFIG_PATH,
 			origin: 'wpk.config.ts',
 			namespace: config.namespace,
-			pipeline: createPipeline({ builderProvidedKeys }),
 		});
 
 		const [schema] = ir.schemas;
@@ -308,12 +292,11 @@ describe('buildIr - defaults and inference', () => {
 			},
 		} as unknown as WPKernelConfigV1['resources'];
 
-		const ir = await buildIr({
+		const ir = await createIr({
 			config,
 			sourcePath: FIXTURE_CONFIG_PATH,
 			origin: 'wpk.config.ts',
 			namespace: config.namespace,
-			pipeline: createPipeline({ builderProvidedKeys }),
 		});
 
 		const postTypes = ir.resources.map(
@@ -371,12 +354,11 @@ describe('buildIr - defaults and inference', () => {
 			},
 		} as unknown as WPKernelConfigV1['resources'];
 
-		const ir = await buildIr({
+		const ir = await createIr({
 			config,
 			sourcePath: FIXTURE_CONFIG_PATH,
 			origin: 'wpk.config.ts',
 			namespace: config.namespace,
-			pipeline: createPipeline({ builderProvidedKeys }),
 		});
 
 		expect(ir.resources.map((resource) => resource.schemaKey)).toEqual([

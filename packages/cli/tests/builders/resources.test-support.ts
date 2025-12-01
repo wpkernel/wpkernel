@@ -10,7 +10,6 @@ import type {
 	IRv1,
 	IRWarning,
 } from '../../src/ir/publicTypes';
-import type { WPKernelConfigV1 } from '../../src/config/types';
 import { loadDefaultLayout } from '../layout.test-support.js';
 import { makeResource } from './fixtures.test-support.js';
 
@@ -367,12 +366,6 @@ export function makePhpIrFixture(options: MakePhpIrFixtureOptions = {}): IRv1 {
 				policy: 'truncate',
 			},
 		},
-		config: {
-			version: 1,
-			namespace,
-			schemas: {},
-			resources: {},
-		} satisfies WPKernelConfigV1,
 		schemas: [],
 		resources: [...resources],
 		capabilities: [],
@@ -394,5 +387,13 @@ export function makePhpIrFixture(options: MakePhpIrFixtureOptions = {}): IRv1 {
 			outputDir: layout.resolve('php.generated'),
 		},
 		layout,
+		artifacts: {
+			pluginLoader: undefined,
+			controllers: Object.create(null),
+			resources: Object.create(null),
+			uiResources: Object.create(null),
+			blocks: Object.create(null),
+			schemas: Object.create(null),
+		},
 	} satisfies IRv1;
 }

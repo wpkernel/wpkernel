@@ -18,6 +18,7 @@ import {
 	createBuilderOutput,
 	createMinimalIr,
 	createPipelineContext,
+	seedArtifacts,
 } from '../test-support/php-builder.test-support';
 import { buildWorkspace } from '../../../workspace';
 import type { Workspace } from '../../../workspace';
@@ -66,6 +67,7 @@ describe('createPhpBlocksHelper', () => {
 				)
 			);
 
+			const reporter = buildReporter();
 			const irWithBlocks = withBlocks(createMinimalIr(), [
 				{
 					key: 'demo/example',
@@ -73,8 +75,7 @@ describe('createPhpBlocksHelper', () => {
 					manifestSource: manifestPath,
 				},
 			]);
-
-			const reporter = buildReporter();
+			await seedArtifacts(irWithBlocks, reporter);
 			const context = createPipelineContext({ workspace, reporter });
 			resetPhpBuilderChannel(context);
 			const output = createBuilderOutput();
@@ -170,6 +171,7 @@ describe('createPhpBlocksHelper', () => {
 				)
 			);
 
+			const reporter = buildReporter();
 			const irWithBlocks = withBlocks(createMinimalIr(), [
 				{
 					key: 'demo/example',
@@ -177,8 +179,7 @@ describe('createPhpBlocksHelper', () => {
 					manifestSource: manifestPath,
 				},
 			]);
-
-			const reporter = buildReporter();
+			await seedArtifacts(irWithBlocks, reporter);
 			const context = createPipelineContext({ workspace, reporter });
 			resetPhpBuilderChannel(context);
 			const output = createBuilderOutput();
@@ -260,10 +261,13 @@ describe('createPhpBlocksHelper', () => {
 			resetPhpBuilderChannel(context);
 			const output = createBuilderOutput();
 
+			const ir = createMinimalIr();
+			await seedArtifacts(ir, reporter);
+
 			await createPhpBlocksHelper().apply(
 				{
 					context,
-					input: createBuilderInputFor(createMinimalIr()),
+					input: createBuilderInputFor(ir),
 					output,
 					reporter,
 				},
@@ -271,7 +275,7 @@ describe('createPhpBlocksHelper', () => {
 			);
 
 			expect(reporter.debug).toHaveBeenCalledWith(
-				'createPhpBlocksHelper: no SSR blocks discovered.'
+				'createPhpBlocksHelper: no SSR blocks planned; skipping.'
 			);
 			expect(output.actions).toHaveLength(0);
 			expect(getPhpBuilderChannel(context).pending()).toHaveLength(0);
@@ -287,6 +291,7 @@ describe('createPhpBlocksHelper', () => {
 			const manifestPath = path.join(blockDir, 'block.json');
 			await workspace.write(manifestPath, '{ invalid json');
 
+			const reporter = buildReporter();
 			const irWithBlocks = withBlocks(createMinimalIr(), [
 				{
 					key: 'demo/broken',
@@ -294,8 +299,7 @@ describe('createPhpBlocksHelper', () => {
 					manifestSource: manifestPath,
 				},
 			]);
-
-			const reporter = buildReporter();
+			await seedArtifacts(irWithBlocks, reporter);
 			const context = createPipelineContext({ workspace, reporter });
 			resetPhpBuilderChannel(context);
 			const output = createBuilderOutput();
@@ -350,6 +354,7 @@ describe('createPhpBlocksHelper', () => {
 			]);
 
 			const reporter = buildReporter();
+			await seedArtifacts(irWithBlocks, reporter);
 			const context = createPipelineContext({ workspace, reporter });
 			resetPhpBuilderChannel(context);
 			const output = createBuilderOutput();
@@ -397,9 +402,14 @@ function createBuilderInputFor(ir: IRv1) {
 	return createBuilderInput({
 		ir,
 		options: {
-			config: ir.config,
-			namespace: ir.meta.namespace,
-			origin: ir.meta.origin ?? 'tests',
+			config: {
+				version: 1,
+				namespace: ir.meta.namespace,
+				resources: {},
+				schemas: {},
+			},
+			namespace: ir.meta.namespace ?? 'demo',
+			origin: ir.meta.origin ?? 'tests.config.ts',
 			sourcePath: ir.meta.sourcePath ?? 'tests.config.ts',
 		},
 	});

@@ -146,17 +146,17 @@ describe('deriveResourceBlocks', () => {
 
 		const existingBlockDir = path.posix.join(
 			layout.resolve('blocks.generated'),
-			'existing-resource'
+			'existingresource'
 		);
 		const existingBlock: IRBlock = {
-			id: 'blk:test-namespace/existing-resource',
+			id: 'blk:test-namespace/existingresource',
 			hash: makeHash('existing-block', [
 				'key',
 				'directory',
 				'hasRender',
 				'manifestSource',
 			]),
-			key: 'test-namespace/existing-resource',
+			key: 'test-namespace/existingresource',
 			directory: existingBlockDir,
 			hasRender: false,
 			manifestSource: path.posix.join(existingBlockDir, 'block.json'),
@@ -167,7 +167,7 @@ describe('deriveResourceBlocks', () => {
 			existingBlocks: new Map([[existingBlock.key, existingBlock]]),
 		});
 
-		expect(derived).toHaveLength(4);
+		expect(derived).toHaveLength(3);
 
 		const manifestByKey = new Map(
 			derived.map((entry) => [entry.block.key, entry.manifest])
@@ -329,7 +329,7 @@ function makeResource(
 		storage: overrides?.storage,
 		queryParams: overrides?.queryParams,
 		ui: overrides?.ui,
-		blocks: overrides?.blocks,
+		blocks: overrides?.blocks ?? { mode: 'js' },
 		hash:
 			(overrides?.hash as IRHashProvenance | undefined) ??
 			makeHash(`${name}-hash`, ['name', 'schemaKey', 'schemaProvenance']),

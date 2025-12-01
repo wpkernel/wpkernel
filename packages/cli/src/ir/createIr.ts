@@ -18,17 +18,35 @@ import { createBlocksFragment } from './fragments/blocks';
 import { createDiagnosticsFragment } from './fragments/diagnostics';
 import { createOrderingFragment } from './fragments/ordering';
 import { createValidationFragment } from './fragments/validation';
+import { createArtifactsFragment } from './fragments/artifacts';
 import {
 	createPlanBuilder,
 	createBundler,
 	createJsBlocksBuilder,
-	createPhpBuilder,
+	createPhpBuilderConfigHelper,
+	createPhpBaseControllerHelper,
+	createPhpCapabilityHelper,
+	createPhpChannelHelper,
+	createPhpCodemodIngestionHelper,
 	createPhpDriverInstaller,
+	createPhpIndexFileHelper,
+	createPhpPersistenceRegistryHelper,
+	createPhpPluginLoaderHelper,
+	createPhpResourceControllerHelper,
+	createPhpTransientStorageHelper,
+	createPhpWpOptionStorageHelper,
+	createPhpWpPostRoutesHelper,
+	createPhpWpTaxonomyStorageHelper,
 	createTsCapabilityBuilder,
 	createTsIndexBuilder,
-	createTsBuilder,
+	createTsTypesBuilder,
+	createTsResourcesBuilder,
 	createUiEntryBuilder,
 	createTsConfigBuilder,
+	createAdminScreenBuilder,
+	createAppConfigBuilder,
+	createAppFormBuilder,
+	createWpProgramWriterHelper,
 } from '../builders';
 import { buildAdapterExtensionsExtension } from '../runtime/adapterExtensions';
 import { buildEmptyGenerationState } from '../apply/manifest';
@@ -72,6 +90,7 @@ function registerCoreFragments(pipeline: Pipeline): void {
 	pipeline.ir.use(createBlocksFragment());
 	pipeline.ir.use(createOrderingFragment());
 	pipeline.ir.use(createValidationFragment());
+	pipeline.ir.use(createArtifactsFragment());
 }
 
 /**
@@ -85,35 +104,46 @@ function registerCoreFragments(pipeline: Pipeline): void {
  */
 function registerCoreBuilders(pipeline: Pipeline): void {
 	pipeline.builders.use(createJsBlocksBuilder());
-	pipeline.builders.use(createTsBuilder());
+	pipeline.builders.use(createTsTypesBuilder());
+	pipeline.builders.use(createTsResourcesBuilder());
+	pipeline.builders.use(createAdminScreenBuilder());
+	pipeline.builders.use(createAppConfigBuilder());
+	pipeline.builders.use(createAppFormBuilder());
 	pipeline.builders.use(createUiEntryBuilder());
 	pipeline.builders.use(createTsConfigBuilder());
 	pipeline.builders.use(createBundler());
 	pipeline.builders.use(createPhpDriverInstaller());
-	pipeline.builders.use(createPhpBuilder());
+	pipeline.builders.use(createPhpChannelHelper());
+	pipeline.builders.use(createPhpBuilderConfigHelper());
+	pipeline.builders.use(createPhpBaseControllerHelper());
+	pipeline.builders.use(createPhpTransientStorageHelper());
+	pipeline.builders.use(createPhpWpOptionStorageHelper());
+	pipeline.builders.use(createPhpWpTaxonomyStorageHelper());
+	pipeline.builders.use(createPhpWpPostRoutesHelper());
+	pipeline.builders.use(createPhpResourceControllerHelper());
+	pipeline.builders.use(createPhpCapabilityHelper());
+	pipeline.builders.use(createPhpPersistenceRegistryHelper());
+	pipeline.builders.use(createPhpPluginLoaderHelper());
+	pipeline.builders.use(createPhpIndexFileHelper());
+	pipeline.builders.use(createPhpCodemodIngestionHelper({ files: [] }));
+	pipeline.builders.use(createWpProgramWriterHelper());
 	pipeline.builders.use(createTsCapabilityBuilder());
 	pipeline.builders.use(createTsIndexBuilder());
 	pipeline.builders.use(createPlanBuilder());
 }
 
-/**
- * Creates an Intermediate Representation (IR) from the given build options.
- *
- * This function sets up a pipeline with core fragments and builders, then runs
- * the pipeline to generate the IR based on the provided configuration.
- *
- * @category IR
- * @param    options     - Options for building the IR, including configuration and source paths.
- * @param    environment - Optional environment settings for the IR creation process.
- * @returns A promise that resolves to the generated `IRv1` object.
- */
-export async function createIr(
+async function runIrPipeline(
 	options: BuildIrOptions,
-	environment: CreateIrEnvironment = {}
+	environment: CreateIrEnvironment,
+	mode: 'fragments-only' | 'with-builders'
 ): Promise<IRv1> {
 	const pipeline = environment.pipeline ?? createPipeline();
+
 	registerCoreFragments(pipeline);
-	registerCoreBuilders(pipeline);
+	if (mode === 'with-builders') {
+		registerCoreBuilders(pipeline);
+	}
+
 	pipeline.extensions.use(buildAdapterExtensionsExtension());
 
 	const workspace =
@@ -134,6 +164,45 @@ export async function createIr(
 	});
 
 	return ir;
+}
+
+/**
+ * Builds the Intermediate Representation (IR) by running only the core IR fragments.
+ *
+ * This variant does not register or execute any builders. It is intended for
+ * scenarios where you want a deterministic IR to assert against (e.g. tests
+ * or analysis tooling) without generating any artefacts on disk.
+ *
+ * @category IR
+ * @param    options     - Options for building the IR, including configuration and source paths.
+ * @param    environment - Optional environment settings for the IR creation process.
+ * @returns A promise that resolves to the generated `IRv1` object.
+ */
+export function createIr(
+	options: BuildIrOptions,
+	environment: CreateIrEnvironment = {}
+): Promise<IRv1> {
+	return runIrPipeline(options, environment, 'fragments-only');
+}
+
+/**
+ * Runs the full generation pipeline (IR + builders) from the given build options.
+ *
+ * This function sets up a pipeline with core IR fragments and all core builders,
+ * then executes it to both construct the IR and generate artefacts (PHP, TS, UI
+ * entries, bundles, etc.) as a side-effect. It represents the high-level
+ * "generate everything" entry point used by the CLI.
+ *
+ * @category IR
+ * @param    options     - Options for building the IR, including configuration and source paths.
+ * @param    environment - Optional environment settings for the IR creation process.
+ * @returns A promise that resolves to the generated `IRv1` object.
+ */
+export async function createIrWithBuilders(
+	options: BuildIrOptions,
+	environment: CreateIrEnvironment = {}
+): Promise<IRv1> {
+	return runIrPipeline(options, environment, 'with-builders');
 }
 
 export { registerCoreFragments, registerCoreBuilders };

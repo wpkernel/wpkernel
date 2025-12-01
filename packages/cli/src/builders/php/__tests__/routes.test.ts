@@ -15,6 +15,13 @@ import {
 	readWpPostRouteBundle,
 } from '../controller.wpPostRoutes';
 
+const makeConfig = (namespace: string) => ({
+	version: 1,
+	namespace,
+	schemas: {},
+	resources: {},
+});
+
 describe('createPhpWpPostRoutesHelper', () => {
 	function buildReporter(): Reporter {
 		return {
@@ -73,6 +80,7 @@ describe('createPhpWpPostRoutesHelper', () => {
 			queueWrite: jest.fn(),
 		};
 		const ir = makePhpIrFixture({ resources: [resource] });
+		const config = makeConfig(ir.meta.namespace);
 
 		await createPhpWpPostRoutesHelper().apply(
 			{
@@ -81,8 +89,8 @@ describe('createPhpWpPostRoutesHelper', () => {
 				input: {
 					phase: 'generate' as const,
 					options: {
-						config: ir.config,
-						namespace: ir.meta.namespace,
+						config,
+						namespace: config.namespace,
 						origin: ir.meta.origin,
 						sourcePath: ir.meta.sourcePath,
 					},

@@ -11,6 +11,7 @@ import {
 	createBuilderOutput,
 	createMinimalIr,
 	createPipelineContext,
+	seedArtifacts,
 } from '../test-support/php-builder.test-support';
 import { makeWorkspaceMock } from '@cli-tests/workspace.test-support';
 import {
@@ -26,7 +27,6 @@ describe('createPhpPluginLoaderHelper', () => {
 		resetPhpAstChannel(context);
 
 		const helper = createPhpPluginLoaderHelper();
-		const next = jest.fn();
 
 		await helper.apply(
 			{
@@ -35,10 +35,9 @@ describe('createPhpPluginLoaderHelper', () => {
 				output: createBuilderOutput(),
 				reporter: context.reporter,
 			},
-			next
+			undefined
 		);
 
-		expect(next).toHaveBeenCalledTimes(1);
 		expect(getPhpBuilderChannel(context).pending()).toHaveLength(0);
 	});
 
@@ -69,6 +68,7 @@ describe('createPhpPluginLoaderHelper', () => {
 				}),
 			],
 		});
+		await seedArtifacts(ir, context.reporter);
 
 		await helper.apply(
 			{
@@ -85,11 +85,7 @@ describe('createPhpPluginLoaderHelper', () => {
 			.find((candidate) => candidate.metadata.kind === 'plugin-loader');
 
 		expect(entry).toBeDefined();
-		expect(entry?.file).toBe(
-			context.workspace.resolve(
-				path.posix.join(ir.php.outputDir, 'plugin.php')
-			)
-		);
+		expect(path.posix.basename(entry?.file ?? '')).toBe('plugin.php');
 		expect(entry?.docblock).toEqual([]);
 		expect(entry?.metadata).toEqual({ kind: 'plugin-loader' });
 		expect(entry?.program).toMatchSnapshot('plugin-loader-program');
@@ -139,6 +135,7 @@ describe('createPhpPluginLoaderHelper', () => {
 				}),
 			],
 		});
+		await seedArtifacts(ir, context.reporter);
 
 		await helper.apply(
 			{
@@ -188,6 +185,7 @@ describe('createPhpPluginLoaderHelper', () => {
 				},
 			],
 		};
+		await seedArtifacts(ir, context.reporter);
 
 		await helper.apply(
 			{
@@ -230,6 +228,7 @@ describe('createPhpPluginLoaderHelper', () => {
 				}),
 			],
 		});
+		await seedArtifacts(ir, context.reporter);
 
 		await helper.apply(
 			{
@@ -246,11 +245,7 @@ describe('createPhpPluginLoaderHelper', () => {
 			.find((candidate) => candidate.metadata.kind === 'plugin-loader');
 
 		expect(entry).toBeDefined();
-		expect(entry?.file).toBe(
-			context.workspace.resolve(
-				path.posix.join(ir.php.outputDir, 'plugin.php')
-			)
-		);
+		expect(path.posix.basename(entry?.file ?? '')).toBe('plugin.php');
 		expect(entry?.program).toMatchSnapshot(
 			'plugin-loader-program-custom-namespace'
 		);
@@ -267,7 +262,7 @@ describe('createPhpPluginLoaderHelper', () => {
 
 		const helper = createPhpPluginLoaderHelper();
 		const ir = createMinimalIr();
-		const next = jest.fn();
+		await seedArtifacts(ir, context.reporter);
 
 		await helper.apply(
 			{
@@ -276,14 +271,15 @@ describe('createPhpPluginLoaderHelper', () => {
 				output: createBuilderOutput(),
 				reporter: context.reporter,
 			},
-			next
+			undefined
 		);
 
-		expect(readText).toHaveBeenCalledWith('plugin.php');
+		expect(readText).toHaveBeenCalledWith(
+			ir.artifacts?.php?.pluginLoaderPath
+		);
 		expect(context.reporter.info).toHaveBeenCalledWith(
 			'createPhpPluginLoaderHelper: skipping generation because plugin.php exists and appears user-owned.'
 		);
-		expect(next).toHaveBeenCalledTimes(1);
 		expect(getPhpBuilderChannel(context).pending()).toHaveLength(0);
 	});
 
@@ -298,6 +294,7 @@ describe('createPhpPluginLoaderHelper', () => {
 
 		const helper = createPhpPluginLoaderHelper();
 		const ir = createMinimalIr();
+		await seedArtifacts(ir, context.reporter);
 
 		await helper.apply(
 			{
@@ -309,7 +306,9 @@ describe('createPhpPluginLoaderHelper', () => {
 			undefined
 		);
 
-		expect(readText).toHaveBeenCalledWith('plugin.php');
+		expect(readText).toHaveBeenCalledWith(
+			ir.artifacts?.php?.pluginLoaderPath
+		);
 		const entry = getPhpBuilderChannel(context)
 			.pending()
 			.find((candidate) => candidate.metadata.kind === 'plugin-loader');

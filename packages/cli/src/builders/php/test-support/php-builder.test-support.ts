@@ -7,11 +7,13 @@ import type {
 } from '../../../runtime/types';
 import type { IRv1 } from '../../../ir/publicTypes';
 import type { WPKernelConfigV1 } from '../../../config/types';
+import { createArtifactsFragment } from '../../../ir/fragments/artifacts';
 import { buildPluginMeta } from '../../../ir/shared/pluginMeta';
 import { makeWorkspaceMock } from '@cli-tests/workspace.test-support';
 import type { Workspace } from '../../../workspace/types';
 import { buildEmptyGenerationState } from '../../../apply/manifest';
 import { loadTestLayoutSync } from '@wpkernel/test-utils/layout.test-support';
+import type { MutableIr } from '../../../ir/types';
 
 const DEFAULT_CONFIG_SOURCE = 'tests.config.ts';
 
@@ -104,6 +106,43 @@ export function createMinimalIr(overrides: MinimalIrOverrides = {}): IRv1 {
 	const components = buildMinimalIrComponents(namespace, overrides);
 	const base = buildIrBase(overrides, components);
 	return mergeIrBase(base, overrides);
+}
+
+export async function seedArtifacts(
+	ir: IRv1,
+	reporter?: Reporter
+): Promise<IRv1> {
+	const fragment = createArtifactsFragment();
+	const context = createPipelineContext({ reporter });
+	const config = (ir as unknown as { config?: WPKernelConfigV1 }).config ?? {
+		version: 1,
+		namespace: ir.meta.namespace,
+		resources: {},
+		schemas: {},
+	};
+	const draft = ir as unknown as MutableIr;
+
+	await fragment.apply({
+		context,
+		input: {
+			options: {
+				config,
+				namespace: ir.meta.namespace,
+				origin: ir.meta.origin,
+				sourcePath: ir.meta.sourcePath,
+			},
+			draft,
+		},
+		output: {
+			draft,
+			assign(partial) {
+				Object.assign(draft, partial);
+			},
+		},
+		reporter: context.reporter,
+	});
+
+	return ir;
 }
 
 function resolveNamespaceFromOverrides(overrides: MinimalIrOverrides): string {
@@ -286,7 +325,6 @@ function buildIrBase(
 	overrides: MinimalIrOverrides | undefined,
 	components: {
 		meta: IRv1['meta'];
-		config: WPKernelConfigV1;
 		capabilityMap: IRv1['capabilityMap'];
 		php: IRv1['php'];
 		layout: IRv1['layout'];
@@ -302,7 +340,6 @@ function buildIrBase(
 
 	return {
 		meta: components.meta,
-		config: components.config,
 		schemas,
 		resources,
 		capabilities,
@@ -310,6 +347,14 @@ function buildIrBase(
 		blocks,
 		php: components.php,
 		layout: components.layout,
+		artifacts: {
+			pluginLoader: undefined,
+			controllers: Object.create(null),
+			resources: Object.create(null),
+			uiResources: Object.create(null),
+			blocks: Object.create(null),
+			schemas: Object.create(null),
+		},
 		diagnostics,
 	};
 }
@@ -323,7 +368,6 @@ function mergeIrBase(base: IRv1, overrides?: MinimalIrOverrides): IRv1 {
 		...base,
 		...overrides,
 		meta: base.meta,
-		config: base.config,
 		capabilityMap: base.capabilityMap,
 		php: base.php,
 	};

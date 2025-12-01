@@ -4,7 +4,6 @@ import {
 	registerCoreBuilders,
 	registerCoreFragments,
 } from '../createIr';
-import { buildIr } from '../buildIr';
 import { createMetaFragment } from '../fragments/meta';
 import {
 	createSchemasFragment,
@@ -26,7 +25,6 @@ describe('next IR public surface', () => {
 	});
 
 	it('exposes key fragment builders', () => {
-		expect(irSurface.buildIr).toBe(buildIr);
 		expect(irSurface.createMetaFragment).toBe(createMetaFragment);
 		expect(irSurface.createSchemasFragment).toBe(createSchemasFragment);
 		expect(irSurface.SCHEMA_EXTENSION_KEY).toBe(SCHEMA_EXTENSION_KEY);

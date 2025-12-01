@@ -1,12 +1,6 @@
 import path from 'node:path';
 
-import type {
-	IRBlock,
-	IRResource,
-	IRRoute,
-	IRSchema,
-	IRv1,
-} from '../ir/publicTypes';
+import type { IRBlock, IRResource, IRSchema, IRv1 } from '../ir/publicTypes';
 import { createBlockHash, createBlockId } from '../ir/shared/identity';
 
 type DerivedBlockKind = 'js' | 'ssr';
@@ -60,7 +54,7 @@ export function deriveResourceBlocks(options: {
 		const blockKind = determineBlockType(resource, desiredMode);
 
 		const slug = toBlockSlug(resource.name).replace(/-/gu, '');
-		const blockKey = `${ir.config.namespace}/${slug}`;
+		const blockKey = `${ir.meta.namespace}/${slug}`;
 		if (existingBlocks.has(blockKey)) {
 			continue;
 		}
@@ -86,8 +80,9 @@ export function deriveResourceBlocks(options: {
 		};
 		const manifest = createBlockManifest({
 			ir,
-			resource,
 			blockKey,
+			schemaKey: resource.schemaKey,
+			title: toTitleCase(resource.name),
 			kind: blockKind,
 		});
 
@@ -109,50 +104,31 @@ function resolveDeclaredBlockMode(
 }
 
 function shouldGenerateBlock(
-	resource: IRResource,
+	_declaredResource: IRResource,
 	declaredMode?: DerivedBlockKind
 ): boolean {
-	if (declaredMode) {
-		return true;
-	}
-
-	const hasGetRoute = resource.routes.some(
-		(route: IRRoute) => route.method.toUpperCase() === 'GET'
-	);
-	const hasUi = Boolean(resource.ui?.admin?.dataviews);
-	return hasGetRoute || hasUi;
+	return Boolean(declaredMode);
 }
 
 function determineBlockType(
-	resource: IRResource,
+	_declaredResource: IRResource,
 	declaredMode?: DerivedBlockKind
 ): DerivedBlockKind {
-	if (declaredMode) {
-		return declaredMode;
-	}
-
-	const hasStorage = Boolean(resource.storage);
-	const hasLocalRoute = resource.routes.some(
-		(route: IRRoute) => route.transport === 'local'
-	);
-
-	if (hasStorage && hasLocalRoute) {
-		return 'ssr';
-	}
-
-	return 'js';
+	return declaredMode ?? 'js';
 }
 
 function createBlockManifest(options: {
 	readonly ir: IRv1;
-	readonly resource: IRResource;
 	readonly blockKey: string;
+	readonly schemaKey?: string;
+	readonly title?: string;
 	readonly kind: DerivedBlockKind;
 }): Record<string, unknown> {
-	const { ir, resource, blockKey, kind } = options;
-	const schema = findSchema(ir.schemas, resource.schemaKey);
+	const { ir, blockKey, kind, schemaKey, title: providedTitle } = options;
+	const schema = schemaKey ? findSchema(ir.schemas, schemaKey) : undefined;
 	const attributes = deriveAttributes(schema);
-	const title = toTitleCase(resource.name);
+	const title =
+		providedTitle ?? toTitleCase(blockKey.split('/').at(-1) ?? '');
 
 	const manifest: Record<string, unknown> = {
 		$schema: 'https://schemas.wp.org/trunk/block.json',
@@ -162,8 +138,8 @@ function createBlockManifest(options: {
 		description: `${title} block generated from project config`,
 		category: 'widgets',
 		icon: 'database',
-		textdomain: ir.config.namespace,
-		keywords: [resource.name],
+		textdomain: ir.meta.namespace,
+		keywords: [title],
 		supports: {
 			align: ['wide', 'full'],
 			color: {

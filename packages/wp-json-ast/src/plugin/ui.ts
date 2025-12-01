@@ -39,6 +39,67 @@ export function buildRegisterUiAssetsFunction(
 		return null;
 	}
 
+	const pluginPages = ui.resources
+		.map((resource) => resource.menu?.slug)
+		.filter((slug): slug is string => Boolean(slug && slug.length > 0));
+
+	const pageAssign = buildExpressionStatement(
+		buildAssign(
+			buildVariable('page'),
+			buildTernary(
+				buildFuncCall(buildName(['isset']), [
+					buildArg(
+						buildArrayDimFetch(
+							buildVariable('_GET'),
+							buildScalarString('page')
+						)
+					),
+				]),
+				buildFuncCall(buildName(['sanitize_key']), [
+					buildArg(
+						buildFuncCall(buildName(['strval']), [
+							buildArg(
+								buildArrayDimFetch(
+									buildVariable('_GET'),
+									buildScalarString('page')
+								)
+							),
+						])
+					),
+				]),
+				buildScalarString('')
+			)
+		)
+	);
+
+	const pluginPagesAssign =
+		pluginPages.length > 0
+			? buildExpressionStatement(
+					buildAssign(
+						buildVariable('plugin_pages'),
+						buildArray(
+							pluginPages.map((slug) =>
+								buildArrayItem(buildScalarString(slug))
+							)
+						)
+					)
+				)
+			: null;
+
+	const guardNonPluginPage =
+		pluginPagesAssign && pluginPages.length > 0
+			? buildIfStatement(
+					buildBooleanNot(
+						buildFuncCall(buildName(['in_array']), [
+							buildArg(buildVariable('page')),
+							buildArg(buildVariable('plugin_pages')),
+							buildArg(buildConstFetchExpression('true')),
+						])
+					),
+					[buildReturn(null)]
+				)
+			: null;
+
 	const assetPathAssign = buildExpressionStatement(
 		buildAssign(
 			buildVariable('asset_path'),
@@ -268,6 +329,44 @@ export function buildRegisterUiAssetsFunction(
 		])
 	);
 
+	const stylePathAssign = buildExpressionStatement(
+		buildAssign(
+			buildVariable('style_path'),
+			buildBinaryOperation(
+				'Concat',
+				buildFuncCall(buildName(['plugin_dir_path']), [
+					buildArg(buildConstFetchExpression('__FILE__')),
+				]),
+				buildScalarString('build/index.css')
+			)
+		)
+	);
+
+	const enqueueStyleIfPresent = buildIfStatement(
+		buildFuncCall(buildName(['file_exists']), [
+			buildArg(buildVariable('style_path')),
+		]),
+		[
+			buildExpressionStatement(
+				buildFuncCall(buildName(['wp_enqueue_style']), [
+					buildArg(buildScalarString(ui.handle)),
+					buildArg(
+						buildFuncCall(buildName(['plugins_url']), [
+							buildArg(buildScalarString('build/index.css')),
+							buildArg(buildConstFetchExpression('__FILE__')),
+						])
+					),
+					buildArg(
+						buildArray([
+							buildArrayItem(buildScalarString('wp-components')),
+						])
+					),
+					buildArg(buildVariable('version')),
+				])
+			),
+		]
+	);
+
 	const enqueueScript = buildExpressionStatement(
 		buildFuncCall(buildName(['wp_enqueue_script']), [
 			buildArg(buildScalarString(ui.handle)),
@@ -277,6 +376,9 @@ export function buildRegisterUiAssetsFunction(
 	const fn = buildNodeFunction('enqueue_wpkernel_ui_assets', {
 		returnType: buildIdentifier('void'),
 		statements: [
+			pageAssign,
+			...(pluginPagesAssign ? [pluginPagesAssign] : []),
+			...(guardNonPluginPage ? [guardNonPluginPage] : []),
 			assetPathAssign,
 			guardMissingAsset,
 			assetContentsAssign,
@@ -292,6 +394,8 @@ export function buildRegisterUiAssetsFunction(
 			registerScript,
 			localizationAssign,
 			localizeScript,
+			stylePathAssign,
+			enqueueStyleIfPresent,
 			enqueueScript,
 		],
 	});

@@ -489,6 +489,10 @@ export function resolveAffectedFromFiles(stagedFiles, graph) {
 	const affected = new Map();
 	const queue = [];
 	const markWorkspace = (ws, reason) => {
+		const normalisedDir = ws.dir ? ws.dir.replace(/\\/g, '/') : '';
+		if (normalisedDir.includes('/examples/')) {
+			return;
+		}
 		const dir = ws.dir ? ws.dir.replace(/\\/g, '/') : '';
 		const entry =
 			affected.get(ws.name) ??

@@ -8,6 +8,13 @@ import type { BuilderOutput } from '../../runtime/types';
 import { makeIr, makeIrMeta } from '@cli-tests/ir.test-support';
 import type { Workspace } from '../../workspace/types';
 
+const makeConfig = (namespace: string) => ({
+	version: 1,
+	namespace,
+	schemas: {},
+	resources: {},
+});
+
 describe('createApplyPlanBuilder pretty printer wiring', () => {
 	afterEach(() => {
 		jest.resetModules();
@@ -49,11 +56,8 @@ describe('createApplyPlanBuilder pretty printer wiring', () => {
 				const ir = makeIr({
 					namespace: meta.namespace,
 					meta,
-					config: {
-						resources: {},
-						schemas: {},
-					},
 				});
+				const config = makeConfig(ir.meta.namespace);
 
 				await helper.apply(
 					{
@@ -66,8 +70,8 @@ describe('createApplyPlanBuilder pretty printer wiring', () => {
 						input: {
 							phase: 'generate',
 							options: {
-								config: ir.config,
-								namespace: ir.meta.namespace,
+								config,
+								namespace: config.namespace,
 								origin: ir.meta.origin,
 								sourcePath: meta.sourcePath,
 							},

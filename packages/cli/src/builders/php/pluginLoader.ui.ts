@@ -2,9 +2,11 @@ import type { IRv1 } from '../../ir/publicTypes';
 import type { PluginLoaderUiConfig } from './types';
 
 export function buildUiConfig(ir: IRv1): PluginLoaderUiConfig | null {
-	const resources = ir.ui?.resources ?? [];
+	const resourcesWithMenu = (ir.ui?.resources ?? []).filter(
+		(resource) => resource.menu && resource.menu.slug
+	);
 	const loader = ir.ui?.loader;
-	if (resources.length === 0 || !loader) {
+	if (resourcesWithMenu.length === 0 || !loader) {
 		return null;
 	}
 
@@ -14,6 +16,6 @@ export function buildUiConfig(ir: IRv1): PluginLoaderUiConfig | null {
 		scriptPath: loader.scriptPath,
 		localizationObject: loader.localizationObject,
 		namespace: loader.namespace,
-		resources,
+		resources: resourcesWithMenu,
 	};
 }

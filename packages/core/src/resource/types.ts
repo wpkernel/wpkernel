@@ -126,12 +126,6 @@ export interface ResourceAdminUIConfig {
 	view?: 'dataviews' | string;
 
 	/**
-	 * Optional positional hint if you *really* want it.
-	 * Everything else (slug, title, capability, parent) is inferred.
-	 */
-	position?: number;
-
-	/**
 	 * Reserved for future extensions / internal tagging.
 	 */
 	[key: string]: unknown;

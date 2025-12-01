@@ -1,38 +1,38 @@
-export { createTsBuilder } from './pipeline.builder';
-export { buildTsFormatter } from './pipeline.formatter';
-export {
-	buildAdminScreenCreator,
-	resolveInteractivityFeature,
-} from './pipeline.creator.adminScreen';
-export { buildDataViewFixtureCreator } from './pipeline.creator.dataViewFixture';
-export { buildDataViewInteractivityFixtureCreator } from './pipeline.creator.interactivityFixture';
-export { buildDataViewRegistryCreator } from './pipeline.creator.registry';
-export { createTsCapabilityBuilder } from './entry.capabilities';
-export { printCapabilityModule } from './entry.capability';
-export { createTsIndexBuilder } from './entry.index';
-export { createJsBlocksBuilder } from './block.artifacts';
-export { createUiEntryBuilder } from './ui.entry';
+export { buildTsFormatter } from './formatter';
+export { resolveInteractivityFeature } from './admin-shared';
+export { createAdminScreenBuilder } from './admin-screen';
+export { createAppConfigBuilder } from './app-config';
+export { createAppFormBuilder } from './app-form';
+export { buildDataViewFixtureCreator } from './dataview-fixture';
+export { createDataViewInteractivityFixtureBuilder } from './interactivity-fixture';
+export { createDataViewRegistryBuilder } from './registry';
+export { createTsCapabilityBuilder } from './capabilities';
+export { createTsTypesBuilder } from './ts.types';
+export { createTsResourcesBuilder } from './resources';
+export { printCapabilityModule } from './capability';
+export { createTsIndexBuilder } from './ts.index';
+export { createJsBlocksBuilder } from './blocks-auto-register';
+export { createUiEntryBuilder } from './ui-entry';
 export {
 	resolveResourceImport,
 	writeAdminRuntimeStub,
 	buildModuleSpecifier,
-} from './shared.imports';
+} from './imports';
 export {
 	toPascalCase,
 	toCamelCase,
 	formatBlockVariableName,
 	buildBlockRegistrarMetadata,
-} from './shared.metadata';
+} from './metadata';
 export {
 	buildAutoRegisterModuleMetadata,
 	generateBlockImportPath,
-} from './shared.registrar';
+} from './registrar';
 export type {
 	TsBuilderCreator,
 	TsBuilderCreatorContext,
 	TsBuilderLifecycleHooks,
 	TsBuilderAfterEmitOptions,
 	TsBuilderEmitOptions,
-	CreateTsBuilderOptions,
 } from '../types';
-export { loadTsMorph } from './runtime.loader';
+export { loadTsMorph } from './runtime-loader';

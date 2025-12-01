@@ -67,12 +67,6 @@ async function main(): Promise<void> {
 
 	const rerun = await helper.detect(context);
 	assertReadyStatus('rerun', rerun.status, rerun.message);
-
-	const duration =
-		rerun.state.lastRun?.durationMs ?? detection.state.lastRun?.durationMs;
-	console.log(
-		`Bootstrapper resolved bundled CLI dependencies in ${duration ?? 'unknown'}ms.`
-	);
 }
 
 main().catch((error) => {

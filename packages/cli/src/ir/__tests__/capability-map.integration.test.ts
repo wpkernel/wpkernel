@@ -2,7 +2,8 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import type { ResourceCapabilityMap } from '@wpkernel/core/resource';
 import type { WPKernelConfigV1 } from '../../config/types';
-import { buildIr } from '../buildIr';
+import { createIrWithBuilders } from '../createIr';
+import type { IRv1 } from '../publicTypes';
 import { setCachedTsImport } from '../../config/load-wpk-config';
 import { createBaseConfig, withTempWorkspace } from '../shared/test-helpers';
 
@@ -14,6 +15,15 @@ type CapabilityCase = {
 	) => void | Promise<void>;
 	readonly expectError?: RegExp | string;
 };
+
+async function buildIr(options: {
+	readonly config: WPKernelConfigV1;
+	readonly sourcePath: string;
+	readonly origin: string;
+	readonly namespace: string;
+}): Promise<IRv1> {
+	return createIrWithBuilders(options);
+}
 
 function addCapabilities(
 	config: WPKernelConfigV1,

@@ -184,6 +184,8 @@ export type PostTypesMap = Map<
 		labels: Record<string, string>;
 		supports?: readonly string[];
 		taxonomies: Set<string>;
+		showUi: boolean;
+		showInMenu: boolean;
 	}
 >;
 export type TaxonomiesMap = Map<
@@ -192,6 +194,8 @@ export type TaxonomiesMap = Map<
 		objectTypes: Set<string>;
 		hierarchical?: boolean;
 		labels: Record<string, string>;
+		showUi: boolean;
+		showAdminColumn: boolean;
 	}
 >;
 export type StatusesMap = Map<

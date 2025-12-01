@@ -1,9 +1,5 @@
 import { createHelper } from '../../runtime';
-import type {
-	BuilderApplyOptions,
-	BuilderHelper,
-	BuilderNext,
-} from '../../runtime/types';
+import type { BuilderApplyOptions, BuilderHelper } from '../../runtime/types';
 import {
 	buildGeneratedModuleProgram,
 	buildIndexProgram,
@@ -30,7 +26,7 @@ export function createPhpIndexFileHelper(): BuilderHelper {
 		key: 'builder.generate.php.index',
 		kind: 'builder',
 		dependsOn: [
-			'builder.generate.php.core',
+			'builder.generate.php.channel.bootstrap',
 			'builder.generate.php.plugin-loader',
 			'builder.generate.php.controller.resources',
 			'builder.generate.php.capability',
@@ -38,11 +34,17 @@ export function createPhpIndexFileHelper(): BuilderHelper {
 			'ir.resources.core',
 			'ir.capability-map.core',
 			'ir.layout.core',
+			'ir.artifacts.plan',
 		],
-		async apply(options: BuilderApplyOptions, next?: BuilderNext) {
+		async apply(options: BuilderApplyOptions) {
 			const { input } = options;
 			if (input.phase !== 'generate' || !input.ir) {
-				await next?.();
+				return;
+			}
+			if (!input.ir.artifacts?.php) {
+				options.reporter.debug(
+					'createPhpIndexFileHelper: missing PHP artifacts plan; skipping.'
+				);
 				return;
 			}
 
@@ -80,7 +82,6 @@ export function createPhpIndexFileHelper(): BuilderHelper {
 			options.reporter.debug(
 				'createPhpIndexFileHelper: queued PHP index file.'
 			);
-			await next?.();
 		},
 	});
 }

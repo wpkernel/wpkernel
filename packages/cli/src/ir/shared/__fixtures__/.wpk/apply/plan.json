@@ -1,0 +1,26 @@
+{
+	"instructions": [
+		{
+			"action": "write",
+			"file": "plugin.php",
+			"base": ".wpk/apply/base/plugin.php",
+			"incoming": ".wpk/apply/incoming/plugin.php",
+			"description": "Update plugin loader"
+		},
+		{
+			"action": "write",
+			"file": ".wpk/bundler/config.json",
+			"base": ".wpk/apply/base/.wpk/bundler/config.json",
+			"incoming": ".wpk/apply/incoming/.wpk/bundler/config.json",
+			"description": "Update bundler config"
+		},
+		{
+			"action": "write",
+			"file": "inc/Rest/TodoController.php",
+			"base": ".wpk/apply/base/inc/Rest/TodoController.php",
+			"incoming": ".wpk/apply/incoming/inc/Rest/TodoController.php",
+			"description": "Update todo controller shim"
+		}
+	],
+	"skippedDeletions": []
+}

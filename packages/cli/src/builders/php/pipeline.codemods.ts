@@ -5,12 +5,9 @@ import {
 	runPhpCodemodIngestion,
 } from '@wpkernel/php-json-ast';
 import { createHelper } from '../../runtime';
+import { getPhpBuilderConfigState } from './pipeline.builder';
 import { resolveBundledPhpJsonAstIngestionPath } from '../../utils/phpAssets';
-import type {
-	BuilderApplyOptions,
-	BuilderHelper,
-	BuilderNext,
-} from '../../runtime/types';
+import type { BuilderApplyOptions, BuilderHelper } from '../../runtime/types';
 
 export interface CreatePhpCodemodIngestionHelperOptions {
 	readonly files: readonly string[];
@@ -28,15 +25,23 @@ export function createPhpCodemodIngestionHelper(
 	return createHelper({
 		key: 'builder.generate.php.codemod-ingestion',
 		kind: 'builder',
-		dependsOn: ['builder.generate.php.core'],
-		async apply(
-			helperOptions: BuilderApplyOptions,
-			next?: BuilderNext
-		): Promise<void> {
+		dependsOn: [
+			'builder.generate.php.channel.bootstrap',
+			'builder.generate.php.config',
+		],
+		async apply(helperOptions: BuilderApplyOptions): Promise<void> {
 			const { context, input, reporter } = helperOptions;
 
 			if (input.phase !== 'generate') {
-				await next?.();
+				return;
+			}
+
+			const resolvedOptions = pickCodemodOptions({
+				context,
+				reporter,
+				options,
+			});
+			if (!resolvedOptions) {
 				return;
 			}
 
@@ -44,14 +49,13 @@ export function createPhpCodemodIngestionHelper(
 				context.workspace.resolve.bind(context.workspace),
 				context.workspace.exists.bind(context.workspace),
 				reporter,
-				options.files
+				resolvedOptions.files
 			);
 
 			if (targets.length === 0) {
 				reporter.debug(
 					'createPhpCodemodIngestionHelper: no codemod targets resolved.'
 				);
-				await next?.();
 				return;
 			}
 
@@ -62,25 +66,26 @@ export function createPhpCodemodIngestionHelper(
 				}
 			);
 
-			const configurationPath = options.configurationPath
+			const configurationPath = resolvedOptions.configurationPath
 				? resolvePath(
 						context.workspace.resolve.bind(context.workspace),
-						options.configurationPath
+						resolvedOptions.configurationPath
 					)
 				: undefined;
 
 			const scriptPath =
-				options.scriptPath ?? resolveBundledPhpJsonAstIngestionPath();
+				resolvedOptions.scriptPath ??
+				resolveBundledPhpJsonAstIngestionPath();
 
 			const ingestionResult = await runPhpCodemodIngestion({
 				workspaceRoot: context.workspace.root,
 				files: targets,
-				phpBinary: options.phpBinary,
+				phpBinary: resolvedOptions.phpBinary,
 				scriptPath,
 				configurationPath,
-				enableDiagnostics: options.enableDiagnostics,
-				importMetaUrl: options.importMetaUrl,
-				autoloadPaths: options.autoloadPaths,
+				enableDiagnostics: resolvedOptions.enableDiagnostics,
+				importMetaUrl: resolvedOptions.importMetaUrl,
+				autoloadPaths: resolvedOptions.autoloadPaths,
 			});
 
 			if (ingestionResult.exitCode !== 0) {
@@ -107,8 +112,6 @@ export function createPhpCodemodIngestionHelper(
 					files: targets,
 				}
 			);
-
-			await next?.();
 		},
 	});
 }
@@ -163,4 +166,24 @@ async function* toAsyncIterable(
 	for (const line of lines) {
 		yield line;
 	}
+}
+
+function pickCodemodOptions(options: {
+	readonly context: BuilderApplyOptions['context'];
+	readonly reporter: BuilderApplyOptions['reporter'];
+	readonly options?: CreatePhpCodemodIngestionHelperOptions;
+}): CreatePhpCodemodIngestionHelperOptions | null {
+	const resolved =
+		(options.options?.files?.length ?? 0) > 0
+			? options.options
+			: getPhpBuilderConfigState(options.context).codemods;
+
+	if (!resolved || resolved.files.length === 0) {
+		options.reporter.debug(
+			'createPhpCodemodIngestionHelper: no codemod targets resolved.'
+		);
+		return null;
+	}
+
+	return resolved;
 }

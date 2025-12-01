@@ -27,6 +27,7 @@ export function buildBootstrapFunction(
 	const hasAdminMenu = Boolean(
 		config.ui?.resources.some((resource) => Boolean(resource.menu))
 	);
+	const hasUiAssets = Boolean(config.ui && config.ui.resources.length > 0);
 
 	const statements: PhpStmt[] = [
 		buildExpressionStatement(
@@ -59,7 +60,7 @@ export function buildBootstrapFunction(
 		);
 	}
 
-	if (config.ui) {
+	if (hasUiAssets) {
 		const uiCallback = buildBinaryOperation(
 			'Concat',
 			namespaceConst,

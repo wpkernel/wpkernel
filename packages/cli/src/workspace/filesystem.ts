@@ -409,9 +409,12 @@ class FilesystemWorkspace implements Workspace {
 			workspace: this,
 			strict: false,
 		});
-		const base =
+		let base =
 			layout?.resolve('workspace.tmp') ??
 			path.join(this.#root, '.wpk', 'tmp');
+		if (!path.isAbsolute(base)) {
+			base = path.join(this.#root, base);
+		}
 		await fs.mkdir(base, { recursive: true });
 		return fs.mkdtemp(path.join(base, prefix));
 	}

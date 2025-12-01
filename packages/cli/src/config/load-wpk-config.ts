@@ -1,5 +1,5 @@
 /**
- * Kernel config loader.
+ * WPKernel config loader.
  *
  * Responsible for locating and resolving the project's `wpk.config.(ts|js)`
  * (or a `wpk` field in package.json). It supports TS execution via `tsx`

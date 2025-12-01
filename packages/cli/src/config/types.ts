@@ -1,11 +1,6 @@
 import type { Reporter } from '@wpkernel/core/reporter';
-import type {
-	ResourceAdminUIConfig,
-	ResourceConfig,
-	ResourceUIConfig,
-} from '@wpkernel/core/resource';
+import type { ResourceConfig } from '@wpkernel/core/resource';
 import type { WPKConfigSource } from '@wpkernel/core/contracts';
-import type { IRv1 } from '../ir/publicTypes';
 import type {
 	PhpAstBuilder,
 	PhpDriverConfigurationOptions,
@@ -43,13 +38,6 @@ export interface SchemaConfig {
 	 * (for example, a JSON Schema or Zod schema).
 	 */
 	path: string;
-	generated: {
-		/**
-		 * Relative path where WPKernel should write the generated TypeScript
-		 * types for this schema.
-		 */
-		types: string;
-	};
 	/**
 	 * Human-readable description of what this schema models
 	 * (for example, "Public job listing API payload").
@@ -68,17 +56,9 @@ export interface SchemaRegistry {
 	[key: string]: SchemaConfig;
 }
 
-/**
- * Mapping of resource identifiers to their wpk configuration.
- *
- * @category Config
- * @public
- */
-type RuntimeResourceConfig = ResourceConfig;
-
 export type ResourceBlocksMode = 'js' | 'ssr';
 
-export interface SerializableResourceBlocksConfig {
+export interface ResourceBlocksConfig {
 	/**
 	 * Controls whether the CLI emits JS-only blocks (`"js"`, default)
 	 * or SSR-ready blocks with PHP render callbacks (`"ssr"`).
@@ -86,58 +66,16 @@ export interface SerializableResourceBlocksConfig {
 	mode?: ResourceBlocksMode;
 }
 
-type ResourceConfigBase = Omit<
-	RuntimeResourceConfig,
-	'cacheKeys' | 'store' | 'schema' | 'reporter' | 'ui'
->;
-
-type RuntimeResourceAdminUIConfig = ResourceAdminUIConfig;
-
-type RuntimeResourceUIConfig = ResourceUIConfig;
-
-export type SerializableResourceAdminUIConfig = Omit<
-	RuntimeResourceAdminUIConfig,
-	'dataviews'
-> & {
-	dataviews?: never;
-};
-
-export type SerializableResourceUIConfig = Omit<
-	RuntimeResourceUIConfig,
-	'admin'
-> & {
-	admin?: SerializableResourceAdminUIConfig;
-};
-
-export type SerializableSchemaReference = string | Record<string, unknown>;
-
 /**
- * A resource configuration that is safe to serialize, suitable for use in a `wpk.config.ts` file.
- *
- * This type omits properties that are not serializable, such as functions or complex objects.
+ * Mapping of resource identifiers to their wpk configuration.
  *
  * @category Config
  * @public
  */
-export type SerializableResourceConfig = ResourceConfigBase & {
-	/**
-	 * Resource name. Optional; defaults to the map key when omitted.
-	 */
-	name?: string;
-	cacheKeys?: never;
-	schema?: SerializableSchemaReference;
-	reporter?: never;
-	ui?: SerializableResourceUIConfig;
-	/**
-	 * Optional Gutenberg block configuration. Set `mode: "ssr"` to emit
-	 * server-rendered blocks with PHP registrars; omit or set `mode: "js"`
-	 * to keep the default JS-only blocks.
-	 */
-	blocks?: SerializableResourceBlocksConfig;
-};
-
 export interface ResourceRegistry {
-	[key: string]: SerializableResourceConfig;
+	[key: string]: ResourceConfig & {
+		blocks?: ResourceBlocksConfig;
+	};
 }
 
 /**
@@ -145,17 +83,17 @@ export interface ResourceRegistry {
  *
  * @category Adapters
  */
-export interface AdaptersConfig {
+export interface AdaptersConfig<TConfigSurface = unknown, TIr = unknown> {
 	/**
 	 * Factory that returns PHP codegen overrides (for example, changing
 	 * namespaces or adding extra includes). Most plugins do not need this.
 	 */
-	php?: PhpAdapterFactory;
+	php?: PhpAdapterFactory<TConfigSurface, TIr>;
 	/**
 	 * Adapter extension factories that run during generation to patch or extend
 	 * the default adapters.
 	 */
-	extensions?: AdapterExtensionFactory[];
+	extensions?: AdapterExtensionFactory<TConfigSurface, TIr>[];
 }
 
 /**
@@ -254,11 +192,11 @@ export interface WPKernelConfigV1 {
  *
  * @category Adapters
  */
-export interface AdapterContext {
-	config: WPKernelConfigV1;
+export interface AdapterContext<TConfigSurface = unknown, TIr = unknown> {
+	config: TConfigSurface;
 	reporter: Reporter;
 	namespace: string;
-	ir?: IRv1;
+	ir?: TIr;
 }
 
 /**
@@ -266,12 +204,12 @@ export interface AdapterContext {
  *
  * @category Adapters
  */
-export interface PhpAdapterConfig {
+export interface PhpAdapterConfig<TConfigSurface = unknown, TIr = unknown> {
 	namespace?: string;
 	autoload?: string;
 	customise?: (
 		builder: PhpAstBuilder,
-		context: AdapterContext & { ir: IRv1 }
+		context: AdapterExtensionContext<TConfigSurface, TIr>
 	) => void;
 	driver?: PhpDriverConfigurationOptions;
 	codemods?: PhpCodemodAdapterConfig;
@@ -282,9 +220,9 @@ export interface PhpAdapterConfig {
  *
  * @category Adapters
  */
-export type PhpAdapterFactory = (
-	context: AdapterContext
-) => PhpAdapterConfig | void;
+export type PhpAdapterFactory<TConfigSurface = unknown, TIr = unknown> = (
+	context: AdapterContext<TConfigSurface, TIr>
+) => PhpAdapterConfig<TConfigSurface, TIr> | void;
 
 /**
  * Configuration for PHP codemod operations within the PHP adapter.
@@ -315,13 +253,15 @@ export interface PhpCodemodDriverOptions {
  *
  * @category Adapters
  */
-export interface AdapterExtensionContext extends AdapterContext {
-	ir: IRv1;
+export interface AdapterExtensionContext<
+	TConfigSurface = unknown,
+	TIr = unknown,
+> extends AdapterContext<TConfigSurface, TIr> {
 	outputDir: string;
 	configDirectory?: string;
 	tempDir: string;
 	queueFile: (filePath: string, contents: string) => Promise<void>;
-	updateIr: (ir: IRv1) => void;
+	updateIr: (ir: TIr) => void;
 	formatPhp: (filePath: string, contents: string) => Promise<string>;
 	formatTs: (filePath: string, contents: string) => Promise<string>;
 }
@@ -333,7 +273,9 @@ export interface AdapterExtensionContext extends AdapterContext {
  */
 export interface AdapterExtension {
 	name: string;
-	apply: (context: AdapterExtensionContext) => Promise<void> | void;
+	apply: (
+		context: AdapterExtensionContext<unknown, unknown>
+	) => Promise<void> | void;
 }
 
 /**
@@ -341,8 +283,8 @@ export interface AdapterExtension {
  *
  * @category Adapters
  */
-export type AdapterExtensionFactory = (
-	context: AdapterContext
+export type AdapterExtensionFactory<TConfigSurface = unknown, TIr = unknown> = (
+	context: AdapterContext<TConfigSurface, TIr>
 ) => AdapterExtension | AdapterExtension[] | void;
 
 /**

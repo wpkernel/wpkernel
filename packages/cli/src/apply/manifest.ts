@@ -5,9 +5,8 @@ import { toPascalCase } from '../builders/php/utils';
 import type { Workspace } from '../workspace';
 import { sanitizeNamespace } from '../adapters/extensions';
 import { loadLayoutFromWorkspace } from '../layout/manifest';
-import { collectResourceDescriptors } from '../builders/ts/pipeline.builder';
-import { resolveAdminScreenComponentMetadata } from '../builders/ts/pipeline.creator.adminScreen';
-import { resolveTsLayout } from '../builders/ts/ts.paths';
+import { collectResourceDescriptors } from '../builders/ts/utils';
+import { resolveAdminScreenComponentMetadata } from '../builders/ts/admin-shared';
 
 export const GENERATION_STATE_VERSION = 1 as const;
 
@@ -267,7 +266,7 @@ function buildResourceEntries(
 	const autoloadRoot = normaliseDirectory(ir.php.autoload);
 	const outputDir = normaliseDirectory(ir.php.outputDir);
 	const uiRoot = normaliseDirectory(ir.layout.resolve('ui.generated'));
-	const resourceKeyLookup = buildResourceKeyLookup(ir.config.resources);
+	const resourceKeyLookup = buildResourceKeyLookup(ir.resources);
 
 	for (const resource of ir.resources) {
 		const entry = buildResourceEntry({
@@ -386,8 +385,10 @@ function buildUiFiles(ir: IRv1): GenerationManifestFilePair[] {
 		});
 	}
 
-	const { uiGenerated, uiApplied, uiResourcesApplied } = resolveTsLayout(ir);
-	const descriptors = collectResourceDescriptors(ir, ir.config.resources);
+	const uiGenerated = ir.layout.resolve('ui.generated');
+	const uiApplied = ir.layout.resolve('ui.applied');
+	const uiResourcesApplied = ir.layout.resolve('ui.resources.applied');
+	const descriptors = collectResourceDescriptors(ir);
 	if (descriptors.length === 0) {
 		return [];
 	}
@@ -463,7 +464,7 @@ function buildBlocksState(
 }
 
 function buildResourceKeyLookup(
-	resources: IRv1['config']['resources']
+	resources: IRv1['resources']
 ): Map<string, string> {
 	const lookup = new Map<string, string>();
 

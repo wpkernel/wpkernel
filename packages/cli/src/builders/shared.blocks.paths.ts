@@ -64,8 +64,11 @@ async function pathExists(absolute: string): Promise<boolean> {
 
 export function toWorkspaceRelative(
 	workspace: Workspace,
-	absolute: string
+	target: string
 ): string {
+	const absolute = path.isAbsolute(target)
+		? target
+		: path.join(workspace.root, target);
 	const relative = path.relative(workspace.root, absolute);
 	if (relative === '') {
 		return '.';

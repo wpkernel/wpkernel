@@ -272,6 +272,9 @@ importers:
       '@types/node':
         specifier: ^20.11.30
         version: 20.19.25
+      '@wordpress/url':
+        specifier: ^4.35.0
+        version: 4.35.0
       '@wpkernel/core':
         specifier: workspace:*
         version: link:../../packages/core
@@ -318,9 +321,6 @@ importers:
       '@wordpress/interactivity':
         specifier: '>=6.34.0'
         version: 6.35.0
-      '@wordpress/url':
-        specifier: ^4.35.0
-        version: 4.35.0
       '@wpkernel/cli':
         specifier: workspace:*
         version: link:../../packages/cli

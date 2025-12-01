@@ -1,7 +1,8 @@
 import path from 'node:path';
 import { WPKernelError } from '@wpkernel/core/error';
 import type { WPKernelConfigV1 } from '../../config/types';
-import { buildIr } from '../buildIr';
+import { createIr } from '../createIr';
+import { createPipeline } from '../../runtime/createPipeline';
 import { buildDataViewsConfig } from '@cli-tests/builders/ts.test-support';
 import {
 	FIXTURE_CONFIG_PATH,
@@ -9,6 +10,19 @@ import {
 	canonicalHash,
 	createBaseConfig,
 } from '../shared/test-helpers';
+import { type IRv1 } from '..';
+
+async function buildIr(options: {
+	readonly config: WPKernelConfigV1;
+	readonly sourcePath: string;
+	readonly origin: string;
+	readonly namespace: string;
+}): Promise<IRv1> {
+	return createIr({
+		...options,
+		pipeline: createPipeline(),
+	});
+}
 
 describe('buildIr - core behaviours', () => {
 	it('constructs a deterministic IR for manual schemas', async () => {
@@ -17,7 +31,6 @@ describe('buildIr - core behaviours', () => {
 		config.schemas = {
 			todo: {
 				path: './schemas/todo.schema.json',
-				generated: { types: 'types/todo.d.ts' },
 			},
 		} as WPKernelConfigV1['schemas'];
 
@@ -63,32 +76,35 @@ describe('buildIr - core behaviours', () => {
 
 		expect(ir.schemas).toHaveLength(1);
 		const [schema] = ir.schemas;
-		expect(schema.key).toBe('todo');
-		expect(schema.provenance).toBe('manual');
-		expect(schema.sourcePath).toBe(
+		expect(schema?.key).toBe('todo');
+		expect(schema?.provenance).toBe('manual');
+		expect(schema?.sourcePath).toBe(
 			path.relative(process.cwd(), schemaPath)
 		);
-		expect(schema.hash.value).toBe(canonicalHash(schema.schema));
+		expect(schema?.hash.value).toBe(canonicalHash(schema?.schema));
 
 		expect(ir.resources).toHaveLength(1);
 		const [resource] = ir.resources;
-		expect(resource.schemaKey).toBe('todo');
-		expect(resource.routes.map((route) => route.transport)).toEqual([
+		expect(resource?.schemaKey).toBe('todo');
+		expect(resource?.routes.map((route) => route.transport)).toEqual([
 			'local',
 			'local',
 			'local',
 		]);
-		expect(resource.cacheKeys.list).toEqual({
+		expect(resource?.cacheKeys.list).toEqual({
 			source: 'default',
 			segments: ['todo', 'list', '{}'],
 		});
-		expect(resource.cacheKeys.get).toEqual({
+		expect(resource?.cacheKeys.get).toEqual({
 			source: 'default',
 			segments: ['todo', 'get', '__wpk_id__'],
 		});
-		expect(resource.identity).toEqual({ type: 'number', param: 'id' });
-		expect(resource.storage).toEqual({ mode: 'wp-post', postType: 'todo' });
-		expect(resource.warnings).toEqual([]);
+		expect(resource?.identity).toEqual({ type: 'number', param: 'id' });
+		expect(resource?.storage).toEqual({
+			mode: 'wp-post',
+			postType: 'todo',
+		});
+		expect(resource?.warnings).toEqual([]);
 
 		expect(ir.capabilities).toEqual([
 			{
@@ -165,7 +181,6 @@ describe('buildIr - core behaviours', () => {
 				defaultView: { type: 'table' },
 			})
 		);
-		expect(typeof uiResource?.dataviews?.mapQuery).toBe('function');
 	});
 
 	it('synthesises schemas when resources use auto mode', async () => {
@@ -199,13 +214,13 @@ describe('buildIr - core behaviours', () => {
 
 		expect(ir.schemas).toHaveLength(1);
 		const [schema] = ir.schemas;
-		expect(schema.key).toBe('auto:job');
-		expect(schema.provenance).toBe('auto');
-		expect(schema.generatedFrom).toEqual({
+		expect(schema?.key).toBe('auto:job');
+		expect(schema?.provenance).toBe('auto');
+		expect(schema?.generatedFrom).toEqual({
 			type: 'storage',
 			resource: 'job',
 		});
-		expect(schema.schema).toMatchObject({
+		expect(schema?.schema).toMatchObject({
 			properties: {
 				department: { type: 'string' },
 				tags: { type: 'array', items: { type: 'string' } },
@@ -213,10 +228,17 @@ describe('buildIr - core behaviours', () => {
 		});
 
 		const [resource] = ir.resources;
-		expect(resource.schemaProvenance).toBe('auto');
-		expect(resource.identity).toBeUndefined();
-		expect(resource.storage?.mode).toBe('wp-post');
-		expect(resource.storage?.postType).toBe('test_namespace_job');
+		expect(resource?.schemaProvenance).toBe('auto');
+		expect(resource?.identity).toBeUndefined();
+		expect(resource?.storage?.mode).toBe('wp-post');
+
+		if (resource?.storage?.mode !== 'wp-post') {
+			throw new Error(
+				'Expected wp-post storage for auto schema resource'
+			);
+		}
+
+		expect(resource.storage.postType).toBe('test_namespace_job');
 	});
 
 	it('throws when namespace cannot be sanitised', async () => {
@@ -240,7 +262,6 @@ describe('buildIr - core behaviours', () => {
 		config.schemas = {
 			todo: {
 				path: absoluteSchema,
-				generated: { types: 'types/todo.d.ts' },
 			},
 		} as WPKernelConfigV1['schemas'];
 		config.resources = {

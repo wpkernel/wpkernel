@@ -17,6 +17,13 @@ type PatcherWorkspaceContext = BuilderHarnessContext<
 	ReturnType<typeof buildWorkspace>
 >;
 
+const makeConfig = (namespace: string) => ({
+	version: 1,
+	namespace,
+	schemas: {},
+	resources: {},
+});
+
 const withWorkspace = (
 	run: (context: PatcherWorkspaceContext) => Promise<void>
 ) =>
@@ -36,12 +43,6 @@ function buildIr(
 			origin: 'wpk.config.ts',
 			sourcePath: 'wpk.config.ts',
 		}),
-		config: {
-			version: 1,
-			namespace,
-			schemas: {},
-			resources: {},
-		},
 		layout,
 		php: {
 			namespace,
@@ -110,11 +111,12 @@ describe('createPatcher', () => {
 			});
 
 			const ir = buildIr('Demo', layout);
+			const config = makeConfig(ir.meta.namespace);
 			const input = {
 				phase: 'apply' as const,
 				options: {
-					config: ir.config,
-					namespace: ir.meta.namespace,
+					config,
+					namespace: config.namespace,
 					origin: ir.meta.origin,
 					sourcePath: path.join(workspaceRoot, 'wpk.config.ts'),
 				},
@@ -169,11 +171,12 @@ describe('createPatcher', () => {
 			const output = buildOutput<BuilderOutput['actions'][number]>();
 
 			const ir = buildIr('Demo');
+			const config = makeConfig(ir.meta.namespace);
 			const input = {
 				phase: 'apply' as const,
 				options: {
-					config: ir.config,
-					namespace: ir.meta.namespace,
+					config,
+					namespace: config.namespace,
 					origin: ir.meta.origin,
 					sourcePath: path.join(workspaceRoot, 'wpk.config.ts'),
 				},
@@ -253,11 +256,12 @@ describe('createPatcher', () => {
 			);
 
 			const ir = buildIr('Demo', layout);
+			const config = makeConfig(ir.meta.namespace);
 			const input = {
 				phase: 'apply' as const,
 				options: {
-					config: ir.config,
-					namespace: ir.meta.namespace,
+					config,
+					namespace: config.namespace,
 					origin: ir.meta.origin,
 					sourcePath: path.join(workspaceRoot, 'wpk.config.ts'),
 				},
@@ -364,11 +368,12 @@ describe('createPatcher', () => {
 			});
 
 			const ir = buildIr('Demo', layout);
+			const config = makeConfig(ir.meta.namespace);
 			const input = {
 				phase: 'apply' as const,
 				options: {
-					config: ir.config,
-					namespace: ir.meta.namespace,
+					config,
+					namespace: config.namespace,
 					origin: ir.meta.origin,
 					sourcePath: path.join(workspaceRoot, 'wpk.config.ts'),
 				},
@@ -448,11 +453,12 @@ describe('createPatcher', () => {
 			});
 
 			const ir = buildIr('Demo', layout);
+			const config = makeConfig(ir.meta.namespace);
 			const input = {
 				phase: 'apply' as const,
 				options: {
-					config: ir.config,
-					namespace: ir.meta.namespace,
+					config,
+					namespace: config.namespace,
 					origin: ir.meta.origin,
 					sourcePath: path.join(workspaceRoot, 'wpk.config.ts'),
 				},
@@ -547,11 +553,12 @@ describe('createPatcher', () => {
 			});
 
 			const ir = buildIr('Demo', layout);
+			const config = makeConfig(ir.meta.namespace);
 			const input = {
 				phase: 'apply' as const,
 				options: {
-					config: ir.config,
-					namespace: ir.meta.namespace,
+					config,
+					namespace: config.namespace,
 					origin: ir.meta.origin,
 					sourcePath: path.join(workspaceRoot, 'wpk.config.ts'),
 				},
@@ -620,11 +627,12 @@ describe('createPatcher', () => {
 			);
 
 			const ir = buildIr('Demo', layout);
+			const config = makeConfig(ir.meta.namespace);
 			const input = {
 				phase: 'apply' as const,
 				options: {
-					config: ir.config,
-					namespace: ir.meta.namespace,
+					config,
+					namespace: config.namespace,
 					origin: ir.meta.origin,
 					sourcePath: path.join(workspaceRoot, 'wpk.config.ts'),
 				},
@@ -684,11 +692,12 @@ describe('createPatcher', () => {
 			);
 
 			const ir = buildIr('Demo', layout);
+			const config = makeConfig(ir.meta.namespace);
 			const input = {
 				phase: 'apply' as const,
 				options: {
-					config: ir.config,
-					namespace: ir.meta.namespace,
+					config,
+					namespace: config.namespace,
 					origin: ir.meta.origin,
 					sourcePath: path.join(workspaceRoot, 'wpk.config.ts'),
 				},

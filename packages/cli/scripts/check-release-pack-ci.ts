@@ -162,10 +162,6 @@ async function main(): Promise<void> {
 			'release-pack helper rebuilt packages on the second run.'
 		);
 	}
-
-	console.log(
-		'[release-pack-ci] release-pack readiness helper passed CI checks.'
-	);
 }
 
 main().catch((error) => {

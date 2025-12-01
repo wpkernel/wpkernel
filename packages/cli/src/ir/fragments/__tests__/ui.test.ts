@@ -1,3 +1,4 @@
+// packages/cli/src/ir/fragments/__tests__/ui.test.ts
 import { createUiFragment } from '../ui';
 
 describe('createUiFragment', () => {
@@ -39,6 +40,7 @@ describe('createUiFragment', () => {
 				Object.assign(draft, partial);
 			},
 		} as any;
+
 		return {
 			context: {} as any,
 			input: {
@@ -59,11 +61,9 @@ describe('createUiFragment', () => {
 					ui: {
 						admin: {
 							view: 'dataviews',
-							dataviews: {
-								preferencesKey: 'jobs/admin',
-								screen: {
-									menu: { slug: 'jobs', title: 'Jobs' },
-								},
+							menu: {
+								slug: 'jobs',
+								title: 'Jobs',
 							},
 						},
 					},
@@ -81,8 +81,11 @@ describe('createUiFragment', () => {
 					dataviews: {
 						fields: [],
 						defaultView: { type: 'table' },
-						mapQuery: expect.any(Function),
 						preferencesKey: 'demo/dataviews/jobs',
+					},
+					menu: {
+						slug: 'demo-jobs',
+						title: 'Jobs',
 					},
 				},
 			],
@@ -105,10 +108,9 @@ describe('createUiFragment', () => {
 					ui: {
 						admin: {
 							view: 'dataviews',
-							dataviews: {
-								screen: {
-									menu: { slug: '', title: '' },
-								},
+							menu: {
+								slug: '',
+								title: '',
 							},
 						},
 					},
@@ -126,7 +128,6 @@ describe('createUiFragment', () => {
 					dataviews: {
 						fields: [],
 						defaultView: { type: 'table' },
-						mapQuery: expect.any(Function),
 						preferencesKey: 'demo/dataviews/applications',
 					},
 				},

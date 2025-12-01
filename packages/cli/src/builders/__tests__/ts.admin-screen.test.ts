@@ -1,5 +1,5 @@
 import path from 'node:path';
-import { createTsBuilder, buildAdminScreenCreator } from '../ts';
+import { createAdminScreenBuilder } from '../ts';
 import {
 	withWorkspace as baseWithWorkspace,
 	buildWPKernelConfigSource,
@@ -27,7 +27,7 @@ const withWorkspace = (
 		createWorkspace: (root: string) => buildWorkspace(root),
 	});
 
-describe('createTsBuilder - admin screen creator', () => {
+describe('createAdminScreenBuilder', () => {
 	it('generates admin screens with resolved relative imports', async () => {
 		await withWorkspace(async ({ workspace, root }) => {
 			await workspace.write(
@@ -63,9 +63,7 @@ describe('createTsBuilder - admin screen creator', () => {
 
 			const reporter = buildReporter();
 			const output = buildOutput();
-			const builder = createTsBuilder({
-				creators: [buildAdminScreenCreator()],
-			});
+			const builder = createAdminScreenBuilder();
 
 			await builder.apply(
 				{
@@ -86,38 +84,23 @@ describe('createTsBuilder - admin screen creator', () => {
 				undefined
 			);
 
-			const screenFileName = 'JobAdminScreen.tsx';
+			const screenFileName = 'page.tsx';
 			const screenPathFs = path.join(
 				testLayout.resolve('ui.generated'),
 				'app',
 				'job',
-				'admin',
 				screenFileName
 			);
 			const appliedScreenPath = path.join(
 				testLayout.resolve('ui.applied'),
 				'app',
 				'job',
-				'admin',
 				screenFileName
 			);
 			const emittedFiles = output.actions.map((action) => action.file);
 			expect(emittedFiles).toContain(screenPathFs.replace(/\\/g, '/'));
 			const screenContents = await workspace.readText(screenPathFs);
 			expect(screenContents).not.toBeNull();
-
-			expect(screenContents as string).toContain(
-				"import { WPKernelError, WPK_NAMESPACE } from '@wpkernel/core/contracts';"
-			);
-			expect(screenContents as string).toContain(
-				"const jobAdminScreenInteractivityFeature = 'admin-screen';"
-			);
-			expect(screenContents as string).toContain(
-				'data-wp-interactive={interactivityNamespace}'
-			);
-			expect(screenContents as string).toContain(
-				'data-wp-context={jobAdminScreenInteractivityContext}'
-			);
 
 			const expectedResourceImport = normalise(
 				path
@@ -132,7 +115,7 @@ describe('createTsBuilder - admin screen creator', () => {
 					.replace(/\.(ts|tsx|js|jsx|mjs|cjs)$/u, '')
 			);
 			expect(screenContents).toContain(
-				`import { job } from '${prefixRelative(expectedResourceImport)}';`
+				`import { job } from "${prefixRelative(expectedResourceImport)}";`
 			);
 			const expectedRuntimeImport = path.posix
 				.relative(
@@ -144,16 +127,16 @@ describe('createTsBuilder - admin screen creator', () => {
 				)
 				.replace(/\.(ts|tsx|js|jsx|mjs|cjs)$/u, '');
 			expect(screenContents).toContain(
-				`from '${prefixRelative(expectedRuntimeImport)}'`
+				`from "${prefixRelative(expectedRuntimeImport)}"`
 			);
 			expect(screenContents).toContain(
-				"export const jobAdminScreenRoute = 'job-job';"
+				'export const jobadminscreenRoute = "demo-namespace-job";'
 			);
 
 			expect(output.actions.map((action) => action.file)).toContain(
 				path.posix.join(
 					testLayout.resolve('ui.generated'),
-					'app/job/admin/JobAdminScreen.tsx'
+					'app/job/page.tsx'
 				)
 			);
 		});

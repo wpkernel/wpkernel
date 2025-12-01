@@ -1,0 +1,62 @@
+{
+	"driver": "rollup",
+	"input": {
+		"index": "src/index.ts"
+	},
+	"outputDir": "build",
+	"format": "esm",
+	"external": [
+		"@wordpress/components",
+		"@wordpress/data",
+		"@wordpress/dataviews",
+		"@wordpress/element",
+		"@wordpress/hooks",
+		"@wordpress/i18n",
+		"@wordpress/interactivity",
+		"react",
+		"react-dom",
+		"react/jsx-dev-runtime",
+		"react/jsx-runtime"
+	],
+	"globals": {
+		"@wordpress/components": "wp.components",
+		"@wordpress/data": "wp.data",
+		"@wordpress/dataviews": "wp.dataviews",
+		"@wordpress/element": "wp.element",
+		"@wordpress/hooks": "wp.hooks",
+		"@wordpress/i18n": "wp.i18n",
+		"@wordpress/interactivity": "wp.interactivity",
+		"react": "React",
+		"react-dom": "ReactDOM",
+		"react/jsx-dev-runtime": "React",
+		"react/jsx-runtime": "React"
+	},
+	"alias": [
+		{
+			"find": "@/",
+			"replacement": "./src/"
+		}
+	],
+	"sourcemap": {
+		"development": true,
+		"production": false
+	},
+	"optimizeDeps": {
+		"exclude": [
+			"@wordpress/components",
+			"@wordpress/data",
+			"@wordpress/dataviews",
+			"@wordpress/element",
+			"@wordpress/hooks",
+			"@wordpress/i18n",
+			"@wordpress/interactivity",
+			"react",
+			"react-dom",
+			"react/jsx-dev-runtime",
+			"react/jsx-runtime"
+		]
+	},
+	"assetManifest": {
+		"path": "build/index.asset.json"
+	}
+}

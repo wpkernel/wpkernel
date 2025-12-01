@@ -1,21 +1,22 @@
 import path from 'node:path';
 import {
-	buildModuleSpecifier,
-	buildBlockRegistrarMetadata,
-	buildAutoRegisterModuleMetadata,
-	formatBlockVariableName,
-	generateBlockImportPath,
-	resolveResourceImport,
-	toCamelCase,
-	toPascalCase,
-} from '../shared';
-import {
 	withWorkspace as baseWithWorkspace,
 	type BuilderHarnessContext,
 } from '@cli-tests/builders/ts.test-support';
 import { buildWorkspace } from '../../../workspace';
 import type { Workspace } from '../../../workspace';
 import { loadTestLayoutSync } from '@wpkernel/test-utils/layout.test-support';
+import {
+	buildBlockRegistrarMetadata,
+	toPascalCase,
+	toCamelCase,
+	formatBlockVariableName,
+} from '../metadata';
+import { buildModuleSpecifier, resolveResourceImport } from '../imports';
+import {
+	buildAutoRegisterModuleMetadata,
+	generateBlockImportPath,
+} from '../registrar';
 
 const withWorkspace = (
 	run: (context: BuilderHarnessContext<Workspace>) => Promise<void>
@@ -86,7 +87,7 @@ describe('ts shared helpers', () => {
 						appliedResourcesDir,
 						configPath: path.join('wpk.config.ts'),
 					})
-				).resolves.toBe('../../../resources/job');
+				).resolves.toBe('@/resources/job');
 			});
 		});
 
@@ -121,19 +122,10 @@ describe('ts shared helpers', () => {
 						generatedResourcesDir,
 						appliedResourcesDir,
 					})
-				).resolves.toBe('../../../resources/job');
+				).resolves.toBe('@/resources/job');
 
 				const stubPath = path.join(generatedResourcesDir, 'job.ts');
-				const stub = await workspace.readText(stubPath);
-				const expectedConfigImport = buildModuleSpecifier({
-					workspace,
-					from: path.join(appliedResourcesDir, 'job.ts'),
-					target: path.join(root, 'wpk.config.ts'),
-				});
-				expect(stub).toContain(`from '${expectedConfigImport}'`);
-				expect(stub).toContain(
-					'export const job = wpkConfig.resources.job;'
-				);
+				await expect(workspace.readText(stubPath)).resolves.toBeNull();
 			});
 		});
 	});

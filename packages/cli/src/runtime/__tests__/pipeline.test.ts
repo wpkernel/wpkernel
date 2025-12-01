@@ -6,7 +6,6 @@ import type { WPKernelConfigV1 } from '../../config/types';
 import type {
 	BuilderApplyOptions,
 	BuilderHelper,
-	BuilderNext,
 	FragmentApplyOptions,
 	FragmentHelper,
 } from '../types';
@@ -223,10 +222,9 @@ describe('createPipeline', () => {
 			const builderHelper = createHelper({
 				key: 'builder.test',
 				kind: 'builder',
-				apply({ reporter }: BuilderApplyOptions, next?: BuilderNext) {
+				apply({ reporter }: BuilderApplyOptions) {
 					runOrder.push('builder');
 					reporter.debug('builder executed');
-					return next?.();
 				},
 			});
 
@@ -456,12 +454,8 @@ describe('createPipeline', () => {
 				createHelper({
 					key: 'builder.async',
 					kind: 'builder',
-					apply(
-						{ reporter }: BuilderApplyOptions,
-						next?: BuilderNext
-					) {
+					apply({ reporter }: BuilderApplyOptions) {
 						reporter.debug('async builder executed');
-						return next?.();
 					},
 				})
 			);
@@ -626,13 +620,9 @@ describe('createPipeline', () => {
 				key: 'builder.high-priority',
 				kind: 'builder',
 				priority: 5,
-				async apply(
-					{ reporter }: BuilderApplyOptions,
-					next?: BuilderNext
-				) {
+				async apply({ reporter }: BuilderApplyOptions) {
 					builderOrder.push('high');
 					reporter.debug('high priority builder executed');
-					await next?.();
 				},
 			});
 
@@ -640,14 +630,9 @@ describe('createPipeline', () => {
 				key: 'builder.alpha',
 				kind: 'builder',
 				priority: 1,
-				async apply(
-					{ reporter }: BuilderApplyOptions,
-					next?: BuilderNext
-				) {
+				async apply({ reporter }: BuilderApplyOptions) {
 					builderOrder.push('alpha');
 					reporter.debug('alpha builder executed');
-					await next?.();
-					await next?.();
 				},
 			});
 
@@ -664,26 +649,18 @@ describe('createPipeline', () => {
 			const duplicateFirst = createHelper({
 				key: 'builder.duplicate',
 				kind: 'builder',
-				async apply(
-					{ reporter }: BuilderApplyOptions,
-					next?: BuilderNext
-				) {
+				async apply({ reporter }: BuilderApplyOptions) {
 					builderOrder.push('duplicate-1');
 					reporter.debug('duplicate builder (first) executed');
-					await next?.();
 				},
 			});
 
 			const duplicateSecond = createHelper({
 				key: 'builder.duplicate',
 				kind: 'builder',
-				async apply(
-					{ reporter }: BuilderApplyOptions,
-					next?: BuilderNext
-				) {
+				async apply({ reporter }: BuilderApplyOptions) {
 					builderOrder.push('duplicate-2');
 					reporter.debug('duplicate builder (second) executed');
-					await next?.();
 				},
 			});
 

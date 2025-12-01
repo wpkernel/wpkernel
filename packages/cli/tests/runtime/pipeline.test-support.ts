@@ -10,13 +10,13 @@ import {
 	type GenerationManifest,
 } from '../../src/apply/manifest';
 import { FIXTURE_CONFIG_PATH } from '../../src/ir/shared/test-helpers';
-import type { WPKernelConfigV1 } from '../../src/config/types';
 import type { Workspace } from '../../src/workspace/types';
 import type {
 	Pipeline,
 	PipelineRunOptions,
 	PipelineRunResult,
 } from '../../src/runtime/types';
+import type { WPKernelConfigV1 } from '../../src/config/types.js';
 
 const DEFAULT_CONFIG: WPKernelConfigV1 = {
 	version: 1,

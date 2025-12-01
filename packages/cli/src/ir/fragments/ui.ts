@@ -1,3 +1,4 @@
+// packages/cli/src/ir/fragments/ui.ts
 import { createHelper } from '../../runtime';
 import type { IrFragment, IrFragmentApplyOptions } from '../types';
 import type {
@@ -28,28 +29,21 @@ export function createUiFragment(): IrFragment {
 		kind: 'fragment',
 		dependsOn: ['ir.meta.core', 'ir.resources.core'],
 		async apply({ input, output }: IrFragmentApplyOptions) {
-			const namespace =
-				input.draft.meta?.namespace ?? input.options.namespace ?? '';
-			const resources = input.draft.resources ?? [];
-
-			const slug = input.draft.meta?.sanitizedNamespace?.trim();
+			const namespaceInfo = resolveNamespaceInfo(input);
 			const surfaceResources = collectUiResourceDescriptors(
-				namespace,
-				resources
+				namespaceInfo.preferencesNamespace,
+				namespaceInfo.namespaceSlug,
+				input.draft.resources ?? []
 			);
-			const loader =
-				surfaceResources.length > 0 && slug
-					? {
-							handle: `wp-${slug}-ui`,
-							assetPath: DEFAULT_UI_ASSET_PATH,
-							scriptPath: DEFAULT_UI_SCRIPT_PATH,
-							localizationObject: UI_LOCALIZATION_OBJECT,
-							namespace,
-						}
-					: undefined;
+			const loader = buildUiLoader(
+				surfaceResources,
+				namespaceInfo.slug,
+				namespaceInfo.namespace
+			);
 			const surface: IRUiSurface = loader
 				? { resources: surfaceResources, loader }
 				: { resources: surfaceResources };
+
 			output.assign({
 				ui: surface,
 			});
@@ -58,27 +52,33 @@ export function createUiFragment(): IrFragment {
 }
 
 function collectUiResourceDescriptors(
-	namespace: string,
+	preferencesNamespace: string,
+	namespaceSlug: string,
 	resources: readonly IRResource[]
 ): IRUiResourceDescriptor[] {
 	const descriptors: IRUiResourceDescriptor[] = [];
 
 	for (const resource of resources) {
-		const admin = resource.ui?.admin;
+		const admin = resource.ui?.admin as
+			| {
+					view?: string;
+					menu?: ResourceDataViewsMenuConfig | null;
+			  }
+			| undefined;
+
 		const usesDataViews = admin?.view === 'dataviews';
 		if (!usesDataViews) {
 			continue;
 		}
 
-		const inferredDataviews: Record<string, unknown> = {
+		const preferencesKey = `${preferencesNamespace}/dataviews/${resource.name}`;
+		const inferredDataviews = {
 			fields: [],
 			defaultView: { type: 'table' },
-			mapQuery: (view: Record<string, unknown>) => view ?? {},
-			preferencesKey: `${namespace}/dataviews/${resource.name}`,
-		};
+			preferencesKey,
+		} satisfies Record<string, unknown>;
 
-		const preferencesKey = `${namespace}/dataviews/${resource.name}`;
-		const menu = normaliseMenu(undefined);
+		const menu = normaliseMenu(admin?.menu, namespaceSlug);
 
 		descriptors.push(
 			menu
@@ -86,12 +86,12 @@ function collectUiResourceDescriptors(
 						resource: resource.name,
 						preferencesKey,
 						menu,
-						dataviews: inferredDataviews,
+						dataviews: inferredDataviews as Record<string, unknown>,
 					}
 				: {
 						resource: resource.name,
 						preferencesKey,
-						dataviews: inferredDataviews,
+						dataviews: inferredDataviews as Record<string, unknown>,
 					}
 		);
 	}
@@ -103,8 +103,46 @@ type MutableMenuConfig = {
 	-readonly [Key in keyof IRUiMenuConfig]?: IRUiMenuConfig[Key];
 };
 
+function resolveNamespaceInfo(input: IrFragmentApplyOptions['input']): {
+	namespace: string;
+	preferencesNamespace: string;
+	namespaceSlug: string;
+	slug: string | undefined;
+} {
+	const meta = (input.draft.meta ?? {}) as {
+		namespace?: string;
+		sanitizedNamespace?: string;
+	};
+	const optionsNamespace = input.options.namespace ?? '';
+	const namespace = meta.namespace ?? optionsNamespace;
+	const namespaceSlug = meta.sanitizedNamespace ?? optionsNamespace;
+	const preferencesNamespace = meta.sanitizedNamespace ?? namespace;
+	const slug = meta.sanitizedNamespace?.trim();
+
+	return { namespace, preferencesNamespace, namespaceSlug, slug };
+}
+
+function buildUiLoader(
+	surfaceResources: readonly IRUiResourceDescriptor[],
+	slug: string | undefined,
+	namespace: string
+) {
+	if (surfaceResources.length === 0 || !slug) {
+		return undefined;
+	}
+
+	return {
+		handle: `wp-${slug}-ui`,
+		assetPath: DEFAULT_UI_ASSET_PATH,
+		scriptPath: DEFAULT_UI_SCRIPT_PATH,
+		localizationObject: UI_LOCALIZATION_OBJECT,
+		namespace,
+	};
+}
+
 function normaliseMenu(
-	menu?: ResourceDataViewsMenuConfig | null
+	menu: ResourceDataViewsMenuConfig | null | undefined,
+	namespaceSlug: string
 ): IRUiMenuConfig | undefined {
 	if (!menu) {
 		return undefined;
@@ -112,11 +150,68 @@ function normaliseMenu(
 
 	const normalized: MutableMenuConfig = {};
 
-	if (typeof menu.position === 'number' && Number.isFinite(menu.position)) {
-		normalized.position = menu.position;
-	}
+	assignSlug(normalized, menu.slug, namespaceSlug);
+	assignTitle(normalized, menu.title);
+	assignCapability(normalized, menu.capability);
+	assignParent(normalized, menu.parent, namespaceSlug);
+	assignPosition(normalized, menu.position);
 
 	return Object.keys(normalized).length > 0
 		? (normalized as IRUiMenuConfig)
 		: undefined;
+}
+
+function assignSlug(
+	target: MutableMenuConfig,
+	slug: unknown,
+	namespaceSlug: string
+): void {
+	if (typeof slug !== 'string' || slug.trim().length === 0) {
+		return;
+	}
+	const trimmed = slug.trim();
+	target.slug =
+		namespaceSlug &&
+		!trimmed.startsWith(`${namespaceSlug}-`) &&
+		trimmed !== namespaceSlug
+			? `${namespaceSlug}-${trimmed}`
+			: trimmed;
+}
+
+function assignTitle(target: MutableMenuConfig, title: unknown): void {
+	if (typeof title === 'string' && title.trim().length > 0) {
+		target.title = title.trim();
+	}
+}
+
+function assignCapability(
+	target: MutableMenuConfig,
+	capability: unknown
+): void {
+	if (typeof capability === 'string' && capability.trim().length > 0) {
+		target.capability = capability.trim();
+	}
+}
+
+function assignParent(
+	target: MutableMenuConfig,
+	parent: unknown,
+	namespaceSlug: string
+): void {
+	if (typeof parent !== 'string' || parent.trim().length === 0) {
+		return;
+	}
+	const trimmed = parent.trim();
+	target.parent =
+		namespaceSlug &&
+		!trimmed.startsWith(`${namespaceSlug}-`) &&
+		trimmed !== namespaceSlug
+			? `${namespaceSlug}-${trimmed}`
+			: trimmed;
+}
+
+function assignPosition(target: MutableMenuConfig, position: unknown): void {
+	if (typeof position === 'number' && Number.isFinite(position)) {
+		target.position = position;
+	}
 }

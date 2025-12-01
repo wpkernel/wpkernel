@@ -1,4 +1,4 @@
-import type { WPKernelConfigV1 } from '../../config/types';
+import { type WPKernelConfigV1 } from '../../config/types';
 
 const BASE_FEATURES = ['capabilityMap', 'phpAutoload'] as const;
 

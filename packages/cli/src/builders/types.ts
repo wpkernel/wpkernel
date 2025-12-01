@@ -2,7 +2,6 @@ import type { ResourceConfig } from '@wpkernel/core/resource';
 import type { Reporter } from '@wpkernel/core/reporter';
 import type { MaybePromise } from '@wpkernel/pipeline';
 import type { SourceFile, Project } from 'ts-morph';
-import type { WPKernelConfigV1 } from '../config';
 import type { IRResource, IRv1 } from '../ir';
 import type { Workspace } from '../workspace';
 import type { BuilderOutput } from '../runtime';
@@ -77,8 +76,6 @@ export interface TsBuilderCreatorContext {
 	readonly workspace: Workspace;
 	/** The resource descriptor for which artifacts are being created. */
 	readonly descriptor: ResourceDescriptor;
-	/** The full WPKernel configuration. */
-	readonly config: WPKernelConfigV1;
 	/** The source path of the configuration file. */
 	readonly sourcePath: string;
 	/** The Intermediate Representation (IR) of the project. */
@@ -181,7 +178,7 @@ export interface ResourceDescriptor {
 	/** The name of the resource. */
 	readonly name: string;
 	/** The configuration object for the resource. */
-	readonly config: ResourceConfig;
+	readonly resource: IRResource;
 	/** The admin dataviews configuration for the resource. */
 	readonly dataviews?: AdminDataViews;
 	/** Selected admin view implementation (e.g., 'dataviews'). */

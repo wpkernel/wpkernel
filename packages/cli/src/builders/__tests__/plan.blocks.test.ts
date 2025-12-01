@@ -11,6 +11,13 @@ import { makeIr } from '@cli-tests/ir.test-support';
 import { buildEmptyGenerationState } from '../../apply/manifest';
 import { loadTestLayoutSync } from '@wpkernel/test-utils/layout.test-support';
 
+const makeConfig = (namespace: string) => ({
+	version: 1,
+	namespace,
+	schemas: {},
+	resources: {},
+});
+
 function makeOptions(root: string) {
 	const workspace = buildWorkspace(root);
 	const reporter = {
@@ -21,6 +28,7 @@ function makeOptions(root: string) {
 	};
 	const layout = loadTestLayoutSync();
 	const ir = { ...makeIr(), layout };
+	const config = makeConfig(ir.meta.namespace);
 	const options = {
 		reporter,
 		options: {
@@ -28,8 +36,8 @@ function makeOptions(root: string) {
 			input: {
 				phase: 'generate' as const,
 				options: {
-					config: ir.config,
-					namespace: ir.meta.namespace,
+					config,
+					namespace: config.namespace,
 					origin: ir.meta.origin,
 					sourcePath: path.join(root, 'wpk.config.ts'),
 				},

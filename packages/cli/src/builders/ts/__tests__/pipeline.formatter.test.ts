@@ -1,7 +1,7 @@
-import { buildProject } from '../pipeline.builder';
-import { buildTsFormatter } from '../pipeline.formatter';
+import { buildProject } from '../utils';
+import { buildTsFormatter } from '../formatter';
 
-jest.mock('../pipeline.builder', () => ({
+jest.mock('../utils', () => ({
 	buildProject: jest.fn(() => ({
 		createSourceFile: jest.fn(() => ({
 			formatText: jest.fn(),

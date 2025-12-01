@@ -87,6 +87,8 @@ export function createPipeline(
 		'ir.schemas.core',
 		'ir.ordering.core',
 		'ir.bundler.core',
+		'ir.artifacts.plan',
+		'ir.ui.resources',
 	];
 
 	return createCorePipeline<

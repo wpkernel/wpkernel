@@ -1,7 +1,7 @@
 import path from 'node:path';
 import type { Workspace } from '../workspace/types';
 import type { IRBlock } from '../ir/publicTypes';
-import { buildBlockRegistrarMetadata } from './ts/shared.metadata';
+import { buildBlockRegistrarMetadata } from './ts/metadata';
 import type { BlockRegistrarMetadata } from './ts/types';
 import { resolveBlockPath, toWorkspaceRelative } from './shared.blocks.paths';
 import {

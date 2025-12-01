@@ -35,7 +35,7 @@ export function createTsConfigBuilder(): BuilderHelper {
 	return createHelper({
 		key: 'builder.generate.tsconfig',
 		kind: 'builder',
-		dependsOn: ['builder.generate.ts.core', 'ir.layout.core'],
+		dependsOn: ['ir.layout.core'],
 		async apply({ context, input, reporter }: BuilderApplyOptions) {
 			if (input.phase !== 'generate') {
 				return;

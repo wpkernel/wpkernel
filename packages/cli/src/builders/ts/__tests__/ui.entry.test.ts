@@ -1,5 +1,5 @@
 import path from 'node:path';
-import { createUiEntryBuilder } from '../ui.entry';
+import { createUiEntryBuilder } from '../ui-entry';
 import { makeWorkspaceMock } from '@cli-tests/workspace.test-support';
 import { loadTestLayoutSync } from '@wpkernel/test-utils/layout.test-support';
 import { makeResource } from '@cli-tests/builders/fixtures.test-support';
@@ -84,6 +84,93 @@ describe('createUiEntryBuilder', () => {
 								textDomain: 'demo',
 								author: 'WPKernel',
 								license: 'GPL-2.0-or-later',
+							},
+						},
+						artifacts: {
+							pluginLoader: undefined,
+							controllers: {},
+							resources: {
+								[resource.id]: {
+									modulePath: path.posix.join(
+										layout.resolve('ui.resources.applied'),
+										`${resource.name}.ts`
+									),
+									typeDefPath: path.posix.join(
+										layout.resolve('ui.generated'),
+										'types',
+										`${resource.name}.d.ts`
+									),
+									typeSource: 'inferred',
+									schemaKey: undefined,
+								},
+							},
+							uiResources: {
+								[resource.id]: {
+									appDir: path.posix.join(
+										layout.resolve('ui.applied'),
+										'app',
+										resource.name
+									),
+									generatedAppDir: path.posix.join(
+										layout.resolve('ui.generated'),
+										'app',
+										resource.name
+									),
+									pagePath: path.posix.join(
+										layout.resolve('ui.applied'),
+										'app',
+										resource.name,
+										'page.tsx'
+									),
+									formPath: path.posix.join(
+										layout.resolve('ui.applied'),
+										'app',
+										resource.name,
+										'form.tsx'
+									),
+									configPath: path.posix.join(
+										layout.resolve('ui.applied'),
+										'app',
+										resource.name,
+										'config.tsx'
+									),
+								},
+							},
+							blocks: {},
+							schemas: {},
+							js: {
+								capabilities: {
+									modulePath: path.posix.join(
+										layout.resolve('js.generated'),
+										'capabilities.ts'
+									),
+									declarationPath: path.posix.join(
+										layout.resolve('js.generated'),
+										'capabilities.d.ts'
+									),
+								},
+								index: {
+									modulePath: path.posix.join(
+										layout.resolve('js.generated'),
+										'index.ts'
+									),
+									declarationPath: path.posix.join(
+										layout.resolve('js.generated'),
+										'index.d.ts'
+									),
+								},
+								uiRuntimePath: path.posix.join(
+									layout.resolve('ui.generated'),
+									'runtime.ts'
+								),
+								uiEntryPath: path.posix.join(
+									layout.resolve('ui.generated'),
+									'index.tsx'
+								),
+								blocksRegistrarPath: path.posix.join(
+									layout.resolve('blocks.generated'),
+									'auto-register.ts'
+								),
 							},
 						},
 						config: {
@@ -189,9 +276,9 @@ describe('createUiEntryBuilder', () => {
 		expect(writeCall).toBeDefined();
 		const contents = writeCall?.[0]?.contents as string;
 		expect(contents).toContain('attachUIBindings');
-		expect(contents).toContain('dataviews: { enable: true }');
-		expect(contents).toContain('Object.entries(wpkConfig.resources ?? {})');
-		expect(contents).toContain('const dataviewConfigs = {');
-		expect(contents).toContain('render(<Screen />, container);');
+		expect(contents).toContain('configureWPKernel');
+		expect(contents).toContain('adminScreens');
+		expect(contents).toContain('jobsadminscreenRoute');
+		expect(contents).toContain('renderRoot');
 	});
 });
