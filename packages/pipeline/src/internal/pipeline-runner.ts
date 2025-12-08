@@ -1,13 +1,11 @@
-import { maybeThen, maybeTry, isPromiseLike } from '../async-utils.js';
+import { maybeThen } from '../async-utils.js';
 import {
 	createDependencyGraph,
 	type CreateDependencyGraphOptions,
 	type RegisteredHelper,
 } from '../dependency-graph.js';
-import { executeHelpers } from '../executor.js';
 import type {
 	HelperDescriptor,
-	HelperApplyOptions,
 	Helper,
 	HelperKind,
 	PipelineReporter,
@@ -17,18 +15,37 @@ import type {
 	PipelineExtensionRollbackErrorMetadata,
 	PipelineStep,
 	MaybePromise,
+	PipelineExecutionMetadata,
+	HelperExecutionSnapshot,
 } from '../types';
 import {
 	assertAllHelpersExecuted,
 	buildExecutionSnapshot,
 } from './helper-execution.js';
 import { initExtensionCoordinator } from './extension-coordinator';
-import { runRollbackStack, type PipelineRollback } from '../rollback.js';
 import type {
 	PipelineRunContext,
 	PipelineRunner,
 	PipelineRunnerDependencies,
+	PipelineState,
+	Halt,
+	RollbackEntry,
+	RollbackContext,
+	HelperRollbackPlan,
 } from './pipeline-runner.types';
+import type { ExtensionLifecycleState } from './extension-coordinator.types';
+import { composeK, type Program } from '../async-utils.js';
+import {
+	isHalt,
+	makeHelperStageFactory,
+	makeFinalizeFragmentsStage,
+	makeAfterFragmentsStage,
+	makeCommitStage,
+	makeFinalizeResultStage,
+	runRollbackToHalt,
+} from './pipeline-program-utils.js';
+
+const AFTER_FRAGMENTS: PipelineExtensionLifecycle = 'after-fragments';
 
 /**
  * Creates the orchestrator responsible for executing pipeline runs.
@@ -38,7 +55,7 @@ import type {
  * public {@link createPipeline} entry point remains focused on registration while the runner keeps
  * lifecycle sequencing isolated and testable.
  *
- * @param    dependencies
+ * @param    dependencies - Bundled factory methods, diagnostics, and registered helpers
  * @category Pipeline
  * @internal
  */
@@ -108,6 +125,33 @@ export function initPipelineRunner<
 	TFragmentHelper,
 	TBuilderHelper
 > {
+	type RunnerState = PipelineState<
+		TRunOptions,
+		TBuildOptions,
+		TContext,
+		TReporter,
+		TDraft,
+		TArtifact,
+		TDiagnostic,
+		TFragmentInput,
+		TFragmentOutput,
+		TBuilderInput,
+		TBuilderOutput,
+		TFragmentKind,
+		TBuilderKind,
+		TFragmentHelper,
+		TBuilderHelper
+	>;
+	type RunnerResult = RunnerState | Halt<TRunResult>;
+	type RunnerProgram = Program<RunnerResult>;
+	type BuilderRollbackEntry = RollbackEntry<TBuilderHelper>;
+	type FragmentRollbackEntry = RollbackEntry<TFragmentHelper>;
+
+	const halt = (error?: unknown): Halt<TRunResult> => ({
+		__halt: true,
+		error,
+	});
+
 	const prepareContext = (
 		runOptions: TRunOptions
 	): PipelineRunContext<
@@ -285,6 +329,388 @@ export function initPipelineRunner<
 		>;
 	};
 
+	const withFragmentExecution = (
+		nextState: RunnerState,
+		fragmentVisited: Set<string>,
+		fragmentRollbacks: FragmentRollbackEntry[]
+	): RunnerState => {
+		dependencies.diagnosticManager.reviewUnusedHelpers(
+			nextState.fragmentEntries,
+			fragmentVisited,
+			dependencies.fragmentKind
+		);
+
+		const fragmentExecution = buildExecutionSnapshot(
+			nextState.fragmentEntries,
+			fragmentVisited,
+			dependencies.fragmentKind
+		);
+
+		assertAllHelpersExecuted(
+			nextState.fragmentEntries,
+			fragmentExecution,
+			dependencies.fragmentKind,
+			dependencies.diagnosticManager.describeHelper,
+			dependencies.createError
+		);
+
+		return {
+			...nextState,
+			fragmentVisited,
+			fragmentExecution,
+			fragmentRollbacks,
+		};
+	};
+
+	const withBuilderExecution = (
+		nextState: RunnerState,
+		builderVisited: Set<string>,
+		builderRollbacks: BuilderRollbackEntry[]
+	): RunnerState => {
+		dependencies.diagnosticManager.reviewUnusedHelpers(
+			nextState.builderEntries,
+			builderVisited,
+			dependencies.builderKind
+		);
+
+		const builderExecution = buildExecutionSnapshot(
+			nextState.builderEntries,
+			builderVisited,
+			dependencies.builderKind
+		);
+
+		assertAllHelpersExecuted(
+			nextState.builderEntries,
+			builderExecution,
+			dependencies.builderKind,
+			dependencies.diagnosticManager.describeHelper,
+			dependencies.createError
+		);
+
+		return {
+			...nextState,
+			builderVisited,
+			builderExecution,
+			builderRollbacks,
+		};
+	};
+
+	const toFragmentArgs = (
+		state: RunnerState,
+		entry: RegisteredHelper<TFragmentHelper>
+	) =>
+		dependencies.options.createFragmentArgs({
+			helper: entry.helper,
+			options: state.runOptions,
+			context: state.context,
+			buildOptions: state.buildOptions,
+			draft: state.draft,
+		});
+
+	const toBuilderArgs = (
+		state: RunnerState,
+		entry: RegisteredHelper<TBuilderHelper>
+	) =>
+		dependencies.options.createBuilderArgs({
+			helper: entry.helper,
+			options: state.runOptions,
+			context: state.context,
+			buildOptions: state.buildOptions,
+			artifact: state.artifact as TArtifact,
+		});
+
+	const makeFragmentArgs =
+		(state: RunnerState) => (entry: RegisteredHelper<TFragmentHelper>) =>
+			toFragmentArgs(state, entry);
+
+	const makeBuilderArgs =
+		(state: RunnerState) => (entry: RegisteredHelper<TBuilderHelper>) =>
+			toBuilderArgs(state, entry);
+
+	const readFragmentRollbacks = (state: RunnerState) =>
+		state.fragmentRollbacks;
+	const readBuilderRollbacks = (state: RunnerState) =>
+		state.builderRollbacks ?? [];
+
+	const toRollbackContext = (
+		state: RunnerState
+	): RollbackContext<TContext, TRunOptions, TArtifact> => ({
+		context: state.context,
+		extensionCoordinator: state.extensionCoordinator,
+		extensionState: state.extensionState,
+	});
+
+	const snapshotFragmentExecution = (
+		state: RunnerState
+	): HelperExecutionSnapshot<TFragmentKind> =>
+		state.fragmentExecution ??
+		buildExecutionSnapshot(
+			state.fragmentEntries,
+			state.fragmentVisited,
+			dependencies.fragmentKind
+		);
+
+	const commitExtensions = (state: RunnerState): MaybePromise<void> => {
+		const { extensionCoordinator, extensionState } = state;
+
+		if (!extensionCoordinator || !extensionState) {
+			return;
+		}
+
+		return extensionCoordinator.commit(extensionState);
+	};
+
+	const toBuilderRollbackPlan = (
+		state: RunnerState
+	): HelperRollbackPlan<
+		TContext,
+		TRunOptions,
+		TArtifact,
+		TBuilderHelper
+	> => ({
+		context: state.context,
+		rollbackContext: toRollbackContext(state),
+		helperRollbacks: state.builderRollbacks ?? [],
+		onHelperRollbackError: dependencies.options.onHelperRollbackError as
+			| ((options: {
+					readonly error: unknown;
+					readonly helper: TBuilderHelper;
+					readonly errorMetadata: PipelineExtensionRollbackErrorMetadata;
+					readonly context: TContext;
+			  }) => void)
+			| undefined,
+	});
+
+	const rollbackBuildersToHalt = (
+		state: RunnerState,
+		error: unknown
+	): MaybePromise<Halt<TRunResult>> =>
+		runRollbackToHalt(
+			{
+				rollbackPlan: toBuilderRollbackPlan(state),
+				halt,
+			},
+			error
+		);
+
+	const executeAfterFragments =
+		(
+			runContext: PipelineRunContext<
+				TRunOptions,
+				TBuildOptions,
+				TContext,
+				TDraft,
+				TArtifact,
+				TFragmentHelper,
+				TBuilderHelper
+			>
+		) =>
+		(state: RunnerState): MaybePromise<RunnerState> => {
+			const extensionCoordinator = initExtensionCoordinator<
+				TContext,
+				TRunOptions,
+				TArtifact
+			>(({ error, extensionKeys, hookSequence, errorMetadata }) =>
+				runContext.handleRollbackError({
+					error,
+					extensionKeys,
+					hookSequence,
+					errorMetadata,
+					context: state.context,
+				})
+			);
+
+			const extensionLifecycleState = extensionCoordinator.runLifecycle(
+				AFTER_FRAGMENTS,
+				{
+					hooks: dependencies.extensionHooks,
+					hookOptions: runContext.buildHookOptions(
+						state.artifact as TArtifact,
+						AFTER_FRAGMENTS
+					),
+				}
+			);
+
+			return maybeThen(
+				extensionLifecycleState,
+				(
+					extensionState: ExtensionLifecycleState<
+						TContext,
+						TRunOptions,
+						TArtifact
+					>
+				) => ({
+					...state,
+					artifact: extensionState.artifact,
+					extensionCoordinator,
+					extensionState,
+				})
+			);
+		};
+
+	const snapshotHelpers = (
+		state: RunnerState
+	): PipelineExecutionMetadata<TFragmentKind, TBuilderKind> =>
+		state.helpers ??
+		({
+			fragments:
+				state.fragmentExecution ??
+				buildExecutionSnapshot(
+					state.fragmentEntries,
+					state.fragmentVisited,
+					dependencies.fragmentKind
+				),
+			builders:
+				state.builderExecution ??
+				buildExecutionSnapshot(
+					state.builderEntries,
+					state.builderVisited,
+					dependencies.builderKind
+				),
+		} satisfies PipelineExecutionMetadata<TFragmentKind, TBuilderKind>);
+
+	const finalizeState = (state: RunnerState): RunnerState => ({
+		...state,
+		helpers: snapshotHelpers(state),
+		diagnostics: [
+			...dependencies.diagnosticManager.readDiagnostics(),
+		] as TDiagnostic[],
+	});
+
+	const finalizeFragmentsProgram: RunnerProgram = makeFinalizeFragmentsStage<
+		RunnerState,
+		Halt<TRunResult>,
+		HelperExecutionSnapshot<TFragmentKind>
+	>({
+		isHalt,
+		snapshotFragments: snapshotFragmentExecution,
+		applyArtifact: (state, fragmentsExecution) => ({
+			...state,
+			artifact: dependencies.options.finalizeFragmentState({
+				draft: state.draft,
+				options: state.runOptions,
+				context: state.context,
+				buildOptions: state.buildOptions,
+				helpers: {
+					fragments: fragmentsExecution,
+				},
+			}),
+			fragmentExecution: fragmentsExecution,
+		}),
+	});
+
+	const makeAfterFragmentsProgram = (
+		runContext: PipelineRunContext<
+			TRunOptions,
+			TBuildOptions,
+			TContext,
+			TDraft,
+			TArtifact,
+			TFragmentHelper,
+			TBuilderHelper
+		>
+	): RunnerProgram =>
+		makeAfterFragmentsStage<RunnerState, Halt<TRunResult>>({
+			isHalt,
+			execute: executeAfterFragments(runContext),
+		});
+
+	const commitProgram: RunnerProgram = makeCommitStage<
+		RunnerState,
+		Halt<TRunResult>
+	>({
+		isHalt,
+		commit: commitExtensions,
+		rollbackToHalt: rollbackBuildersToHalt,
+	});
+
+	const finalizeResultProgram: RunnerProgram = makeFinalizeResultStage<
+		RunnerState,
+		Halt<TRunResult>
+	>({
+		isHalt,
+		finalize: finalizeState,
+	});
+
+	const fragmentStageSpec = {
+		getOrder: (state: RunnerState) => state.fragmentOrder,
+		makeArgs: makeFragmentArgs,
+		onVisited: (
+			state: RunnerState,
+			fragmentVisited: Set<string>,
+			fragmentRollbacks: FragmentRollbackEntry[]
+		): RunnerState =>
+			withFragmentExecution(state, fragmentVisited, fragmentRollbacks),
+		readRollbacks: readFragmentRollbacks,
+	};
+
+	const builderStageSpec = {
+		getOrder: (state: RunnerState) => state.builderOrder,
+		makeArgs: makeBuilderArgs,
+		onVisited: (
+			state: RunnerState,
+			builderVisited: Set<string>,
+			builderRollbacks: BuilderRollbackEntry[]
+		): RunnerState =>
+			withBuilderExecution(state, builderVisited, builderRollbacks),
+		readRollbacks: readBuilderRollbacks,
+	};
+
+	const createCoreProgram = (
+		runContext: PipelineRunContext<
+			TRunOptions,
+			TBuildOptions,
+			TContext,
+			TDraft,
+			TArtifact,
+			TFragmentHelper,
+			TBuilderHelper
+		>
+	): RunnerProgram => {
+		const makeStage = makeHelperStageFactory<
+			RunnerState,
+			TRunResult,
+			TContext,
+			TRunOptions,
+			TArtifact,
+			TReporter
+		>({
+			pushStep: runContext.pushStep,
+			toRollbackContext,
+			halt,
+			isHalt,
+			onHelperRollbackError: dependencies.options
+				.onHelperRollbackError as
+				| ((options: {
+						readonly error: unknown;
+						readonly helper: Helper<
+							TContext,
+							unknown,
+							unknown,
+							TReporter,
+							HelperKind
+						>;
+						readonly errorMetadata: PipelineExtensionRollbackErrorMetadata;
+						readonly context: TContext;
+				  }) => void)
+				| undefined,
+		});
+
+		const fragmentProgram: RunnerProgram = makeStage(fragmentStageSpec);
+		const builderProgram: RunnerProgram = makeStage(builderStageSpec);
+
+		const programs: RunnerProgram[] = [
+			finalizeResultProgram,
+			commitProgram,
+			builderProgram,
+			makeAfterFragmentsProgram(runContext),
+			finalizeFragmentsProgram,
+			fragmentProgram,
+		];
+
+		return composeK(...programs);
+	};
+
 	const executeRun = (
 		runContext: PipelineRunContext<
 			TRunOptions,
@@ -296,297 +722,52 @@ export function initPipelineRunner<
 			TBuilderHelper
 		>
 	): MaybePromise<TRunResult> => {
-		const {
-			runOptions,
-			buildOptions,
-			context,
-			draft,
-			fragmentOrder,
-			steps,
-			pushStep,
-			builderGraphOptions,
-			buildHookOptions,
-			handleRollbackError,
-		} = runContext;
-
-		let builderExecutionSnapshot = buildExecutionSnapshot(
+		const builderOrder = createDependencyGraph(
 			dependencies.builderEntries,
-			new Set<string>(),
-			dependencies.builderKind
-		);
+			runContext.builderGraphOptions,
+			dependencies.createError
+		).order;
 
-		const fragmentVisited = executeHelpers<
-			TContext,
-			TFragmentInput,
-			TFragmentOutput,
-			TReporter,
-			TFragmentKind,
-			TFragmentHelper,
-			HelperApplyOptions<
-				TContext,
-				TFragmentInput,
-				TFragmentOutput,
-				TReporter
-			>
-		>(
-			fragmentOrder,
-			(entry) =>
-				dependencies.options.createFragmentArgs({
-					helper: entry.helper,
-					options: runOptions,
-					context,
-					buildOptions,
-					draft,
-				}),
-			(helper, args, next) => {
-				const result = helper.apply(args, next);
-				if (isPromiseLike(result)) {
-					// ignore HelperApplyResult, just wait for completion
-					return result.then(() => undefined);
-				}
-				return undefined;
-			},
-			(entry) => pushStep(entry)
-		);
+		const initialState: RunnerState = {
+			context: runContext.context,
+			reporter: runContext.context.reporter,
+			runOptions: runContext.runOptions,
+			buildOptions: runContext.buildOptions,
+			fragmentEntries: dependencies.fragmentEntries,
+			builderEntries: dependencies.builderEntries,
+			fragmentOrder: runContext.fragmentOrder,
+			builderOrder,
+			fragmentVisited: new Set(),
+			builderVisited: new Set(),
+			draft: runContext.draft,
+			artifact: null,
+			steps: runContext.steps,
+			diagnostics: [],
+			fragmentRollbacks: [],
+			builderRollbacks: [],
+		};
 
-		return maybeThen(fragmentVisited, (fragmentVisitedSet) => {
-			dependencies.diagnosticManager.reviewUnusedHelpers(
-				dependencies.fragmentEntries,
-				fragmentVisitedSet,
-				dependencies.fragmentKind
-			);
+		const coreProgram = createCoreProgram(runContext);
+		const toRunResult = (state: RunnerResult): MaybePromise<TRunResult> => {
+			if (isHalt<TRunResult>(state)) {
+				throw state.error ?? new Error('Pipeline halted');
+			}
 
-			const fragmentExecution = buildExecutionSnapshot(
-				dependencies.fragmentEntries,
-				fragmentVisitedSet,
-				dependencies.fragmentKind
-			);
-
-			assertAllHelpersExecuted(
-				dependencies.fragmentEntries,
-				fragmentExecution,
-				dependencies.fragmentKind,
-				dependencies.diagnosticManager.describeHelper,
-				dependencies.createError
-			);
-
-			let artifact = dependencies.options.finalizeFragmentState({
-				draft,
-				options: runOptions,
-				context,
-				buildOptions,
-				helpers: { fragments: fragmentExecution },
+			return dependencies.resolveRunResult({
+				artifact: state.artifact as TArtifact,
+				diagnostics: state.diagnostics,
+				steps: state.steps,
+				context: state.context,
+				buildOptions: state.buildOptions,
+				options: state.runOptions,
+				helpers: state.helpers as PipelineExecutionMetadata<
+					TFragmentKind,
+					TBuilderKind
+				>,
 			});
+		};
 
-			const builderOrder = createDependencyGraph(
-				dependencies.builderEntries,
-				builderGraphOptions,
-				dependencies.createError
-			).order;
-
-			const extensionCoordinator = initExtensionCoordinator<
-				TContext,
-				TRunOptions,
-				TArtifact
-			>(({ error, extensionKeys, hookSequence, errorMetadata }) =>
-				handleRollbackError({
-					error,
-					extensionKeys,
-					hookSequence,
-					errorMetadata,
-					context,
-				})
-			);
-			const extensionLifecycle: PipelineExtensionLifecycle =
-				'after-fragments';
-			const extensionResult = extensionCoordinator.runLifecycle(
-				extensionLifecycle,
-				{
-					hooks: dependencies.extensionHooks,
-					hookOptions: buildHookOptions(artifact, extensionLifecycle),
-				}
-			);
-
-			return maybeThen(extensionResult, (extensionState) => {
-				artifact = extensionState.artifact;
-				const builderRollbacks: Array<{
-					helper: TBuilderHelper;
-					rollback: PipelineRollback;
-				}> = [];
-
-				const registerBuilderRollback = (
-					helper: TBuilderHelper,
-					result: unknown
-				): void => {
-					if (
-						!result ||
-						typeof result !== 'object' ||
-						!('rollback' in result)
-					) {
-						return;
-					}
-					const descriptor = (
-						result as { rollback?: PipelineRollback }
-					).rollback;
-					if (!descriptor) {
-						return;
-					}
-					builderRollbacks.push({ helper, rollback: descriptor });
-				};
-
-				// Create a wrapped rollback handler that also executes helper rollbacks
-				const createHelperAwareRollbackHandler = <T>(): ((
-					error: unknown
-				) => MaybePromise<T>) => {
-					const extensionHandler =
-						extensionCoordinator.createRollbackHandler<T>(
-							extensionState
-						);
-
-					return (error: unknown): MaybePromise<T> => {
-						// First run helper rollbacks, then extension rollbacks
-						return maybeThen(
-							runRollbackStack(
-								builderRollbacks.map((entry) => ({
-									...entry.rollback,
-									key: entry.helper.key,
-								})),
-								{
-									source: 'helper',
-									onError: ({
-										error: rbError,
-										metadata,
-										entry: rollbackEntry,
-									}) => {
-										const helperEntry =
-											builderRollbacks.find(
-												(h) =>
-													h.helper.key ===
-													(rollbackEntry.key ?? '')
-											);
-										if (helperEntry) {
-											dependencies.options.onHelperRollbackError?.(
-												{
-													error: rbError,
-													helper: helperEntry.helper,
-													errorMetadata: metadata,
-													context,
-												}
-											);
-										}
-									},
-								}
-							),
-							() => extensionHandler(error)
-						);
-					};
-				};
-
-				const handleRunFailure =
-					createHelperAwareRollbackHandler<TRunResult>();
-				const handleCommitFailure =
-					createHelperAwareRollbackHandler<void>();
-
-				const handleBuilderVisited = (
-					builderVisited: Set<string>
-				): MaybePromise<TRunResult> => {
-					dependencies.diagnosticManager.reviewUnusedHelpers(
-						dependencies.builderEntries,
-						builderVisited,
-						dependencies.builderKind
-					);
-
-					const builderExecution = buildExecutionSnapshot(
-						dependencies.builderEntries,
-						builderVisited,
-						dependencies.builderKind
-					);
-
-					assertAllHelpersExecuted(
-						dependencies.builderEntries,
-						builderExecution,
-						dependencies.builderKind,
-						dependencies.diagnosticManager.describeHelper,
-						dependencies.createError
-					);
-
-					builderExecutionSnapshot = builderExecution;
-
-					const finalizeRun = () =>
-						dependencies.resolveRunResult({
-							artifact,
-							diagnostics: [
-								...dependencies.diagnosticManager.readDiagnostics(),
-							],
-							steps,
-							context,
-							buildOptions,
-							options: runOptions,
-							helpers: {
-								fragments: fragmentExecution,
-								builders: builderExecutionSnapshot,
-							},
-						});
-
-					const commitAndFinalize = (): MaybePromise<TRunResult> =>
-						maybeThen(
-							maybeTry(
-								() =>
-									extensionCoordinator.commit(extensionState),
-								handleCommitFailure
-							),
-							finalizeRun
-						);
-
-					return commitAndFinalize();
-				};
-
-				const runBuilders = (): MaybePromise<TRunResult> => {
-					const run = executeHelpers<
-						TContext,
-						TBuilderInput,
-						TBuilderOutput,
-						TReporter,
-						TBuilderKind,
-						TBuilderHelper,
-						HelperApplyOptions<
-							TContext,
-							TBuilderInput,
-							TBuilderOutput,
-							TReporter
-						>
-					>(
-						builderOrder,
-						(entry) =>
-							dependencies.options.createBuilderArgs({
-								helper: entry.helper,
-								options: runOptions,
-								context,
-								buildOptions,
-								artifact,
-							}),
-						(helper, args, next) => {
-							const result = helper.apply(args, next);
-
-							if (isPromiseLike(result)) {
-								return result.then((resolved) => {
-									registerBuilderRollback(helper, resolved);
-									return undefined;
-								});
-							}
-
-							registerBuilderRollback(helper, result);
-							return undefined;
-						},
-						(entry) => pushStep(entry)
-					);
-
-					return maybeThen(run, handleBuilderVisited);
-				};
-
-				return maybeTry(runBuilders, handleRunFailure);
-			});
-		});
+		return maybeThen(coreProgram(initialState), toRunResult);
 	};
 
 	return {

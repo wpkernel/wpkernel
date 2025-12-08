@@ -121,3 +121,26 @@ export function processSequentially<T>(
 
 	return iterate(start);
 }
+
+/**
+ * A small abstraction representing a state transformer that may be async.
+ *
+ * @internal
+ */
+
+export type Program<S> = (state: S) => MaybePromise<S>;
+/**
+ * Right-to-left composition for {@link Program} functions that short-circuits
+ * on promises while preserving synchronous execution when possible.
+ *
+ * @param {...any} fns
+ * @internal
+ */
+
+export const composeK =
+	<S>(...fns: Program<S>[]): Program<S> =>
+	(initial: S) =>
+		fns.reduceRight(
+			(acc, fn) => maybeThen(acc, fn),
+			initial as MaybePromise<S>
+		);

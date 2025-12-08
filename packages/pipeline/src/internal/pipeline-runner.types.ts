@@ -7,6 +7,7 @@ import type {
 	CreatePipelineOptions,
 	Helper,
 	HelperApplyOptions,
+	HelperExecutionSnapshot,
 	HelperKind,
 	MaybePromise,
 	PipelineDiagnostic,
@@ -17,6 +18,11 @@ import type {
 	PipelineReporter,
 	PipelineStep,
 } from '../types';
+import type { PipelineRollback } from '../rollback';
+import type {
+	ExtensionCoordinator,
+	ExtensionLifecycleState,
+} from './extension-coordinator.types';
 import type { DiagnosticManager } from './diagnostic-manager.types';
 import type { ExtensionHookEntry } from '../extensions';
 
@@ -221,4 +227,163 @@ export interface PipelineRunner<
 	};
 }
 
+/**
+ * Closed-world state threaded through composed pipeline programs. While the implementation still
+ * mutates some nested values (e.g. `steps`), every program returns a new state value to keep the
+ * orchestrator closed under composition.
+ *
+ * @category Pipeline
+ * @internal
+ */
+export interface PipelineState<
+	TRunOptions,
+	TBuildOptions,
+	TContext extends { reporter: TReporter },
+	TReporter extends PipelineReporter,
+	TDraft,
+	TArtifact,
+	TDiagnostic extends PipelineDiagnostic,
+	TFragmentInput,
+	TFragmentOutput,
+	TBuilderInput,
+	TBuilderOutput,
+	TFragmentKind extends HelperKind,
+	TBuilderKind extends HelperKind,
+	TFragmentHelper extends Helper<
+		TContext,
+		TFragmentInput,
+		TFragmentOutput,
+		TReporter,
+		TFragmentKind
+	>,
+	TBuilderHelper extends Helper<
+		TContext,
+		TBuilderInput,
+		TBuilderOutput,
+		TReporter,
+		TBuilderKind
+	>,
+> {
+	readonly context: TContext;
+	readonly reporter: TReporter;
+	readonly runOptions: TRunOptions;
+	readonly buildOptions: TBuildOptions;
+	readonly fragmentEntries: RegisteredHelper<TFragmentHelper>[];
+	readonly builderEntries: RegisteredHelper<TBuilderHelper>[];
+	readonly fragmentOrder: RegisteredHelper<TFragmentHelper>[];
+	readonly builderOrder: RegisteredHelper<TBuilderHelper>[];
+	readonly fragmentVisited: Set<string>;
+	readonly builderVisited: Set<string>;
+	readonly draft: TDraft;
+	readonly artifact: TArtifact | null;
+	readonly steps: PipelineStep[];
+	readonly diagnostics: TDiagnostic[];
+	readonly fragmentExecution?: HelperExecutionSnapshot<TFragmentKind>;
+	readonly builderExecution?: HelperExecutionSnapshot<TBuilderKind>;
+	readonly helpers?: PipelineExecutionMetadata<TFragmentKind, TBuilderKind>;
+	readonly fragmentRollbacks?: Array<{
+		readonly helper: TFragmentHelper;
+		readonly rollback: PipelineRollback;
+	}>;
+	readonly builderRollbacks?: Array<{
+		readonly helper: TBuilderHelper;
+		readonly rollback: PipelineRollback;
+	}>;
+	readonly extensionCoordinator?: ExtensionCoordinator<
+		TContext,
+		TRunOptions,
+		TArtifact
+	>;
+	readonly extensionState?: ExtensionLifecycleState<
+		TContext,
+		TRunOptions,
+		TArtifact
+	>;
+}
+
 export type { ExtensionHookEntry };
+export type RollbackCapableCoordinator<TContext, TOptions, TArtifact> = {
+	createRollbackHandler: <TResult>(
+		state: ExtensionLifecycleState<TContext, TOptions, TArtifact>
+	) => (error: unknown) => MaybePromise<TResult>;
+};
+
+export type RollbackEntry<THelper> = {
+	readonly helper: THelper;
+	readonly rollback: PipelineRollback;
+};
+
+export type Halt<TRunResult> = {
+	readonly __halt: true;
+	readonly error?: unknown;
+	readonly result?: TRunResult;
+};
+export type RollbackContext<TContext, TOptions, TArtifact> = {
+	readonly context: TContext;
+	readonly extensionCoordinator?: RollbackCapableCoordinator<
+		TContext,
+		TOptions,
+		TArtifact
+	>;
+	readonly extensionState?: ExtensionLifecycleState<
+		TContext,
+		TOptions,
+		TArtifact
+	>;
+};
+export type HelperInvokeOptions<
+	THelper,
+	TInput,
+	TOutput,
+	TContext,
+	TReporter extends PipelineReporter,
+> = {
+	readonly helper: THelper;
+	readonly args: HelperApplyOptions<TContext, TInput, TOutput, TReporter>;
+	readonly next: () => MaybePromise<void>;
+};
+
+export type StageEnv<
+	TState,
+	TRunResult,
+	TContext,
+	TOptions,
+	TArtifact,
+	TReporter extends PipelineReporter,
+> = {
+	pushStep: (entry: RegisteredHelper<unknown>) => void;
+	toRollbackContext: (
+		state: TState
+	) => RollbackContext<TContext, TOptions, TArtifact>;
+	halt: (error?: unknown) => Halt<TRunResult>;
+	isHalt: (value: unknown) => value is Halt<TRunResult>;
+	onHelperRollbackError?: (options: {
+		readonly error: unknown;
+		readonly helper: Helper<
+			TContext,
+			unknown,
+			unknown,
+			TReporter,
+			HelperKind
+		>;
+		readonly errorMetadata: PipelineExtensionRollbackErrorMetadata;
+		readonly context: TContext;
+	}) => void;
+};
+
+export type HelperRollbackPlan<
+	TContext,
+	TOptions,
+	TArtifact,
+	THelper extends { key: string },
+> = {
+	readonly context: TContext;
+	readonly rollbackContext: RollbackContext<TContext, TOptions, TArtifact>;
+	readonly helperRollbacks: readonly RollbackEntry<THelper>[];
+	readonly onHelperRollbackError?: (options: {
+		readonly error: unknown;
+		readonly helper: THelper;
+		readonly errorMetadata: PipelineExtensionRollbackErrorMetadata;
+		readonly context: TContext;
+	}) => void;
+};
