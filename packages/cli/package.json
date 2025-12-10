@@ -80,7 +80,7 @@
 		"format": "prettier --write 'src/**/*.{js,ts,tsx,json,md}'",
 		"format:check": "prettier --check 'src/**/*.{js,ts,tsx,json,md}'",
 		"typecheck": "tsc --noEmit",
-		"typecheck:tests": "wpk-run-typecheck-tests tsconfig.tests.typecheck.json tests/tsconfig.json",
+		"typecheck:tests": "wpk-run-typecheck-tests tests/tsconfig.json tsconfig.tests.typecheck.json",
 		"test": "wpk-run-jest",
 		"test:watch": "wpk-run-jest --watch",
 		"test:coverage": "wpk-run-jest coverage",

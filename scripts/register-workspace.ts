@@ -32,23 +32,23 @@ export interface RemoveWorkspaceOptions {
 
 type CliArguments =
 	| {
-			readonly command: 'create';
-			readonly target: string | null;
-			readonly dependenciesToAdd: readonly string[];
-	  }
+		readonly command: 'create';
+		readonly target: string | null;
+		readonly dependenciesToAdd: readonly string[];
+	}
 	| {
-			readonly command: 'update';
-			readonly target: string | null;
-			readonly dependenciesToAdd: readonly string[];
-			readonly dependenciesToRemove: readonly string[];
-	  }
+		readonly command: 'update';
+		readonly target: string | null;
+		readonly dependenciesToAdd: readonly string[];
+		readonly dependenciesToRemove: readonly string[];
+	}
 	| {
-			readonly command: 'remove';
-			readonly target: string | null;
-	  }
+		readonly command: 'remove';
+		readonly target: string | null;
+	}
 	| {
-			readonly command: 'help';
-	  };
+		readonly command: 'help';
+	};
 
 type WorkspaceKind = 'package' | 'example';
 
@@ -130,8 +130,7 @@ function assertWorkspacePathWithinRepo(
 	if (!isWorkspacePathWithinRepo(repoRoot, targetDir)) {
 		const relative = ensurePosix(path.relative(repoRoot, targetDir));
 		throw new Error(
-			`Workspace path must resolve within the repository's packages/ or examples/ directories. Received "${
-				relative || targetDir
+			`Workspace path must resolve within the repository's packages/ or examples/ directories. Received "${relative || targetDir
 			}".`
 		);
 	}
@@ -942,12 +941,12 @@ function scaffoldPackage(
 		...(kind === 'example'
 			? { private: true }
 			: {
-					publishConfig: {
-						access: 'public',
-						registry: 'https://registry.npmjs.org/',
-						tag: 'beta',
-					},
-				}),
+				publishConfig: {
+					access: 'public',
+					registry: 'https://registry.npmjs.org/',
+					tag: 'beta',
+				},
+			}),
 		main: './dist/index.js',
 		module: './dist/index.js',
 		types: './dist/index.d.ts',
@@ -1368,7 +1367,7 @@ function main(): void {
 
 const invokedFromCommandLine = Boolean(
 	process.argv[1] &&
-		path.basename(process.argv[1]).includes('register-workspace')
+	path.basename(process.argv[1]).includes('register-workspace')
 );
 
 if (invokedFromCommandLine) {
