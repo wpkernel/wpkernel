@@ -1,13 +1,31 @@
 import path from 'node:path';
 import { EnvironmentalError } from '@wpkernel/core/error';
-import { createReleasePackReadinessHelper } from '../releasePack';
+import {
+	createReleasePackReadinessHelper,
+	type ReleasePackDependencies,
+} from '../releasePack';
 import {
 	createReadinessTestContext,
 	makeNoEntry,
 } from '@cli-tests/readiness.test-support';
+import {
+	makePromiseWithChild,
+	makeRejectedPromiseWithChild,
+} from '@cli-tests/dx/quickstart.test-support';
 
 const repoRoot = '/repo';
 const projectRoot = path.join(repoRoot, 'packages', 'cli');
+
+function createAccessMock(
+	handler: (targetPath: string) => Promise<void>
+): jest.MockedFunction<ReleasePackDependencies['access']> {
+	return jest.fn(
+		async (...args: Parameters<ReleasePackDependencies['access']>) => {
+			const [target] = args;
+			await handler(String(target));
+		}
+	) as jest.MockedFunction<ReleasePackDependencies['access']>;
+}
 const manifest = [
 	{
 		packageName: '@wpkernel/example',
@@ -27,26 +45,29 @@ function createContext() {
 
 describe('createReleasePackReadinessHelper', () => {
 	it('reports ready when all artefacts exist', async () => {
-		const access = jest.fn(async (target: string) => {
-			if (target === path.join(repoRoot, 'pnpm-workspace.yaml')) {
-				return undefined;
+		const access = createAccessMock(async (targetPath) => {
+			if (targetPath === path.join(repoRoot, 'pnpm-workspace.yaml')) {
+				return;
 			}
 
 			if (
-				target ===
+				targetPath ===
 				path.join(repoRoot, 'packages', 'example', 'dist', 'index.js')
 			) {
-				return undefined;
+				return;
 			}
 
-			throw makeNoEntry(target);
+			throw makeNoEntry(targetPath);
 		});
+		const exec = jest.fn((_file, _args, _options) =>
+			makePromiseWithChild({ stdout: '', stderr: '' })
+		) as unknown as jest.MockedFunction<ReleasePackDependencies['exec']>;
 
 		const helper = createReleasePackReadinessHelper({
 			manifest,
 			dependencies: {
 				access,
-				exec: jest.fn(),
+				exec,
 			},
 		});
 
@@ -64,28 +85,29 @@ describe('createReleasePackReadinessHelper', () => {
 
 	it('rebuilds missing artefacts and confirms readiness', async () => {
 		let built = false;
-		const access = jest.fn(async (target: string) => {
-			if (target === path.join(repoRoot, 'pnpm-workspace.yaml')) {
-				return undefined;
+		const access = createAccessMock(async (targetPath) => {
+			if (targetPath === path.join(repoRoot, 'pnpm-workspace.yaml')) {
+				return;
 			}
 
 			if (
-				target ===
+				targetPath ===
 				path.join(repoRoot, 'packages', 'example', 'dist', 'index.js')
 			) {
 				if (built) {
-					return undefined;
+					return;
 				}
 
-				throw makeNoEntry(target);
+				throw makeNoEntry(targetPath);
 			}
 
-			throw makeNoEntry(target);
+			throw makeNoEntry(targetPath);
 		});
 
-		const exec = jest.fn(async () => {
+		const exec = jest.fn((_file, _args, _options) => {
 			built = true;
-		});
+			return makePromiseWithChild({ stdout: '', stderr: '' });
+		}) as unknown as jest.MockedFunction<ReleasePackDependencies['exec']>;
 
 		const helper = createReleasePackReadinessHelper({
 			manifest,
@@ -127,8 +149,12 @@ describe('createReleasePackReadinessHelper', () => {
 		const helper = createReleasePackReadinessHelper({
 			manifest,
 			dependencies: {
-				access,
-				exec: jest.fn(),
+				access: access as unknown as ReleasePackDependencies['access'],
+				exec: jest.fn((_file, _args, _options) =>
+					makePromiseWithChild({ stdout: '', stderr: '' })
+				) as unknown as jest.MockedFunction<
+					ReleasePackDependencies['exec']
+				>,
 			},
 		});
 
@@ -147,24 +173,24 @@ describe('createReleasePackReadinessHelper', () => {
 	});
 
 	it('surfaces build failures when rebuild fails', async () => {
-		const access = jest.fn(async (target: string) => {
-			if (target === path.join(repoRoot, 'pnpm-workspace.yaml')) {
-				return undefined;
+		const access = createAccessMock(async (targetPath) => {
+			if (targetPath === path.join(repoRoot, 'pnpm-workspace.yaml')) {
+				return;
 			}
 
 			if (
-				target ===
+				targetPath ===
 				path.join(repoRoot, 'packages', 'example', 'dist', 'index.js')
 			) {
-				throw makeNoEntry(target);
+				throw makeNoEntry(targetPath);
 			}
 
-			throw makeNoEntry(target);
+			throw makeNoEntry(targetPath);
 		});
 
-		const exec = jest.fn(async () => {
-			throw new Error('boom');
-		});
+		const exec = jest.fn(() =>
+			makeRejectedPromiseWithChild(new Error('boom'))
+		);
 
 		const helper = createReleasePackReadinessHelper({
 			manifest,
@@ -183,19 +209,19 @@ describe('createReleasePackReadinessHelper', () => {
 	});
 
 	it('skips rebuilding when artefacts already exist', async () => {
-		const access = jest.fn(async (target: string) => {
-			if (target === path.join(repoRoot, 'pnpm-workspace.yaml')) {
-				return undefined;
+		const access = createAccessMock(async (targetPath) => {
+			if (targetPath === path.join(repoRoot, 'pnpm-workspace.yaml')) {
+				return;
 			}
 
 			if (
-				target ===
+				targetPath ===
 				path.join(repoRoot, 'packages', 'example', 'dist', 'index.js')
 			) {
-				return undefined;
+				return;
 			}
 
-			throw makeNoEntry(target);
+			throw makeNoEntry(targetPath);
 		});
 
 		const exec = jest.fn();
@@ -220,10 +246,14 @@ describe('createReleasePackReadinessHelper', () => {
 		const helper = createReleasePackReadinessHelper({
 			manifest,
 			dependencies: {
-				access: jest.fn(async () => {
+				access: createAccessMock(async () => {
 					throw makeNoEntry('missing');
 				}),
-				exec: jest.fn(),
+				exec: jest.fn((_file, _args, _options) =>
+					makePromiseWithChild({ stdout: '', stderr: '' })
+				) as unknown as jest.MockedFunction<
+					ReleasePackDependencies['exec']
+				>,
 			},
 		});
 

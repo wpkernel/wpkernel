@@ -2,8 +2,8 @@ import { WPKernelError } from '@wpkernel/core/contracts';
 import type { BuilderOutput } from '../../runtime/types';
 import type { Workspace } from '../../workspace';
 import { resolvePatchPaths } from '../../builders/patcher.paths';
-import { loadLayoutFromWorkspace } from '../../layout/manifest';
 import type { PatchManifest, PatchStatus } from './types';
+import { loadLayoutFromWorkspace } from '../../ir/fragments/ir.layout.core';
 
 export function buildBuilderOutput(): BuilderOutput {
 	const actions: BuilderOutput['actions'] = [];
@@ -66,8 +66,21 @@ export async function readManifest(
 }
 
 async function resolvePatchManifestPath(workspace: Workspace): Promise<string> {
-	const layout = await loadLayoutFromWorkspace({ workspace, strict: false });
-	const paths = resolvePatchPaths({ layout: layout ?? undefined });
+	const layout = await loadLayoutFromWorkspace({ workspace, strict: true });
+	if (!layout) {
+		throw new WPKernelError('DeveloperError', {
+			message:
+				'layout.manifest.json not found; cannot resolve patch manifest path.',
+		});
+	}
+
+	const paths = resolvePatchPaths({
+		plan: {
+			planManifestPath: layout.resolve('plan.manifest'),
+			patchManifestPath: layout.resolve('patch.manifest'),
+			planBaseDir: layout.resolve('plan.base'),
+		},
+	});
 	return paths.manifestPath;
 }
 

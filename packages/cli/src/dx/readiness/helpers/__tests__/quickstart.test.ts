@@ -2,6 +2,8 @@ import { EnvironmentalError } from '@wpkernel/core/error';
 import { createNoopReporter } from '@wpkernel/core/reporter';
 import {
 	createQuickstartDepsMock,
+	makePromiseWithChild,
+	makeRejectedPromiseWithChild,
 	type QuickstartDepsMock,
 } from '@cli-tests/dx/quickstart.test-support';
 import type { DxContext } from '../../../context';
@@ -16,6 +18,7 @@ describe('quickstart readiness helper', () => {
 			cwd: process.cwd(),
 			projectRoot: process.cwd(),
 			workspaceRoot: null,
+			allowDirty: false,
 		},
 	};
 
@@ -54,10 +57,13 @@ describe('quickstart readiness helper', () => {
 		});
 
 		expect(deps.exec).toHaveBeenCalledTimes(1);
-		expect(deps.rm).toHaveBeenCalledWith('/tmp/wpk-quickstart-mock', {
-			recursive: true,
-			force: true,
-		});
+		expect(deps.rm).toHaveBeenCalledWith(
+			expect.stringContaining('wpk-quickstart-'),
+			{
+				recursive: true,
+				force: true,
+			}
+		);
 	});
 
 	it('throws EnvironmentalError when tsx runtime is missing', async () => {
@@ -71,37 +77,53 @@ describe('quickstart readiness helper', () => {
 		});
 
 		expect(deps.exec).toHaveBeenCalledTimes(1);
-		expect(deps.rm).toHaveBeenCalledWith('/tmp/wpk-quickstart-mock', {
-			recursive: true,
-			force: true,
-		});
+		expect(deps.rm).toHaveBeenCalledWith(
+			expect.stringContaining('wpk-quickstart-'),
+			{
+				recursive: true,
+				force: true,
+			}
+		);
 	});
 
 	it('reports ready when create and generate succeed', async () => {
 		deps.exec
-			.mockResolvedValueOnce({ stdout: 'scaffold', stderr: '' })
-			.mockResolvedValueOnce({ stdout: 'generate', stderr: '' });
+			.mockReturnValueOnce(
+				makePromiseWithChild({
+					stdout: Buffer.from('scaffold'),
+					stderr: Buffer.from(''),
+				})
+			)
+			.mockReturnValueOnce(
+				makePromiseWithChild({
+					stdout: Buffer.from('generate'),
+					stderr: Buffer.from(''),
+				})
+			);
 		const helper = createQuickstartReadinessHelper({ dependencies: deps });
 
 		const detection = await helper.detect(baseContext);
+		const state = detection.state!;
 
 		expect(detection.status).toBe('ready');
+		expect(detection.state).toBeDefined();
 		expect(detection.message).toContain('Quickstart scaffolding verified');
 		expect(deps.exec).toHaveBeenCalledTimes(2);
-		expect(deps.exec.mock.calls[0][0]).toBe('npm');
-		expect(deps.exec.mock.calls[0][1]).toEqual([
-			'create',
-			'@wpkernel/wpk',
-			'quickstart',
-		]);
+		expect(deps.exec.mock.calls.length).toBeGreaterThan(0);
+		const firstCall = deps.exec.mock.calls[0]!;
+		expect(firstCall[0]).toBe('npm');
+		expect(firstCall[1]).toEqual(['create', '@wpkernel/wpk', 'quickstart']);
 		expect(deps.resolve).toHaveBeenCalled();
 
-		const confirmation = await helper.confirm(baseContext, detection.state);
+		const confirmation = await helper.confirm(baseContext, state);
 		expect(confirmation.status).toBe('ready');
-		expect(deps.rm).toHaveBeenCalledWith('/tmp/wpk-quickstart-mock', {
-			recursive: true,
-			force: true,
-		});
+		expect(deps.rm).toHaveBeenCalledWith(
+			expect.stringContaining('wpk-quickstart-'),
+			{
+				recursive: true,
+				force: true,
+			}
+		);
 	});
 
 	it('rethrows unexpected access errors when resolving binary candidates', async () => {
@@ -114,8 +136,15 @@ describe('quickstart readiness helper', () => {
 
 	it('throws cli.binary.missing when the generate invocation cannot resolve the binary', async () => {
 		deps.exec
-			.mockResolvedValueOnce({ stdout: '', stderr: '' })
-			.mockRejectedValueOnce(createError('ENOENT'));
+			.mockReturnValueOnce(
+				makePromiseWithChild({
+					stdout: Buffer.from(''),
+					stderr: Buffer.from(''),
+				})
+			)
+			.mockReturnValueOnce(
+				makeRejectedPromiseWithChild(createError('ENOENT'))
+			);
 		const helper = createQuickstartReadinessHelper({ dependencies: deps });
 
 		await helper.detect(baseContext).catch((error) => {
@@ -127,9 +156,16 @@ describe('quickstart readiness helper', () => {
 
 	it('surfaces tsx missing errors when generate stdout reports module absence', async () => {
 		deps.exec
-			.mockResolvedValueOnce({ stdout: '', stderr: '' })
-			.mockRejectedValueOnce(
-				createError('EFAIL', "Cannot find module 'tsx'", '')
+			.mockReturnValueOnce(
+				makePromiseWithChild({
+					stdout: Buffer.from(''),
+					stderr: Buffer.from(''),
+				})
+			)
+			.mockReturnValueOnce(
+				makeRejectedPromiseWithChild(
+					createError('EFAIL', "Cannot find module 'tsx'", '')
+				)
 			);
 		const helper = createQuickstartReadinessHelper({ dependencies: deps });
 
@@ -140,9 +176,16 @@ describe('quickstart readiness helper', () => {
 
 	it('wraps unexpected generate failures in cli.quickstart.failed errors', async () => {
 		deps.exec
-			.mockResolvedValueOnce({ stdout: '', stderr: '' })
-			.mockRejectedValueOnce(
-				createError('EFAIL', 'unexpected', 'generate failed')
+			.mockReturnValueOnce(
+				makePromiseWithChild({
+					stdout: Buffer.from(''),
+					stderr: Buffer.from(''),
+				})
+			)
+			.mockReturnValueOnce(
+				makeRejectedPromiseWithChild(
+					createError('EFAIL', 'unexpected', 'generate failed')
+				)
 			);
 		const helper = createQuickstartReadinessHelper({ dependencies: deps });
 

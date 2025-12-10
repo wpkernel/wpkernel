@@ -34,7 +34,6 @@ describe('logPhaseFailure', () => {
 	it('renders readable error summaries and detail bullets', () => {
 		const { reporter, entries } = createStubReporter();
 		const error = new WPKernelError('DeveloperError', {
-			reason: 'php.printerPath.mismatch',
 			message: 'Bundled PHP printer path could not be canonicalised.',
 			data: {
 				filePath: '/tmp/plugin.php',

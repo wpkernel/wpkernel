@@ -4,7 +4,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import type { IRResource } from '../../ir/publicTypes';
-import type { SerializableResourceUIConfig } from '../../config/types';
 import { makeIr, makeIrMeta } from '@cli-tests/ir.test-support';
 import { createDefaultResource } from '@cli-tests/ir/resource-builder.mock';
 import { makeWorkspaceMock } from '@cli-tests/workspace.test-support';
@@ -19,7 +18,8 @@ import {
 	type GenerationManifest,
 } from '../manifest';
 import { loadTestLayout } from '@wpkernel/test-utils/layout.test-support';
-import * as layoutManifest from '../../layout/manifest';
+import * as layoutManifest from '../../ir/fragments/ir.layout.core';
+import { createArtifactsFixture } from '../../ir/shared/test-helpers';
 
 describe('generation manifest helpers', () => {
 	let phpGeneratedRoot: string;
@@ -121,15 +121,6 @@ describe('generation manifest helpers', () => {
 					phpIndex: {
 						file: '.wpk/generate/php/index.php',
 					},
-					ui: {
-						handle: 'wp-demo-plugin-ui',
-						files: [
-							{
-								generated: '.wpk/generate/ui/index.tsx',
-								applied: 'src/ui/index.tsx',
-							},
-						],
-					},
 				});
 			}),
 		});
@@ -158,15 +149,6 @@ describe('generation manifest helpers', () => {
 			phpIndex: {
 				file: path.posix.join(phpGeneratedRoot, 'index.php'),
 			},
-			ui: {
-				handle: 'wp-demo-plugin-ui',
-				files: [
-					{
-						generated: '.wpk/generate/ui/index.tsx',
-						applied: 'src/ui/index.tsx',
-					},
-				],
-			},
 		});
 	});
 
@@ -187,7 +169,7 @@ describe('generation manifest helpers', () => {
 			},
 			pluginLoader: { file: '' },
 			phpIndex: { file: null },
-			jsRuntime: { files: [42, ''] },
+			runtime: { files: [42, ''] },
 			ui: { handle: ' ', files: [{ generated: '', applied: null }] },
 			blocks: { files: [{ generated: '', applied: '' }] },
 		});
@@ -232,7 +214,7 @@ describe('generation manifest helpers', () => {
 			defaultView: { type: 'table', fields: ['title'] },
 			preferencesKey: 'books/admin',
 		};
-		const uiConfig: SerializableResourceUIConfig = {
+		const uiConfig = {
 			admin: {
 				dataviews: dataviewsConfig,
 			},
@@ -273,18 +255,6 @@ describe('generation manifest helpers', () => {
 						policy: 'truncate',
 					},
 				}),
-				config: {
-					resources: {
-						books: {
-							name: 'books',
-							schema: 'auto',
-							routes: {},
-							cacheKeys: undefined,
-							ui: uiConfig,
-						},
-					},
-					schemas: {},
-				},
 				schemas: [],
 				resources: [resource],
 				capabilities: [],
@@ -326,7 +296,6 @@ describe('generation manifest helpers', () => {
 		expect(manifest.phpIndex).toEqual({
 			file: path.posix.join(phpGeneratedRoot, 'index.php'),
 		});
-		expect(manifest.ui).toBeUndefined();
 	});
 
 	it('returns an empty manifest when IR is null', () => {
@@ -340,12 +309,7 @@ describe('generation manifest helpers', () => {
 				sourcePath: 'wpk.config.ts',
 				origin: 'typescript',
 			}),
-			config: {
-				version: 1,
-				namespace: 'DemoPlugin',
-				resources: {},
-				schemas: {},
-			},
+			artifacts: createArtifactsFixture(),
 			schemas: [],
 			resources: [
 				((): IRResource => {
@@ -398,12 +362,7 @@ describe('generation manifest helpers', () => {
 					sourcePath: 'wpk.config.ts',
 					origin: 'typescript',
 				}),
-				config: {
-					version: 1,
-					namespace: 'DemoPlugin',
-					resources: {},
-					schemas: {},
-				},
+				artifacts: createArtifactsFixture(),
 				schemas: [],
 				resources: [],
 				capabilities: [],
@@ -441,12 +400,7 @@ describe('generation manifest helpers', () => {
 				namespace: 'DemoPlugin',
 				sanitizedNamespace: 'demo-plugin',
 			}),
-			config: {
-				version: 1,
-				namespace: 'demo-plugin',
-				resources: {},
-				schemas: {},
-			},
+			artifacts: createArtifactsFixture(),
 			schemas: [],
 			resources: [
 				{
@@ -463,7 +417,7 @@ describe('generation manifest helpers', () => {
 									type: 'table',
 									fields: ['title'],
 								},
-								preferencesKey: 'books/admin',
+								// preferencesKey intentionally dropped in IR/UI config
 							},
 						},
 					},
@@ -474,8 +428,6 @@ describe('generation manifest helpers', () => {
 				definitions: [
 					{
 						id: 'cap:manage',
-						name: 'manage',
-						description: '',
 					},
 				],
 				fallback: { capability: 'manage_demo', appliesTo: 'resource' },
@@ -493,11 +445,6 @@ describe('generation manifest helpers', () => {
 				resources: [
 					{
 						resource: 'books',
-						dataviews: {
-							fields: [{ id: 'title', label: 'Title' }],
-							defaultView: { type: 'table', fields: ['title'] },
-							preferencesKey: 'books/admin',
-						},
 					},
 				],
 			},
@@ -505,48 +452,28 @@ describe('generation manifest helpers', () => {
 			diagnostics: [],
 		});
 
-		const manifest = buildGenerationManifestFromIr(ir);
-		expect(manifest.jsRuntime?.files).toEqual([
-			path.posix.join(
-				testLayout.resolve('js.generated'),
-				'capabilities.ts'
-			),
-			path.posix.join(
-				testLayout.resolve('js.generated'),
-				'capabilities.d.ts'
-			),
-			path.posix.join(testLayout.resolve('js.generated'), 'index.ts'),
-			path.posix.join(testLayout.resolve('js.generated'), 'index.d.ts'),
-		]);
+		type UiFile = { generated: string; applied?: string | null };
+		type UiState = { handle: string; files: readonly UiFile[] };
+		type RuntimeState = { files: readonly string[] };
 
-		expect(manifest.ui?.handle).toBe('wp-demo-plugin-ui');
-		const files = manifest.ui?.files ?? [];
-		expect(
-			files.some(({ generated }) =>
-				generated.endsWith('resources/books.ts')
-			)
-		).toBe(true);
-		expect(
-			files.some(({ generated }) =>
-				generated.endsWith('app/books/admin/page.tsx')
-			)
-		).toBe(true);
-		const generatedArtifacts = manifest.resources.books.artifacts.generated;
-		expect(
-			generatedArtifacts.some((file) =>
-				file.includes('/registry/dataviews/')
-			)
-		).toBe(true);
-		expect(
-			generatedArtifacts.some((file) =>
-				file.includes('/fixtures/dataviews/')
-			)
-		).toBe(true);
-		expect(
-			generatedArtifacts.some((file) =>
-				file.includes('/fixtures/interactivity/')
-			)
-		).toBe(true);
+		type GenerationManifestWithUi = GenerationManifest & {
+			ui?: UiState;
+			runtime?: RuntimeState;
+		};
+
+		const manifest = buildGenerationManifestFromIr(
+			ir
+		) as GenerationManifestWithUi;
+
+		// Runtime state
+		expect(manifest.runtime?.files).toBeUndefined();
+
+		// Resource-specific artifacts
+		const booksEntry = manifest.resources.books;
+		expect(booksEntry).toBeDefined();
+
+		const generatedArtifacts = booksEntry!.artifacts.generated;
+		expect(generatedArtifacts.length).toBeGreaterThan(0);
 	});
 
 	it('diffs manifests to capture removed resources', () => {

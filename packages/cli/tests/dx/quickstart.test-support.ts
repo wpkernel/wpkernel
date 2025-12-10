@@ -2,64 +2,53 @@ import { EventEmitter } from 'node:events';
 import type { ChildProcess, PromiseWithChild } from 'node:child_process';
 import type { QuickstartDependencies } from '../../src/dx/readiness/helpers';
 
-export type QuickstartDepsMock = {
-	readonly [K in keyof QuickstartDependencies]: jest.Mock<
-		ReturnType<QuickstartDependencies[K]>,
-		Parameters<QuickstartDependencies[K]>
-	>;
+export type QuickstartDepsMock = QuickstartDependencies & {
+	readonly mkdtemp: jest.MockedFunction<QuickstartDependencies['mkdtemp']>;
+	readonly rm: jest.MockedFunction<QuickstartDependencies['rm']>;
+	readonly exec: jest.MockedFunction<QuickstartDependencies['exec']>;
+	readonly access: jest.MockedFunction<QuickstartDependencies['access']>;
+	readonly resolve: jest.MockedFunction<QuickstartDependencies['resolve']>;
 };
 
-function makePromiseWithChild<T>(value: T): PromiseWithChild<T> {
+export function makePromiseWithChild<T>(value: T): PromiseWithChild<T> {
 	const promise = Promise.resolve(value) as PromiseWithChild<T>;
 	promise.child = new EventEmitter() as unknown as ChildProcess;
 	return promise;
 }
 
+export function makeRejectedPromiseWithChild<T = never>(
+	error: unknown
+): PromiseWithChild<T> {
+	const promise = Promise.reject(error) as PromiseWithChild<T>;
+	promise.child = new EventEmitter() as unknown as ChildProcess;
+	return promise;
+}
+
 export function createQuickstartDepsMock(): QuickstartDepsMock {
-	const mkdtemp = jest.fn<
-		ReturnType<QuickstartDepsMock['mkdtemp']>,
-		Parameters<QuickstartDepsMock['mkdtemp']>
-	>(
-		() =>
-			Promise.resolve('/tmp/wpk-quickstart-mock') as ReturnType<
-				QuickstartDepsMock['mkdtemp']
-			>
-	);
+	const mkdtemp = jest.fn(
+		async (prefix: string) => `${prefix}/wpk-quickstart-mock`
+	) as unknown as jest.MockedFunction<QuickstartDependencies['mkdtemp']>;
 
-	const rm = jest.fn<
-		ReturnType<QuickstartDepsMock['rm']>,
-		Parameters<QuickstartDepsMock['rm']>
-	>(() => Promise.resolve(undefined) as ReturnType<QuickstartDepsMock['rm']>);
+	const rm = jest.fn(
+		async (..._args: Parameters<QuickstartDependencies['rm']>) => {}
+	) as jest.MockedFunction<QuickstartDependencies['rm']>;
 
-	const exec = jest.fn<
-		ReturnType<QuickstartDepsMock['exec']>,
-		Parameters<QuickstartDepsMock['exec']>
-	>((..._args) =>
-		makePromiseWithChild({
-			stdout: 'ok',
-			stderr: '',
-		})
-	);
+	const exec = jest.fn(
+		(..._args: Parameters<QuickstartDependencies['exec']>) =>
+			makePromiseWithChild({
+				stdout: 'ok',
+				stderr: '',
+			})
+	) as unknown as jest.MockedFunction<QuickstartDependencies['exec']>;
 
-	const access = jest.fn<
-		ReturnType<QuickstartDepsMock['access']>,
-		Parameters<QuickstartDepsMock['access']>
-	>(
-		() =>
-			Promise.resolve(undefined) as ReturnType<
-				QuickstartDepsMock['access']
-			>
-	);
+	const access = jest.fn(
+		async (..._args: Parameters<QuickstartDependencies['access']>) => {}
+	) as jest.MockedFunction<QuickstartDependencies['access']>;
 
-	const resolve = jest.fn<
-		ReturnType<QuickstartDepsMock['resolve']>,
-		Parameters<QuickstartDepsMock['resolve']>
-	>(
-		() =>
-			'/mock/node_modules/tsx' as ReturnType<
-				QuickstartDepsMock['resolve']
-			>
-	);
+	const resolve = jest.fn(
+		(..._args: Parameters<QuickstartDependencies['resolve']>) =>
+			'/mock/node_modules/tsx'
+	) as jest.MockedFunction<QuickstartDependencies['resolve']>;
 
 	return { mkdtemp, rm, exec, access, resolve };
 }

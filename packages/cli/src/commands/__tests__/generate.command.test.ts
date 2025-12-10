@@ -23,76 +23,38 @@ import type {
 	ReadinessRegistry,
 } from '../../dx';
 import { loadTestLayoutSync } from '@wpkernel/test-utils/layout.test-support';
-import { createDefaultResource } from '@cli-tests/ir/resource-builder.mock';
 import { resolvePatchPaths } from '../../builders/patcher.paths';
+import { buildTestArtifactsPlan, makeIr } from '@cli-tests/ir.test-support';
+import layoutManifest from '../../../../../layout.manifest.json' assert { type: 'json' };
+import { createDefaultResource } from '@cli-tests/ir/resource-builder.mock';
 
-function buildIrArtifact(workspaceRoot: string): PipelineRunResult['ir'] {
-	const layout = loadTestLayoutSync();
+jest.mock('../../ir/fragments/ir.layout.core', () => {
+	const actual = jest.requireActual('../../ir/fragments/ir.layout.core');
 	return {
+		...actual,
+		loadLayoutFromWorkspace: jest.fn(async () => loadTestLayoutSync()),
+	};
+});
+
+const buildIrArtifact = (workspaceRoot: string): PipelineRunResult['ir'] =>
+	makeIr({
+		namespace: 'Demo',
 		meta: {
-			version: 1,
-			namespace: 'Demo',
 			sourcePath: path.join(workspaceRoot, 'wpk.config.ts'),
 			origin: 'typescript',
-			sanitizedNamespace: 'Demo',
 			features: [],
-			ids: {
-				algorithm: 'sha256',
-				resourcePrefix: 'res:',
-				schemaPrefix: 'sch:',
-				blockPrefix: 'blk:',
-				capabilityPrefix: 'cap:',
-			},
-			redactions: [],
-			limits: {
-				maxConfigKB: 2048,
-				maxSchemaKB: 2048,
-				policy: 'truncate',
-			},
-			plugin: {
-				name: 'Demo',
-				description: 'Demo plugin',
-				version: '1.0.0',
-				requiresAtLeast: '6.0',
-				requiresPhp: '8.1',
-				textDomain: 'demo',
-				author: 'Demo',
-				license: 'GPL-2.0-or-later',
-				authorUri: 'https://example.com',
-				pluginUri: 'https://example.com',
-				licenseUri: 'https://example.com/license',
-			},
 		},
-		config: {
-			version: 1,
-			namespace: 'Demo',
-			resources: {},
-			schemas: {},
-		},
-		schemas: [],
 		resources: [],
-		capabilities: [],
-		capabilityMap: {
-			definitions: [],
-			fallback: { capability: 'manage_options', appliesTo: 'resource' },
-			missing: [],
-			unused: [],
-			warnings: [],
-		},
-		blocks: [],
-		php: {
-			namespace: 'Demo',
-			autoload: 'inc',
-			outputDir: layout.resolve('php.generated'),
-		},
-		diagnostics: [],
-		layout,
-	} satisfies PipelineRunResult['ir'];
-}
+		schemas: [],
+		artifacts: buildTestArtifactsPlan(loadTestLayoutSync()),
+	});
 
 function createWorkspaceStub() {
 	return createCommandWorkspaceHarness({
 		root: path.join(process.cwd(), 'workspace'),
+		files: {
+			'layout.manifest.json': JSON.stringify(layoutManifest),
+		},
 	}).workspace;
 }
 
@@ -103,10 +65,16 @@ function createPipelineStub(
 	const runMock = jest.fn(async (options: PipelineRunOptions) => {
 		const layout = loadTestLayoutSync();
 		await options.workspace.write(
-			path.join(layout.resolve('js.generated'), 'index.ts'),
+			'layout.manifest.json',
+			JSON.stringify(layoutManifest)
+		);
+		await options.workspace.write(
+			path.join(layout.resolve('entry.generated'), 'index.ts'),
 			"console.log('hello world');\n"
 		);
-		const patchPaths = resolvePatchPaths({});
+		const patchPaths = resolvePatchPaths({
+			plan: buildTestArtifactsPlan(layout).plan,
+		});
 		await options.workspace.write(patchPaths.planPath, '{}');
 		await options.workspace.write(PATCH_MANIFEST_PATH, '{}');
 
@@ -223,8 +191,12 @@ describe('GenerateCommand', () => {
 			false,
 			{
 				php: layout.resolve('php.generated'),
-				ui: layout.resolve('ui.generated'),
-				js: layout.resolve('js.generated'),
+				entry: layout.resolve('entry.generated'),
+				runtime: layout.resolve('runtime.generated'),
+				blocks: path.posix.join(
+					layout.resolve('blocks.generated'),
+					'auto-register.ts'
+				),
 			}
 		);
 		expect(stdout.toString()).toBe('summary output\n');
@@ -235,7 +207,7 @@ describe('GenerateCommand', () => {
 					expect.objectContaining({
 						path: expect.stringContaining(
 							path.posix.join(
-								loadTestLayoutSync().resolve('js.generated'),
+								loadTestLayoutSync().resolve('entry.generated'),
 								'index.ts'
 							)
 						),
@@ -527,7 +499,9 @@ describe('GenerateCommand', () => {
 		expect(reporter.error).toHaveBeenCalledWith(
 			'Failed to locate apply manifest after generation.',
 			expect.objectContaining({
-				manifestPath: resolvePatchPaths({}).planPath,
+				manifestPath: resolvePatchPaths({
+					plan: buildTestArtifactsPlan(loadTestLayoutSync()).plan,
+				}).planPath,
 				workspace: workspace.root,
 			})
 		);
@@ -570,14 +544,14 @@ describe('GenerateCommand', () => {
 		const { pipeline, runMock } = createPipelineStub(
 			workspace,
 			async (options) => {
-				const layoutManifest = loadTestLayoutSync();
+				const pipelineLayout = loadTestLayoutSync();
 				const patchPaths = resolvePatchPaths({
-					layout: layoutManifest,
+					plan: buildTestArtifactsPlan(pipelineLayout).plan,
 				});
 
 				await options.workspace.write(
 					path.join(
-						layoutManifest.resolve('js.generated'),
+						pipelineLayout.resolve('entry.generated'),
 						'index.ts'
 					),
 					"console.log('hello world');\n"

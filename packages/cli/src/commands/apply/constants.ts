@@ -1,8 +1,8 @@
 import path from 'node:path';
-import { WPK_NAMESPACE } from '@wpkernel/core/contracts';
+import { WPKernelError, WPK_NAMESPACE } from '@wpkernel/core/contracts';
 import type { Workspace } from '../../workspace';
-import { loadLayoutFromWorkspace } from '../../layout/manifest';
 import { PATCH_MANIFEST_PATH as PATCH_MANIFEST_PATH_INTERNAL } from '../../builders/patcher.paths';
+import { loadLayoutFromWorkspace } from '../../ir/fragments/ir.layout.core';
 
 export const PATCH_MANIFEST_PATH = PATCH_MANIFEST_PATH_INTERNAL;
 
@@ -17,12 +17,15 @@ export async function resolveApplyLogPath(
 ): Promise<string> {
 	const layout = await loadLayoutFromWorkspace({
 		workspace,
-		strict: false,
+		strict: true,
 	});
-	if (layout) {
-		return layout.resolve('apply.log');
+	if (!layout) {
+		throw new WPKernelError('DeveloperError', {
+			message:
+				'layout.manifest.json not found; cannot resolve apply log.',
+		});
 	}
-	return APPLY_LOG_FALLBACK_PATH;
+	return layout.resolve('apply.log');
 }
 
 export function buildReporterNamespace(): string {

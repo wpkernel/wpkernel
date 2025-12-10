@@ -41,14 +41,6 @@ export type {
 	LoadedWPKernelConfig,
 } from './config';
 
-export {
-	defineCapabilityMap,
-	type CapabilityCapabilityDescriptor,
-	type CapabilityMapDefinition,
-	type CapabilityMapEntry,
-	type CapabilityMapScope,
-} from './capability-map';
-
 export type {
 	IRv1,
 	IRSchema,
@@ -57,7 +49,7 @@ export type {
 	IRCapabilityHint,
 	IRBlock,
 	IRPhpProject,
-	BuildIrOptions,
+	FragmentIrOptions,
 } from './ir/publicTypes';
 export type {
 	Helper,

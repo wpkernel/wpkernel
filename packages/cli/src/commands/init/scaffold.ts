@@ -19,7 +19,7 @@ import {
 } from './utils';
 import { buildPluginLoaderProgram } from '@wpkernel/wp-json-ast';
 import { buildPhpPrettyPrinter } from '@wpkernel/php-json-ast/php-driver';
-import { loadLayoutFromWorkspace } from '../../layout/manifest';
+import { loadLayoutFromWorkspace } from '../../ir/fragments/ir.layout.core';
 
 const WPK_CONFIG_FILENAME = WPK_CONFIG_SOURCES.WPK_CONFIG_TS;
 const SRC_INDEX_PATH = path.join('src', 'index.ts');

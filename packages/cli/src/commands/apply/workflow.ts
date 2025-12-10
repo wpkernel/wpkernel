@@ -17,6 +17,8 @@ import type {
 	PreviewStageOptions,
 } from './types';
 import { readGenerationState } from '../../apply/manifest';
+import { loadLayoutFromWorkspace } from '../../ir/fragments/ir.layout.core';
+import type { IRPlanArtifacts } from '../../ir/publicTypes';
 
 export async function previewPatches({
 	dependencies,
@@ -31,6 +33,7 @@ export async function previewPatches({
 	const previewBuilder = dependencies.createPatcher();
 	const previewOutput = dependencies.buildBuilderOutput();
 	const generationState = await readGenerationState(workspace);
+	const planArtifacts = await resolvePlanArtifacts(workspace);
 
 	const { result, manifest } = await workspace.dryRun(async () => {
 		await previewBuilder.apply(
@@ -44,12 +47,53 @@ export async function previewPatches({
 				input: {
 					phase: 'apply' as const,
 					options: {
-						config: loaded.config,
 						namespace: loaded.namespace,
 						origin: loaded.configOrigin,
 						sourcePath: loaded.sourcePath,
 					},
-					ir: null,
+					ir: {
+						artifacts: {
+							plan: planArtifacts,
+							pluginLoader: Object.create(null),
+							controllers: Object.create(null),
+							resources: Object.create(null),
+							surfaces: Object.create(null),
+							blocks: Object.create(null),
+							schemas: Object.create(null),
+							runtime: Object.create(null),
+							php: Object.create(null),
+							bundler: Object.create(null),
+						},
+						meta: {
+							version: 1,
+							namespace: '',
+							sourcePath: '',
+							origin: '',
+							sanitizedNamespace: '',
+							features: [],
+							ids: {
+								algorithm: 'sha256',
+								resourcePrefix: 'res:',
+								schemaPrefix: 'sch:',
+								blockPrefix: 'blk:',
+								capabilityPrefix: 'cap:',
+							},
+							redactions: [],
+							limits: {
+								maxConfigKB: 0,
+								maxSchemaKB: 0,
+								policy: 'error',
+							},
+							plugin: Object.create(null),
+						},
+						schemas: [],
+						resources: [],
+						capabilities: [],
+						capabilityMap: Object.create(null),
+						blocks: [],
+						php: Object.create(null),
+						layout: Object.create(null),
+					},
 				},
 				output: previewOutput,
 				reporter: previewReporter,
@@ -75,6 +119,7 @@ export async function executeApply({
 	const builder = dependencies.createPatcher();
 	const output = dependencies.buildBuilderOutput();
 	const generationState = await readGenerationState(workspace);
+	const planArtifacts = await resolvePlanArtifacts(workspace);
 
 	await builder.apply(
 		{
@@ -87,12 +132,53 @@ export async function executeApply({
 			input: {
 				phase: 'apply' as const,
 				options: {
-					config: loaded.config,
 					namespace: loaded.namespace,
 					origin: loaded.configOrigin,
 					sourcePath: loaded.sourcePath,
 				},
-				ir: null,
+				ir: {
+					artifacts: {
+						plan: planArtifacts,
+						pluginLoader: Object.create(null),
+						controllers: Object.create(null),
+						resources: Object.create(null),
+						surfaces: Object.create(null),
+						blocks: Object.create(null),
+						schemas: Object.create(null),
+						runtime: Object.create(null),
+						php: Object.create(null),
+						bundler: Object.create(null),
+					},
+					meta: {
+						version: 1,
+						namespace: '',
+						sourcePath: '',
+						origin: '',
+						sanitizedNamespace: '',
+						features: [],
+						ids: {
+							algorithm: 'sha256',
+							resourcePrefix: 'res:',
+							schemaPrefix: 'sch:',
+							blockPrefix: 'blk:',
+							capabilityPrefix: 'cap:',
+						},
+						redactions: [],
+						limits: {
+							maxConfigKB: 0,
+							maxSchemaKB: 0,
+							policy: 'error',
+						},
+						plugin: Object.create(null),
+					},
+					schemas: [],
+					resources: [],
+					capabilities: [],
+					capabilityMap: Object.create(null),
+					blocks: [],
+					php: Object.create(null),
+					layout: Object.create(null),
+				},
 			},
 			output,
 			reporter,
@@ -223,6 +309,29 @@ export async function handleCompletion({
 	});
 
 	return WPK_EXIT_CODES.SUCCESS;
+}
+
+async function resolvePlanArtifacts(
+	workspace: Parameters<typeof loadLayoutFromWorkspace>[0]['workspace']
+): Promise<IRPlanArtifacts> {
+	const layout = await loadLayoutFromWorkspace({
+		workspace,
+		strict: true,
+	});
+
+	if (!layout) {
+		throw new WPKernelError('DeveloperError', {
+			message:
+				'layout.manifest.json not found; cannot resolve patch plan artifacts.',
+		});
+	}
+
+	return {
+		planManifestPath: layout.resolve('plan.manifest'),
+		patchManifestPath: layout.resolve('patch.manifest'),
+		planBaseDir: layout.resolve('plan.base'),
+		planIncomingDir: layout.resolve('plan.incoming'),
+	};
 }
 
 export async function processPreviewStage({

@@ -3,8 +3,13 @@ import { type EnvironmentalError } from '@wpkernel/core/error';
 import {
 	createQuickstartDepsMock,
 	type QuickstartDepsMock,
+	makePromiseWithChild,
+	makeRejectedPromiseWithChild,
 } from '@cli-tests/dx/quickstart.test-support';
-import { createBootstrapperResolutionReadinessHelper } from '../bootstrapperResolution';
+import {
+	createBootstrapperResolutionReadinessHelper,
+	type BootstrapperResolutionDependencies,
+} from '../bootstrapperResolution';
 import {
 	createReadinessTestContext,
 	makeNoEntry,
@@ -28,7 +33,7 @@ describe('createBootstrapperResolutionReadinessHelper', () => {
 	});
 
 	it('reports pending when the compiled bootstrapper entry is missing', async () => {
-		deps.access.mockImplementation(async (target: string) => {
+		deps.access.mockImplementation(async (target, _mode?: number) => {
 			if (target === path.join(projectRoot, 'pnpm-workspace.yaml')) {
 				throw makeNoEntry(target);
 			}
@@ -52,7 +57,7 @@ describe('createBootstrapperResolutionReadinessHelper', () => {
 		});
 
 		const helper = createBootstrapperResolutionReadinessHelper({
-			dependencies: deps,
+			dependencies: deps as Partial<BootstrapperResolutionDependencies>,
 		});
 
 		const context = createReadinessTestContext({
@@ -80,7 +85,7 @@ describe('createBootstrapperResolutionReadinessHelper', () => {
 	});
 
 	it('reports ready when the bootstrapper resolves bundled dependencies', async () => {
-		deps.access.mockImplementation(async (target: string) => {
+		deps.access.mockImplementation(async (target, _mode?: number) => {
 			if (target === path.join(projectRoot, 'pnpm-workspace.yaml')) {
 				throw makeNoEntry(target);
 			}
@@ -102,10 +107,15 @@ describe('createBootstrapperResolutionReadinessHelper', () => {
 			throw new Error(`Unexpected access: ${target}`);
 		});
 		deps.mkdtemp.mockResolvedValue('/tmp/wpk-bootstrapper-123');
-		deps.exec.mockResolvedValue({ stdout: 'help', stderr: '' });
+		deps.exec.mockReturnValue(
+			makePromiseWithChild({
+				stdout: Buffer.from('help'),
+				stderr: Buffer.from(''),
+			})
+		);
 
 		const helper = createBootstrapperResolutionReadinessHelper({
-			dependencies: deps,
+			dependencies: deps as Partial<BootstrapperResolutionDependencies>,
 		});
 
 		const context = createReadinessTestContext({
@@ -143,7 +153,7 @@ describe('createBootstrapperResolutionReadinessHelper', () => {
 	});
 
 	it('throws an EnvironmentalError when bootstrapper resolution fails', async () => {
-		deps.access.mockImplementation(async (target: string) => {
+		deps.access.mockImplementation(async (target, _mode?: number) => {
 			if (target === path.join(projectRoot, 'pnpm-workspace.yaml')) {
 				throw makeNoEntry(target);
 			}
@@ -165,7 +175,7 @@ describe('createBootstrapperResolutionReadinessHelper', () => {
 			throw new Error(`Unexpected access: ${target}`);
 		});
 		deps.mkdtemp.mockResolvedValue('/tmp/wpk-bootstrapper-999');
-		deps.exec.mockImplementation(async () => {
+		deps.exec.mockImplementation(() => {
 			const error = new Error(
 				'Cannot find module'
 			) as NodeJS.ErrnoException & {
@@ -173,14 +183,13 @@ describe('createBootstrapperResolutionReadinessHelper', () => {
 				stderr?: string;
 				code?: number;
 			};
-			error.code = 1;
 			error.stderr = 'Cannot find module @wpkernel/cli';
 			error.stdout = '';
-			throw error;
+			return makeRejectedPromiseWithChild(error);
 		});
 
 		const helper = createBootstrapperResolutionReadinessHelper({
-			dependencies: deps,
+			dependencies: deps as Partial<BootstrapperResolutionDependencies>,
 		});
 
 		const context = createReadinessTestContext({
