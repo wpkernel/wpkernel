@@ -9,6 +9,7 @@
 		"skipLibCheck": true
 	},
 	"files": ["../package.json"],
+	"exclude": [],
 	"include": ["./**/*.ts", "./**/*.tsx"],
 	"references": [{ "path": "../tsconfig.json" }]
 }

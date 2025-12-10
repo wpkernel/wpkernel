@@ -11,8 +11,13 @@
 					}
 				},
 				"blocks": "blocks.generated",
-				"js": "js.generated",
-				"ui": "ui.generated"
+				"src": {
+					"$id": "src.generated",
+					"app": "app.generated",
+					"types": "types.generated",
+					"entry": "entry.generated",
+					"runtime": "runtime.generated"
+				}
 			},
 			"apply": {
 				"base": "plan.base",
@@ -35,11 +40,12 @@
 			"debug-ui.json": "debug.ui"
 		},
 		"src": {
+			"$id": "src.applied",
+			"app": "app.applied",
 			"blocks": "blocks.applied",
-			"ui": {
-				"$id": "ui.applied",
-				"resources": "ui.resources.applied"
-			}
+			"types": "types.applied",
+			"entry": "entry.applied",
+			"runtime": "runtime.applied"
 		},
 		"inc": {
 			"Rest": "controllers.applied"

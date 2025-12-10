@@ -16,7 +16,7 @@ const UI_LOCALIZATION_OBJECT = 'wpKernelUISettings';
 /**
  * Fragment key for UI aggregation.
  */
-export const UI_FRAGMENT_KEY = 'ir.ui.resources';
+export const UI_FRAGMENT_KEY = 'ir.ui.core';
 
 /**
  * Builds normalized UI metadata from resource DataViews definitions.
@@ -31,8 +31,6 @@ export function createUiFragment(): IrFragment {
 		async apply({ input, output }: IrFragmentApplyOptions) {
 			const namespaceInfo = resolveNamespaceInfo(input);
 			const surfaceResources = collectUiResourceDescriptors(
-				namespaceInfo.preferencesNamespace,
-				namespaceInfo.namespaceSlug,
 				input.draft.resources ?? []
 			);
 			const loader = buildUiLoader(
@@ -52,8 +50,6 @@ export function createUiFragment(): IrFragment {
 }
 
 function collectUiResourceDescriptors(
-	preferencesNamespace: string,
-	namespaceSlug: string,
 	resources: readonly IRResource[]
 ): IRUiResourceDescriptor[] {
 	const descriptors: IRUiResourceDescriptor[] = [];
@@ -66,33 +62,17 @@ function collectUiResourceDescriptors(
 			  }
 			| undefined;
 
-		const usesDataViews = admin?.view === 'dataviews';
+		const usesDataViews = admin?.view === 'dataview';
 		if (!usesDataViews) {
 			continue;
 		}
 
-		const preferencesKey = `${preferencesNamespace}/dataviews/${resource.name}`;
-		const inferredDataviews = {
-			fields: [],
-			defaultView: { type: 'table' },
-			preferencesKey,
-		} satisfies Record<string, unknown>;
-
-		const menu = normaliseMenu(admin?.menu, namespaceSlug);
+		const menu = normaliseMenu(admin?.menu);
 
 		descriptors.push(
 			menu
-				? {
-						resource: resource.name,
-						preferencesKey,
-						menu,
-						dataviews: inferredDataviews as Record<string, unknown>,
-					}
-				: {
-						resource: resource.name,
-						preferencesKey,
-						dataviews: inferredDataviews as Record<string, unknown>,
-					}
+				? { resource: resource.name, menu }
+				: { resource: resource.name }
 		);
 	}
 
@@ -105,7 +85,6 @@ type MutableMenuConfig = {
 
 function resolveNamespaceInfo(input: IrFragmentApplyOptions['input']): {
 	namespace: string;
-	preferencesNamespace: string;
 	namespaceSlug: string;
 	slug: string | undefined;
 } {
@@ -116,10 +95,9 @@ function resolveNamespaceInfo(input: IrFragmentApplyOptions['input']): {
 	const optionsNamespace = input.options.namespace ?? '';
 	const namespace = meta.namespace ?? optionsNamespace;
 	const namespaceSlug = meta.sanitizedNamespace ?? optionsNamespace;
-	const preferencesNamespace = meta.sanitizedNamespace ?? namespace;
 	const slug = meta.sanitizedNamespace?.trim();
 
-	return { namespace, preferencesNamespace, namespaceSlug, slug };
+	return { namespace, namespaceSlug, slug };
 }
 
 function buildUiLoader(
@@ -141,8 +119,7 @@ function buildUiLoader(
 }
 
 function normaliseMenu(
-	menu: ResourceDataViewsMenuConfig | null | undefined,
-	namespaceSlug: string
+	menu: ResourceDataViewsMenuConfig | null | undefined
 ): IRUiMenuConfig | undefined {
 	if (!menu) {
 		return undefined;
@@ -150,10 +127,10 @@ function normaliseMenu(
 
 	const normalized: MutableMenuConfig = {};
 
-	assignSlug(normalized, menu.slug, namespaceSlug);
+	assignSlug(normalized, menu.slug);
 	assignTitle(normalized, menu.title);
 	assignCapability(normalized, menu.capability);
-	assignParent(normalized, menu.parent, namespaceSlug);
+	assignParent(normalized, menu.parent);
 	assignPosition(normalized, menu.position);
 
 	return Object.keys(normalized).length > 0
@@ -161,21 +138,12 @@ function normaliseMenu(
 		: undefined;
 }
 
-function assignSlug(
-	target: MutableMenuConfig,
-	slug: unknown,
-	namespaceSlug: string
-): void {
+function assignSlug(target: MutableMenuConfig, slug: unknown): void {
 	if (typeof slug !== 'string' || slug.trim().length === 0) {
 		return;
 	}
-	const trimmed = slug.trim();
-	target.slug =
-		namespaceSlug &&
-		!trimmed.startsWith(`${namespaceSlug}-`) &&
-		trimmed !== namespaceSlug
-			? `${namespaceSlug}-${trimmed}`
-			: trimmed;
+	// Preserve user-provided slug; do not auto-prefix with namespace.
+	target.slug = slug.trim();
 }
 
 function assignTitle(target: MutableMenuConfig, title: unknown): void {
@@ -193,21 +161,12 @@ function assignCapability(
 	}
 }
 
-function assignParent(
-	target: MutableMenuConfig,
-	parent: unknown,
-	namespaceSlug: string
-): void {
+function assignParent(target: MutableMenuConfig, parent: unknown): void {
 	if (typeof parent !== 'string' || parent.trim().length === 0) {
 		return;
 	}
-	const trimmed = parent.trim();
-	target.parent =
-		namespaceSlug &&
-		!trimmed.startsWith(`${namespaceSlug}-`) &&
-		trimmed !== namespaceSlug
-			? `${namespaceSlug}-${trimmed}`
-			: trimmed;
+	// Preserve user-provided parent; do not auto-prefix with namespace.
+	target.parent = parent.trim();
 }
 
 function assignPosition(target: MutableMenuConfig, position: unknown): void {

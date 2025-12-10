@@ -4,17 +4,17 @@ import {
 	registerCoreBuilders,
 	registerCoreFragments,
 } from '../createIr';
-import { createMetaFragment } from '../fragments/meta';
+import { createMetaFragment } from '../fragments/ir.meta.core';
 import {
 	createSchemasFragment,
 	SCHEMA_EXTENSION_KEY,
-} from '../fragments/schemas';
-import { createResourcesFragment } from '../fragments/resources';
-import { createCapabilitiesFragment } from '../fragments/capabilities';
-import { createCapabilityMapFragment } from '../fragments/capability-map';
-import { createDiagnosticsFragment } from '../fragments/diagnostics';
-import { createBlocksFragment } from '../fragments/blocks';
-import { createOrderingFragment } from '../fragments/ordering';
+} from '../fragments/ir.schemas.core';
+import { createResourcesFragment } from '../fragments/ir.resources.core';
+import { createCapabilitiesFragment } from '../fragments/ir.capabilities.core';
+import { createCapabilityMapFragment } from '../fragments/ir.capability-map.core';
+import { createDiagnosticsFragment } from '../fragments/ir.diagnostics.core';
+import { createBlocksFragment } from '../fragments/ir.blocks.core';
+import { createOrderingFragment } from '../fragments/ir.ordering.core';
 import { createValidationFragment } from '../fragments/validation';
 
 describe('next IR public surface', () => {

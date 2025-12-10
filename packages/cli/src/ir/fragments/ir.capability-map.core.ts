@@ -1,9 +1,12 @@
 import { WPKernelError } from '@wpkernel/core/error';
+import { createHelper } from '../../runtime';
 import type {
 	CapabilityCapabilityDescriptor,
 	CapabilityMapDefinition,
 	CapabilityMapEntry,
-} from '../../capability-map';
+	IrFragment,
+	IrFragmentApplyOptions,
+} from '../types';
 import type {
 	IRCapabilityHint,
 	IRCapabilityMap,
@@ -11,7 +14,32 @@ import type {
 	IRResource,
 	IRWarning,
 } from '../publicTypes';
-import { createCapabilityId } from './identity';
+import { createCapabilityId } from '../shared/identity';
+
+/**
+ * Creates an IR fragment that resolves and assigns the capability map to the IR.
+ *
+ * This fragment depends on the resources and capabilities fragments to build a
+ * comprehensive map of all capabilities used within the project.
+ *
+ * @category IR
+ * @returns An `IrFragment` instance for capability map resolution.
+ */
+export function createCapabilityMapFragment(): IrFragment {
+	return createHelper({
+		key: 'ir.capability-map.core',
+		kind: 'fragment',
+		dependsOn: ['ir.resources.core', 'ir.capabilities.core'],
+		apply({ input, output }: IrFragmentApplyOptions) {
+			const capabilityMap = resolveCapabilityMap({
+				hints: input.draft.capabilities,
+				resources: input.draft.resources,
+			});
+
+			output.assign({ capabilityMap });
+		},
+	});
+}
 
 interface ResolveCapabilityMapOptions {
 	hints: IRCapabilityHint[];
@@ -37,9 +65,9 @@ interface CapabilityResolutionContext {
  * @param    options
  * @category IR
  */
-export async function resolveCapabilityMap(
+export function resolveCapabilityMap(
 	options: ResolveCapabilityMapOptions
-): Promise<IRCapabilityMap> {
+): IRCapabilityMap {
 	const context = createResolutionContext(options);
 
 	// Collect inline capability maps from resources
@@ -49,7 +77,7 @@ export async function resolveCapabilityMap(
 		return createMissingMapResult(context);
 	}
 
-	const result = await buildResolvedCapabilityMap({
+	const result = buildResolvedCapabilityMap({
 		map: inlineMap,
 		referencedKeys: context.referencedKeys,
 		hints: options.hints,
@@ -167,12 +195,12 @@ function createMissingMapResult(
  * @param    options.resources
  * @category IR
  */
-async function buildResolvedCapabilityMap(options: {
+function buildResolvedCapabilityMap(options: {
 	map: CapabilityMapDefinition;
 	referencedKeys: Set<string>;
 	hints: IRCapabilityHint[];
 	resources: IRResource[];
-}): Promise<Omit<IRCapabilityMap, 'fallback' | 'sourcePath'>> {
+}): Omit<IRCapabilityMap, 'fallback' | 'sourcePath'> {
 	const { map, referencedKeys, hints, resources } = options;
 	const missing = new Set(referencedKeys);
 	const warnings: IRCapabilityMap['warnings'] = [];
@@ -359,9 +387,9 @@ function coerceDescriptor(
  *
  * Strips whitespace and discards empty or non-string values.
  *
+ * @param    binding
  * @category IR
  */
-
 function normaliseBinding(binding: unknown): string | undefined {
 	if (typeof binding !== 'string') {
 		return undefined;

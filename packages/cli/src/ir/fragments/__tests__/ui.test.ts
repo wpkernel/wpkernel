@@ -60,7 +60,7 @@ describe('createUiFragment', () => {
 					name: 'jobs',
 					ui: {
 						admin: {
-							view: 'dataviews',
+							view: 'dataview',
 							menu: {
 								slug: 'jobs',
 								title: 'Jobs',
@@ -77,14 +77,8 @@ describe('createUiFragment', () => {
 			resources: [
 				{
 					resource: 'jobs',
-					preferencesKey: 'demo/dataviews/jobs',
-					dataviews: {
-						fields: [],
-						defaultView: { type: 'table' },
-						preferencesKey: 'demo/dataviews/jobs',
-					},
 					menu: {
-						slug: 'demo-jobs',
+						slug: 'jobs',
 						title: 'Jobs',
 					},
 				},
@@ -107,7 +101,7 @@ describe('createUiFragment', () => {
 					name: 'applications',
 					ui: {
 						admin: {
-							view: 'dataviews',
+							view: 'dataview',
 							menu: {
 								slug: '',
 								title: '',
@@ -124,12 +118,6 @@ describe('createUiFragment', () => {
 			resources: [
 				{
 					resource: 'applications',
-					preferencesKey: 'demo/dataviews/applications',
-					dataviews: {
-						fields: [],
-						defaultView: { type: 'table' },
-						preferencesKey: 'demo/dataviews/applications',
-					},
 				},
 			],
 			loader: {

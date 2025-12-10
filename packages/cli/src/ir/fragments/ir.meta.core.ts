@@ -3,10 +3,10 @@ import { sanitizeNamespace } from '@wpkernel/core/namespace';
 import { WPKernelError } from '@wpkernel/core/error';
 import { createHelper } from '../../runtime';
 import type { IrFragment, IrFragmentApplyOptions } from '../types';
-import { toWorkspaceRelative } from '../../utils';
 import { createPhpNamespace } from '../shared/php';
-import { enumerateFeatures } from '../shared/features';
 import { buildPluginMeta } from '../shared/pluginMeta';
+import { toWorkspaceRelative } from '../../workspace';
+import type { WPKernelConfigV1 } from '../../config';
 
 /**
  * The extension key for the meta fragment.
@@ -26,11 +26,11 @@ export const META_EXTENSION_KEY = 'ir.meta.core';
  */
 export function createMetaFragment(): IrFragment {
 	return createHelper({
-		key: 'ir.meta.core',
+		key: META_EXTENSION_KEY,
 		kind: 'fragment',
 		mode: 'override',
 		dependsOn: ['ir.layout.core'],
-		async apply({ input, output }: IrFragmentApplyOptions) {
+		async apply({ input, output, context }: IrFragmentApplyOptions) {
 			const sanitizedNamespace = sanitizeNamespace(
 				input.options.namespace
 			);
@@ -53,7 +53,10 @@ export function createMetaFragment(): IrFragment {
 			const meta = {
 				version: 1 as const,
 				namespace: input.options.namespace,
-				sourcePath: toWorkspaceRelative(input.options.sourcePath),
+				sourcePath: toWorkspaceRelative(
+					context.workspace.root,
+					input.options.sourcePath
+				),
 				origin: input.options.origin,
 				sanitizedNamespace,
 				plugin: buildPluginMeta({
@@ -102,4 +105,31 @@ function deriveAutoloadRoot(resolveLayout: (id: string) => string): string {
 		// Default to legacy autoload root when layout lacks a controllers entry.
 		return 'inc/';
 	}
+}
+const BASE_FEATURES = ['capabilityMap', 'phpAutoload'] as const;
+/**
+ * Determine the IR feature set derived from the loaded config.
+ *
+ * @param config - Loaded workspace configuration
+ */
+
+export function enumerateFeatures(config: WPKernelConfigV1): string[] {
+	const features = new Set<string>(BASE_FEATURES);
+
+	if (Object.keys(config.resources ?? {}).length > 0) {
+		features.add('resources');
+	}
+
+	if (Object.keys(config.schemas ?? {}).length > 0) {
+		features.add('schemas');
+	}
+
+	const hasUi = Object.values(config.resources ?? {}).some((resource) =>
+		Boolean(resource.ui)
+	);
+	if (hasUi) {
+		features.add('uiRegistry');
+	}
+
+	return Array.from(features).sort();
 }

@@ -1,24 +1,24 @@
 import path from 'node:path';
 import type { Reporter } from '@wpkernel/core/reporter';
 import { createNoopReporter as buildNoopReporter } from '@wpkernel/core/reporter';
-import type { BuildIrOptions, IRv1 } from './publicTypes';
+import type { FragmentIrOptions, IRv1 } from './publicTypes';
 import { createPipeline } from '../runtime';
 import type { PipelinePhase, Pipeline } from '../runtime';
 import type { Workspace } from '../workspace';
 import { buildWorkspace } from '../workspace';
-import { createMetaFragment } from './fragments/meta';
-import { createLayoutFragment } from './fragments/layout';
-import { createSchemasFragment } from './fragments/schemas';
-import { createResourcesFragment } from './fragments/resources';
-import { createBundlerFragment } from './fragments/bundler';
+import { createMetaFragment } from './fragments/ir.meta.core';
+import { createLayoutFragment } from './fragments/ir.layout.core';
+import { createSchemasFragment } from './fragments/ir.schemas.core';
+import { createResourcesFragment } from './fragments/ir.resources.core';
+import { createBundlerFragment } from './fragments/ir.bundler.core';
 import { createUiFragment } from './fragments/ui';
-import { createCapabilitiesFragment } from './fragments/capabilities';
-import { createCapabilityMapFragment } from './fragments/capability-map';
-import { createBlocksFragment } from './fragments/blocks';
-import { createDiagnosticsFragment } from './fragments/diagnostics';
-import { createOrderingFragment } from './fragments/ordering';
+import { createCapabilitiesFragment } from './fragments/ir.capabilities.core';
+import { createCapabilityMapFragment } from './fragments/ir.capability-map.core';
+import { createBlocksFragment } from './fragments/ir.blocks.core';
+import { createDiagnosticsFragment } from './fragments/ir.diagnostics.core';
+import { createOrderingFragment } from './fragments/ir.ordering.core';
 import { createValidationFragment } from './fragments/validation';
-import { createArtifactsFragment } from './fragments/artifacts';
+import { createArtifactsFragment } from './fragments/ir.artifacts.plan';
 import {
 	createPlanBuilder,
 	createBundler,
@@ -133,7 +133,7 @@ function registerCoreBuilders(pipeline: Pipeline): void {
 }
 
 async function runIrPipeline(
-	options: BuildIrOptions,
+	options: FragmentIrOptions,
 	environment: CreateIrEnvironment,
 	mode: 'fragments-only' | 'with-builders'
 ): Promise<IRv1> {
@@ -179,7 +179,7 @@ async function runIrPipeline(
  * @returns A promise that resolves to the generated `IRv1` object.
  */
 export function createIr(
-	options: BuildIrOptions,
+	options: FragmentIrOptions,
 	environment: CreateIrEnvironment = {}
 ): Promise<IRv1> {
 	return runIrPipeline(options, environment, 'fragments-only');
@@ -199,7 +199,7 @@ export function createIr(
  * @returns A promise that resolves to the generated `IRv1` object.
  */
 export async function createIrWithBuilders(
-	options: BuildIrOptions,
+	options: FragmentIrOptions,
 	environment: CreateIrEnvironment = {}
 ): Promise<IRv1> {
 	return runIrPipeline(options, environment, 'with-builders');

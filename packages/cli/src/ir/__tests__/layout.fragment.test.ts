@@ -3,35 +3,15 @@ import fs from 'node:fs/promises';
 import { createIr } from '../createIr';
 import { createBaseConfig, withTempWorkspace } from '../shared/test-helpers';
 import { loadTestLayoutSync } from '@wpkernel/test-utils/layout.test-support';
+import layoutManifest from '../../../../../layout.manifest.json' assert { type: 'json' };
 
 describe('layout fragment', () => {
 	it('exposes default layout paths from manifest', async () => {
 		await withTempWorkspace(
 			async (root) => {
-				const manifest = {
-					directories: {
-						'.wpk': {
-							generate: {
-								php: 'php.generated',
-								blocks: 'blocks.generated',
-								js: 'js.generated',
-								ui: 'ui.generated',
-							},
-							apply: { base: 'plan.base' },
-							'debug-ui.json': 'debug.ui',
-							ui: {
-								$id: 'ui.applied',
-								resources: 'ui.resources.applied',
-							},
-						},
-						src: { blocks: 'blocks.applied' },
-						'plugin.php': 'plugin.loader',
-					},
-				};
-
 				await fs.writeFile(
 					path.join(root, 'layout.manifest.json'),
-					JSON.stringify(manifest, null, 2),
+					JSON.stringify(layoutManifest, null, 2),
 					'utf8'
 				);
 			},
@@ -56,29 +36,9 @@ describe('layout fragment', () => {
 	it('applies user overrides for applied targets', async () => {
 		await withTempWorkspace(
 			async (root) => {
-				const manifest = {
-					directories: {
-						'.wpk': {
-							generate: {
-								php: 'php.generated',
-								blocks: 'blocks.generated',
-								js: 'js.generated',
-								ui: 'ui.generated',
-							},
-							'debug-ui.json': 'debug.ui',
-							ui: {
-								$id: 'ui.applied',
-								resources: 'ui.resources.applied',
-							},
-						},
-						src: { blocks: 'blocks.applied' },
-						'plugin.php': 'plugin.loader',
-					},
-				};
-
 				await fs.writeFile(
 					path.join(root, 'layout.manifest.json'),
-					JSON.stringify(manifest, null, 2),
+					JSON.stringify(layoutManifest, null, 2),
 					'utf8'
 				);
 			},
@@ -174,29 +134,9 @@ describe('layout fragment', () => {
 	it('errors when resolving unknown ids', async () => {
 		await withTempWorkspace(
 			async (root) => {
-				const manifest = {
-					directories: {
-						'.wpk': {
-							generate: {
-								php: 'php.generated',
-								blocks: 'blocks.generated',
-								js: 'js.generated',
-								ui: 'ui.generated',
-							},
-							'debug-ui.json': 'debug.ui',
-							ui: {
-								$id: 'ui.applied',
-								resources: 'ui.resources.applied',
-							},
-						},
-						src: { blocks: 'blocks.applied' },
-						'plugin.php': 'plugin.loader',
-					},
-				};
-
 				await fs.writeFile(
 					path.join(root, 'layout.manifest.json'),
-					JSON.stringify(manifest, null, 2),
+					JSON.stringify(layoutManifest, null, 2),
 					'utf8'
 				);
 			},
@@ -233,12 +173,13 @@ describe('layout fragment', () => {
 					resolve: (...parts: string[]) => path.join(root, ...parts),
 				} as any;
 
-				const layout = await import('../../layout/manifest').then((m) =>
-					m.loadLayoutFromWorkspace({
-						workspace,
-						strict: false,
-					})
+				const { loadLayoutFromWorkspace } = await import(
+					'../fragments/ir.layout.core'
 				);
+				const layout = await loadLayoutFromWorkspace({
+					workspace,
+					strict: false,
+				});
 
 				expect(layout).toBeNull();
 			}

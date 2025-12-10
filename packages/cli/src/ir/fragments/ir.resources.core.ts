@@ -1,19 +1,70 @@
+import { WPKernelError } from '@wpkernel/core/error';
 import type { ResourceConfig } from '@wpkernel/core/resource';
-import { sortObject } from './canonical';
+import { createHelper } from '../../runtime';
+import { sortObject } from '../shared/canonical';
 import type {
-	BuildIrOptions,
+	FragmentIrOptions,
 	IRResource,
 	IRResourceBlocksConfig,
 	IRWarning,
 	SchemaProvenance,
 } from '../publicTypes';
-import { deriveCacheKeys, serializeCacheKeys } from './cache-keys';
-import { normaliseRoutes } from './routes';
-import type { SchemaAccumulator } from './schema';
-import { resolveResourceSchema } from './schema';
-import { buildHashProvenance } from './hashing';
-import { createResourceId } from './identity';
-import { toPascalCase } from '../../builders/php/utils';
+import { deriveCacheKeys, serializeCacheKeys } from '../shared/cache-keys';
+import { normaliseRoutes } from '../shared/routes';
+import type { SchemaAccumulator } from '../shared/schema';
+import { resolveResourceSchema } from '../shared/schema';
+import { buildHashProvenance } from '../shared/hashing';
+import { createResourceId } from '../shared/identity';
+import { toPascalCase } from '../../utils';
+import type { IrFragment, IrFragmentApplyOptions } from '../types';
+import { META_EXTENSION_KEY } from './ir.meta.core';
+import { SCHEMA_EXTENSION_KEY } from './ir.schemas.core';
+
+/**
+ * Creates an IR fragment that processes and builds resource definitions.
+ *
+ * This fragment depends on the meta and schemas fragments to properly construct
+ * the resource definitions, including their associated schemas and namespace information.
+ *
+ * @category IR
+ * @returns An `IrFragment` instance for resource processing.
+ */
+export function createResourcesFragment(): IrFragment {
+	return createHelper({
+		key: 'ir.resources.core',
+		kind: 'fragment',
+		dependsOn: [META_EXTENSION_KEY, SCHEMA_EXTENSION_KEY],
+		apply({ input, output }: IrFragmentApplyOptions) {
+			const meta = input.draft.extensions[META_EXTENSION_KEY] as
+				| { sanitizedNamespace: string }
+				| undefined;
+			if (!meta) {
+				throw new WPKernelError('ValidationError', {
+					message:
+						'Meta fragment must run before resources fragment.',
+				});
+			}
+
+			const accumulator = input.draft.extensions[SCHEMA_EXTENSION_KEY] as
+				| SchemaAccumulator
+				| undefined;
+			if (!accumulator) {
+				throw new WPKernelError('ValidationError', {
+					message:
+						'Schemas fragment must run before resources fragment.',
+				});
+			}
+
+			const resources = buildResources(
+				input.options,
+				accumulator,
+				meta.sanitizedNamespace
+			);
+
+			output.assign({ resources });
+		},
+	});
+}
 
 interface ResourceBuilderState {
 	duplicateDetector: Map<string, { resource: string; route: string }>;
@@ -35,11 +86,11 @@ type ResourceConfigWithBlocks = ResourceConfig & {
  * @param    sanitizedNamespace
  * @category IR
  */
-export async function buildResources(
-	options: BuildIrOptions,
+export function buildResources(
+	options: FragmentIrOptions,
 	accumulator: SchemaAccumulator,
 	sanitizedNamespace: string
-): Promise<IRResource[]> {
+): IRResource[] {
 	const state: ResourceBuilderState = {
 		duplicateDetector: new Map<
 			string,
@@ -62,7 +113,7 @@ export async function buildResources(
 
 		resourceConfig.name = name;
 
-		const resource = await buildResourceEntry({
+		const resource = buildResourceEntry({
 			accumulator,
 			resourceConfig,
 			resourceKey,
@@ -91,14 +142,14 @@ export async function buildResources(
  * @param    options.namespace
  * @category IR
  */
-async function buildResourceEntry(options: {
+function buildResourceEntry(options: {
 	accumulator: SchemaAccumulator;
 	sanitizedNamespace: string;
 	resourceKey: string;
 	resourceConfig: ResourceConfigWithBlocks;
 	state: ResourceBuilderState;
 	namespace: string;
-}): Promise<IRResource> {
+}): IRResource {
 	const {
 		accumulator,
 		resourceKey,
@@ -108,7 +159,7 @@ async function buildResourceEntry(options: {
 		namespace,
 	} = options;
 
-	const schemaResolution = await resolveResourceSchema(
+	const schemaResolution = resolveResourceSchema(
 		resourceKey,
 		resourceConfig,
 		accumulator,
@@ -276,6 +327,7 @@ function normaliseResourceBlocks(
 	}
 	return undefined;
 }
+
 /**
  * Records collisions in inferred WordPress post types across resources.
  *

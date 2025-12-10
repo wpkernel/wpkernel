@@ -1,4 +1,5 @@
 import type { IRPluginMeta } from '../../src/ir/publicTypes';
+import { toPascalCase } from '../../src/utils';
 
 const FALLBACK_NAMESPACE = 'demo-plugin';
 
@@ -65,17 +66,6 @@ export function buildPluginMetaFixture({
 		license: withFallback(overrides.license, 'GPL-2.0-or-later'),
 		licenseUri: trim(overrides.licenseUri),
 	};
-}
-
-function toPascalCase(value: string): string {
-	return value
-		.split(/[^A-Za-z0-9]+/u)
-		.filter(Boolean)
-		.map(
-			(segment) =>
-				segment.charAt(0).toUpperCase() + segment.slice(1).toLowerCase()
-		)
-		.join('');
 }
 
 export function buildControllerClassName(

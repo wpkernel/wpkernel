@@ -1,9 +1,42 @@
+import { createHelper } from '../../runtime';
+import type { IrFragment, IrFragmentApplyOptions } from '../types';
 import type {
 	IRBlock,
 	IRCapabilityHint,
 	IRResource,
 	IRSchema,
 } from '../publicTypes';
+
+/**
+ * Creates an IR fragment that sorts various IR collections for consistent output.
+ *
+ * This fragment depends on schemas, resources, capabilities, and blocks fragments
+ * to ensure that these collections are consistently ordered in the IR,
+ * which is important for reproducible code generation.
+ *
+ * @category IR
+ * @returns An `IrFragment` instance for ordering IR collections.
+ */
+export function createOrderingFragment(): IrFragment {
+	return createHelper({
+		key: 'ir.ordering.core',
+		kind: 'fragment',
+		dependsOn: [
+			'ir.schemas.core',
+			'ir.resources.core',
+			'ir.capabilities.core',
+			'ir.blocks.core',
+		],
+		apply({ input, output }: IrFragmentApplyOptions) {
+			output.assign({
+				schemas: sortSchemas(input.draft.schemas),
+				resources: sortResources(input.draft.resources),
+				capabilities: sortCapabilities(input.draft.capabilities),
+				blocks: sortBlocks(input.draft.blocks),
+			});
+		},
+	});
+}
 
 /**
  * Return a new array of schemas sorted by their key property.
@@ -15,7 +48,7 @@ import type {
  * @returns New sorted array of IRSchema
  * @category IR
  */
-export function sortSchemas(schemas: IRSchema[]): IRSchema[] {
+function sortSchemas(schemas: IRSchema[]): IRSchema[] {
 	return schemas.slice().sort((a, b) => a.key.localeCompare(b.key));
 }
 
@@ -27,7 +60,7 @@ export function sortSchemas(schemas: IRSchema[]): IRSchema[] {
  * @returns New sorted array of IRResource
  * @category IR
  */
-export function sortResources(resources: IRResource[]): IRResource[] {
+function sortResources(resources: IRResource[]): IRResource[] {
 	return resources.slice().sort((a, b) => {
 		const nameComparison = a.name.localeCompare(b.name);
 		if (nameComparison !== 0) {
@@ -45,7 +78,7 @@ export function sortResources(resources: IRResource[]): IRResource[] {
  * @returns Sorted capability hints
  * @category IR
  */
-export function sortCapabilities(
+function sortCapabilities(
 	capabilities: IRCapabilityHint[]
 ): IRCapabilityHint[] {
 	return capabilities.slice().sort((a, b) => a.key.localeCompare(b.key));
@@ -58,6 +91,6 @@ export function sortCapabilities(
  * @returns Sorted blocks
  * @category IR
  */
-export function sortBlocks(blocks: IRBlock[]): IRBlock[] {
+function sortBlocks(blocks: IRBlock[]): IRBlock[] {
 	return blocks.slice().sort((a, b) => a.key.localeCompare(b.key));
 }

@@ -27,7 +27,7 @@ describe('ui fragment (branches)', () => {
 		return output.assign.mock.calls[0]?.[0]?.ui;
 	};
 
-	it('skips resources without dataviews view', async () => {
+	it('skips resources without dataview view', async () => {
 		const ui = await apply([
 			{
 				name: 'res1',
@@ -41,7 +41,7 @@ describe('ui fragment (branches)', () => {
 		const ui = await apply([
 			{
 				name: 'res1',
-				ui: { admin: { view: 'dataviews' } }, // menu missing
+				ui: { admin: { view: 'dataview' } }, // menu missing
 			},
 		]);
 		expect(ui.resources).toHaveLength(1);
@@ -52,26 +52,26 @@ describe('ui fragment (branches)', () => {
 		const ui = await apply([
 			{
 				name: 'res1',
-				ui: { admin: { view: 'dataviews', menu: {} } },
+				ui: { admin: { view: 'dataview', menu: {} } },
 			},
 		]);
 		expect(ui.resources).toHaveLength(1);
 		expect(ui.resources[0].menu).toBeUndefined();
 	});
 
-	it('normalises menu slug (prefixes namespace if missing)', async () => {
+	it('normalises menu slug (keeps provided slug)', async () => {
 		const ui = await apply(
 			[
 				{
 					name: 'res1',
 					ui: {
-						admin: { view: 'dataviews', menu: { slug: 'my-slug' } },
+						admin: { view: 'dataview', menu: { slug: 'my-slug' } },
 					},
 				},
 			],
 			{ sanitizedNamespace: 'ns' }
 		);
-		expect(ui.resources[0].menu.slug).toBe('ns-my-slug');
+		expect(ui.resources[0].menu.slug).toBe('my-slug');
 	});
 
 	it('normalises menu slug (keeps prefix if present)', async () => {
@@ -80,7 +80,7 @@ describe('ui fragment (branches)', () => {
 				{
 					name: 'res1',
 					ui: {
-						admin: { view: 'dataviews', menu: { slug: 'ns-slug' } },
+						admin: { view: 'dataview', menu: { slug: 'ns-slug' } },
 					},
 				},
 			],
@@ -94,7 +94,7 @@ describe('ui fragment (branches)', () => {
 			[
 				{
 					name: 'res1',
-					ui: { admin: { view: 'dataviews', menu: { slug: 'ns' } } },
+					ui: { admin: { view: 'dataview', menu: { slug: 'ns' } } },
 				},
 			],
 			{ sanitizedNamespace: 'ns' }
@@ -106,7 +106,7 @@ describe('ui fragment (branches)', () => {
 		const ui = await apply([
 			{
 				name: 'res1',
-				ui: { admin: { view: 'dataviews', menu: { slug: 123 } } },
+				ui: { admin: { view: 'dataview', menu: { slug: 123 } } },
 			},
 		]);
 		// If all fields invalid, menu becomes undefined
@@ -117,7 +117,7 @@ describe('ui fragment (branches)', () => {
 		const ui = await apply([
 			{
 				name: 'res1',
-				ui: { admin: { view: 'dataviews', menu: { slug: '   ' } } },
+				ui: { admin: { view: 'dataview', menu: { slug: '   ' } } },
 			},
 		]);
 		expect(ui.resources[0].menu).toBeUndefined();
@@ -128,7 +128,7 @@ describe('ui fragment (branches)', () => {
 			{
 				name: 'res1',
 				ui: {
-					admin: { view: 'dataviews', menu: { title: 'My Title' } },
+					admin: { view: 'dataview', menu: { title: 'My Title' } },
 				},
 			},
 		]);
@@ -139,7 +139,7 @@ describe('ui fragment (branches)', () => {
 		const ui = await apply([
 			{
 				name: 'res1',
-				ui: { admin: { view: 'dataviews', menu: { title: 123 } } },
+				ui: { admin: { view: 'dataview', menu: { title: 123 } } },
 			},
 		]);
 		expect(ui.resources[0].menu).toBeUndefined();
@@ -151,7 +151,7 @@ describe('ui fragment (branches)', () => {
 				name: 'res1',
 				ui: {
 					admin: {
-						view: 'dataviews',
+						view: 'dataview',
 						menu: { capability: 'manage_options' },
 					},
 				},
@@ -165,21 +165,21 @@ describe('ui fragment (branches)', () => {
 			{
 				name: 'res1',
 				ui: {
-					admin: { view: 'dataviews', menu: { capability: 123 } },
+					admin: { view: 'dataview', menu: { capability: 123 } },
 				},
 			},
 		]);
 		expect(ui.resources[0].menu).toBeUndefined();
 	});
 
-	it('normalises parent (prefixes namespace)', async () => {
+	it('normalises parent (keeps provided parent)', async () => {
 		const ui = await apply(
 			[
 				{
 					name: 'res1',
 					ui: {
 						admin: {
-							view: 'dataviews',
+							view: 'dataview',
 							menu: { parent: 'parent' },
 						},
 					},
@@ -187,7 +187,7 @@ describe('ui fragment (branches)', () => {
 			],
 			{ sanitizedNamespace: 'ns' }
 		);
-		expect(ui.resources[0].menu.parent).toBe('ns-parent');
+		expect(ui.resources[0].menu.parent).toBe('parent');
 	});
 
 	it('ignores invalid parent', async () => {
@@ -195,7 +195,7 @@ describe('ui fragment (branches)', () => {
 			[
 				{
 					name: 'res1',
-					ui: { admin: { view: 'dataviews', menu: { parent: 123 } } },
+					ui: { admin: { view: 'dataview', menu: { parent: 123 } } },
 				},
 			],
 			{ sanitizedNamespace: 'ns' }
@@ -207,7 +207,7 @@ describe('ui fragment (branches)', () => {
 		const ui = await apply([
 			{
 				name: 'res1',
-				ui: { admin: { view: 'dataviews', menu: { position: 10 } } },
+				ui: { admin: { view: 'dataview', menu: { position: 10 } } },
 			},
 		]);
 		expect(ui.resources[0].menu.position).toBe(10);
@@ -218,7 +218,7 @@ describe('ui fragment (branches)', () => {
 			{
 				name: 'res1',
 				ui: {
-					admin: { view: 'dataviews', menu: { position: Infinity } },
+					admin: { view: 'dataview', menu: { position: Infinity } },
 				},
 			},
 		]);
@@ -229,7 +229,7 @@ describe('ui fragment (branches)', () => {
 		const ui = await apply([
 			{
 				name: 'res1',
-				ui: { admin: { view: 'dataviews', menu: { position: '10' } } },
+				ui: { admin: { view: 'dataview', menu: { position: '10' } } },
 			},
 		]);
 		expect(ui.resources[0].menu).toBeUndefined();
@@ -241,7 +241,7 @@ describe('ui fragment (branches)', () => {
 			[
 				{
 					name: 'res1',
-					ui: { admin: { view: 'dataviews' } },
+					ui: { admin: { view: 'dataview' } },
 				},
 			],
 			{}

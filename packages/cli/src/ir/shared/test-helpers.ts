@@ -2,8 +2,11 @@ import path from 'node:path';
 import os from 'node:os';
 import fs from 'node:fs/promises';
 import { createHash } from 'node:crypto';
+import defaultLayoutManifest from '../../../../../layout.manifest.json' assert { type: 'json' };
 import type { WPKernelConfigV1 } from '../../config/types';
 import { WPK_CONFIG_SOURCES } from '@wpkernel/core/contracts';
+import type { IRArtifactsPlan } from '../publicTypes';
+import { resolveLayoutFromManifest } from '../fragments/ir.layout.core';
 
 /**
  * Path to fixture directory containing test-only resource and schema files.
@@ -27,6 +30,9 @@ const DEFAULT_LAYOUT_MANIFEST = path.resolve(
 	__dirname,
 	'../../../../../layout.manifest.json'
 );
+const DEFAULT_LAYOUT = resolveLayoutFromManifest({
+	manifest: defaultLayoutManifest,
+});
 
 export interface TempWorkspaceOptions {
 	readonly copyLayoutManifest?: boolean;
@@ -153,4 +159,106 @@ export async function withTempWorkspace(
 	} finally {
 		await fs.rm(tempDir, { recursive: true, force: true });
 	}
+}
+
+export function createArtifactsFixture(
+	overrides: Partial<IRArtifactsPlan> = {}
+): IRArtifactsPlan {
+	const entryGenerated = DEFAULT_LAYOUT.resolve('entry.generated');
+	const entryApplied = DEFAULT_LAYOUT.resolve('entry.applied');
+	const runtimeGenerated = DEFAULT_LAYOUT.resolve('runtime.generated');
+	const runtimeApplied = DEFAULT_LAYOUT.resolve('runtime.applied');
+	const blocksGenerated = DEFAULT_LAYOUT.resolve('blocks.generated');
+	const phpGenerated = DEFAULT_LAYOUT.resolve('php.generated');
+	const pluginLoaderPath = DEFAULT_LAYOUT.resolve('plugin.loader');
+
+	const base: IRArtifactsPlan = {
+		pluginLoader: {
+			id: 'plugin.loader',
+			absolutePath: pluginLoaderPath,
+			importSpecifier: undefined,
+		},
+		controllers: {},
+		resources: {},
+		surfaces: {},
+		blocks: {},
+		schemas: {},
+		runtime: {
+			entry: {
+				generated: entryGenerated,
+				applied: entryApplied,
+			},
+			runtime: {
+				generated: runtimeGenerated,
+				applied: runtimeApplied,
+			},
+			blocksRegistrarPath: path.posix.join(
+				blocksGenerated,
+				'auto-register.ts'
+			),
+			uiLoader: undefined,
+		},
+		bundler: {
+			configPath: DEFAULT_LAYOUT.resolve('bundler.config'),
+			assetsPath: DEFAULT_LAYOUT.resolve('bundler.assets'),
+			shimsDir: DEFAULT_LAYOUT.resolve('bundler.shims'),
+			aliasRoot: path.posix.dirname(runtimeGenerated),
+			entryPoint: path.posix.extname(entryGenerated)
+				? entryGenerated
+				: path.posix.join(entryGenerated, 'index.tsx'),
+		},
+		plan: {
+			planManifestPath: DEFAULT_LAYOUT.resolve('plan.manifest'),
+			planBaseDir: DEFAULT_LAYOUT.resolve('plan.base'),
+			planIncomingDir: DEFAULT_LAYOUT.resolve('plan.incoming'),
+			patchManifestPath: DEFAULT_LAYOUT.resolve('patch.manifest'),
+		},
+		php: {
+			pluginLoaderPath,
+			autoload: {
+				strategy: 'composer',
+				autoloadPath: path.posix.join(
+					path.posix.dirname(path.posix.dirname(phpGenerated)),
+					'vendor',
+					'autoload.php'
+				),
+			},
+			blocksManifestPath: path.posix.join(
+				phpGenerated,
+				'build',
+				'blocks-manifest.php'
+			),
+			blocksRegistrarPath: path.posix.join(
+				phpGenerated,
+				'Blocks',
+				'Register.php'
+			),
+			blocks: {},
+			controllers: {},
+			debugUiPath: DEFAULT_LAYOUT.resolve('debug.ui'),
+		},
+	};
+
+	const pickSection = <K extends keyof IRArtifactsPlan>(
+		key: K
+	): IRArtifactsPlan[K] => {
+		const value = overrides[key];
+		return (value ?? base[key]) as IRArtifactsPlan[K];
+	};
+
+	// Shallow spread isn’t enough for nested buckets, so keep maps/sections
+	// stable unless explicitly overridden.
+	return {
+		...base,
+		...overrides,
+		pluginLoader: pickSection('pluginLoader'),
+		controllers: pickSection('controllers'),
+		resources: pickSection('resources'),
+		surfaces: pickSection('surfaces'),
+		blocks: pickSection('blocks'),
+		schemas: pickSection('schemas'),
+		runtime: pickSection('runtime'),
+		bundler: pickSection('bundler'),
+		php: pickSection('php'),
+	};
 }

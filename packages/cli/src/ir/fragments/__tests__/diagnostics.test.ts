@@ -1,6 +1,6 @@
 import { createReporterMock as buildReporterMock } from '@cli-tests/reporter';
 import type { WPKernelConfigV1 } from '../../../config/types';
-import { createDiagnosticsFragment } from '../diagnostics';
+import { createDiagnosticsFragment } from '../ir.diagnostics.core';
 import { buildIrDraft, buildIrFragmentOutput } from '../../types';
 import { buildEmptyGenerationState } from '../../../apply/manifest';
 

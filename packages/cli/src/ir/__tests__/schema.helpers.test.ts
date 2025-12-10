@@ -162,7 +162,7 @@ describe('schema helpers', () => {
 		expect(first.schemaKey).toBe(second.schemaKey);
 		expect(accumulator.entries).toHaveLength(1);
 
-		await expect(
+		expect(() =>
 			resolveResourceSchema(
 				'invalid',
 				{
@@ -173,7 +173,7 @@ describe('schema helpers', () => {
 				accumulator,
 				'example'
 			)
-		).rejects.toBeInstanceOf(WPKernelError);
+		).toThrow(WPKernelError);
 	});
 
 	it('registers inline schema objects and reuses identical definitions', async () => {

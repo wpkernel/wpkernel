@@ -26,7 +26,6 @@ async function buildIr(options: {
 
 describe('buildIr - core behaviours', () => {
 	it('constructs a deterministic IR for manual schemas', async () => {
-		const schemaPath = path.join(FIXTURE_ROOT, 'schemas/todo.schema.json');
 		const config = createBaseConfig();
 		config.schemas = {
 			todo: {
@@ -69,7 +68,7 @@ describe('buildIr - core behaviours', () => {
 		expect(ir.meta).toMatchObject({
 			version: 1,
 			namespace: 'test-namespace',
-			sourcePath: path.relative(process.cwd(), FIXTURE_CONFIG_PATH),
+			sourcePath: 'wpk.config.ts',
 			origin: 'wpk.config.ts',
 			sanitizedNamespace: 'test-namespace',
 		});
@@ -78,9 +77,7 @@ describe('buildIr - core behaviours', () => {
 		const [schema] = ir.schemas;
 		expect(schema?.key).toBe('todo');
 		expect(schema?.provenance).toBe('manual');
-		expect(schema?.sourcePath).toBe(
-			path.relative(process.cwd(), schemaPath)
-		);
+		expect(schema?.sourcePath).toBe('schemas/todo.schema.json');
 		expect(schema?.hash.value).toBe(canonicalHash(schema?.schema));
 
 		expect(ir.resources).toHaveLength(1);
@@ -158,7 +155,7 @@ describe('buildIr - core behaviours', () => {
 				},
 				ui: {
 					admin: {
-						view: 'dataviews',
+						view: 'dataview',
 						dataviews: buildDataViewsConfig(),
 					},
 				},
@@ -174,13 +171,6 @@ describe('buildIr - core behaviours', () => {
 
 		const uiResource = ir.ui?.resources?.[0];
 		expect(uiResource?.resource).toBe('job');
-		expect(uiResource?.dataviews).toEqual(
-			expect.objectContaining({
-				preferencesKey: `${config.namespace}/dataviews/job`,
-				fields: [],
-				defaultView: { type: 'table' },
-			})
-		);
 	});
 
 	it('synthesises schemas when resources use auto mode', async () => {
@@ -284,8 +274,6 @@ describe('buildIr - core behaviours', () => {
 			namespace: config.namespace,
 		});
 
-		expect(ir.schemas[0]?.sourcePath).toBe(
-			path.relative(process.cwd(), absoluteSchema)
-		);
+		expect(ir.schemas[0]?.sourcePath).toBe('schemas/todo.schema.json');
 	});
 });

@@ -2,7 +2,7 @@ import path from 'node:path';
 import os from 'node:os';
 import fs from 'node:fs/promises';
 import { WPKernelError } from '@wpkernel/core/error';
-import { discoverBlocks } from '../shared/block-discovery';
+import { discoverBlocks } from '../fragments/ir.blocks.core';
 
 describe('block discovery (layout-scoped)', () => {
 	it('returns empty when blocks root is missing', async () => {

@@ -6,6 +6,7 @@
 		"skipLibCheck": true,
 		"composite": false
 	},
+	"exclude": [],
 	"include": [
 		"src/**/**/*.test.ts",
 		"src/**/**/*.test.tsx",

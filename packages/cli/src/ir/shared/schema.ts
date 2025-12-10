@@ -7,14 +7,15 @@ import type {
 	ResourcePostMetaDescriptor,
 } from '@wpkernel/core/resource';
 import type {
-	BuildIrOptions,
+	FragmentIrOptions,
 	IRSchema,
 	SchemaProvenance,
 } from '../publicTypes';
-import { resolveFromWorkspace, toWorkspaceRelative } from '../../utils';
 import { hashCanonical, sortObject } from './canonical';
 import { buildHashProvenance } from './hashing';
 import { createSchemaId } from './identity';
+import { toWorkspaceRelative } from '../../workspace';
+import { resolveFromWorkspace } from '../../workspace/utilities';
 
 const JSON_SCHEMA_URL = 'https://json-schema.org/draft/2020-12/schema';
 const SCHEMA_REGISTRY_BASE_URL = `https://schemas.${WPK_NAMESPACE}.dev`;
@@ -49,13 +50,15 @@ export function createSchemaAccumulator(): SchemaAccumulator {
  * Each configured schema is resolved from the configured path, loaded,
  * hashed and stored with provenance metadata.
  *
- * @param    options     - Build IR options containing config and sourcePath
- * @param    accumulator - SchemaAccumulator to populate
+ * @param    options       - Build IR options containing config and sourcePath
+ * @param    accumulator   - SchemaAccumulator to populate
+ * @param    workspaceRoot
  * @category IR
  */
 export async function loadConfiguredSchemas(
-	options: BuildIrOptions,
-	accumulator: SchemaAccumulator
+	options: FragmentIrOptions,
+	accumulator: SchemaAccumulator,
+	workspaceRoot: string
 ): Promise<void> {
 	const schemaEntries = Object.entries(options.config.schemas);
 
@@ -73,10 +76,10 @@ export async function loadConfiguredSchemas(
 				key,
 				provenance: 'manual',
 				schema,
-				sourcePath: toWorkspaceRelative(resolvedPath),
+				sourcePath: toWorkspaceRelative(workspaceRoot, resolvedPath),
 			}),
 			key,
-			sourcePath: toWorkspaceRelative(resolvedPath),
+			sourcePath: toWorkspaceRelative(workspaceRoot, resolvedPath),
 			hash,
 			schema,
 			provenance: 'manual',
@@ -101,12 +104,12 @@ export async function loadConfiguredSchemas(
  * @returns Object with chosen schemaKey and its provenance
  * @category IR
  */
-export async function resolveResourceSchema(
+export function resolveResourceSchema(
 	resourceKey: string,
 	resource: ResourceConfig,
 	accumulator: SchemaAccumulator,
 	sanitizedNamespace: string
-): Promise<{ schemaKey: string; provenance: SchemaProvenance }> {
+): { schemaKey: string; provenance: SchemaProvenance } {
 	const schema = inferSchemaSetting(resource);
 
 	if (schema === 'auto') {

@@ -221,9 +221,7 @@ export interface IRUiMenuConfig {
  */
 export interface IRUiResourceDescriptor {
 	readonly resource: string;
-	readonly preferencesKey: string;
 	readonly menu?: IRUiMenuConfig;
-	readonly dataviews?: Record<string, unknown>;
 }
 
 export interface IRUiLoader {
@@ -485,12 +483,14 @@ export interface IRResourceTsPlan {
  *
  * @category IR
  */
-export interface IRUiResourcePlan {
+export interface IRSurfacePlan {
 	appDir: string;
-	generatedAppDir?: string;
-	pagePath?: string;
-	formPath?: string;
-	configPath?: string;
+	generatedAppDir: string;
+	pagePath: string;
+	formPath: string;
+	configPath: string;
+	resource: string;
+	menu?: IRUiMenuConfig;
 }
 
 /**
@@ -501,13 +501,13 @@ export interface IRUiResourcePlan {
 export interface IRBlockPlan {
 	key: string;
 	appliedDir: string;
-	generatedDir?: string;
+	generatedDir: string;
 	jsonPath: string;
-	tsEntry?: string;
-	tsView?: string;
-	tsHelper?: string;
+	tsEntry: string;
+	tsView: string;
+	tsHelper: string;
 	phpRenderPath?: string;
-	mode?: ResourceBlocksMode;
+	mode: ResourceBlocksMode;
 }
 
 /**
@@ -522,31 +522,45 @@ export interface IRSchemaPlan {
 /**
  * Aggregated artifact plan available to builders.
  *
+ * All top-level plans (`pluginLoader`, `runtime`, `php`, `bundler`, etc.) are always present
+ * once the IR is assembled. Optionality now lives inside leaf plans (e.g. `uiLoader`, `phpRenderPath`)
+ * rather than at the top level.
+ *
  * @category IR
  */
 export interface IRArtifactsPlan {
-	pluginLoader?: IRArtifactFilePlan;
+	pluginLoader: IRArtifactFilePlan;
 	controllers: Record<string, IRControllerPlan>;
 	resources: Record<string, IRResourceTsPlan>;
-	uiResources: Record<string, IRUiResourcePlan>;
+	surfaces: Record<string, IRSurfacePlan>;
 	blocks: Record<string, IRBlockPlan>;
 	schemas: Record<string, IRSchemaPlan>;
-	js?: IRJsArtifactsPlan;
-	php?: IRPhpArtifactsPlan;
+	runtime: IRRuntimeArtifactsPlan;
+	php: IRPhpArtifactsPlan;
+	bundler: IRBundlerArtifactsPlan;
+	plan: IRPlanArtifacts;
 }
 
-export interface IRJsArtifactsPlan {
-	capabilities: {
-		modulePath: string;
-		declarationPath: string;
-	};
-	index: {
-		modulePath: string;
-		declarationPath: string;
-	};
-	uiRuntimePath: string;
-	uiEntryPath: string;
+export interface IRRuntimeArtifactsPlan {
+	entry: { generated: string; applied: string };
+	runtime: { generated: string; applied: string };
 	blocksRegistrarPath: string;
+	uiLoader?: IRUiLoader;
+}
+
+export interface IRBundlerArtifactsPlan {
+	configPath: string;
+	assetsPath: string;
+	shimsDir: string;
+	aliasRoot: string;
+	entryPoint: string;
+}
+
+export interface IRPlanArtifacts {
+	planManifestPath: string;
+	planBaseDir: string;
+	planIncomingDir: string;
+	patchManifestPath: string;
 }
 
 export interface IRPhpArtifactsPlan {
@@ -693,7 +707,7 @@ export interface IRv1 {
  *
  * @category IR
  */
-export interface BuildIrOptions {
+export interface FragmentIrOptions {
 	/**
 	 * Normalised configuration surface available to IR builders.
 	 *

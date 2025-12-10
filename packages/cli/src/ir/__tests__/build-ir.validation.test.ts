@@ -269,7 +269,7 @@ describe('buildIr - validation', () => {
 			namespace: config.namespace,
 		});
 
-		expect(ir.schemas[0]?.sourcePath).toBe(schemaPath);
+		expect(ir.schemas[0]?.sourcePath).toBe('schemas/todo.schema.json');
 	});
 
 	it('rejects empty route definitions', async () => {

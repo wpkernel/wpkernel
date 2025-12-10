@@ -2,18 +2,53 @@ import path from 'node:path';
 import fs from 'node:fs/promises';
 import type { Dirent } from 'node:fs';
 import { WPKernelError } from '@wpkernel/core/error';
+import { createHelper } from '../../runtime';
+import type { IrFragment, IrFragmentApplyOptions } from '../types';
 import type { IRBlock } from '../publicTypes';
-import { createBlockHash, createBlockId } from './identity';
+import { createBlockId, createBlockHash } from '../shared/identity';
+import { pathExists } from '../../utils';
+
+/**
+ * Creates an IR fragment that discovers and processes WordPress blocks.
+ *
+ * This fragment depends on the meta fragment to determine the workspace root
+ * and then uses `block-discovery` to find and include block definitions in the IR.
+ *
+ * @category IR
+ * @returns An `IrFragment` instance for block discovery.
+ */
+export function createBlocksFragment(): IrFragment {
+	return createHelper({
+		key: 'ir.blocks.core',
+		kind: 'fragment',
+		dependsOn: ['ir.meta.core', 'ir.layout.core'],
+		async apply({ input, output, context }: IrFragmentApplyOptions) {
+			if (!input.draft.layout) {
+				throw new WPKernelError('ValidationError', {
+					message: 'Layout fragment must run before blocks fragment.',
+				});
+			}
+
+			const blocksRoot = input.draft.layout.resolve('blocks.applied');
+			const blocks = await discoverBlocks(
+				context.workspace.root,
+				blocksRoot
+			);
+			output.assign({ blocks });
+		},
+	});
+}
 
 const SKIP_DIRECTORIES = new Set(['node_modules', '.git']);
 
 /**
- * Discover blocks by scanning the configured blocks root for block.json files.
+ * Discover blocks by scanning the layout-resolved blocks root for block.json files.
  *
  * This is intentionally scoped to the resolved layout path to avoid brittle
  * workspace-wide traversal.
- * @param workspaceRoot
- * @param blocksRoot
+ *
+ * @param workspaceRoot - Absolute workspace root from the meta fragment.
+ * @param blocksRoot    - Layout-resolved blocks root (e.g. `blocks.applied`).
  */
 export async function discoverBlocks(
 	workspaceRoot: string,
@@ -43,7 +78,7 @@ export async function discoverBlocks(
 	return blocks.sort((a, b) => a.key.localeCompare(b.key));
 }
 
-async function findManifests(root: string): Promise<string[]> {
+export async function findManifests(root: string): Promise<string[]> {
 	let entries: Dirent[];
 	try {
 		entries = await fs.readdir(root, { withFileTypes: true });
@@ -76,13 +111,13 @@ async function findManifests(root: string): Promise<string[]> {
 	return manifests;
 }
 
-async function loadBlock(
+export async function loadBlock(
 	manifestPath: string,
 	directory: string,
 	workspaceRoot: string
 ): Promise<IRBlock> {
 	const manifest = await readJson(manifestPath);
-	const key = manifest.name;
+	const key = (manifest as Record<string, unknown>).name;
 
 	if (typeof key !== 'string' || !key) {
 		throw new WPKernelError('ValidationError', {
@@ -91,7 +126,7 @@ async function loadBlock(
 	}
 
 	const hasRender =
-		typeof manifest.render === 'string' ||
+		typeof (manifest as Record<string, unknown>).render === 'string' ||
 		(await pathExists(path.join(directory, 'render.php')));
 
 	const relativeDirectory = path.relative(workspaceRoot, directory);
@@ -116,7 +151,7 @@ async function loadBlock(
 	};
 }
 
-async function readJson(
+export async function readJson(
 	manifestPath: string
 ): Promise<Record<string, unknown>> {
 	let raw: string;
@@ -140,18 +175,5 @@ async function readJson(
 			message: `Invalid JSON in block manifest ${manifestPath}.`,
 			data: error instanceof Error ? { originalError: error } : undefined,
 		});
-	}
-}
-
-async function pathExists(candidate: string): Promise<boolean> {
-	try {
-		const stat = await fs.stat(candidate);
-		return stat.isFile();
-	} catch (error) {
-		if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
-			return false;
-		}
-
-		throw error;
 	}
 }

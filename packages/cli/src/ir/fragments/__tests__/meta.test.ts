@@ -1,4 +1,4 @@
-import { createMetaFragment } from '../meta';
+import { createMetaFragment } from '../ir.meta.core';
 import { WPKernelError } from '@wpkernel/core/error';
 
 describe('createMetaFragment', () => {
@@ -18,7 +18,7 @@ describe('createMetaFragment', () => {
 			origin: 'local',
 		};
 		return {
-			context: {} as any,
+			context: { workspace: { root: '/project' } } as any,
 			input: {
 				options: { ...baseOptions, ...optionsOverrides },
 				draft,

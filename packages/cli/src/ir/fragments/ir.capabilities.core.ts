@@ -1,4 +1,27 @@
+import { createHelper } from '../../runtime';
+import type { IrFragment, IrFragmentApplyOptions } from '../types';
 import type { IRCapabilityHint, IRResource } from '../publicTypes';
+
+/**
+ * Creates an IR fragment that collects capability hints from resource definitions.
+ *
+ * This fragment depends on the resources fragment to gather all defined capabilities
+ * across the project, which are then used for generating capability maps.
+ *
+ * @category IR
+ * @returns An `IrFragment` instance for capability collection.
+ */
+export function createCapabilitiesFragment(): IrFragment {
+	return createHelper({
+		key: 'ir.capabilities.core',
+		kind: 'fragment',
+		dependsOn: ['ir.resources.core'],
+		apply({ input, output }: IrFragmentApplyOptions) {
+			const capabilities = collectCapabilityHints(input.draft.resources);
+			output.assign({ capabilities });
+		},
+	});
+}
 
 /**
  * Collect capability hints from a list of IR resources.
@@ -12,9 +35,7 @@ import type { IRCapabilityHint, IRResource } from '../publicTypes';
  * @returns Sorted array of capability hints with their references
  * @category IR
  */
-export function collectCapabilityHints(
-	resources: IRResource[]
-): IRCapabilityHint[] {
+function collectCapabilityHints(resources: IRResource[]): IRCapabilityHint[] {
 	const hints = new Map<string, IRCapabilityHint>();
 
 	for (const resource of resources) {

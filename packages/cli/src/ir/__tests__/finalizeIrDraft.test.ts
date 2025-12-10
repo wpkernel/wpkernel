@@ -3,6 +3,7 @@ import { WPKernelError } from '@wpkernel/core/error';
 import type { FragmentFinalizationMetadata } from '@wpkernel/pipeline';
 import { makeWPKernelConfigFixture } from '@cli-tests/printers.test-support';
 import { loadTestLayoutSync } from '@wpkernel/test-utils/layout.test-support';
+import { buildTestArtifactsPlan, makeIrMeta } from '@cli-tests/ir.test-support';
 
 function createHelpersMetadata(
 	executed: readonly string[],
@@ -27,13 +28,11 @@ function buildDraft(): MutableIr {
 		sourcePath: '/tmp/wpk.config.ts',
 	});
 
-	draft.meta = {
-		version: 1,
-		namespace: config.namespace,
+	draft.meta = makeIrMeta(config.namespace, {
 		sourcePath: '/tmp/wpk.config.ts',
 		origin: 'typescript',
 		sanitizedNamespace: 'TestNamespace',
-	};
+	});
 	draft.capabilityMap = {
 		sourcePath: undefined,
 		definitions: [],
@@ -56,6 +55,7 @@ function buildDraft(): MutableIr {
 		},
 		all: { foo: 'bar' },
 	};
+	draft.artifacts = buildTestArtifactsPlan(draft.layout);
 
 	return draft;
 }

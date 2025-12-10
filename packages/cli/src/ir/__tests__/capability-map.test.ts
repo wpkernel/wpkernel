@@ -1,5 +1,5 @@
 import type { IRCapabilityHint, IRResource } from '../publicTypes';
-import { resolveCapabilityMap } from '../shared/capability-map';
+import { resolveCapabilityMap } from '../fragments/ir.capability-map.core';
 import { makeIr } from '@cli-tests/ir.test-support';
 import { makeResource } from '@cli-tests/builders/fixtures.test-support';
 import { WPKernelError } from '@wpkernel/core/error';
@@ -132,8 +132,8 @@ describe('resolveCapabilityMap', () => {
 			})
 		);
 
-		await expect(
-			resolveCapabilityMap({ hints: [], resources })
-		).rejects.toThrow(WPKernelError);
+		expect(() => resolveCapabilityMap({ hints: [], resources })).toThrow(
+			WPKernelError
+		);
 	});
 });

@@ -1,13 +1,12 @@
 import fs from 'node:fs';
 import path from 'node:path';
-
 import defaultLayoutManifest from '../../../layout.manifest.json' assert { type: 'json' };
+import { buildWorkspace } from '../src/workspace';
 import {
+	type ResolvedLayout,
 	loadLayoutFromWorkspace,
 	resolveLayoutFromManifest,
-	type ResolvedLayout,
-} from '../src/layout/manifest';
-import { buildWorkspace } from '../src/workspace';
+} from '../src/ir/fragments/ir.layout.core';
 
 export interface TestLayout {
 	resolve: (id: string) => string;
@@ -59,10 +58,11 @@ export function loadTestLayoutSync(
 		readonly overrides?: Record<string, string>;
 	} = {}
 ): ResolvedLayout {
-	return resolveLayoutFromManifest({
+	const layout = resolveLayoutFromManifest({
 		manifest: defaultLayoutManifest,
 		overrides: options.overrides,
 	});
+	return layout;
 }
 
 function buildLayoutMap(
