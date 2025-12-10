@@ -9,7 +9,6 @@ import {
 
 import { makeIr } from '@cli-tests/ir.test-support';
 import { buildEmptyGenerationState } from '../../apply/manifest';
-import { loadTestLayoutSync } from '@wpkernel/test-utils/layout.test-support';
 
 function makeOptions(root: string) {
 	const workspace = buildWorkspace(root);
@@ -20,10 +19,9 @@ function makeOptions(root: string) {
 		error: jest.fn(),
 		child: jest.fn().mockReturnThis(),
 	};
-	const layout = loadTestLayoutSync();
-	const ir = { ...makeIr(), layout };
-	const blockGenerated = layout.resolve('blocks.generated');
-	const blockApplied = layout.resolve('blocks.applied');
+	const ir = makeIr();
+	const blockGenerated = ir.artifacts.blockRoots.generated;
+	const blockApplied = ir.artifacts.blockRoots.applied;
 	ir.artifacts.blocks = {
 		'demo-block': {
 			key: 'demo',
@@ -39,60 +37,63 @@ function makeOptions(root: string) {
 	};
 	const options = {
 		reporter,
-		options: {
-			reporter,
-			input: {
-				phase: 'generate' as const,
-				options: {
-					namespace: ir.meta.namespace,
-					origin: ir.meta.origin,
-					sourcePath: path.join(root, 'wpk.config.ts'),
-				},
-				ir,
+		input: {
+			phase: 'generate' as const,
+			options: {
+				namespace: ir.meta.namespace,
+				origin: ir.meta.origin,
+				sourcePath: path.join(root, 'wpk.config.ts'),
 			},
-			context: {
-				workspace,
-				reporter,
-				phase: 'generate' as const,
-				generationState: buildEmptyGenerationState(),
-			},
-			output: { actions: [], queueWrite: jest.fn() },
+			ir,
 		},
+		context: {
+			workspace,
+			reporter,
+			phase: 'generate' as const,
+			generationState: buildEmptyGenerationState(),
+		},
+		output: { actions: [], queueWrite: jest.fn() },
 	};
-	return options;
+	return { options, ir };
 }
 
 describe('plan.blocks', () => {
 	it('surfaces generated blocks into applied path', async () => {
 		const root = await fs.mkdtemp(path.join(os.tmpdir(), 'wpk-blocks-'));
-		const layout = loadTestLayoutSync();
 		try {
+			const { ir, options } = makeOptions(root);
 			const generated = path.join(
 				root,
-				layout.resolve('blocks.generated'),
+				ir.artifacts.blockRoots.generated,
 				'demo'
 			);
 			await fs.mkdir(generated, { recursive: true });
 			await fs.writeFile(path.join(generated, 'index.tsx'), '// block');
 
-			const { instructions } = await collectBlockSurfaceInstructions(
-				makeOptions(root)
-			);
+			const { instructions } = await collectBlockSurfaceInstructions({
+				options,
+			});
 
 			expect(instructions).toEqual(
 				expect.arrayContaining([
 					expect.objectContaining({
 						file: path.posix.join(
-							layout.resolve('blocks.applied'),
+							ir.artifacts.blockRoots.applied,
 							'demo/index.tsx'
 						),
 						base: path.posix.join(
-							layout.resolve('plan.base'),
-							'src/blocks/demo/index.tsx'
+							ir.artifacts.plan.planBaseDir,
+							path.posix.join(
+								ir.artifacts.blockRoots.applied,
+								'demo/index.tsx'
+							)
 						),
 						incoming: path.posix.join(
-							layout.resolve('plan.incoming'),
-							'src/blocks/demo/index.tsx'
+							ir.artifacts.plan.planIncomingDir,
+							path.posix.join(
+								ir.artifacts.blockRoots.applied,
+								'demo/index.tsx'
+							)
 						),
 					}),
 				])
@@ -104,17 +105,17 @@ describe('plan.blocks', () => {
 
 	it('returns delete instruction for orphaned blocks when base matches', async () => {
 		const root = await fs.mkdtemp(path.join(os.tmpdir(), 'wpk-blocks-'));
-		const layout = loadTestLayoutSync();
 		try {
+			const { ir, options } = makeOptions(root);
 			const applied = path.join(
 				root,
-				layout.resolve('blocks.applied'),
+				ir.artifacts.blockRoots.applied,
 				'demo'
 			);
 			const base = path.join(
 				root,
-				layout.resolve('plan.base'),
-				'src/blocks/demo'
+				ir.artifacts.plan.planBaseDir,
+				path.posix.join(ir.artifacts.blockRoots.applied, 'demo')
 			);
 			await fs.mkdir(applied, { recursive: true });
 			await fs.mkdir(base, { recursive: true });
@@ -124,7 +125,7 @@ describe('plan.blocks', () => {
 
 			const { instructions, skippedDeletions } =
 				await collectBlockDeletionInstructions({
-					options: makeOptions(root).options,
+					options,
 					generatedSuffixes: new Set(),
 				});
 
@@ -133,7 +134,10 @@ describe('plan.blocks', () => {
 				expect.arrayContaining([
 					expect.objectContaining({
 						action: 'delete',
-						file: 'src/blocks/demo/orphan.tsx',
+						file: path.posix.join(
+							ir.artifacts.blockRoots.applied,
+							'demo/orphan.tsx'
+						),
 					}),
 				])
 			);

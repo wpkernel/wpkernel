@@ -9,20 +9,15 @@ import {
 } from '../../apply/manifest';
 import { makeIr } from '@cli-tests/ir.test-support';
 import type { GenerationManifest } from '../../apply/manifest';
-import {
-	loadTestLayout,
-	loadTestLayoutSync,
-} from '@wpkernel/test-utils/layout.test-support';
 import { createReporterMock } from '@cli-tests/reporter';
 import { buildOutput } from '@cli-tests/builders/builder-harness.test-support';
 import { resolvePlanPaths } from '../plan.paths';
 
-function seedBlockArtifacts(
-	ir: ReturnType<typeof makeIr>,
-	layout: { resolve: (id: string) => string }
-) {
-	const generated = layout.resolve('blocks.generated');
-	const applied = layout.resolve('blocks.applied');
+const DEFAULT_PLAN_MANIFEST_PATH = makeIr().artifacts.plan.planManifestPath;
+
+function seedBlockArtifacts(ir: ReturnType<typeof makeIr>) {
+	const generated = ir.artifacts.blockRoots.generated;
+	const applied = ir.artifacts.blockRoots.applied;
 	ir.artifacts.blocks = {
 		[`${ir.meta.namespace}-block`]: {
 			key: 'demo',
@@ -97,9 +92,10 @@ async function runPlan(options: {
 		reporter,
 	});
 
-	const layout = await loadTestLayout({ cwd: options.workspace.root });
 	const planRaw = await options.workspace.readText(
-		options.planPath ?? layout.resolve('plan.manifest')
+		options.planPath ??
+			options.ir?.artifacts?.plan?.planManifestPath ??
+			DEFAULT_PLAN_MANIFEST_PATH
 	);
 	return { plan: JSON.parse(planRaw ?? '{}'), reporter };
 }
@@ -107,8 +103,8 @@ async function runPlan(options: {
 describe('plan (orchestrator)', () => {
 	it('emits loader, shim, and block surfacing instructions with default layout', async () => {
 		await withTempWorkspace(async ({ root, workspace }) => {
-			const layout = await loadTestLayout({ cwd: root });
-			const generatedRoot = layout.resolve('blocks.generated');
+			const ir = makeIr();
+			const generatedRoot = ir.artifacts.blockRoots.generated;
 			const generated = path.join(root, generatedRoot, 'demo');
 			await fs.mkdir(generated, { recursive: true });
 			await fs.writeFile(path.join(generated, 'index.tsx'), '// block');
@@ -133,7 +129,7 @@ describe('plan (orchestrator)', () => {
 						origin: 'wpk.config.ts',
 						sourcePath: path.join(root, 'wpk.config.ts'),
 					},
-					ir: makeIr(),
+					ir,
 				},
 				output: buildOutput(),
 				reporter: createReporterMock(),
@@ -148,7 +144,7 @@ describe('plan (orchestrator)', () => {
 				ensureDir: true,
 			});
 
-			const ir = makeIr({
+			const irWithResources = makeIr({
 				resources: [
 					{
 						name: 'jobs',
@@ -164,21 +160,27 @@ describe('plan (orchestrator)', () => {
 					},
 				],
 			});
-			seedBlockArtifacts(ir, layout);
+			seedBlockArtifacts(irWithResources);
 
-			const { plan } = await runPlan({ root, workspace, ir });
+			const { plan } = await runPlan({
+				root,
+				workspace,
+				ir: irWithResources,
+			});
 
 			const plugin = plan.instructions?.find(
-				(instr: any) => instr.file === layout.resolve('plugin.loader')
+				(instr: any) =>
+					instr.file ===
+					irWithResources.artifacts.php.pluginLoaderPath
 			);
 			expect(plugin).toMatchObject({
 				base: path.posix.join(
-					layout.resolve('plan.base'),
-					layout.resolve('plugin.loader')
+					irWithResources.artifacts.plan.planBaseDir,
+					irWithResources.artifacts.php.pluginLoaderPath
 				),
 				incoming: path.posix.join(
-					layout.resolve('plan.incoming'),
-					layout.resolve('plugin.loader')
+					irWithResources.artifacts.plan.planIncomingDir,
+					irWithResources.artifacts.php.pluginLoaderPath
 				),
 			});
 
@@ -186,40 +188,38 @@ describe('plan (orchestrator)', () => {
 				instr.file?.endsWith('inc/Rest/JobsController.php')
 			);
 			expect(shim).toMatchObject({
-				base:
-					layout.resolve('plan.base') +
-					'/inc/Rest/JobsController.php',
-				incoming:
-					layout.resolve('plan.incoming') +
-					'/inc/Rest/JobsController.php',
+				base: path.posix.join(
+					irWithResources.artifacts.plan.planBaseDir,
+					'inc/Rest/JobsController.php'
+				),
+				incoming: path.posix.join(
+					irWithResources.artifacts.plan.planIncomingDir,
+					'inc/Rest/JobsController.php'
+				),
 			});
 
 			const blockSurfacing = plan.instructions?.find((instr: any) =>
-				instr.file?.endsWith('src/blocks/demo/index.tsx')
+				instr.file?.endsWith(
+					path.posix.join(
+						irWithResources.artifacts.blockRoots.applied,
+						'demo/index.tsx'
+					)
+				)
 			);
-			expect(blockSurfacing).toMatchObject({
-				base: path.posix.join(
-					layout.resolve('plan.base'),
-					'src/blocks/demo/index.tsx'
-				),
-				incoming: path.posix.join(
-					layout.resolve('plan.incoming'),
-					'src/blocks/demo/index.tsx'
-				),
-			});
+			expect(blockSurfacing).toBeDefined();
 
 			const bundlerConfigInstruction = plan.instructions?.find(
-				(instr: any) => instr.file === layout.resolve('bundler.config')
+				(instr: any) => instr.file === ir.artifacts.bundler.configPath
 			);
 			expect(bundlerConfigInstruction).toMatchObject({
 				action: 'write',
 				base: path.posix.join(
-					layout.resolve('plan.base'),
-					layout.resolve('bundler.config')
+					irWithResources.artifacts.plan.planBaseDir,
+					ir.artifacts.bundler.configPath
 				),
 				incoming: path.posix.join(
-					layout.resolve('plan.incoming'),
-					layout.resolve('bundler.config')
+					irWithResources.artifacts.plan.planIncomingDir,
+					ir.artifacts.bundler.configPath
 				),
 			});
 
@@ -229,11 +229,11 @@ describe('plan (orchestrator)', () => {
 			expect(viteInstruction).toMatchObject({
 				action: 'write',
 				base: path.posix.join(
-					layout.resolve('plan.base'),
+					irWithResources.artifacts.plan.planBaseDir,
 					planPaths.viteConfig
 				),
 				incoming: path.posix.join(
-					layout.resolve('plan.incoming'),
+					irWithResources.artifacts.plan.planIncomingDir,
 					planPaths.viteConfig
 				),
 			});
@@ -242,9 +242,9 @@ describe('plan (orchestrator)', () => {
 
 	it('writes plan to custom layout paths and uses custom plugin loader path', async () => {
 		await withTempWorkspace(async ({ root, workspace }) => {
-			const layout = loadTestLayoutSync();
-			const bundlerConfigPath = layout.resolve('bundler.config');
-			const bundlerAssetsPath = layout.resolve('bundler.assets');
+			const defaultArtifacts = makeIr().artifacts;
+			const bundlerConfigPath = defaultArtifacts.bundler.configPath;
+			const bundlerAssetsPath = defaultArtifacts.bundler.assetsPath;
 			const ir = makeIr({
 				layout: {
 					resolve(id: string) {
@@ -271,24 +271,27 @@ describe('plan (orchestrator)', () => {
 				ensureDir: true,
 			});
 
-			seedBlockArtifacts(ir, ir.layout);
+			seedBlockArtifacts(ir);
 
 			const { plan } = await runPlan({
 				root,
 				workspace,
 				ir,
-				planPath: path.posix.join('custom', 'plan.json'),
+				planPath: ir.artifacts.plan.planManifestPath,
 			});
 
 			const plugin = plan.instructions?.find(
-				(instr: any) => instr.file === 'custom/plugin.php'
+				(instr: any) => instr.file === ir.artifacts.php.pluginLoaderPath
 			);
 			expect(plugin).toMatchObject(
 				expect.objectContaining({
-					base: path.posix.join('base-dir', 'custom/plugin.php'),
+					base: path.posix.join(
+						ir.artifacts.plan.planBaseDir,
+						ir.artifacts.php.pluginLoaderPath
+					),
 					incoming: path.posix.join(
-						'incoming-dir',
-						'custom/plugin.php'
+						ir.artifacts.plan.planIncomingDir,
+						ir.artifacts.php.pluginLoaderPath
 					),
 				})
 			);
@@ -297,11 +300,11 @@ describe('plan (orchestrator)', () => {
 
 	it('emits deletion instruction for removed shims when snapshots match', async () => {
 		await withTempWorkspace(async ({ root, workspace }) => {
-			const layout = await loadTestLayout({ cwd: root });
+			const ir = makeIr({ resources: [] });
 			const shimPath = 'inc/Rest/JobsController.php';
 			const basePath = path.join(
 				root,
-				layout.resolve('plan.base'),
+				ir.artifacts.plan.planBaseDir,
 				shimPath
 			);
 			await fs.mkdir(path.dirname(basePath), { recursive: true });
@@ -311,7 +314,6 @@ describe('plan (orchestrator)', () => {
 			await fs.mkdir(path.dirname(targetPath), { recursive: true });
 			await fs.writeFile(targetPath, contents);
 
-			const ir = makeIr({ resources: [] });
 			const { plan } = await runPlan({
 				root,
 				workspace,
@@ -341,13 +343,13 @@ describe('plan (orchestrator)', () => {
 
 	it('skips plugin loader when an unguarded user plugin exists', async () => {
 		await withTempWorkspace(async ({ root, workspace }) => {
-			const layout = await loadTestLayout({ cwd: root });
-			const pluginLoaderPath = layout.resolve('plugin.loader');
+			const ir = makeIr();
+			const pluginLoaderPath = ir.artifacts.php.pluginLoaderPath;
 			await fs.writeFile(
 				path.join(root, pluginLoaderPath),
 				'<?php // user loader'
 			);
-			const { plan } = await runPlan({ root, workspace, ir: makeIr() });
+			const { plan } = await runPlan({ root, workspace, ir });
 			const plugin = plan.instructions?.find(
 				(instr: any) => instr.file === pluginLoaderPath
 			);

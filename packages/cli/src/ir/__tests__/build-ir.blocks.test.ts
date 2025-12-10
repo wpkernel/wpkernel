@@ -5,6 +5,7 @@ import { createIr } from '../createIr';
 import { createBaseConfig, withTempWorkspace } from '../shared/test-helpers';
 import { createPipeline } from '../../runtime/createPipeline';
 import { type IRv1 } from '..';
+import { loadTestLayoutSync } from '@wpkernel/test-utils/layout.test-support';
 
 async function buildIr(options: {
 	readonly config: WPKernelConfigV1;
@@ -26,8 +27,10 @@ describe('buildIr - block discovery', () => {
 	it('discovers JS-only and SSR blocks while respecting ignore rules', async () => {
 		await withTempWorkspace(
 			async (root) => {
-				const jsBlock = path.join(root, 'src', 'blocks', 'js-block');
-				const ssrBlock = path.join(root, 'src', 'blocks', 'ssr-block');
+				const layout = loadTestLayoutSync();
+				const blocksRoot = layout.resolve('blocks.applied');
+				const jsBlock = path.join(root, blocksRoot, 'js-block');
+				const ssrBlock = path.join(root, blocksRoot, 'ssr-block');
 				const ignoredBlock = path.join(root, '.generated', 'ignored');
 
 				fs.mkdirSync(jsBlock, { recursive: true });
@@ -69,6 +72,8 @@ describe('buildIr - block discovery', () => {
 			},
 			async (root) => {
 				const originalCwd = process.cwd();
+				const layout = loadTestLayoutSync();
+				const blocksRoot = layout.resolve('blocks.applied');
 				process.chdir(root);
 				try {
 					const config = createBaseConfig();
@@ -113,11 +118,10 @@ describe('buildIr - block discovery', () => {
 					expect(ir.blocks).toEqual([
 						expect.objectContaining({
 							key: 'plugin/js-block',
-							directory: path.join('src', 'blocks', 'js-block'),
+							directory: path.join(blocksRoot, 'js-block'),
 							hasRender: false,
 							manifestSource: path.join(
-								'src',
-								'blocks',
+								blocksRoot,
 								'js-block',
 								'block.json'
 							),
@@ -134,11 +138,10 @@ describe('buildIr - block discovery', () => {
 						}),
 						expect.objectContaining({
 							key: 'plugin/ssr-block',
-							directory: path.join('src', 'blocks', 'ssr-block'),
+							directory: path.join(blocksRoot, 'ssr-block'),
 							hasRender: true,
 							manifestSource: path.join(
-								'src',
-								'blocks',
+								blocksRoot,
 								'ssr-block',
 								'block.json'
 							),
@@ -164,7 +167,12 @@ describe('buildIr - block discovery', () => {
 	it('throws when block manifest contains invalid JSON', async () => {
 		await withTempWorkspace(
 			async (root) => {
-				const blockDir = path.join(root, 'src', 'blocks', 'broken');
+				const layout = loadTestLayoutSync();
+				const blockDir = path.join(
+					root,
+					layout.resolve('blocks.applied'),
+					'broken'
+				);
 				fs.mkdirSync(blockDir, { recursive: true });
 				fs.writeFileSync(
 					path.join(blockDir, 'block.json'),
@@ -197,8 +205,17 @@ describe('buildIr - block discovery', () => {
 	it('throws when duplicate block names are discovered', async () => {
 		await withTempWorkspace(
 			async (root) => {
-				const blockA = path.join(root, 'src', 'blocks', 'a');
-				const blockB = path.join(root, 'src', 'blocks', 'b');
+				const layout = loadTestLayoutSync();
+				const blockA = path.join(
+					root,
+					layout.resolve('blocks.applied'),
+					'a'
+				);
+				const blockB = path.join(
+					root,
+					layout.resolve('blocks.applied'),
+					'b'
+				);
 				fs.mkdirSync(blockA, { recursive: true });
 				fs.mkdirSync(blockB, { recursive: true });
 				const manifest = JSON.stringify({
@@ -235,7 +252,12 @@ describe('buildIr - block discovery', () => {
 	it('throws when block manifest omits the name field', async () => {
 		await withTempWorkspace(
 			async (root) => {
-				const blockDir = path.join(root, 'src', 'blocks', 'noname');
+				const layout = loadTestLayoutSync();
+				const blockDir = path.join(
+					root,
+					layout.resolve('blocks.applied'),
+					'noname'
+				);
 				fs.mkdirSync(blockDir, { recursive: true });
 				fs.writeFileSync(
 					path.join(blockDir, 'block.json'),
@@ -268,7 +290,12 @@ describe('buildIr - block discovery', () => {
 	it('throws when block manifest is not an object', async () => {
 		await withTempWorkspace(
 			async (root) => {
-				const blockDir = path.join(root, 'src', 'blocks', 'array');
+				const layout = loadTestLayoutSync();
+				const blockDir = path.join(
+					root,
+					layout.resolve('blocks.applied'),
+					'array'
+				);
 				fs.mkdirSync(blockDir, { recursive: true });
 				fs.writeFileSync(
 					path.join(blockDir, 'block.json'),

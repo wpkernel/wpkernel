@@ -212,8 +212,9 @@ describe('ts types builder', () => {
 			undefined
 		);
 
+		const typePlan = ir.artifacts.resources[ir.resources[0]!.id];
 		expect(
-			output.actions.some((a) => a.file.includes('types/job.d.ts'))
+			output.actions.some((a) => a.file === typePlan?.typeDefPath)
 		).toBe(true);
 	});
 });

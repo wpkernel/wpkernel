@@ -25,7 +25,9 @@ describe('layout fragment', () => {
 				});
 
 				expect(ir.layout).toBeDefined();
-				expect(ir.layout.resolve('plugin.loader')).toBe('plugin.php');
+				expect(ir.layout.resolve('plugin.loader')).toBe(
+					loadTestLayoutSync().resolve('plugin.loader')
+				);
 				expect(ir.layout.resolve('php.generated')).toBe(
 					loadTestLayoutSync().resolve('php.generated')
 				);

@@ -5,7 +5,6 @@ import { buildWorkspace } from '../../workspace';
 import { buildEmptyGenerationState } from '../../apply/manifest';
 import { makeIr } from '@cli-tests/ir.test-support';
 import type { GenerationManifest } from '../../apply/manifest';
-import { loadTestLayout } from '@wpkernel/test-utils/layout.test-support';
 import { createReporterMock } from '@cli-tests/reporter';
 import {
 	buildOutput,
@@ -65,10 +64,8 @@ async function runPlan(options: {
 
 	let plan = {};
 	try {
-		const layout = await loadTestLayout({ cwd: options.workspace.root });
-		const planRaw = await options.workspace.readText(
-			layout.resolve('plan.manifest')
-		);
+		const planPath = irArg?.artifacts?.plan?.planManifestPath;
+		const planRaw = await options.workspace.readText(planPath as string);
 		plan = JSON.parse(planRaw ?? '{}');
 	} catch (_e) {
 		// Plan might not be written
@@ -118,11 +115,14 @@ describe('plan (branches)', () => {
 	it('reports skipped deletions when file is modified', async () => {
 		await withWorkspace(
 			async ({ root, workspace }) => {
-				const layout = await loadTestLayout({ cwd: root });
-				const shimPath = 'inc/Rest/JobsController.php';
+				const irPlan = makeIr();
+				const shimPath = path.posix.join(
+					irPlan.layout.resolve('controllers.applied'),
+					'JobsController.php'
+				);
 				const basePath = path.join(
 					root,
-					layout.resolve('plan.base'),
+					irPlan.artifacts.plan.planBaseDir,
 					shimPath
 				);
 				await fs.mkdir(path.dirname(basePath), { recursive: true });
@@ -163,11 +163,14 @@ describe('plan (branches)', () => {
 	it('createPlanBuilder reports skipped deletions', async () => {
 		await withWorkspace(
 			async ({ root, workspace }) => {
-				const layout = await loadTestLayout({ cwd: root });
-				const shimPath = 'inc/Rest/JobsController.php';
+				const irPlan = makeIr();
+				const shimPath = path.posix.join(
+					irPlan.layout.resolve('controllers.applied'),
+					'JobsController.php'
+				);
 				const basePath = path.join(
 					root,
-					layout.resolve('plan.base'),
+					irPlan.artifacts.plan.planBaseDir,
 					shimPath
 				);
 				await fs.mkdir(path.dirname(basePath), { recursive: true });
@@ -272,12 +275,14 @@ describe('plan (branches)', () => {
 					workspace,
 					ir,
 				});
+				const pluginLoaderPath = ir.artifacts?.php?.pluginLoaderPath;
+				expect(pluginLoaderPath).toBeDefined();
 
 				const instructions = (plan as any).instructions ?? [];
 				expect(instructions).toEqual(
 					expect.arrayContaining([
 						expect.objectContaining({
-							file: 'plugin.php',
+							file: pluginLoaderPath,
 							description: 'Update plugin loader',
 						}),
 					])
@@ -312,12 +317,17 @@ describe('plan (branches)', () => {
 					workspace,
 					ir,
 				});
+				const pluginLoaderPath = ir.artifacts?.php?.pluginLoaderPath;
+				expect(pluginLoaderPath).toBeDefined();
+				const pluginLoaderFile = path.posix.basename(
+					pluginLoaderPath as string
+				);
 
 				const instructions = (plan as any).instructions ?? [];
 				expect(instructions).toEqual(
 					expect.arrayContaining([
 						expect.objectContaining({
-							file: 'plugin.php',
+							file: pluginLoaderPath,
 							description: 'Update plugin loader',
 						}),
 					])
@@ -326,7 +336,7 @@ describe('plan (branches)', () => {
 					'createApplyPlanBuilder: emitted apply plan instructions.',
 					expect.objectContaining({
 						files: expect.arrayContaining([
-							expect.stringContaining('plugin.php'),
+							expect.stringContaining(pluginLoaderFile),
 						]),
 					})
 				);

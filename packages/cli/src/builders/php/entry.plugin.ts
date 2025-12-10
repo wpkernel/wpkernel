@@ -101,6 +101,7 @@ async function generatePluginLoader(options: {
 		await pluginLoaderIsUserOwned({
 			workspace: context.workspace,
 			reporter,
+			pluginLoaderPath: phpPlan.pluginLoaderPath,
 		})
 	) {
 		return;
@@ -548,18 +549,20 @@ function toLabel(value: string): string {
 async function pluginLoaderIsUserOwned({
 	workspace,
 	reporter,
+	pluginLoaderPath,
 }: {
 	workspace: BuilderApplyOptions['context']['workspace'];
 	reporter: BuilderApplyOptions['reporter'];
+	pluginLoaderPath: string;
 }): Promise<boolean> {
 	try {
-		const existingPlugin = await workspace.readText('plugin.php');
+		const existingPlugin = await workspace.readText(pluginLoaderPath);
 		if (
 			existingPlugin &&
 			!new RegExp(AUTO_GUARD_BEGIN, 'u').test(existingPlugin)
 		) {
 			reporter.info(
-				'createPhpPluginLoaderHelper: skipping generation because plugin.php exists and appears user-owned.'
+				`createPhpPluginLoaderHelper: skipping generation because ${pluginLoaderPath} exists and appears user-owned.`
 			);
 			return true;
 		}

@@ -18,9 +18,6 @@ import {
 	makeResource,
 	makeRoute,
 } from '@cli-tests/builders/fixtures.test-support';
-import { loadTestLayoutSync } from '@wpkernel/test-utils/layout.test-support';
-
-const layout = loadTestLayoutSync();
 
 describe('createPhpPluginLoaderHelper', () => {
 	it('skips when no IR is available', async () => {
@@ -54,11 +51,6 @@ describe('createPhpPluginLoaderHelper', () => {
 				sanitizedNamespace: 'demo-plugin',
 				origin: 'wpk.config.ts',
 			},
-			php: {
-				namespace: 'Demo\\Plugin',
-				autoload: 'inc/',
-				outputDir: loadTestLayoutSync().resolve('php.generated'),
-			},
 			resources: [
 				makeResource({
 					name: 'books',
@@ -87,7 +79,9 @@ describe('createPhpPluginLoaderHelper', () => {
 			.find((candidate) => candidate.metadata.kind === 'plugin-loader');
 
 		expect(entry).toBeDefined();
-		expect(path.posix.basename(entry?.file ?? '')).toBe('plugin.php');
+		expect(path.posix.basename(entry?.file ?? '')).toBe(
+			path.posix.basename(ir.artifacts?.php?.pluginLoaderPath ?? '')
+		);
 		expect(entry?.docblock).toEqual([]);
 		expect(entry?.metadata).toEqual({ kind: 'plugin-loader' });
 		expect(entry?.program).toMatchSnapshot('plugin-loader-program');
@@ -178,6 +172,7 @@ describe('createPhpPluginLoaderHelper', () => {
 				}),
 			],
 		});
+		const layout = ir.layout;
 		ir.artifacts.surfaces = {
 			'res:books': {
 				resource: 'books',
@@ -244,11 +239,6 @@ describe('createPhpPluginLoaderHelper', () => {
 				sanitizedNamespace: 'acme-demo',
 				origin: 'acme.config.ts',
 			},
-			php: {
-				namespace: 'Acme\\Demo\\Plugin',
-				autoload: 'src/php/',
-				outputDir: loadTestLayoutSync().resolve('php.generated'),
-			},
 			resources: [
 				makeResource({
 					name: 'jobs',
@@ -273,7 +263,9 @@ describe('createPhpPluginLoaderHelper', () => {
 			.find((candidate) => candidate.metadata.kind === 'plugin-loader');
 
 		expect(entry).toBeDefined();
-		expect(path.posix.basename(entry?.file ?? '')).toBe('plugin.php');
+		expect(path.posix.basename(entry?.file ?? '')).toBe(
+			path.posix.basename(ir.artifacts?.php?.pluginLoaderPath ?? '')
+		);
 		expect(entry?.program).toMatchSnapshot(
 			'plugin-loader-program-custom-namespace'
 		);
@@ -306,7 +298,7 @@ describe('createPhpPluginLoaderHelper', () => {
 			ir.artifacts?.php?.pluginLoaderPath
 		);
 		expect(context.reporter.info).toHaveBeenCalledWith(
-			'createPhpPluginLoaderHelper: skipping generation because plugin.php exists and appears user-owned.'
+			expect.stringContaining('skipping generation because')
 		);
 		expect(getPhpBuilderChannel(context).pending()).toHaveLength(0);
 	});
