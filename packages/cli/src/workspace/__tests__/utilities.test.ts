@@ -16,6 +16,13 @@ import {
 } from '../utilities';
 
 const execFile = promisify(execFileCallback);
+const gitEnv = (() => {
+	const env = { ...process.env };
+	delete env.GIT_DIR;
+	delete env.GIT_WORK_TREE;
+	delete env.GIT_INDEX_FILE;
+	return env;
+})();
 
 async function buildWorkspaceRoot(prefix: string): Promise<string> {
 	return await fs.mkdtemp(path.join(os.tmpdir(), prefix));
@@ -34,7 +41,7 @@ describe('workspace utilities', () => {
 
 		it('reports an empty snapshot for clean repositories', async () => {
 			const root = await buildWorkspaceRoot('next-util-git-clean-');
-			await execFile('git', ['init'], { cwd: root });
+			await execFile('git', ['init'], { cwd: root, env: gitEnv });
 			const workspace = buildWorkspace(root);
 
 			const status = await readWorkspaceGitStatus(workspace);
@@ -44,7 +51,7 @@ describe('workspace utilities', () => {
 
 		it('captures untracked files as dirty entries', async () => {
 			const root = await buildWorkspaceRoot('next-util-git-dirty-');
-			await execFile('git', ['init'], { cwd: root });
+			await execFile('git', ['init'], { cwd: root, env: gitEnv });
 			const workspace = buildWorkspace(root);
 
 			const relativeFile = path.join('src', 'example.ts');

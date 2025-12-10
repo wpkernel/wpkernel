@@ -200,8 +200,17 @@ export async function readWorkspaceGitStatus(
 	workspace: Workspace
 ): Promise<WorkspaceGitStatus | null> {
 	try {
+		// Ensure git operates on the provided workspace instead of any parent
+		// repository that may be injected via environment variables (e.g. in
+		// pre-commit hooks where GIT_DIR is set).
+		const env = { ...process.env };
+		delete env.GIT_DIR;
+		delete env.GIT_WORK_TREE;
+		delete env.GIT_INDEX_FILE;
+
 		const { stdout } = await execFile('git', ['status', '--porcelain'], {
 			cwd: workspace.root,
+			env,
 		});
 
 		const entries = stdout
