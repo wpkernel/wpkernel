@@ -269,22 +269,16 @@ importers:
 
   examples/showcase:
     dependencies:
-      '@types/node':
-        specifier: ^20.11.30
-        version: 20.19.25
-      '@wordpress/url':
-        specifier: ^4.35.0
-        version: 4.35.0
       '@wpkernel/core':
-        specifier: workspace:*
-        version: link:../../packages/core
+        specifier: latest
+        version: 0.12.1-beta.3(@loglayer/shared@3.0.1)(@loglayer/transport-simple-pretty-terminal@2.2.13)(@loglayer/transport@2.3.9)(@wordpress/api-fetch@7.35.0)(@wordpress/data@10.35.0(react@18.3.1))(@wordpress/element@6.35.0)(@wordpress/hooks@4.35.0)(@wordpress/interactivity@6.35.0)(loglayer@6.10.0)
       '@wpkernel/ui':
-        specifier: workspace:*
-        version: link:../../packages/ui
+        specifier: latest
+        version: 0.12.1-beta.3(@testing-library/react@16.3.0(@testing-library/dom@10.4.1)(@types/react-dom@18.3.7(@types/react@18.3.27))(@types/react@18.3.27)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/components@30.8.0(@emotion/is-prop-valid@1.4.0)(@types/react@18.3.27)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/data@10.35.0(react@18.3.1))(@wordpress/dataviews@9.1.0(@emotion/is-prop-valid@1.4.0)(@types/react@18.3.27)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/element@6.35.0)(@wpkernel/core@0.12.1-beta.3(@loglayer/shared@3.0.1)(@loglayer/transport-simple-pretty-terminal@2.2.13)(@loglayer/transport@2.3.9)(@wordpress/api-fetch@7.35.0)(@wordpress/data@10.35.0(react@18.3.1))(@wordpress/element@6.35.0)(@wordpress/hooks@4.35.0)(@wordpress/interactivity@6.35.0)(loglayer@6.10.0))(react@18.3.1)
     devDependencies:
       '@kucrut/vite-for-wp':
         specifier: ^0.12.0
-        version: 0.12.0(rollup-plugin-external-globals@0.13.0(rollup@4.53.2))(vite-plugin-external@6.2.2)(vite@7.2.2(@types/node@20.19.25)(sass@1.94.1)(terser@5.44.1)(tsx@4.20.6)(yaml@2.8.1))
+        version: 0.12.0(rollup-plugin-external-globals@0.13.0(rollup@4.53.2))(vite-plugin-external@6.2.2)(vite@7.2.2(@types/node@24.10.1)(sass@1.94.1)(terser@5.44.1)(tsx@4.20.6)(yaml@2.8.1))
       '@types/react':
         specifier: ^18.3.26
         version: 18.3.27
@@ -321,9 +315,6 @@ importers:
       '@wordpress/interactivity':
         specifier: '>=6.34.0'
         version: 6.35.0
-      '@wpkernel/cli':
-        specifier: workspace:*
-        version: link:../../packages/cli
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -341,7 +332,7 @@ importers:
         version: 5.9.3
       vite:
         specifier: ^7.1.9
-        version: 7.2.2(@types/node@20.19.25)(sass@1.94.1)(terser@5.44.1)(tsx@4.20.6)(yaml@2.8.1)
+        version: 7.2.2(@types/node@24.10.1)(sass@1.94.1)(terser@5.44.1)(tsx@4.20.6)(yaml@2.8.1)
       vite-plugin-external:
         specifier: ^6.2.2
         version: 6.2.2
@@ -4627,6 +4618,33 @@ packages:
   '@wp-playground/wordpress@3.0.22':
     resolution: {integrity: sha512-FbQruz+dBA/sWq+Xf3SaTl3O7uWI4NYPovTzFnf/f1TPswjyYWGg8cGcb3xpGYr8pENOiPTkV2jKWX/V9WX/nw==}
     engines: {node: '>=20.18.3', npm: '>=10.1.0'}
+
+  '@wpkernel/core@0.12.1-beta.3':
+    resolution: {integrity: sha512-t6bjh+4XHGk8vY0jJPr/KL1djjkZMEhMFk2+3aXTC94ua7FBEuiyXrc7KIZmsTzrEePFrzlHz5lXzTCq+P4OzQ==}
+    peerDependencies:
+      '@loglayer/shared': '>=2.4.0'
+      '@loglayer/transport': '>=2.3.0'
+      '@loglayer/transport-simple-pretty-terminal': '>=2.2.9'
+      '@wordpress/api-fetch': '>=7.32.0'
+      '@wordpress/data': '>=10.32.0'
+      '@wordpress/element': '>=6.32.0'
+      '@wordpress/hooks': '>=4.32.0'
+      '@wordpress/interactivity': '>=6.34.0'
+      loglayer: '>=6.7.2'
+
+  '@wpkernel/pipeline@0.12.1-beta.3':
+    resolution: {integrity: sha512-xH1nPNg9YT5LzgSHP0Xv+OmxE7x0LZAygpTADwjxiQwlER6qqCTmff3578ZEhPvpUPDFIFpbJgahcASwjtmxuQ==}
+
+  '@wpkernel/ui@0.12.1-beta.3':
+    resolution: {integrity: sha512-U3g5Yed6hFW6P28fCDZpDH6xG8O5I9EIX4NV6q0dwIJ2Yl4+dSSQusQ/JUwZlCsCfiVSWrAwH5BVjoes5sjeDA==}
+    peerDependencies:
+      '@testing-library/react': '>=16.3.0'
+      '@wordpress/components': '>=30.5.0'
+      '@wordpress/data': '>=10.32.0'
+      '@wordpress/dataviews': '>=9.1.0'
+      '@wordpress/element': '>=6.32.0'
+      '@wpkernel/core': 0.12.1-beta.3
+      react: ^18.3.1
 
   '@xtuc/ieee754@1.2.0':
     resolution: {integrity: sha512-DX8nKgqcGwsc0eJSqYt5lwP4DH5FlHnmuWWBRy7X0NcaGR0ZtuyeESgMwTYVEtxmsNGY+qit4QYT/MIYTOTPeA==}
@@ -13994,13 +14012,6 @@ snapshots:
 
   '@keyv/serialize@1.1.1': {}
 
-  '@kucrut/vite-for-wp@0.12.0(rollup-plugin-external-globals@0.13.0(rollup@4.53.2))(vite-plugin-external@6.2.2)(vite@7.2.2(@types/node@20.19.25)(sass@1.94.1)(terser@5.44.1)(tsx@4.20.6)(yaml@2.8.1))':
-    dependencies:
-      vite: 7.2.2(@types/node@20.19.25)(sass@1.94.1)(terser@5.44.1)(tsx@4.20.6)(yaml@2.8.1)
-    optionalDependencies:
-      rollup-plugin-external-globals: 0.13.0(rollup@4.53.2)
-      vite-plugin-external: 6.2.2
-
   '@kucrut/vite-for-wp@0.12.0(rollup-plugin-external-globals@0.13.0(rollup@4.53.2))(vite-plugin-external@6.2.2)(vite@7.2.2(@types/node@24.10.1)(sass@1.94.1)(terser@5.44.1)(tsx@4.20.6)(yaml@2.8.1))':
     dependencies:
       vite: 7.2.2(@types/node@24.10.1)(sass@1.94.1)(terser@5.44.1)(tsx@4.20.6)(yaml@2.8.1)
@@ -17114,6 +17125,31 @@ snapshots:
       - bufferutil
       - supports-color
       - utf-8-validate
+
+  '@wpkernel/core@0.12.1-beta.3(@loglayer/shared@3.0.1)(@loglayer/transport-simple-pretty-terminal@2.2.13)(@loglayer/transport@2.3.9)(@wordpress/api-fetch@7.35.0)(@wordpress/data@10.35.0(react@18.3.1))(@wordpress/element@6.35.0)(@wordpress/hooks@4.35.0)(@wordpress/interactivity@6.35.0)(loglayer@6.10.0)':
+    dependencies:
+      '@loglayer/shared': 3.0.1
+      '@loglayer/transport': 2.3.9
+      '@loglayer/transport-simple-pretty-terminal': 2.2.13
+      '@wordpress/api-fetch': 7.35.0
+      '@wordpress/data': 10.35.0(react@18.3.1)
+      '@wordpress/element': 6.35.0
+      '@wordpress/hooks': 4.35.0
+      '@wordpress/interactivity': 6.35.0
+      '@wpkernel/pipeline': 0.12.1-beta.3
+      loglayer: 6.10.0
+
+  '@wpkernel/pipeline@0.12.1-beta.3': {}
+
+  '@wpkernel/ui@0.12.1-beta.3(@testing-library/react@16.3.0(@testing-library/dom@10.4.1)(@types/react-dom@18.3.7(@types/react@18.3.27))(@types/react@18.3.27)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/components@30.8.0(@emotion/is-prop-valid@1.4.0)(@types/react@18.3.27)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/data@10.35.0(react@18.3.1))(@wordpress/dataviews@9.1.0(@emotion/is-prop-valid@1.4.0)(@types/react@18.3.27)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/element@6.35.0)(@wpkernel/core@0.12.1-beta.3(@loglayer/shared@3.0.1)(@loglayer/transport-simple-pretty-terminal@2.2.13)(@loglayer/transport@2.3.9)(@wordpress/api-fetch@7.35.0)(@wordpress/data@10.35.0(react@18.3.1))(@wordpress/element@6.35.0)(@wordpress/hooks@4.35.0)(@wordpress/interactivity@6.35.0)(loglayer@6.10.0))(react@18.3.1)':
+    dependencies:
+      '@testing-library/react': 16.3.0(@testing-library/dom@10.4.1)(@types/react-dom@18.3.7(@types/react@18.3.27))(@types/react@18.3.27)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wordpress/components': 30.8.0(@emotion/is-prop-valid@1.4.0)(@types/react@18.3.27)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wordpress/data': 10.35.0(react@18.3.1)
+      '@wordpress/dataviews': 9.1.0(@emotion/is-prop-valid@1.4.0)(@types/react@18.3.27)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wordpress/element': 6.35.0
+      '@wpkernel/core': 0.12.1-beta.3(@loglayer/shared@3.0.1)(@loglayer/transport-simple-pretty-terminal@2.2.13)(@loglayer/transport@2.3.9)(@wordpress/api-fetch@7.35.0)(@wordpress/data@10.35.0(react@18.3.1))(@wordpress/element@6.35.0)(@wordpress/hooks@4.35.0)(@wordpress/interactivity@6.35.0)(loglayer@6.10.0)
+      react: 18.3.1
 
   '@xtuc/ieee754@1.2.0': {}
 
@@ -24293,22 +24329,6 @@ snapshots:
       fsevents: 2.3.3
       sass: 1.94.1
       terser: 5.44.1
-
-  vite@7.2.2(@types/node@20.19.25)(sass@1.94.1)(terser@5.44.1)(tsx@4.20.6)(yaml@2.8.1):
-    dependencies:
-      esbuild: 0.25.12
-      fdir: 6.5.0(picomatch@4.0.3)
-      picomatch: 4.0.3
-      postcss: 8.5.6
-      rollup: 4.53.2
-      tinyglobby: 0.2.15
-    optionalDependencies:
-      '@types/node': 20.19.25
-      fsevents: 2.3.3
-      sass: 1.94.1
-      terser: 5.44.1
-      tsx: 4.20.6
-      yaml: 2.8.1
 
   vite@7.2.2(@types/node@24.10.1)(sass@1.94.1)(terser@5.44.1)(tsx@4.20.6)(yaml@2.8.1):
     dependencies:
