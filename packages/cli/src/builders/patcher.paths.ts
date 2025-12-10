@@ -1,14 +1,14 @@
-import path from 'path';
+import path from 'node:path';
 import { WPKernelError } from '@wpkernel/core/error';
+import { loadLayoutFromWorkspace } from '../ir/fragments/ir.layout.core';
+import type { Workspace } from '../workspace/types';
+import type { IRPlanArtifacts } from '../ir/publicTypes';
 
-// Default patch locations derived from the published layout manifest.
-export const PATCH_PLAN_PATH = path.posix.join('.wpk', 'apply', 'plan.json');
-export const PATCH_MANIFEST_PATH = path.posix.join(
-	'.wpk',
-	'apply',
-	'patch-manifest.json'
-);
-export const PATCH_BASE_ROOT = path.posix.join('.wpk', 'apply', 'base');
+export const PATCH_PATH_IDS = Object.freeze({
+	planManifest: 'plan.manifest',
+	patchManifest: 'patch.manifest',
+	planBase: 'plan.base',
+});
 
 export function normalisePath(file: string): string {
 	const replaced = file.replace(/\\/g, '/');
@@ -22,11 +22,10 @@ export function normalisePath(file: string): string {
 }
 
 export function resolvePatchPaths(options: {
-	readonly plan: {
-		planManifestPath: string;
-		patchManifestPath: string;
-		planBaseDir: string;
-	};
+	readonly plan: Pick<
+		IRPlanArtifacts,
+		'planManifestPath' | 'patchManifestPath' | 'planBaseDir'
+	>;
 }): {
 	readonly planPath: string;
 	readonly manifestPath: string;
@@ -44,5 +43,30 @@ export function resolvePatchPaths(options: {
 		planPath: plan.planManifestPath,
 		manifestPath: plan.patchManifestPath,
 		baseRoot: plan.planBaseDir,
+	};
+}
+
+export async function resolvePatchPathsFromWorkspace(
+	workspace: Workspace
+): Promise<{
+	planPath: string;
+	manifestPath: string;
+	baseRoot: string;
+}> {
+	const layout = await loadLayoutFromWorkspace({
+		workspace,
+		strict: true,
+	});
+	if (!layout) {
+		throw new WPKernelError('DeveloperError', {
+			message:
+				'layout.manifest.json not found; cannot resolve patch plan paths.',
+		});
+	}
+
+	return {
+		planPath: layout.resolve(PATCH_PATH_IDS.planManifest),
+		manifestPath: layout.resolve(PATCH_PATH_IDS.patchManifest),
+		baseRoot: layout.resolve(PATCH_PATH_IDS.planBase),
 	};
 }

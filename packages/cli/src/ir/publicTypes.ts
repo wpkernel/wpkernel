@@ -534,6 +534,10 @@ export interface IRArtifactsPlan {
 	resources: Record<string, IRResourceTsPlan>;
 	surfaces: Record<string, IRSurfacePlan>;
 	blocks: Record<string, IRBlockPlan>;
+	blockRoots: {
+		applied: string;
+		generated: string;
+	};
 	schemas: Record<string, IRSchemaPlan>;
 	runtime: IRRuntimeArtifactsPlan;
 	php: IRPhpArtifactsPlan;

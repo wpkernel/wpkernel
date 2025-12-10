@@ -160,16 +160,11 @@ describe('createBundler', () => {
 
 			const configPath = path.join(
 				workspaceRoot,
-				'.wpk',
-				'bundler',
-				'config.json'
+				layout.resolve('bundler.config')
 			);
 			const assetPath = path.join(
 				workspaceRoot,
-				'.wpk',
-				'bundler',
-				'assets',
-				'index.asset.json'
+				layout.resolve('bundler.assets')
 			);
 
 			const config = JSON.parse(await fs.readFile(configPath, 'utf8'));
@@ -327,6 +322,7 @@ describe('createBundler', () => {
 
 	it('includes UI handle metadata when dataview resources exist', async () => {
 		await withWorkspace(async ({ workspace, root: workspaceRoot }) => {
+			const layout = loadTestLayoutSync();
 			await workspace.writeJson(
 				'package.json',
 				{
@@ -387,10 +383,7 @@ describe('createBundler', () => {
 
 			const assetPath = path.join(
 				workspaceRoot,
-				'.wpk',
-				'bundler',
-				'assets',
-				'index.asset.json'
+				layout.resolve('bundler.assets')
 			);
 			const assetManifest = JSON.parse(
 				await fs.readFile(assetPath, 'utf8')

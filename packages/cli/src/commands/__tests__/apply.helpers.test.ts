@@ -1,10 +1,11 @@
 import {
-	PATCH_MANIFEST_PATH,
+	PATCH_MANIFEST_ID,
 	buildBuilderOutput,
 	cleanupWorkspaceTargets,
 	formatManifest,
 	readManifest,
 	resolveWorkspaceRoot,
+	resolvePatchManifestPath,
 } from '../apply';
 import { createCommandReporterHarness } from '@cli-tests/cli';
 import { resolveFlags } from '../apply/flags';
@@ -12,6 +13,7 @@ import type { WPKernelConfigV1, LoadedWPKernelConfig } from '../../config';
 import type { Workspace } from '../../workspace';
 import { makeWorkspaceMock } from '@cli-tests/workspace.test-support';
 import { loadTestLayout } from '@wpkernel/test-utils/layout.test-support';
+import * as layoutCore from '../../ir/fragments/ir.layout.core';
 
 const wpkConfig: WPKernelConfigV1 = {
 	version: 1,
@@ -243,8 +245,17 @@ describe('apply command helpers', () => {
 		expect(resolveWorkspaceRoot(loadedConfig)).toBe('/path/to/workspace');
 	});
 
-	it('exposes the manifest path constant', async () => {
+	it('resolves the patch manifest path from layout', async () => {
 		const layout = await loadTestLayout({ strict: true });
-		expect(PATCH_MANIFEST_PATH).toBe(layout.resolve('patch.manifest'));
+		const workspace = makeWorkspaceMock({}) as unknown as Workspace;
+		const spy = jest
+			.spyOn(layoutCore, 'loadLayoutFromWorkspace')
+			.mockResolvedValue(layout as never);
+
+		await expect(resolvePatchManifestPath(workspace)).resolves.toBe(
+			layout.resolve(PATCH_MANIFEST_ID)
+		);
+
+		spy.mockRestore();
 	});
 });

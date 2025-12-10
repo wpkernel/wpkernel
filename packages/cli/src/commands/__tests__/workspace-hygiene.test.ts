@@ -8,7 +8,7 @@ import {
 import { makeWorkspaceMock } from '@cli-tests/workspace.test-support';
 import { loadTestLayoutSync } from '@wpkernel/test-utils/layout.test-support';
 import { buildTestArtifactsPlan } from '@cli-tests/ir.test-support';
-import layoutManifest from '../../../../../layout.manifest.json' assert { type: 'json' };
+import { ensureLayoutManifest } from '@wpkernel/test-utils/layout-manifest.test-support';
 jest.mock('../../ir/fragments/ir.layout.core', () => {
 	const actual = jest.requireActual('../../ir/fragments/ir.layout.core');
 	return {
@@ -30,10 +30,8 @@ describe('workspace hygiene readiness wiring', () => {
 
 		const workspaceHarness = createCommandWorkspaceHarness({
 			root: path.join(process.cwd(), 'generate-workspace'),
-			files: {
-				'layout.manifest.json': JSON.stringify(layoutManifest),
-			},
 		});
+		await ensureLayoutManifest(workspaceHarness.workspace.root);
 		const reporters = createCommandReporterHarness();
 		const reporter = reporters.create();
 

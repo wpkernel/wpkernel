@@ -2,6 +2,7 @@ import os from 'node:os';
 import path from 'node:path';
 import fs from 'node:fs/promises';
 import { WPK_CONFIG_SOURCES } from '@wpkernel/core/contracts';
+import { loadTestLayout } from '@wpkernel/test-utils/layout.test-support';
 import type {
 	ConfigOrigin,
 	LoadedWPKernelConfig,
@@ -191,14 +192,12 @@ export async function seedPlan(
 		};
 	}
 ): Promise<void> {
+	const layout = await loadTestLayout();
 	const planManifest =
-		options.layout?.planManifest ??
-		path.posix.join('.wpk', 'apply', 'plan.json');
-	const planBase =
-		options.layout?.planBase ?? path.posix.join('.wpk', 'apply', 'base');
+		options.layout?.planManifest ?? layout.resolve('plan.manifest');
+	const planBase = options.layout?.planBase ?? layout.resolve('plan.base');
 	const planIncoming =
-		options.layout?.planIncoming ??
-		path.posix.join('.wpk', 'apply', 'incoming');
+		options.layout?.planIncoming ?? layout.resolve('plan.incoming');
 
 	const planPath = path.join(workspace, planManifest);
 	await ensureDirectory(path.dirname(planPath));
@@ -244,7 +243,8 @@ export async function seedPlan(
 export async function readApplyLogEntries(
 	workspace: string
 ): Promise<ApplyLogEntry[]> {
-	const logPath = path.join(workspace, '.wpk', 'apply', 'log.json');
+	const layout = await loadTestLayout();
+	const logPath = path.join(workspace, layout.resolve('apply.log'));
 	const raw = await fs.readFile(logPath, 'utf8').catch(() => '');
 	const trimmed = raw.trim();
 
