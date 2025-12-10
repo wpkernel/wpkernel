@@ -10,5 +10,9 @@
 	},
 	"files": ["../package.json"],
 	"exclude": [],
-	"references": [{ "path": "../tsconfig.json" }]
+	"include": ["./**/*.ts", "./**/*.tsx"],
+	"references": [
+		{ "path": "../tsconfig.json" },
+		{ "path": "../../test-utils/tsconfig.json" }
+	]
 }
