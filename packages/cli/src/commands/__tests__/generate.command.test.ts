@@ -50,9 +50,7 @@ const buildIrArtifact = (workspaceRoot: string): PipelineRunResult['ir'] =>
 	});
 
 function createWorkspaceStub() {
-	const harness = createCommandWorkspaceHarness({
-		root: path.join(process.cwd(), 'workspace'),
-	});
+	const harness = createCommandWorkspaceHarness();
 	void ensureLayoutManifest(harness.workspace.root);
 	return harness.workspace;
 }

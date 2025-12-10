@@ -28,9 +28,7 @@ describe('workspace hygiene readiness wiring', () => {
 			runCommandReadiness,
 		}));
 
-		const workspaceHarness = createCommandWorkspaceHarness({
-			root: path.join(process.cwd(), 'generate-workspace'),
-		});
+		const workspaceHarness = createCommandWorkspaceHarness();
 		await ensureLayoutManifest(workspaceHarness.workspace.root);
 		const reporters = createCommandReporterHarness();
 		const reporter = reporters.create();
