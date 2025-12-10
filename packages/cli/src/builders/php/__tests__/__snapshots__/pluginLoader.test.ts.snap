@@ -2424,6 +2424,3506 @@ exports[`createPhpPluginLoaderHelper emits UI asset registration when dataview m
           "comments": [
             {
               "nodeType": "Comment_Doc",
+              "text": "/** Register and enqueue generated UI assets for DataViews screens. */",
+            },
+          ],
+        },
+        "byRef": false,
+        "name": {
+          "attributes": {},
+          "name": "enqueue_wpkernel_ui_assets",
+          "nodeType": "Identifier",
+        },
+        "namespacedName": null,
+        "nodeType": "Stmt_Function",
+        "params": [],
+        "returnType": {
+          "attributes": {},
+          "name": "void",
+          "nodeType": "Identifier",
+        },
+        "stmts": [
+          {
+            "attributes": {},
+            "expr": {
+              "attributes": {},
+              "expr": {
+                "attributes": {},
+                "cond": {
+                  "args": [
+                    {
+                      "attributes": {},
+                      "byRef": false,
+                      "name": null,
+                      "nodeType": "Arg",
+                      "unpack": false,
+                      "value": {
+                        "attributes": {},
+                        "dim": {
+                          "attributes": {},
+                          "nodeType": "Scalar_String",
+                          "value": "page",
+                        },
+                        "nodeType": "Expr_ArrayDimFetch",
+                        "var": {
+                          "attributes": {},
+                          "name": "_GET",
+                          "nodeType": "Expr_Variable",
+                        },
+                      },
+                    },
+                  ],
+                  "attributes": {},
+                  "name": {
+                    "attributes": {},
+                    "nodeType": "Name",
+                    "parts": [
+                      "isset",
+                    ],
+                  },
+                  "nodeType": "Expr_FuncCall",
+                },
+                "else": {
+                  "attributes": {},
+                  "nodeType": "Scalar_String",
+                  "value": "",
+                },
+                "if": {
+                  "args": [
+                    {
+                      "attributes": {},
+                      "byRef": false,
+                      "name": null,
+                      "nodeType": "Arg",
+                      "unpack": false,
+                      "value": {
+                        "args": [
+                          {
+                            "attributes": {},
+                            "byRef": false,
+                            "name": null,
+                            "nodeType": "Arg",
+                            "unpack": false,
+                            "value": {
+                              "attributes": {},
+                              "dim": {
+                                "attributes": {},
+                                "nodeType": "Scalar_String",
+                                "value": "page",
+                              },
+                              "nodeType": "Expr_ArrayDimFetch",
+                              "var": {
+                                "attributes": {},
+                                "name": "_GET",
+                                "nodeType": "Expr_Variable",
+                              },
+                            },
+                          },
+                        ],
+                        "attributes": {},
+                        "name": {
+                          "attributes": {},
+                          "nodeType": "Name",
+                          "parts": [
+                            "strval",
+                          ],
+                        },
+                        "nodeType": "Expr_FuncCall",
+                      },
+                    },
+                  ],
+                  "attributes": {},
+                  "name": {
+                    "attributes": {},
+                    "nodeType": "Name",
+                    "parts": [
+                      "sanitize_key",
+                    ],
+                  },
+                  "nodeType": "Expr_FuncCall",
+                },
+                "nodeType": "Expr_Ternary",
+              },
+              "nodeType": "Expr_Assign",
+              "var": {
+                "attributes": {},
+                "name": "page",
+                "nodeType": "Expr_Variable",
+              },
+            },
+            "nodeType": "Stmt_Expression",
+          },
+          {
+            "attributes": {},
+            "expr": {
+              "attributes": {},
+              "expr": {
+                "attributes": {},
+                "items": [
+                  {
+                    "attributes": {},
+                    "byRef": false,
+                    "key": null,
+                    "nodeType": "ArrayItem",
+                    "unpack": false,
+                    "value": {
+                      "attributes": {},
+                      "nodeType": "Scalar_String",
+                      "value": "books",
+                    },
+                  },
+                ],
+                "nodeType": "Expr_Array",
+              },
+              "nodeType": "Expr_Assign",
+              "var": {
+                "attributes": {},
+                "name": "plugin_pages",
+                "nodeType": "Expr_Variable",
+              },
+            },
+            "nodeType": "Stmt_Expression",
+          },
+          {
+            "attributes": {},
+            "cond": {
+              "attributes": {},
+              "expr": {
+                "args": [
+                  {
+                    "attributes": {},
+                    "byRef": false,
+                    "name": null,
+                    "nodeType": "Arg",
+                    "unpack": false,
+                    "value": {
+                      "attributes": {},
+                      "name": "page",
+                      "nodeType": "Expr_Variable",
+                    },
+                  },
+                  {
+                    "attributes": {},
+                    "byRef": false,
+                    "name": null,
+                    "nodeType": "Arg",
+                    "unpack": false,
+                    "value": {
+                      "attributes": {},
+                      "name": "plugin_pages",
+                      "nodeType": "Expr_Variable",
+                    },
+                  },
+                  {
+                    "attributes": {},
+                    "byRef": false,
+                    "name": null,
+                    "nodeType": "Arg",
+                    "unpack": false,
+                    "value": {
+                      "attributes": {},
+                      "name": {
+                        "attributes": {},
+                        "nodeType": "Name",
+                        "parts": [
+                          "true",
+                        ],
+                      },
+                      "nodeType": "Expr_ConstFetch",
+                    },
+                  },
+                ],
+                "attributes": {},
+                "name": {
+                  "attributes": {},
+                  "nodeType": "Name",
+                  "parts": [
+                    "in_array",
+                  ],
+                },
+                "nodeType": "Expr_FuncCall",
+              },
+              "nodeType": "Expr_BooleanNot",
+            },
+            "else": null,
+            "elseifs": [],
+            "nodeType": "Stmt_If",
+            "stmts": [
+              {
+                "attributes": {},
+                "expr": null,
+                "nodeType": "Stmt_Return",
+              },
+            ],
+          },
+          {
+            "attributes": {},
+            "expr": {
+              "attributes": {},
+              "expr": {
+                "attributes": {},
+                "left": {
+                  "args": [
+                    {
+                      "attributes": {},
+                      "byRef": false,
+                      "name": null,
+                      "nodeType": "Arg",
+                      "unpack": false,
+                      "value": {
+                        "attributes": {},
+                        "name": {
+                          "attributes": {},
+                          "nodeType": "Name",
+                          "parts": [
+                            "__FILE__",
+                          ],
+                        },
+                        "nodeType": "Expr_ConstFetch",
+                      },
+                    },
+                  ],
+                  "attributes": {},
+                  "name": {
+                    "attributes": {},
+                    "nodeType": "Name",
+                    "parts": [
+                      "plugin_dir_path",
+                    ],
+                  },
+                  "nodeType": "Expr_FuncCall",
+                },
+                "nodeType": "Expr_BinaryOp_Concat",
+                "right": {
+                  "attributes": {},
+                  "nodeType": "Scalar_String",
+                  "value": "build/index.asset.json",
+                },
+              },
+              "nodeType": "Expr_Assign",
+              "var": {
+                "attributes": {},
+                "name": "asset_path",
+                "nodeType": "Expr_Variable",
+              },
+            },
+            "nodeType": "Stmt_Expression",
+          },
+          {
+            "attributes": {},
+            "cond": {
+              "attributes": {},
+              "expr": {
+                "args": [
+                  {
+                    "attributes": {},
+                    "byRef": false,
+                    "name": null,
+                    "nodeType": "Arg",
+                    "unpack": false,
+                    "value": {
+                      "attributes": {},
+                      "name": "asset_path",
+                      "nodeType": "Expr_Variable",
+                    },
+                  },
+                ],
+                "attributes": {},
+                "name": {
+                  "attributes": {},
+                  "nodeType": "Name",
+                  "parts": [
+                    "file_exists",
+                  ],
+                },
+                "nodeType": "Expr_FuncCall",
+              },
+              "nodeType": "Expr_BooleanNot",
+            },
+            "else": null,
+            "elseifs": [],
+            "nodeType": "Stmt_If",
+            "stmts": [
+              {
+                "attributes": {},
+                "expr": null,
+                "nodeType": "Stmt_Return",
+              },
+            ],
+          },
+          {
+            "attributes": {},
+            "expr": {
+              "attributes": {},
+              "expr": {
+                "args": [
+                  {
+                    "attributes": {},
+                    "byRef": false,
+                    "name": null,
+                    "nodeType": "Arg",
+                    "unpack": false,
+                    "value": {
+                      "attributes": {},
+                      "name": "asset_path",
+                      "nodeType": "Expr_Variable",
+                    },
+                  },
+                ],
+                "attributes": {},
+                "name": {
+                  "attributes": {},
+                  "nodeType": "Name",
+                  "parts": [
+                    "file_get_contents",
+                  ],
+                },
+                "nodeType": "Expr_FuncCall",
+              },
+              "nodeType": "Expr_Assign",
+              "var": {
+                "attributes": {},
+                "name": "asset_contents",
+                "nodeType": "Expr_Variable",
+              },
+            },
+            "nodeType": "Stmt_Expression",
+          },
+          {
+            "attributes": {},
+            "cond": {
+              "attributes": {},
+              "left": {
+                "attributes": {},
+                "name": "asset_contents",
+                "nodeType": "Expr_Variable",
+              },
+              "nodeType": "Expr_BinaryOp_Identical",
+              "right": {
+                "attributes": {},
+                "name": {
+                  "attributes": {},
+                  "nodeType": "Name",
+                  "parts": [
+                    "false",
+                  ],
+                },
+                "nodeType": "Expr_ConstFetch",
+              },
+            },
+            "else": null,
+            "elseifs": [],
+            "nodeType": "Stmt_If",
+            "stmts": [
+              {
+                "attributes": {},
+                "expr": null,
+                "nodeType": "Stmt_Return",
+              },
+            ],
+          },
+          {
+            "attributes": {},
+            "expr": {
+              "attributes": {},
+              "expr": {
+                "args": [
+                  {
+                    "attributes": {},
+                    "byRef": false,
+                    "name": null,
+                    "nodeType": "Arg",
+                    "unpack": false,
+                    "value": {
+                      "attributes": {},
+                      "name": "asset_contents",
+                      "nodeType": "Expr_Variable",
+                    },
+                  },
+                  {
+                    "attributes": {},
+                    "byRef": false,
+                    "name": null,
+                    "nodeType": "Arg",
+                    "unpack": false,
+                    "value": {
+                      "attributes": {},
+                      "name": {
+                        "attributes": {},
+                        "nodeType": "Name",
+                        "parts": [
+                          "true",
+                        ],
+                      },
+                      "nodeType": "Expr_ConstFetch",
+                    },
+                  },
+                ],
+                "attributes": {},
+                "name": {
+                  "attributes": {},
+                  "nodeType": "Name",
+                  "parts": [
+                    "json_decode",
+                  ],
+                },
+                "nodeType": "Expr_FuncCall",
+              },
+              "nodeType": "Expr_Assign",
+              "var": {
+                "attributes": {},
+                "name": "asset",
+                "nodeType": "Expr_Variable",
+              },
+            },
+            "nodeType": "Stmt_Expression",
+          },
+          {
+            "attributes": {},
+            "expr": {
+              "attributes": {},
+              "expr": {
+                "attributes": {},
+                "items": [],
+                "nodeType": "Expr_Array",
+              },
+              "nodeType": "Expr_Assign",
+              "var": {
+                "attributes": {},
+                "name": "dependencies",
+                "nodeType": "Expr_Variable",
+              },
+            },
+            "nodeType": "Stmt_Expression",
+          },
+          {
+            "attributes": {},
+            "cond": {
+              "attributes": {},
+              "left": {
+                "args": [
+                  {
+                    "attributes": {},
+                    "byRef": false,
+                    "name": null,
+                    "nodeType": "Arg",
+                    "unpack": false,
+                    "value": {
+                      "attributes": {},
+                      "name": "asset",
+                      "nodeType": "Expr_Variable",
+                    },
+                  },
+                ],
+                "attributes": {},
+                "name": {
+                  "attributes": {},
+                  "nodeType": "Name",
+                  "parts": [
+                    "is_array",
+                  ],
+                },
+                "nodeType": "Expr_FuncCall",
+              },
+              "nodeType": "Expr_BinaryOp_BooleanAnd",
+              "right": {
+                "attributes": {},
+                "left": {
+                  "args": [
+                    {
+                      "attributes": {},
+                      "byRef": false,
+                      "name": null,
+                      "nodeType": "Arg",
+                      "unpack": false,
+                      "value": {
+                        "attributes": {},
+                        "dim": {
+                          "attributes": {},
+                          "nodeType": "Scalar_String",
+                          "value": "dependencies",
+                        },
+                        "nodeType": "Expr_ArrayDimFetch",
+                        "var": {
+                          "attributes": {},
+                          "name": "asset",
+                          "nodeType": "Expr_Variable",
+                        },
+                      },
+                    },
+                  ],
+                  "attributes": {},
+                  "name": {
+                    "attributes": {},
+                    "nodeType": "Name",
+                    "parts": [
+                      "isset",
+                    ],
+                  },
+                  "nodeType": "Expr_FuncCall",
+                },
+                "nodeType": "Expr_BinaryOp_BooleanAnd",
+                "right": {
+                  "args": [
+                    {
+                      "attributes": {},
+                      "byRef": false,
+                      "name": null,
+                      "nodeType": "Arg",
+                      "unpack": false,
+                      "value": {
+                        "attributes": {},
+                        "dim": {
+                          "attributes": {},
+                          "nodeType": "Scalar_String",
+                          "value": "dependencies",
+                        },
+                        "nodeType": "Expr_ArrayDimFetch",
+                        "var": {
+                          "attributes": {},
+                          "name": "asset",
+                          "nodeType": "Expr_Variable",
+                        },
+                      },
+                    },
+                  ],
+                  "attributes": {},
+                  "name": {
+                    "attributes": {},
+                    "nodeType": "Name",
+                    "parts": [
+                      "is_array",
+                    ],
+                  },
+                  "nodeType": "Expr_FuncCall",
+                },
+              },
+            },
+            "else": null,
+            "elseifs": [],
+            "nodeType": "Stmt_If",
+            "stmts": [
+              {
+                "attributes": {},
+                "expr": {
+                  "attributes": {},
+                  "expr": {
+                    "attributes": {},
+                    "dim": {
+                      "attributes": {},
+                      "nodeType": "Scalar_String",
+                      "value": "dependencies",
+                    },
+                    "nodeType": "Expr_ArrayDimFetch",
+                    "var": {
+                      "attributes": {},
+                      "name": "asset",
+                      "nodeType": "Expr_Variable",
+                    },
+                  },
+                  "nodeType": "Expr_Assign",
+                  "var": {
+                    "attributes": {},
+                    "name": "dependencies",
+                    "nodeType": "Expr_Variable",
+                  },
+                },
+                "nodeType": "Stmt_Expression",
+              },
+            ],
+          },
+          {
+            "attributes": {},
+            "expr": {
+              "attributes": {},
+              "expr": {
+                "attributes": {},
+                "items": [
+                  {
+                    "attributes": {},
+                    "byRef": false,
+                    "key": {
+                      "attributes": {},
+                      "nodeType": "Scalar_String",
+                      "value": "wp-element",
+                    },
+                    "nodeType": "ArrayItem",
+                    "unpack": false,
+                    "value": {
+                      "attributes": {},
+                      "nodeType": "Scalar_String",
+                      "value": "element.min.js",
+                    },
+                  },
+                  {
+                    "attributes": {},
+                    "byRef": false,
+                    "key": {
+                      "attributes": {},
+                      "nodeType": "Scalar_String",
+                      "value": "wp-dataviews",
+                    },
+                    "nodeType": "ArrayItem",
+                    "unpack": false,
+                    "value": {
+                      "attributes": {},
+                      "nodeType": "Scalar_String",
+                      "value": "dataviews.min.js",
+                    },
+                  },
+                  {
+                    "attributes": {},
+                    "byRef": false,
+                    "key": {
+                      "attributes": {},
+                      "nodeType": "Scalar_String",
+                      "value": "wp-interactivity",
+                    },
+                    "nodeType": "ArrayItem",
+                    "unpack": false,
+                    "value": {
+                      "attributes": {},
+                      "nodeType": "Scalar_String",
+                      "value": "interactivity.min.js",
+                    },
+                  },
+                  {
+                    "attributes": {},
+                    "byRef": false,
+                    "key": {
+                      "attributes": {},
+                      "nodeType": "Scalar_String",
+                      "value": "wp-private-apis",
+                    },
+                    "nodeType": "ArrayItem",
+                    "unpack": false,
+                    "value": {
+                      "attributes": {},
+                      "nodeType": "Scalar_String",
+                      "value": "private-apis.min.js",
+                    },
+                  },
+                ],
+                "nodeType": "Expr_Array",
+              },
+              "nodeType": "Expr_Assign",
+              "var": {
+                "attributes": {},
+                "name": "core_bundles",
+                "nodeType": "Expr_Variable",
+              },
+            },
+            "nodeType": "Stmt_Expression",
+          },
+          {
+            "attributes": {},
+            "byRef": false,
+            "expr": {
+              "attributes": {},
+              "name": "core_bundles",
+              "nodeType": "Expr_Variable",
+            },
+            "keyVar": {
+              "attributes": {},
+              "name": "handle",
+              "nodeType": "Expr_Variable",
+            },
+            "nodeType": "Stmt_Foreach",
+            "stmts": [
+              {
+                "attributes": {},
+                "cond": {
+                  "attributes": {},
+                  "expr": {
+                    "args": [
+                      {
+                        "attributes": {},
+                        "byRef": false,
+                        "name": null,
+                        "nodeType": "Arg",
+                        "unpack": false,
+                        "value": {
+                          "attributes": {},
+                          "name": "handle",
+                          "nodeType": "Expr_Variable",
+                        },
+                      },
+                      {
+                        "attributes": {},
+                        "byRef": false,
+                        "name": null,
+                        "nodeType": "Arg",
+                        "unpack": false,
+                        "value": {
+                          "attributes": {},
+                          "name": "dependencies",
+                          "nodeType": "Expr_Variable",
+                        },
+                      },
+                      {
+                        "attributes": {},
+                        "byRef": false,
+                        "name": null,
+                        "nodeType": "Arg",
+                        "unpack": false,
+                        "value": {
+                          "attributes": {},
+                          "name": {
+                            "attributes": {},
+                            "nodeType": "Name",
+                            "parts": [
+                              "true",
+                            ],
+                          },
+                          "nodeType": "Expr_ConstFetch",
+                        },
+                      },
+                    ],
+                    "attributes": {},
+                    "name": {
+                      "attributes": {},
+                      "nodeType": "Name",
+                      "parts": [
+                        "in_array",
+                      ],
+                    },
+                    "nodeType": "Expr_FuncCall",
+                  },
+                  "nodeType": "Expr_BooleanNot",
+                },
+                "else": null,
+                "elseifs": [],
+                "nodeType": "Stmt_If",
+                "stmts": [
+                  {
+                    "attributes": {},
+                    "nodeType": "Stmt_Continue",
+                    "num": null,
+                  },
+                ],
+              },
+              {
+                "attributes": {},
+                "cond": {
+                  "attributes": {},
+                  "left": {
+                    "args": [
+                      {
+                        "attributes": {},
+                        "byRef": false,
+                        "name": null,
+                        "nodeType": "Arg",
+                        "unpack": false,
+                        "value": {
+                          "attributes": {},
+                          "name": "handle",
+                          "nodeType": "Expr_Variable",
+                        },
+                      },
+                      {
+                        "attributes": {},
+                        "byRef": false,
+                        "name": null,
+                        "nodeType": "Arg",
+                        "unpack": false,
+                        "value": {
+                          "attributes": {},
+                          "nodeType": "Scalar_String",
+                          "value": "registered",
+                        },
+                      },
+                    ],
+                    "attributes": {},
+                    "name": {
+                      "attributes": {},
+                      "nodeType": "Name",
+                      "parts": [
+                        "wp_script_is",
+                      ],
+                    },
+                    "nodeType": "Expr_FuncCall",
+                  },
+                  "nodeType": "Expr_BinaryOp_BooleanOr",
+                  "right": {
+                    "args": [
+                      {
+                        "attributes": {},
+                        "byRef": false,
+                        "name": null,
+                        "nodeType": "Arg",
+                        "unpack": false,
+                        "value": {
+                          "attributes": {},
+                          "name": "handle",
+                          "nodeType": "Expr_Variable",
+                        },
+                      },
+                      {
+                        "attributes": {},
+                        "byRef": false,
+                        "name": null,
+                        "nodeType": "Arg",
+                        "unpack": false,
+                        "value": {
+                          "attributes": {},
+                          "nodeType": "Scalar_String",
+                          "value": "enqueued",
+                        },
+                      },
+                    ],
+                    "attributes": {},
+                    "name": {
+                      "attributes": {},
+                      "nodeType": "Name",
+                      "parts": [
+                        "wp_script_is",
+                      ],
+                    },
+                    "nodeType": "Expr_FuncCall",
+                  },
+                },
+                "else": null,
+                "elseifs": [],
+                "nodeType": "Stmt_If",
+                "stmts": [
+                  {
+                    "attributes": {},
+                    "nodeType": "Stmt_Continue",
+                    "num": null,
+                  },
+                ],
+              },
+              {
+                "attributes": {},
+                "expr": {
+                  "args": [
+                    {
+                      "attributes": {},
+                      "byRef": false,
+                      "name": null,
+                      "nodeType": "Arg",
+                      "unpack": false,
+                      "value": {
+                        "attributes": {},
+                        "name": "handle",
+                        "nodeType": "Expr_Variable",
+                      },
+                    },
+                    {
+                      "attributes": {},
+                      "byRef": false,
+                      "name": null,
+                      "nodeType": "Arg",
+                      "unpack": false,
+                      "value": {
+                        "args": [
+                          {
+                            "attributes": {},
+                            "byRef": false,
+                            "name": null,
+                            "nodeType": "Arg",
+                            "unpack": false,
+                            "value": {
+                              "attributes": {},
+                              "left": {
+                                "attributes": {},
+                                "nodeType": "Scalar_String",
+                                "value": "js/dist/",
+                              },
+                              "nodeType": "Expr_BinaryOp_Concat",
+                              "right": {
+                                "attributes": {},
+                                "name": "filename",
+                                "nodeType": "Expr_Variable",
+                              },
+                            },
+                          },
+                        ],
+                        "attributes": {},
+                        "name": {
+                          "attributes": {},
+                          "nodeType": "Name",
+                          "parts": [
+                            "includes_url",
+                          ],
+                        },
+                        "nodeType": "Expr_FuncCall",
+                      },
+                    },
+                    {
+                      "attributes": {},
+                      "byRef": false,
+                      "name": null,
+                      "nodeType": "Arg",
+                      "unpack": false,
+                      "value": {
+                        "attributes": {},
+                        "items": [],
+                        "nodeType": "Expr_Array",
+                      },
+                    },
+                    {
+                      "attributes": {},
+                      "byRef": false,
+                      "name": null,
+                      "nodeType": "Arg",
+                      "unpack": false,
+                      "value": {
+                        "args": [
+                          {
+                            "attributes": {},
+                            "byRef": false,
+                            "name": null,
+                            "nodeType": "Arg",
+                            "unpack": false,
+                            "value": {
+                              "attributes": {},
+                              "nodeType": "Scalar_String",
+                              "value": "version",
+                            },
+                          },
+                        ],
+                        "attributes": {},
+                        "name": {
+                          "attributes": {},
+                          "nodeType": "Name",
+                          "parts": [
+                            "get_bloginfo",
+                          ],
+                        },
+                        "nodeType": "Expr_FuncCall",
+                      },
+                    },
+                    {
+                      "attributes": {},
+                      "byRef": false,
+                      "name": null,
+                      "nodeType": "Arg",
+                      "unpack": false,
+                      "value": {
+                        "attributes": {},
+                        "name": {
+                          "attributes": {},
+                          "nodeType": "Name",
+                          "parts": [
+                            "true",
+                          ],
+                        },
+                        "nodeType": "Expr_ConstFetch",
+                      },
+                    },
+                  ],
+                  "attributes": {},
+                  "name": {
+                    "attributes": {},
+                    "nodeType": "Name",
+                    "parts": [
+                      "wp_register_script",
+                    ],
+                  },
+                  "nodeType": "Expr_FuncCall",
+                },
+                "nodeType": "Stmt_Expression",
+              },
+            ],
+            "valueVar": {
+              "attributes": {},
+              "name": "filename",
+              "nodeType": "Expr_Variable",
+            },
+          },
+          {
+            "attributes": {},
+            "expr": {
+              "attributes": {},
+              "expr": {
+                "attributes": {},
+                "name": {
+                  "attributes": {},
+                  "nodeType": "Name",
+                  "parts": [
+                    "false",
+                  ],
+                },
+                "nodeType": "Expr_ConstFetch",
+              },
+              "nodeType": "Expr_Assign",
+              "var": {
+                "attributes": {},
+                "name": "version",
+                "nodeType": "Expr_Variable",
+              },
+            },
+            "nodeType": "Stmt_Expression",
+          },
+          {
+            "attributes": {},
+            "cond": {
+              "attributes": {},
+              "left": {
+                "args": [
+                  {
+                    "attributes": {},
+                    "byRef": false,
+                    "name": null,
+                    "nodeType": "Arg",
+                    "unpack": false,
+                    "value": {
+                      "attributes": {},
+                      "name": "asset",
+                      "nodeType": "Expr_Variable",
+                    },
+                  },
+                ],
+                "attributes": {},
+                "name": {
+                  "attributes": {},
+                  "nodeType": "Name",
+                  "parts": [
+                    "is_array",
+                  ],
+                },
+                "nodeType": "Expr_FuncCall",
+              },
+              "nodeType": "Expr_BinaryOp_BooleanAnd",
+              "right": {
+                "args": [
+                  {
+                    "attributes": {},
+                    "byRef": false,
+                    "name": null,
+                    "nodeType": "Arg",
+                    "unpack": false,
+                    "value": {
+                      "attributes": {},
+                      "nodeType": "Scalar_String",
+                      "value": "version",
+                    },
+                  },
+                  {
+                    "attributes": {},
+                    "byRef": false,
+                    "name": null,
+                    "nodeType": "Arg",
+                    "unpack": false,
+                    "value": {
+                      "attributes": {},
+                      "name": "asset",
+                      "nodeType": "Expr_Variable",
+                    },
+                  },
+                ],
+                "attributes": {},
+                "name": {
+                  "attributes": {},
+                  "nodeType": "Name",
+                  "parts": [
+                    "array_key_exists",
+                  ],
+                },
+                "nodeType": "Expr_FuncCall",
+              },
+            },
+            "else": null,
+            "elseifs": [],
+            "nodeType": "Stmt_If",
+            "stmts": [
+              {
+                "attributes": {},
+                "expr": {
+                  "attributes": {},
+                  "expr": {
+                    "attributes": {},
+                    "dim": {
+                      "attributes": {},
+                      "nodeType": "Scalar_String",
+                      "value": "version",
+                    },
+                    "nodeType": "Expr_ArrayDimFetch",
+                    "var": {
+                      "attributes": {},
+                      "name": "asset",
+                      "nodeType": "Expr_Variable",
+                    },
+                  },
+                  "nodeType": "Expr_Assign",
+                  "var": {
+                    "attributes": {},
+                    "name": "version",
+                    "nodeType": "Expr_Variable",
+                  },
+                },
+                "nodeType": "Stmt_Expression",
+              },
+            ],
+          },
+          {
+            "attributes": {},
+            "expr": {
+              "attributes": {},
+              "expr": {
+                "args": [
+                  {
+                    "attributes": {},
+                    "byRef": false,
+                    "name": null,
+                    "nodeType": "Arg",
+                    "unpack": false,
+                    "value": {
+                      "attributes": {},
+                      "nodeType": "Scalar_String",
+                      "value": "build/index.js",
+                    },
+                  },
+                  {
+                    "attributes": {},
+                    "byRef": false,
+                    "name": null,
+                    "nodeType": "Arg",
+                    "unpack": false,
+                    "value": {
+                      "attributes": {},
+                      "name": {
+                        "attributes": {},
+                        "nodeType": "Name",
+                        "parts": [
+                          "__FILE__",
+                        ],
+                      },
+                      "nodeType": "Expr_ConstFetch",
+                    },
+                  },
+                ],
+                "attributes": {},
+                "name": {
+                  "attributes": {},
+                  "nodeType": "Name",
+                  "parts": [
+                    "plugins_url",
+                  ],
+                },
+                "nodeType": "Expr_FuncCall",
+              },
+              "nodeType": "Expr_Assign",
+              "var": {
+                "attributes": {},
+                "name": "script_url",
+                "nodeType": "Expr_Variable",
+              },
+            },
+            "nodeType": "Stmt_Expression",
+          },
+          {
+            "attributes": {},
+            "expr": {
+              "args": [
+                {
+                  "attributes": {},
+                  "byRef": false,
+                  "name": null,
+                  "nodeType": "Arg",
+                  "unpack": false,
+                  "value": {
+                    "attributes": {},
+                    "nodeType": "Scalar_String",
+                    "value": "wp-demo-plugin-ui",
+                  },
+                },
+                {
+                  "attributes": {},
+                  "byRef": false,
+                  "name": null,
+                  "nodeType": "Arg",
+                  "unpack": false,
+                  "value": {
+                    "attributes": {},
+                    "name": "script_url",
+                    "nodeType": "Expr_Variable",
+                  },
+                },
+                {
+                  "attributes": {},
+                  "byRef": false,
+                  "name": null,
+                  "nodeType": "Arg",
+                  "unpack": false,
+                  "value": {
+                    "attributes": {},
+                    "name": "dependencies",
+                    "nodeType": "Expr_Variable",
+                  },
+                },
+                {
+                  "attributes": {},
+                  "byRef": false,
+                  "name": null,
+                  "nodeType": "Arg",
+                  "unpack": false,
+                  "value": {
+                    "attributes": {},
+                    "name": "version",
+                    "nodeType": "Expr_Variable",
+                  },
+                },
+              ],
+              "attributes": {},
+              "name": {
+                "attributes": {},
+                "nodeType": "Name",
+                "parts": [
+                  "wp_register_script",
+                ],
+              },
+              "nodeType": "Expr_FuncCall",
+            },
+            "nodeType": "Stmt_Expression",
+          },
+          {
+            "attributes": {},
+            "expr": {
+              "attributes": {},
+              "expr": {
+                "attributes": {},
+                "items": [
+                  {
+                    "attributes": {},
+                    "byRef": false,
+                    "key": {
+                      "attributes": {},
+                      "nodeType": "Scalar_String",
+                      "value": "namespace",
+                    },
+                    "nodeType": "ArrayItem",
+                    "unpack": false,
+                    "value": {
+                      "attributes": {},
+                      "nodeType": "Scalar_String",
+                      "value": "demo-plugin",
+                    },
+                  },
+                  {
+                    "attributes": {},
+                    "byRef": false,
+                    "key": {
+                      "attributes": {},
+                      "nodeType": "Scalar_String",
+                      "value": "resources",
+                    },
+                    "nodeType": "ArrayItem",
+                    "unpack": false,
+                    "value": {
+                      "attributes": {},
+                      "items": [
+                        {
+                          "attributes": {},
+                          "byRef": false,
+                          "key": null,
+                          "nodeType": "ArrayItem",
+                          "unpack": false,
+                          "value": {
+                            "attributes": {},
+                            "items": [
+                              {
+                                "attributes": {},
+                                "byRef": false,
+                                "key": {
+                                  "attributes": {},
+                                  "nodeType": "Scalar_String",
+                                  "value": "resource",
+                                },
+                                "nodeType": "ArrayItem",
+                                "unpack": false,
+                                "value": {
+                                  "attributes": {},
+                                  "nodeType": "Scalar_String",
+                                  "value": "books",
+                                },
+                              },
+                              {
+                                "attributes": {},
+                                "byRef": false,
+                                "key": {
+                                  "attributes": {},
+                                  "nodeType": "Scalar_String",
+                                  "value": "menu",
+                                },
+                                "nodeType": "ArrayItem",
+                                "unpack": false,
+                                "value": {
+                                  "attributes": {},
+                                  "items": [
+                                    {
+                                      "attributes": {},
+                                      "byRef": false,
+                                      "key": {
+                                        "attributes": {},
+                                        "nodeType": "Scalar_String",
+                                        "value": "slug",
+                                      },
+                                      "nodeType": "ArrayItem",
+                                      "unpack": false,
+                                      "value": {
+                                        "attributes": {},
+                                        "nodeType": "Scalar_String",
+                                        "value": "books",
+                                      },
+                                    },
+                                    {
+                                      "attributes": {},
+                                      "byRef": false,
+                                      "key": {
+                                        "attributes": {},
+                                        "nodeType": "Scalar_String",
+                                        "value": "title",
+                                      },
+                                      "nodeType": "ArrayItem",
+                                      "unpack": false,
+                                      "value": {
+                                        "attributes": {},
+                                        "nodeType": "Scalar_String",
+                                        "value": "Books",
+                                      },
+                                    },
+                                  ],
+                                  "nodeType": "Expr_Array",
+                                },
+                              },
+                            ],
+                            "nodeType": "Expr_Array",
+                          },
+                        },
+                      ],
+                      "nodeType": "Expr_Array",
+                    },
+                  },
+                ],
+                "nodeType": "Expr_Array",
+              },
+              "nodeType": "Expr_Assign",
+              "var": {
+                "attributes": {},
+                "name": "localization",
+                "nodeType": "Expr_Variable",
+              },
+            },
+            "nodeType": "Stmt_Expression",
+          },
+          {
+            "attributes": {},
+            "expr": {
+              "args": [
+                {
+                  "attributes": {},
+                  "byRef": false,
+                  "name": null,
+                  "nodeType": "Arg",
+                  "unpack": false,
+                  "value": {
+                    "attributes": {},
+                    "nodeType": "Scalar_String",
+                    "value": "wp-demo-plugin-ui",
+                  },
+                },
+                {
+                  "attributes": {},
+                  "byRef": false,
+                  "name": null,
+                  "nodeType": "Arg",
+                  "unpack": false,
+                  "value": {
+                    "attributes": {},
+                    "nodeType": "Scalar_String",
+                    "value": "wpKernelUISettings",
+                  },
+                },
+                {
+                  "attributes": {},
+                  "byRef": false,
+                  "name": null,
+                  "nodeType": "Arg",
+                  "unpack": false,
+                  "value": {
+                    "attributes": {},
+                    "name": "localization",
+                    "nodeType": "Expr_Variable",
+                  },
+                },
+              ],
+              "attributes": {},
+              "name": {
+                "attributes": {},
+                "nodeType": "Name",
+                "parts": [
+                  "wp_localize_script",
+                ],
+              },
+              "nodeType": "Expr_FuncCall",
+            },
+            "nodeType": "Stmt_Expression",
+          },
+          {
+            "attributes": {},
+            "expr": {
+              "attributes": {},
+              "expr": {
+                "attributes": {},
+                "left": {
+                  "args": [
+                    {
+                      "attributes": {},
+                      "byRef": false,
+                      "name": null,
+                      "nodeType": "Arg",
+                      "unpack": false,
+                      "value": {
+                        "attributes": {},
+                        "name": {
+                          "attributes": {},
+                          "nodeType": "Name",
+                          "parts": [
+                            "__FILE__",
+                          ],
+                        },
+                        "nodeType": "Expr_ConstFetch",
+                      },
+                    },
+                  ],
+                  "attributes": {},
+                  "name": {
+                    "attributes": {},
+                    "nodeType": "Name",
+                    "parts": [
+                      "plugin_dir_path",
+                    ],
+                  },
+                  "nodeType": "Expr_FuncCall",
+                },
+                "nodeType": "Expr_BinaryOp_Concat",
+                "right": {
+                  "attributes": {},
+                  "nodeType": "Scalar_String",
+                  "value": "build/index.css",
+                },
+              },
+              "nodeType": "Expr_Assign",
+              "var": {
+                "attributes": {},
+                "name": "style_path",
+                "nodeType": "Expr_Variable",
+              },
+            },
+            "nodeType": "Stmt_Expression",
+          },
+          {
+            "attributes": {},
+            "cond": {
+              "args": [
+                {
+                  "attributes": {},
+                  "byRef": false,
+                  "name": null,
+                  "nodeType": "Arg",
+                  "unpack": false,
+                  "value": {
+                    "attributes": {},
+                    "name": "style_path",
+                    "nodeType": "Expr_Variable",
+                  },
+                },
+              ],
+              "attributes": {},
+              "name": {
+                "attributes": {},
+                "nodeType": "Name",
+                "parts": [
+                  "file_exists",
+                ],
+              },
+              "nodeType": "Expr_FuncCall",
+            },
+            "else": null,
+            "elseifs": [],
+            "nodeType": "Stmt_If",
+            "stmts": [
+              {
+                "attributes": {},
+                "expr": {
+                  "args": [
+                    {
+                      "attributes": {},
+                      "byRef": false,
+                      "name": null,
+                      "nodeType": "Arg",
+                      "unpack": false,
+                      "value": {
+                        "attributes": {},
+                        "nodeType": "Scalar_String",
+                        "value": "wp-demo-plugin-ui",
+                      },
+                    },
+                    {
+                      "attributes": {},
+                      "byRef": false,
+                      "name": null,
+                      "nodeType": "Arg",
+                      "unpack": false,
+                      "value": {
+                        "args": [
+                          {
+                            "attributes": {},
+                            "byRef": false,
+                            "name": null,
+                            "nodeType": "Arg",
+                            "unpack": false,
+                            "value": {
+                              "attributes": {},
+                              "nodeType": "Scalar_String",
+                              "value": "build/index.css",
+                            },
+                          },
+                          {
+                            "attributes": {},
+                            "byRef": false,
+                            "name": null,
+                            "nodeType": "Arg",
+                            "unpack": false,
+                            "value": {
+                              "attributes": {},
+                              "name": {
+                                "attributes": {},
+                                "nodeType": "Name",
+                                "parts": [
+                                  "__FILE__",
+                                ],
+                              },
+                              "nodeType": "Expr_ConstFetch",
+                            },
+                          },
+                        ],
+                        "attributes": {},
+                        "name": {
+                          "attributes": {},
+                          "nodeType": "Name",
+                          "parts": [
+                            "plugins_url",
+                          ],
+                        },
+                        "nodeType": "Expr_FuncCall",
+                      },
+                    },
+                    {
+                      "attributes": {},
+                      "byRef": false,
+                      "name": null,
+                      "nodeType": "Arg",
+                      "unpack": false,
+                      "value": {
+                        "attributes": {},
+                        "items": [
+                          {
+                            "attributes": {},
+                            "byRef": false,
+                            "key": null,
+                            "nodeType": "ArrayItem",
+                            "unpack": false,
+                            "value": {
+                              "attributes": {},
+                              "nodeType": "Scalar_String",
+                              "value": "wp-components",
+                            },
+                          },
+                        ],
+                        "nodeType": "Expr_Array",
+                      },
+                    },
+                    {
+                      "attributes": {},
+                      "byRef": false,
+                      "name": null,
+                      "nodeType": "Arg",
+                      "unpack": false,
+                      "value": {
+                        "attributes": {},
+                        "name": "version",
+                        "nodeType": "Expr_Variable",
+                      },
+                    },
+                  ],
+                  "attributes": {},
+                  "name": {
+                    "attributes": {},
+                    "nodeType": "Name",
+                    "parts": [
+                      "wp_enqueue_style",
+                    ],
+                  },
+                  "nodeType": "Expr_FuncCall",
+                },
+                "nodeType": "Stmt_Expression",
+              },
+            ],
+          },
+          {
+            "attributes": {},
+            "expr": {
+              "args": [
+                {
+                  "attributes": {},
+                  "byRef": false,
+                  "name": null,
+                  "nodeType": "Arg",
+                  "unpack": false,
+                  "value": {
+                    "attributes": {},
+                    "nodeType": "Scalar_String",
+                    "value": "wp-demo-plugin-ui",
+                  },
+                },
+              ],
+              "attributes": {},
+              "name": {
+                "attributes": {},
+                "nodeType": "Name",
+                "parts": [
+                  "wp_enqueue_script",
+                ],
+              },
+              "nodeType": "Expr_FuncCall",
+            },
+            "nodeType": "Stmt_Expression",
+          },
+        ],
+      },
+      {
+        "attrGroups": [],
+        "attributes": {
+          "comments": [
+            {
+              "nodeType": "Comment_Doc",
+              "text": "/** Register admin menu entries for WPKernel DataViews screens. */",
+            },
+          ],
+        },
+        "byRef": false,
+        "name": {
+          "attributes": {},
+          "name": "register_wpkernel_admin_menu",
+          "nodeType": "Identifier",
+        },
+        "namespacedName": null,
+        "nodeType": "Stmt_Function",
+        "params": [],
+        "returnType": {
+          "attributes": {},
+          "name": "void",
+          "nodeType": "Identifier",
+        },
+        "stmts": [
+          {
+            "attributes": {},
+            "expr": {
+              "attributes": {},
+              "expr": {
+                "attributes": {},
+                "items": [
+                  {
+                    "attributes": {},
+                    "byRef": false,
+                    "key": null,
+                    "nodeType": "ArrayItem",
+                    "unpack": false,
+                    "value": {
+                      "attributes": {},
+                      "items": [
+                        {
+                          "attributes": {},
+                          "byRef": false,
+                          "key": {
+                            "attributes": {},
+                            "nodeType": "Scalar_String",
+                            "value": "slug",
+                          },
+                          "nodeType": "ArrayItem",
+                          "unpack": false,
+                          "value": {
+                            "attributes": {},
+                            "nodeType": "Scalar_String",
+                            "value": "books",
+                          },
+                        },
+                        {
+                          "attributes": {},
+                          "byRef": false,
+                          "key": {
+                            "attributes": {},
+                            "nodeType": "Scalar_String",
+                            "value": "title",
+                          },
+                          "nodeType": "ArrayItem",
+                          "unpack": false,
+                          "value": {
+                            "attributes": {},
+                            "nodeType": "Scalar_String",
+                            "value": "Books",
+                          },
+                        },
+                      ],
+                      "nodeType": "Expr_Array",
+                    },
+                  },
+                ],
+                "nodeType": "Expr_Array",
+              },
+              "nodeType": "Expr_Assign",
+              "var": {
+                "attributes": {},
+                "name": "parent_menus",
+                "nodeType": "Expr_Variable",
+              },
+            },
+            "nodeType": "Stmt_Expression",
+          },
+          {
+            "attributes": {},
+            "expr": {
+              "attributes": {},
+              "expr": {
+                "attributes": {},
+                "items": [],
+                "nodeType": "Expr_Array",
+              },
+              "nodeType": "Expr_Assign",
+              "var": {
+                "attributes": {},
+                "name": "child_menus",
+                "nodeType": "Expr_Variable",
+              },
+            },
+            "nodeType": "Stmt_Expression",
+          },
+          {
+            "attributes": {},
+            "byRef": false,
+            "expr": {
+              "attributes": {},
+              "name": "parent_menus",
+              "nodeType": "Expr_Variable",
+            },
+            "keyVar": null,
+            "nodeType": "Stmt_Foreach",
+            "stmts": [
+              {
+                "attributes": {},
+                "expr": {
+                  "attributes": {},
+                  "expr": {
+                    "attributes": {},
+                    "dim": {
+                      "attributes": {},
+                      "nodeType": "Scalar_String",
+                      "value": "slug",
+                    },
+                    "nodeType": "Expr_ArrayDimFetch",
+                    "var": {
+                      "attributes": {},
+                      "name": "menu",
+                      "nodeType": "Expr_Variable",
+                    },
+                  },
+                  "nodeType": "Expr_Assign",
+                  "var": {
+                    "attributes": {},
+                    "name": "slug",
+                    "nodeType": "Expr_Variable",
+                  },
+                },
+                "nodeType": "Stmt_Expression",
+              },
+              {
+                "attributes": {},
+                "expr": {
+                  "attributes": {},
+                  "expr": {
+                    "attributes": {},
+                    "dim": {
+                      "attributes": {},
+                      "nodeType": "Scalar_String",
+                      "value": "title",
+                    },
+                    "nodeType": "Expr_ArrayDimFetch",
+                    "var": {
+                      "attributes": {},
+                      "name": "menu",
+                      "nodeType": "Expr_Variable",
+                    },
+                  },
+                  "nodeType": "Expr_Assign",
+                  "var": {
+                    "attributes": {},
+                    "name": "title",
+                    "nodeType": "Expr_Variable",
+                  },
+                },
+                "nodeType": "Stmt_Expression",
+              },
+              {
+                "attributes": {},
+                "expr": {
+                  "attributes": {},
+                  "expr": {
+                    "attributes": {},
+                    "cond": {
+                      "args": [
+                        {
+                          "attributes": {},
+                          "byRef": false,
+                          "name": null,
+                          "nodeType": "Arg",
+                          "unpack": false,
+                          "value": {
+                            "attributes": {},
+                            "dim": {
+                              "attributes": {},
+                              "nodeType": "Scalar_String",
+                              "value": "capability",
+                            },
+                            "nodeType": "Expr_ArrayDimFetch",
+                            "var": {
+                              "attributes": {},
+                              "name": "menu",
+                              "nodeType": "Expr_Variable",
+                            },
+                          },
+                        },
+                      ],
+                      "attributes": {},
+                      "name": {
+                        "attributes": {},
+                        "nodeType": "Name",
+                        "parts": [
+                          "isset",
+                        ],
+                      },
+                      "nodeType": "Expr_FuncCall",
+                    },
+                    "else": {
+                      "attributes": {},
+                      "nodeType": "Scalar_String",
+                      "value": "manage_options",
+                    },
+                    "if": {
+                      "attributes": {},
+                      "dim": {
+                        "attributes": {},
+                        "nodeType": "Scalar_String",
+                        "value": "capability",
+                      },
+                      "nodeType": "Expr_ArrayDimFetch",
+                      "var": {
+                        "attributes": {},
+                        "name": "menu",
+                        "nodeType": "Expr_Variable",
+                      },
+                    },
+                    "nodeType": "Expr_Ternary",
+                  },
+                  "nodeType": "Expr_Assign",
+                  "var": {
+                    "attributes": {},
+                    "name": "capability",
+                    "nodeType": "Expr_Variable",
+                  },
+                },
+                "nodeType": "Stmt_Expression",
+              },
+              {
+                "attributes": {},
+                "expr": {
+                  "attributes": {},
+                  "expr": {
+                    "attributes": {},
+                    "left": {
+                      "attributes": {},
+                      "name": {
+                        "attributes": {},
+                        "nodeType": "Name",
+                        "parts": [
+                          "__NAMESPACE__",
+                        ],
+                      },
+                      "nodeType": "Expr_ConstFetch",
+                    },
+                    "nodeType": "Expr_BinaryOp_Concat",
+                    "right": {
+                      "attributes": {},
+                      "nodeType": "Scalar_String",
+                      "value": "\\render_wpkernel_admin_screen",
+                    },
+                  },
+                  "nodeType": "Expr_Assign",
+                  "var": {
+                    "attributes": {},
+                    "name": "callback",
+                    "nodeType": "Expr_Variable",
+                  },
+                },
+                "nodeType": "Stmt_Expression",
+              },
+              {
+                "attributes": {},
+                "cond": {
+                  "attributes": {},
+                  "left": {
+                    "args": [
+                      {
+                        "attributes": {},
+                        "byRef": false,
+                        "name": null,
+                        "nodeType": "Arg",
+                        "unpack": false,
+                        "value": {
+                          "attributes": {},
+                          "dim": {
+                            "attributes": {},
+                            "nodeType": "Scalar_String",
+                            "value": "parent",
+                          },
+                          "nodeType": "Expr_ArrayDimFetch",
+                          "var": {
+                            "attributes": {},
+                            "name": "menu",
+                            "nodeType": "Expr_Variable",
+                          },
+                        },
+                      },
+                    ],
+                    "attributes": {},
+                    "name": {
+                      "attributes": {},
+                      "nodeType": "Name",
+                      "parts": [
+                        "isset",
+                      ],
+                    },
+                    "nodeType": "Expr_FuncCall",
+                  },
+                  "nodeType": "Expr_BinaryOp_BooleanAnd",
+                  "right": {
+                    "attributes": {},
+                    "dim": {
+                      "attributes": {},
+                      "nodeType": "Scalar_String",
+                      "value": "parent",
+                    },
+                    "nodeType": "Expr_ArrayDimFetch",
+                    "var": {
+                      "attributes": {},
+                      "name": "menu",
+                      "nodeType": "Expr_Variable",
+                    },
+                  },
+                },
+                "else": null,
+                "elseifs": [],
+                "nodeType": "Stmt_If",
+                "stmts": [
+                  {
+                    "attributes": {},
+                    "cond": {
+                      "args": [
+                        {
+                          "attributes": {},
+                          "byRef": false,
+                          "name": null,
+                          "nodeType": "Arg",
+                          "unpack": false,
+                          "value": {
+                            "attributes": {},
+                            "dim": {
+                              "attributes": {},
+                              "nodeType": "Scalar_String",
+                              "value": "position",
+                            },
+                            "nodeType": "Expr_ArrayDimFetch",
+                            "var": {
+                              "attributes": {},
+                              "name": "menu",
+                              "nodeType": "Expr_Variable",
+                            },
+                          },
+                        },
+                      ],
+                      "attributes": {},
+                      "name": {
+                        "attributes": {},
+                        "nodeType": "Name",
+                        "parts": [
+                          "isset",
+                        ],
+                      },
+                      "nodeType": "Expr_FuncCall",
+                    },
+                    "else": {
+                      "attributes": {},
+                      "nodeType": "Stmt_Else",
+                      "stmts": [
+                        {
+                          "attributes": {},
+                          "expr": {
+                            "args": [
+                              {
+                                "attributes": {},
+                                "byRef": false,
+                                "name": null,
+                                "nodeType": "Arg",
+                                "unpack": false,
+                                "value": {
+                                  "attributes": {},
+                                  "dim": {
+                                    "attributes": {},
+                                    "nodeType": "Scalar_String",
+                                    "value": "parent",
+                                  },
+                                  "nodeType": "Expr_ArrayDimFetch",
+                                  "var": {
+                                    "attributes": {},
+                                    "name": "menu",
+                                    "nodeType": "Expr_Variable",
+                                  },
+                                },
+                              },
+                              {
+                                "attributes": {},
+                                "byRef": false,
+                                "name": null,
+                                "nodeType": "Arg",
+                                "unpack": false,
+                                "value": {
+                                  "attributes": {},
+                                  "name": "title",
+                                  "nodeType": "Expr_Variable",
+                                },
+                              },
+                              {
+                                "attributes": {},
+                                "byRef": false,
+                                "name": null,
+                                "nodeType": "Arg",
+                                "unpack": false,
+                                "value": {
+                                  "attributes": {},
+                                  "name": "title",
+                                  "nodeType": "Expr_Variable",
+                                },
+                              },
+                              {
+                                "attributes": {},
+                                "byRef": false,
+                                "name": null,
+                                "nodeType": "Arg",
+                                "unpack": false,
+                                "value": {
+                                  "attributes": {},
+                                  "name": "capability",
+                                  "nodeType": "Expr_Variable",
+                                },
+                              },
+                              {
+                                "attributes": {},
+                                "byRef": false,
+                                "name": null,
+                                "nodeType": "Arg",
+                                "unpack": false,
+                                "value": {
+                                  "attributes": {},
+                                  "name": "slug",
+                                  "nodeType": "Expr_Variable",
+                                },
+                              },
+                              {
+                                "attributes": {},
+                                "byRef": false,
+                                "name": null,
+                                "nodeType": "Arg",
+                                "unpack": false,
+                                "value": {
+                                  "attributes": {},
+                                  "name": "callback",
+                                  "nodeType": "Expr_Variable",
+                                },
+                              },
+                            ],
+                            "attributes": {},
+                            "name": {
+                              "attributes": {},
+                              "nodeType": "Name",
+                              "parts": [
+                                "add_submenu_page",
+                              ],
+                            },
+                            "nodeType": "Expr_FuncCall",
+                          },
+                          "nodeType": "Stmt_Expression",
+                        },
+                      ],
+                    },
+                    "elseifs": [],
+                    "nodeType": "Stmt_If",
+                    "stmts": [
+                      {
+                        "attributes": {},
+                        "expr": {
+                          "args": [
+                            {
+                              "attributes": {},
+                              "byRef": false,
+                              "name": null,
+                              "nodeType": "Arg",
+                              "unpack": false,
+                              "value": {
+                                "attributes": {},
+                                "dim": {
+                                  "attributes": {},
+                                  "nodeType": "Scalar_String",
+                                  "value": "parent",
+                                },
+                                "nodeType": "Expr_ArrayDimFetch",
+                                "var": {
+                                  "attributes": {},
+                                  "name": "menu",
+                                  "nodeType": "Expr_Variable",
+                                },
+                              },
+                            },
+                            {
+                              "attributes": {},
+                              "byRef": false,
+                              "name": null,
+                              "nodeType": "Arg",
+                              "unpack": false,
+                              "value": {
+                                "attributes": {},
+                                "name": "title",
+                                "nodeType": "Expr_Variable",
+                              },
+                            },
+                            {
+                              "attributes": {},
+                              "byRef": false,
+                              "name": null,
+                              "nodeType": "Arg",
+                              "unpack": false,
+                              "value": {
+                                "attributes": {},
+                                "name": "title",
+                                "nodeType": "Expr_Variable",
+                              },
+                            },
+                            {
+                              "attributes": {},
+                              "byRef": false,
+                              "name": null,
+                              "nodeType": "Arg",
+                              "unpack": false,
+                              "value": {
+                                "attributes": {},
+                                "name": "capability",
+                                "nodeType": "Expr_Variable",
+                              },
+                            },
+                            {
+                              "attributes": {},
+                              "byRef": false,
+                              "name": null,
+                              "nodeType": "Arg",
+                              "unpack": false,
+                              "value": {
+                                "attributes": {},
+                                "name": "slug",
+                                "nodeType": "Expr_Variable",
+                              },
+                            },
+                            {
+                              "attributes": {},
+                              "byRef": false,
+                              "name": null,
+                              "nodeType": "Arg",
+                              "unpack": false,
+                              "value": {
+                                "attributes": {},
+                                "name": "callback",
+                                "nodeType": "Expr_Variable",
+                              },
+                            },
+                            {
+                              "attributes": {},
+                              "byRef": false,
+                              "name": null,
+                              "nodeType": "Arg",
+                              "unpack": false,
+                              "value": {
+                                "attributes": {},
+                                "dim": {
+                                  "attributes": {},
+                                  "nodeType": "Scalar_String",
+                                  "value": "position",
+                                },
+                                "nodeType": "Expr_ArrayDimFetch",
+                                "var": {
+                                  "attributes": {},
+                                  "name": "menu",
+                                  "nodeType": "Expr_Variable",
+                                },
+                              },
+                            },
+                          ],
+                          "attributes": {},
+                          "name": {
+                            "attributes": {},
+                            "nodeType": "Name",
+                            "parts": [
+                              "add_submenu_page",
+                            ],
+                          },
+                          "nodeType": "Expr_FuncCall",
+                        },
+                        "nodeType": "Stmt_Expression",
+                      },
+                    ],
+                  },
+                  {
+                    "attributes": {},
+                    "nodeType": "Stmt_Continue",
+                    "num": null,
+                  },
+                ],
+              },
+              {
+                "attributes": {},
+                "cond": {
+                  "args": [
+                    {
+                      "attributes": {},
+                      "byRef": false,
+                      "name": null,
+                      "nodeType": "Arg",
+                      "unpack": false,
+                      "value": {
+                        "attributes": {},
+                        "dim": {
+                          "attributes": {},
+                          "nodeType": "Scalar_String",
+                          "value": "position",
+                        },
+                        "nodeType": "Expr_ArrayDimFetch",
+                        "var": {
+                          "attributes": {},
+                          "name": "menu",
+                          "nodeType": "Expr_Variable",
+                        },
+                      },
+                    },
+                  ],
+                  "attributes": {},
+                  "name": {
+                    "attributes": {},
+                    "nodeType": "Name",
+                    "parts": [
+                      "isset",
+                    ],
+                  },
+                  "nodeType": "Expr_FuncCall",
+                },
+                "else": {
+                  "attributes": {},
+                  "nodeType": "Stmt_Else",
+                  "stmts": [
+                    {
+                      "attributes": {},
+                      "expr": {
+                        "args": [
+                          {
+                            "attributes": {},
+                            "byRef": false,
+                            "name": null,
+                            "nodeType": "Arg",
+                            "unpack": false,
+                            "value": {
+                              "attributes": {},
+                              "name": "title",
+                              "nodeType": "Expr_Variable",
+                            },
+                          },
+                          {
+                            "attributes": {},
+                            "byRef": false,
+                            "name": null,
+                            "nodeType": "Arg",
+                            "unpack": false,
+                            "value": {
+                              "attributes": {},
+                              "name": "title",
+                              "nodeType": "Expr_Variable",
+                            },
+                          },
+                          {
+                            "attributes": {},
+                            "byRef": false,
+                            "name": null,
+                            "nodeType": "Arg",
+                            "unpack": false,
+                            "value": {
+                              "attributes": {},
+                              "name": "capability",
+                              "nodeType": "Expr_Variable",
+                            },
+                          },
+                          {
+                            "attributes": {},
+                            "byRef": false,
+                            "name": null,
+                            "nodeType": "Arg",
+                            "unpack": false,
+                            "value": {
+                              "attributes": {},
+                              "name": "slug",
+                              "nodeType": "Expr_Variable",
+                            },
+                          },
+                          {
+                            "attributes": {},
+                            "byRef": false,
+                            "name": null,
+                            "nodeType": "Arg",
+                            "unpack": false,
+                            "value": {
+                              "attributes": {},
+                              "name": "callback",
+                              "nodeType": "Expr_Variable",
+                            },
+                          },
+                          {
+                            "attributes": {},
+                            "byRef": false,
+                            "name": null,
+                            "nodeType": "Arg",
+                            "unpack": false,
+                            "value": {
+                              "attributes": {},
+                              "nodeType": "Scalar_String",
+                              "value": "",
+                            },
+                          },
+                        ],
+                        "attributes": {},
+                        "name": {
+                          "attributes": {},
+                          "nodeType": "Name",
+                          "parts": [
+                            "add_menu_page",
+                          ],
+                        },
+                        "nodeType": "Expr_FuncCall",
+                      },
+                      "nodeType": "Stmt_Expression",
+                    },
+                  ],
+                },
+                "elseifs": [],
+                "nodeType": "Stmt_If",
+                "stmts": [
+                  {
+                    "attributes": {},
+                    "expr": {
+                      "args": [
+                        {
+                          "attributes": {},
+                          "byRef": false,
+                          "name": null,
+                          "nodeType": "Arg",
+                          "unpack": false,
+                          "value": {
+                            "attributes": {},
+                            "name": "title",
+                            "nodeType": "Expr_Variable",
+                          },
+                        },
+                        {
+                          "attributes": {},
+                          "byRef": false,
+                          "name": null,
+                          "nodeType": "Arg",
+                          "unpack": false,
+                          "value": {
+                            "attributes": {},
+                            "name": "title",
+                            "nodeType": "Expr_Variable",
+                          },
+                        },
+                        {
+                          "attributes": {},
+                          "byRef": false,
+                          "name": null,
+                          "nodeType": "Arg",
+                          "unpack": false,
+                          "value": {
+                            "attributes": {},
+                            "name": "capability",
+                            "nodeType": "Expr_Variable",
+                          },
+                        },
+                        {
+                          "attributes": {},
+                          "byRef": false,
+                          "name": null,
+                          "nodeType": "Arg",
+                          "unpack": false,
+                          "value": {
+                            "attributes": {},
+                            "name": "slug",
+                            "nodeType": "Expr_Variable",
+                          },
+                        },
+                        {
+                          "attributes": {},
+                          "byRef": false,
+                          "name": null,
+                          "nodeType": "Arg",
+                          "unpack": false,
+                          "value": {
+                            "attributes": {},
+                            "name": "callback",
+                            "nodeType": "Expr_Variable",
+                          },
+                        },
+                        {
+                          "attributes": {},
+                          "byRef": false,
+                          "name": null,
+                          "nodeType": "Arg",
+                          "unpack": false,
+                          "value": {
+                            "attributes": {},
+                            "nodeType": "Scalar_String",
+                            "value": "",
+                          },
+                        },
+                        {
+                          "attributes": {},
+                          "byRef": false,
+                          "name": null,
+                          "nodeType": "Arg",
+                          "unpack": false,
+                          "value": {
+                            "attributes": {},
+                            "dim": {
+                              "attributes": {},
+                              "nodeType": "Scalar_String",
+                              "value": "position",
+                            },
+                            "nodeType": "Expr_ArrayDimFetch",
+                            "var": {
+                              "attributes": {},
+                              "name": "menu",
+                              "nodeType": "Expr_Variable",
+                            },
+                          },
+                        },
+                      ],
+                      "attributes": {},
+                      "name": {
+                        "attributes": {},
+                        "nodeType": "Name",
+                        "parts": [
+                          "add_menu_page",
+                        ],
+                      },
+                      "nodeType": "Expr_FuncCall",
+                    },
+                    "nodeType": "Stmt_Expression",
+                  },
+                ],
+              },
+            ],
+            "valueVar": {
+              "attributes": {},
+              "name": "menu",
+              "nodeType": "Expr_Variable",
+            },
+          },
+          {
+            "attributes": {},
+            "byRef": false,
+            "expr": {
+              "attributes": {},
+              "name": "child_menus",
+              "nodeType": "Expr_Variable",
+            },
+            "keyVar": null,
+            "nodeType": "Stmt_Foreach",
+            "stmts": [
+              {
+                "attributes": {},
+                "expr": {
+                  "attributes": {},
+                  "expr": {
+                    "attributes": {},
+                    "dim": {
+                      "attributes": {},
+                      "nodeType": "Scalar_String",
+                      "value": "slug",
+                    },
+                    "nodeType": "Expr_ArrayDimFetch",
+                    "var": {
+                      "attributes": {},
+                      "name": "menu",
+                      "nodeType": "Expr_Variable",
+                    },
+                  },
+                  "nodeType": "Expr_Assign",
+                  "var": {
+                    "attributes": {},
+                    "name": "slug",
+                    "nodeType": "Expr_Variable",
+                  },
+                },
+                "nodeType": "Stmt_Expression",
+              },
+              {
+                "attributes": {},
+                "expr": {
+                  "attributes": {},
+                  "expr": {
+                    "attributes": {},
+                    "dim": {
+                      "attributes": {},
+                      "nodeType": "Scalar_String",
+                      "value": "title",
+                    },
+                    "nodeType": "Expr_ArrayDimFetch",
+                    "var": {
+                      "attributes": {},
+                      "name": "menu",
+                      "nodeType": "Expr_Variable",
+                    },
+                  },
+                  "nodeType": "Expr_Assign",
+                  "var": {
+                    "attributes": {},
+                    "name": "title",
+                    "nodeType": "Expr_Variable",
+                  },
+                },
+                "nodeType": "Stmt_Expression",
+              },
+              {
+                "attributes": {},
+                "expr": {
+                  "attributes": {},
+                  "expr": {
+                    "attributes": {},
+                    "cond": {
+                      "args": [
+                        {
+                          "attributes": {},
+                          "byRef": false,
+                          "name": null,
+                          "nodeType": "Arg",
+                          "unpack": false,
+                          "value": {
+                            "attributes": {},
+                            "dim": {
+                              "attributes": {},
+                              "nodeType": "Scalar_String",
+                              "value": "capability",
+                            },
+                            "nodeType": "Expr_ArrayDimFetch",
+                            "var": {
+                              "attributes": {},
+                              "name": "menu",
+                              "nodeType": "Expr_Variable",
+                            },
+                          },
+                        },
+                      ],
+                      "attributes": {},
+                      "name": {
+                        "attributes": {},
+                        "nodeType": "Name",
+                        "parts": [
+                          "isset",
+                        ],
+                      },
+                      "nodeType": "Expr_FuncCall",
+                    },
+                    "else": {
+                      "attributes": {},
+                      "nodeType": "Scalar_String",
+                      "value": "manage_options",
+                    },
+                    "if": {
+                      "attributes": {},
+                      "dim": {
+                        "attributes": {},
+                        "nodeType": "Scalar_String",
+                        "value": "capability",
+                      },
+                      "nodeType": "Expr_ArrayDimFetch",
+                      "var": {
+                        "attributes": {},
+                        "name": "menu",
+                        "nodeType": "Expr_Variable",
+                      },
+                    },
+                    "nodeType": "Expr_Ternary",
+                  },
+                  "nodeType": "Expr_Assign",
+                  "var": {
+                    "attributes": {},
+                    "name": "capability",
+                    "nodeType": "Expr_Variable",
+                  },
+                },
+                "nodeType": "Stmt_Expression",
+              },
+              {
+                "attributes": {},
+                "expr": {
+                  "attributes": {},
+                  "expr": {
+                    "attributes": {},
+                    "left": {
+                      "attributes": {},
+                      "name": {
+                        "attributes": {},
+                        "nodeType": "Name",
+                        "parts": [
+                          "__NAMESPACE__",
+                        ],
+                      },
+                      "nodeType": "Expr_ConstFetch",
+                    },
+                    "nodeType": "Expr_BinaryOp_Concat",
+                    "right": {
+                      "attributes": {},
+                      "nodeType": "Scalar_String",
+                      "value": "\\render_wpkernel_admin_screen",
+                    },
+                  },
+                  "nodeType": "Expr_Assign",
+                  "var": {
+                    "attributes": {},
+                    "name": "callback",
+                    "nodeType": "Expr_Variable",
+                  },
+                },
+                "nodeType": "Stmt_Expression",
+              },
+              {
+                "attributes": {},
+                "cond": {
+                  "attributes": {},
+                  "left": {
+                    "args": [
+                      {
+                        "attributes": {},
+                        "byRef": false,
+                        "name": null,
+                        "nodeType": "Arg",
+                        "unpack": false,
+                        "value": {
+                          "attributes": {},
+                          "dim": {
+                            "attributes": {},
+                            "nodeType": "Scalar_String",
+                            "value": "parent",
+                          },
+                          "nodeType": "Expr_ArrayDimFetch",
+                          "var": {
+                            "attributes": {},
+                            "name": "menu",
+                            "nodeType": "Expr_Variable",
+                          },
+                        },
+                      },
+                    ],
+                    "attributes": {},
+                    "name": {
+                      "attributes": {},
+                      "nodeType": "Name",
+                      "parts": [
+                        "isset",
+                      ],
+                    },
+                    "nodeType": "Expr_FuncCall",
+                  },
+                  "nodeType": "Expr_BinaryOp_BooleanAnd",
+                  "right": {
+                    "attributes": {},
+                    "dim": {
+                      "attributes": {},
+                      "nodeType": "Scalar_String",
+                      "value": "parent",
+                    },
+                    "nodeType": "Expr_ArrayDimFetch",
+                    "var": {
+                      "attributes": {},
+                      "name": "menu",
+                      "nodeType": "Expr_Variable",
+                    },
+                  },
+                },
+                "else": null,
+                "elseifs": [],
+                "nodeType": "Stmt_If",
+                "stmts": [
+                  {
+                    "attributes": {},
+                    "cond": {
+                      "args": [
+                        {
+                          "attributes": {},
+                          "byRef": false,
+                          "name": null,
+                          "nodeType": "Arg",
+                          "unpack": false,
+                          "value": {
+                            "attributes": {},
+                            "dim": {
+                              "attributes": {},
+                              "nodeType": "Scalar_String",
+                              "value": "position",
+                            },
+                            "nodeType": "Expr_ArrayDimFetch",
+                            "var": {
+                              "attributes": {},
+                              "name": "menu",
+                              "nodeType": "Expr_Variable",
+                            },
+                          },
+                        },
+                      ],
+                      "attributes": {},
+                      "name": {
+                        "attributes": {},
+                        "nodeType": "Name",
+                        "parts": [
+                          "isset",
+                        ],
+                      },
+                      "nodeType": "Expr_FuncCall",
+                    },
+                    "else": {
+                      "attributes": {},
+                      "nodeType": "Stmt_Else",
+                      "stmts": [
+                        {
+                          "attributes": {},
+                          "expr": {
+                            "args": [
+                              {
+                                "attributes": {},
+                                "byRef": false,
+                                "name": null,
+                                "nodeType": "Arg",
+                                "unpack": false,
+                                "value": {
+                                  "attributes": {},
+                                  "dim": {
+                                    "attributes": {},
+                                    "nodeType": "Scalar_String",
+                                    "value": "parent",
+                                  },
+                                  "nodeType": "Expr_ArrayDimFetch",
+                                  "var": {
+                                    "attributes": {},
+                                    "name": "menu",
+                                    "nodeType": "Expr_Variable",
+                                  },
+                                },
+                              },
+                              {
+                                "attributes": {},
+                                "byRef": false,
+                                "name": null,
+                                "nodeType": "Arg",
+                                "unpack": false,
+                                "value": {
+                                  "attributes": {},
+                                  "name": "title",
+                                  "nodeType": "Expr_Variable",
+                                },
+                              },
+                              {
+                                "attributes": {},
+                                "byRef": false,
+                                "name": null,
+                                "nodeType": "Arg",
+                                "unpack": false,
+                                "value": {
+                                  "attributes": {},
+                                  "name": "title",
+                                  "nodeType": "Expr_Variable",
+                                },
+                              },
+                              {
+                                "attributes": {},
+                                "byRef": false,
+                                "name": null,
+                                "nodeType": "Arg",
+                                "unpack": false,
+                                "value": {
+                                  "attributes": {},
+                                  "name": "capability",
+                                  "nodeType": "Expr_Variable",
+                                },
+                              },
+                              {
+                                "attributes": {},
+                                "byRef": false,
+                                "name": null,
+                                "nodeType": "Arg",
+                                "unpack": false,
+                                "value": {
+                                  "attributes": {},
+                                  "name": "slug",
+                                  "nodeType": "Expr_Variable",
+                                },
+                              },
+                              {
+                                "attributes": {},
+                                "byRef": false,
+                                "name": null,
+                                "nodeType": "Arg",
+                                "unpack": false,
+                                "value": {
+                                  "attributes": {},
+                                  "name": "callback",
+                                  "nodeType": "Expr_Variable",
+                                },
+                              },
+                            ],
+                            "attributes": {},
+                            "name": {
+                              "attributes": {},
+                              "nodeType": "Name",
+                              "parts": [
+                                "add_submenu_page",
+                              ],
+                            },
+                            "nodeType": "Expr_FuncCall",
+                          },
+                          "nodeType": "Stmt_Expression",
+                        },
+                      ],
+                    },
+                    "elseifs": [],
+                    "nodeType": "Stmt_If",
+                    "stmts": [
+                      {
+                        "attributes": {},
+                        "expr": {
+                          "args": [
+                            {
+                              "attributes": {},
+                              "byRef": false,
+                              "name": null,
+                              "nodeType": "Arg",
+                              "unpack": false,
+                              "value": {
+                                "attributes": {},
+                                "dim": {
+                                  "attributes": {},
+                                  "nodeType": "Scalar_String",
+                                  "value": "parent",
+                                },
+                                "nodeType": "Expr_ArrayDimFetch",
+                                "var": {
+                                  "attributes": {},
+                                  "name": "menu",
+                                  "nodeType": "Expr_Variable",
+                                },
+                              },
+                            },
+                            {
+                              "attributes": {},
+                              "byRef": false,
+                              "name": null,
+                              "nodeType": "Arg",
+                              "unpack": false,
+                              "value": {
+                                "attributes": {},
+                                "name": "title",
+                                "nodeType": "Expr_Variable",
+                              },
+                            },
+                            {
+                              "attributes": {},
+                              "byRef": false,
+                              "name": null,
+                              "nodeType": "Arg",
+                              "unpack": false,
+                              "value": {
+                                "attributes": {},
+                                "name": "title",
+                                "nodeType": "Expr_Variable",
+                              },
+                            },
+                            {
+                              "attributes": {},
+                              "byRef": false,
+                              "name": null,
+                              "nodeType": "Arg",
+                              "unpack": false,
+                              "value": {
+                                "attributes": {},
+                                "name": "capability",
+                                "nodeType": "Expr_Variable",
+                              },
+                            },
+                            {
+                              "attributes": {},
+                              "byRef": false,
+                              "name": null,
+                              "nodeType": "Arg",
+                              "unpack": false,
+                              "value": {
+                                "attributes": {},
+                                "name": "slug",
+                                "nodeType": "Expr_Variable",
+                              },
+                            },
+                            {
+                              "attributes": {},
+                              "byRef": false,
+                              "name": null,
+                              "nodeType": "Arg",
+                              "unpack": false,
+                              "value": {
+                                "attributes": {},
+                                "name": "callback",
+                                "nodeType": "Expr_Variable",
+                              },
+                            },
+                            {
+                              "attributes": {},
+                              "byRef": false,
+                              "name": null,
+                              "nodeType": "Arg",
+                              "unpack": false,
+                              "value": {
+                                "attributes": {},
+                                "dim": {
+                                  "attributes": {},
+                                  "nodeType": "Scalar_String",
+                                  "value": "position",
+                                },
+                                "nodeType": "Expr_ArrayDimFetch",
+                                "var": {
+                                  "attributes": {},
+                                  "name": "menu",
+                                  "nodeType": "Expr_Variable",
+                                },
+                              },
+                            },
+                          ],
+                          "attributes": {},
+                          "name": {
+                            "attributes": {},
+                            "nodeType": "Name",
+                            "parts": [
+                              "add_submenu_page",
+                            ],
+                          },
+                          "nodeType": "Expr_FuncCall",
+                        },
+                        "nodeType": "Stmt_Expression",
+                      },
+                    ],
+                  },
+                  {
+                    "attributes": {},
+                    "nodeType": "Stmt_Continue",
+                    "num": null,
+                  },
+                ],
+              },
+              {
+                "attributes": {},
+                "cond": {
+                  "args": [
+                    {
+                      "attributes": {},
+                      "byRef": false,
+                      "name": null,
+                      "nodeType": "Arg",
+                      "unpack": false,
+                      "value": {
+                        "attributes": {},
+                        "dim": {
+                          "attributes": {},
+                          "nodeType": "Scalar_String",
+                          "value": "position",
+                        },
+                        "nodeType": "Expr_ArrayDimFetch",
+                        "var": {
+                          "attributes": {},
+                          "name": "menu",
+                          "nodeType": "Expr_Variable",
+                        },
+                      },
+                    },
+                  ],
+                  "attributes": {},
+                  "name": {
+                    "attributes": {},
+                    "nodeType": "Name",
+                    "parts": [
+                      "isset",
+                    ],
+                  },
+                  "nodeType": "Expr_FuncCall",
+                },
+                "else": {
+                  "attributes": {},
+                  "nodeType": "Stmt_Else",
+                  "stmts": [
+                    {
+                      "attributes": {},
+                      "expr": {
+                        "args": [
+                          {
+                            "attributes": {},
+                            "byRef": false,
+                            "name": null,
+                            "nodeType": "Arg",
+                            "unpack": false,
+                            "value": {
+                              "attributes": {},
+                              "name": "title",
+                              "nodeType": "Expr_Variable",
+                            },
+                          },
+                          {
+                            "attributes": {},
+                            "byRef": false,
+                            "name": null,
+                            "nodeType": "Arg",
+                            "unpack": false,
+                            "value": {
+                              "attributes": {},
+                              "name": "title",
+                              "nodeType": "Expr_Variable",
+                            },
+                          },
+                          {
+                            "attributes": {},
+                            "byRef": false,
+                            "name": null,
+                            "nodeType": "Arg",
+                            "unpack": false,
+                            "value": {
+                              "attributes": {},
+                              "name": "capability",
+                              "nodeType": "Expr_Variable",
+                            },
+                          },
+                          {
+                            "attributes": {},
+                            "byRef": false,
+                            "name": null,
+                            "nodeType": "Arg",
+                            "unpack": false,
+                            "value": {
+                              "attributes": {},
+                              "name": "slug",
+                              "nodeType": "Expr_Variable",
+                            },
+                          },
+                          {
+                            "attributes": {},
+                            "byRef": false,
+                            "name": null,
+                            "nodeType": "Arg",
+                            "unpack": false,
+                            "value": {
+                              "attributes": {},
+                              "name": "callback",
+                              "nodeType": "Expr_Variable",
+                            },
+                          },
+                          {
+                            "attributes": {},
+                            "byRef": false,
+                            "name": null,
+                            "nodeType": "Arg",
+                            "unpack": false,
+                            "value": {
+                              "attributes": {},
+                              "nodeType": "Scalar_String",
+                              "value": "",
+                            },
+                          },
+                        ],
+                        "attributes": {},
+                        "name": {
+                          "attributes": {},
+                          "nodeType": "Name",
+                          "parts": [
+                            "add_menu_page",
+                          ],
+                        },
+                        "nodeType": "Expr_FuncCall",
+                      },
+                      "nodeType": "Stmt_Expression",
+                    },
+                  ],
+                },
+                "elseifs": [],
+                "nodeType": "Stmt_If",
+                "stmts": [
+                  {
+                    "attributes": {},
+                    "expr": {
+                      "args": [
+                        {
+                          "attributes": {},
+                          "byRef": false,
+                          "name": null,
+                          "nodeType": "Arg",
+                          "unpack": false,
+                          "value": {
+                            "attributes": {},
+                            "name": "title",
+                            "nodeType": "Expr_Variable",
+                          },
+                        },
+                        {
+                          "attributes": {},
+                          "byRef": false,
+                          "name": null,
+                          "nodeType": "Arg",
+                          "unpack": false,
+                          "value": {
+                            "attributes": {},
+                            "name": "title",
+                            "nodeType": "Expr_Variable",
+                          },
+                        },
+                        {
+                          "attributes": {},
+                          "byRef": false,
+                          "name": null,
+                          "nodeType": "Arg",
+                          "unpack": false,
+                          "value": {
+                            "attributes": {},
+                            "name": "capability",
+                            "nodeType": "Expr_Variable",
+                          },
+                        },
+                        {
+                          "attributes": {},
+                          "byRef": false,
+                          "name": null,
+                          "nodeType": "Arg",
+                          "unpack": false,
+                          "value": {
+                            "attributes": {},
+                            "name": "slug",
+                            "nodeType": "Expr_Variable",
+                          },
+                        },
+                        {
+                          "attributes": {},
+                          "byRef": false,
+                          "name": null,
+                          "nodeType": "Arg",
+                          "unpack": false,
+                          "value": {
+                            "attributes": {},
+                            "name": "callback",
+                            "nodeType": "Expr_Variable",
+                          },
+                        },
+                        {
+                          "attributes": {},
+                          "byRef": false,
+                          "name": null,
+                          "nodeType": "Arg",
+                          "unpack": false,
+                          "value": {
+                            "attributes": {},
+                            "nodeType": "Scalar_String",
+                            "value": "",
+                          },
+                        },
+                        {
+                          "attributes": {},
+                          "byRef": false,
+                          "name": null,
+                          "nodeType": "Arg",
+                          "unpack": false,
+                          "value": {
+                            "attributes": {},
+                            "dim": {
+                              "attributes": {},
+                              "nodeType": "Scalar_String",
+                              "value": "position",
+                            },
+                            "nodeType": "Expr_ArrayDimFetch",
+                            "var": {
+                              "attributes": {},
+                              "name": "menu",
+                              "nodeType": "Expr_Variable",
+                            },
+                          },
+                        },
+                      ],
+                      "attributes": {},
+                      "name": {
+                        "attributes": {},
+                        "nodeType": "Name",
+                        "parts": [
+                          "add_menu_page",
+                        ],
+                      },
+                      "nodeType": "Expr_FuncCall",
+                    },
+                    "nodeType": "Stmt_Expression",
+                  },
+                ],
+              },
+            ],
+            "valueVar": {
+              "attributes": {},
+              "name": "menu",
+              "nodeType": "Expr_Variable",
+            },
+          },
+        ],
+      },
+      {
+        "attrGroups": [],
+        "attributes": {
+          "comments": [
+            {
+              "nodeType": "Comment_Doc",
+              "text": "/** Render container for WPKernel-admin DataViews screens. */",
+            },
+          ],
+        },
+        "byRef": false,
+        "name": {
+          "attributes": {},
+          "name": "render_wpkernel_admin_screen",
+          "nodeType": "Identifier",
+        },
+        "namespacedName": null,
+        "nodeType": "Stmt_Function",
+        "params": [],
+        "returnType": {
+          "attributes": {},
+          "name": "void",
+          "nodeType": "Identifier",
+        },
+        "stmts": [
+          {
+            "attributes": {},
+            "expr": {
+              "attributes": {},
+              "expr": {
+                "attributes": {},
+                "nodeType": "Scalar_String",
+                "value": "",
+              },
+              "nodeType": "Expr_Assign",
+              "var": {
+                "attributes": {},
+                "name": "page",
+                "nodeType": "Expr_Variable",
+              },
+            },
+            "nodeType": "Stmt_Expression",
+          },
+          {
+            "attributes": {},
+            "cond": {
+              "args": [
+                {
+                  "attributes": {},
+                  "byRef": false,
+                  "name": null,
+                  "nodeType": "Arg",
+                  "unpack": false,
+                  "value": {
+                    "attributes": {},
+                    "dim": {
+                      "attributes": {},
+                      "nodeType": "Scalar_String",
+                      "value": "page",
+                    },
+                    "nodeType": "Expr_ArrayDimFetch",
+                    "var": {
+                      "attributes": {},
+                      "name": "_GET",
+                      "nodeType": "Expr_Variable",
+                    },
+                  },
+                },
+              ],
+              "attributes": {},
+              "name": {
+                "attributes": {},
+                "nodeType": "Name",
+                "parts": [
+                  "isset",
+                ],
+              },
+              "nodeType": "Expr_FuncCall",
+            },
+            "else": null,
+            "elseifs": [],
+            "nodeType": "Stmt_If",
+            "stmts": [
+              {
+                "attributes": {},
+                "expr": {
+                  "attributes": {},
+                  "expr": {
+                    "args": [
+                      {
+                        "attributes": {},
+                        "byRef": false,
+                        "name": null,
+                        "nodeType": "Arg",
+                        "unpack": false,
+                        "value": {
+                          "args": [
+                            {
+                              "attributes": {},
+                              "byRef": false,
+                              "name": null,
+                              "nodeType": "Arg",
+                              "unpack": false,
+                              "value": {
+                                "attributes": {},
+                                "dim": {
+                                  "attributes": {},
+                                  "nodeType": "Scalar_String",
+                                  "value": "page",
+                                },
+                                "nodeType": "Expr_ArrayDimFetch",
+                                "var": {
+                                  "attributes": {},
+                                  "name": "_GET",
+                                  "nodeType": "Expr_Variable",
+                                },
+                              },
+                            },
+                          ],
+                          "attributes": {},
+                          "name": {
+                            "attributes": {},
+                            "nodeType": "Name",
+                            "parts": [
+                              "strval",
+                            ],
+                          },
+                          "nodeType": "Expr_FuncCall",
+                        },
+                      },
+                    ],
+                    "attributes": {},
+                    "name": {
+                      "attributes": {},
+                      "nodeType": "Name",
+                      "parts": [
+                        "sanitize_key",
+                      ],
+                    },
+                    "nodeType": "Expr_FuncCall",
+                  },
+                  "nodeType": "Expr_Assign",
+                  "var": {
+                    "attributes": {},
+                    "name": "page",
+                    "nodeType": "Expr_Variable",
+                  },
+                },
+                "nodeType": "Stmt_Expression",
+              },
+            ],
+          },
+          {
+            "attributes": {},
+            "expr": {
+              "args": [
+                {
+                  "attributes": {},
+                  "byRef": false,
+                  "name": null,
+                  "nodeType": "Arg",
+                  "unpack": false,
+                  "value": {
+                    "attributes": {},
+                    "nodeType": "Scalar_String",
+                    "value": "<div class="wrap"><div id="wpkernel-admin-screen" data-wpkernel-page="%s"></div></div>",
+                  },
+                },
+                {
+                  "attributes": {},
+                  "byRef": false,
+                  "name": null,
+                  "nodeType": "Arg",
+                  "unpack": false,
+                  "value": {
+                    "args": [
+                      {
+                        "attributes": {},
+                        "byRef": false,
+                        "name": null,
+                        "nodeType": "Arg",
+                        "unpack": false,
+                        "value": {
+                          "attributes": {},
+                          "name": "page",
+                          "nodeType": "Expr_Variable",
+                        },
+                      },
+                    ],
+                    "attributes": {},
+                    "name": {
+                      "attributes": {},
+                      "nodeType": "Name",
+                      "parts": [
+                        "esc_attr",
+                      ],
+                    },
+                    "nodeType": "Expr_FuncCall",
+                  },
+                },
+              ],
+              "attributes": {},
+              "name": {
+                "attributes": {},
+                "nodeType": "Name",
+                "parts": [
+                  "printf",
+                ],
+              },
+              "nodeType": "Expr_FuncCall",
+            },
+            "nodeType": "Stmt_Expression",
+          },
+        ],
+      },
+      {
+        "attrGroups": [],
+        "attributes": {
+          "comments": [
+            {
+              "nodeType": "Comment_Doc",
               "text": "/** Attach wpk hooks required for REST registration. */",
             },
           ],
@@ -2483,6 +5983,118 @@ exports[`createPhpPluginLoaderHelper emits UI asset registration when dataview m
                       "attributes": {},
                       "nodeType": "Scalar_String",
                       "value": "\\register_wpkernel_routes",
+                    },
+                  },
+                },
+              ],
+              "attributes": {},
+              "name": {
+                "attributes": {},
+                "nodeType": "Name",
+                "parts": [
+                  "add_action",
+                ],
+              },
+              "nodeType": "Expr_FuncCall",
+            },
+            "nodeType": "Stmt_Expression",
+          },
+          {
+            "attributes": {},
+            "expr": {
+              "args": [
+                {
+                  "attributes": {},
+                  "byRef": false,
+                  "name": null,
+                  "nodeType": "Arg",
+                  "unpack": false,
+                  "value": {
+                    "attributes": {},
+                    "nodeType": "Scalar_String",
+                    "value": "admin_enqueue_scripts",
+                  },
+                },
+                {
+                  "attributes": {},
+                  "byRef": false,
+                  "name": null,
+                  "nodeType": "Arg",
+                  "unpack": false,
+                  "value": {
+                    "attributes": {},
+                    "left": {
+                      "attributes": {},
+                      "name": {
+                        "attributes": {},
+                        "nodeType": "Name",
+                        "parts": [
+                          "__NAMESPACE__",
+                        ],
+                      },
+                      "nodeType": "Expr_ConstFetch",
+                    },
+                    "nodeType": "Expr_BinaryOp_Concat",
+                    "right": {
+                      "attributes": {},
+                      "nodeType": "Scalar_String",
+                      "value": "\\enqueue_wpkernel_ui_assets",
+                    },
+                  },
+                },
+              ],
+              "attributes": {},
+              "name": {
+                "attributes": {},
+                "nodeType": "Name",
+                "parts": [
+                  "add_action",
+                ],
+              },
+              "nodeType": "Expr_FuncCall",
+            },
+            "nodeType": "Stmt_Expression",
+          },
+          {
+            "attributes": {},
+            "expr": {
+              "args": [
+                {
+                  "attributes": {},
+                  "byRef": false,
+                  "name": null,
+                  "nodeType": "Arg",
+                  "unpack": false,
+                  "value": {
+                    "attributes": {},
+                    "nodeType": "Scalar_String",
+                    "value": "admin_menu",
+                  },
+                },
+                {
+                  "attributes": {},
+                  "byRef": false,
+                  "name": null,
+                  "nodeType": "Arg",
+                  "unpack": false,
+                  "value": {
+                    "attributes": {},
+                    "left": {
+                      "attributes": {},
+                      "name": {
+                        "attributes": {},
+                        "nodeType": "Name",
+                        "parts": [
+                          "__NAMESPACE__",
+                        ],
+                      },
+                      "nodeType": "Expr_ConstFetch",
+                    },
+                    "nodeType": "Expr_BinaryOp_Concat",
+                    "right": {
+                      "attributes": {},
+                      "nodeType": "Scalar_String",
+                      "value": "\\register_wpkernel_admin_menu",
                     },
                   },
                 },
@@ -2596,8 +6208,7 @@ exports[`createPhpPluginLoaderHelper queues a plugin loader program with generat
       "attributes": {},
       "nodeType": "Name",
       "parts": [
-        "Demo",
-        "Plugin",
+        "DemoPlugin",
       ],
     },
     "nodeType": "Stmt_Namespace",
@@ -3320,7 +6931,7 @@ exports[`createPhpPluginLoaderHelper respects custom namespace structures: plugi
  * License: GPL-2.0-or-later
  * Generated by WPKernel CLI - edits between WPK:BEGIN AUTO and WPK:END AUTO are managed by the generator.
  * Source: acme.config.ts → plugin/loader
- * @package AcmeDemoPlugin
+ * @package DemoPlugin
  */",
         },
       ],
@@ -3354,9 +6965,7 @@ exports[`createPhpPluginLoaderHelper respects custom namespace structures: plugi
       "attributes": {},
       "nodeType": "Name",
       "parts": [
-        "Acme",
-        "Demo",
-        "Plugin",
+        "DemoPlugin",
       ],
     },
     "nodeType": "Stmt_Namespace",

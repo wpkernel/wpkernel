@@ -13,17 +13,9 @@ import { loadTestLayoutSync } from '@wpkernel/test-utils/layout.test-support';
 import { createReporterMock } from '@cli-tests/reporter';
 import { buildWorkspace } from '../../workspace';
 
-const makeConfig = (namespace: string) => ({
-	version: 1,
-	namespace,
-	schemas: {},
-	resources: {},
-});
-
 function makeOptions(root: string, ir = makeIr()) {
 	const workspace = buildWorkspace(root);
 	const reporter = createReporterMock();
-	const config = makeConfig(ir.meta.namespace);
 	return {
 		reporter,
 		context: {
@@ -35,14 +27,12 @@ function makeOptions(root: string, ir = makeIr()) {
 		input: {
 			phase: 'generate' as const,
 			options: {
-				config,
-				namespace: config.namespace,
+				namespace: ir.meta.namespace,
 				origin: ir.meta.origin,
 				sourcePath: path.join(root, 'wpk.config.ts'),
 			},
 			ir,
 		},
-		reporter,
 		output: { actions: [], queueWrite: jest.fn() },
 	};
 }

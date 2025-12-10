@@ -14,7 +14,8 @@ import {
 import { buildWorkspace } from '../../workspace';
 import type { Workspace } from '../../workspace';
 import { buildEmptyGenerationState } from '../../apply/manifest';
-import { loadTestLayout } from '@wpkernel/test-utils/layout.test-support';
+import { buildTestArtifactsPlan } from '@cli-tests/ir.test-support';
+import { resolveAdminPaths } from '../ts/admin-screen';
 
 jest.mock('../../commands/run-generate/validation', () => ({
 	validateGeneratedImports: jest.fn().mockResolvedValue(undefined),
@@ -31,7 +32,7 @@ describe('createAdminScreenBuilder', () => {
 	it('generates admin screens with resolved relative imports', async () => {
 		await withWorkspace(async ({ workspace, root }) => {
 			await workspace.write(
-				'src/admin/runtime.ts',
+				'src/runtime.ts',
 				[
 					"import type { WPKernelUIRuntime } from '@wpkernel/core/data';",
 					'',
@@ -55,10 +56,44 @@ describe('createAdminScreenBuilder', () => {
 				dataviews,
 				sourcePath: path.join(root, 'wpk.config.ts'),
 			});
-			const testLayout = await loadTestLayout({ cwd: workspace.root });
-			const irWithLayout = {
-				...artifacts.ir,
-				layout: testLayout,
+			const irWithLayout = artifacts.ir;
+			const baseArtifacts = buildTestArtifactsPlan(irWithLayout.layout);
+			// Wire surfaces/resources/runtime paths directly via artifacts so no layout lookups are required.
+			irWithLayout.artifacts = {
+				...baseArtifacts,
+				runtime: {
+					entry: {
+						generated: 'src/runtime/entry.ts',
+						applied: 'src/runtime/entry.ts',
+					},
+					runtime: {
+						generated: 'src/runtime.ts',
+						applied: 'src/runtime.ts',
+					},
+					blocksRegistrarPath: 'src/runtime/blocks.ts',
+					uiLoader: undefined,
+				},
+				surfaces: {
+					[artifacts.ir.resources[0]!.id]: {
+						resource: artifacts.ir.resources[0]!.name,
+						appDir: 'src/ui',
+						generatedAppDir: 'src/ui/generated',
+						pagePath: 'src/ui/page.tsx',
+						formPath: 'src/ui/form.tsx',
+						configPath: 'src/ui/config.tsx',
+					},
+				},
+				resources: {
+					[artifacts.ir.resources[0]!.id]: {
+						modulePath: 'src/resources/job.ts',
+						typeDefPath: 'types/job.d.ts',
+						typeSource: 'inferred',
+						schemaKey: 'job',
+					},
+				},
+				plan: baseArtifacts.plan,
+				bundler: baseArtifacts.bundler,
+				php: baseArtifacts.php,
 			};
 
 			const reporter = buildReporter();
@@ -84,60 +119,47 @@ describe('createAdminScreenBuilder', () => {
 				undefined
 			);
 
-			const screenFileName = 'page.tsx';
-			const screenPathFs = path.join(
-				testLayout.resolve('ui.generated'),
-				'app',
-				'job',
-				screenFileName
-			);
-			const appliedScreenPath = path.join(
-				testLayout.resolve('ui.applied'),
-				'app',
-				'job',
-				screenFileName
-			);
+			const resourceId = artifacts.ir.resources[0]!.id;
+			const surfacePlan = irWithLayout.artifacts.surfaces[resourceId]!;
+			const resourcePlan = irWithLayout.artifacts.resources[resourceId]!;
+			const paths = resolveAdminPaths(surfacePlan, {
+				identifier: 'JobAdminScreen',
+				fileName: 'page',
+				directories: [],
+			});
+			const screenPathFs = paths.generatedScreenPath;
+			const appliedScreenPath = paths.appliedScreenPath;
 			const emittedFiles = output.actions.map((action) => action.file);
 			expect(emittedFiles).toContain(screenPathFs.replace(/\\/g, '/'));
 			const screenContents = await workspace.readText(screenPathFs);
 			expect(screenContents).not.toBeNull();
 
-			const expectedResourceImport = normalise(
-				path
-					.relative(
-						path.dirname(appliedScreenPath),
-						path.join(
-							testLayout.resolve('ui.applied'),
-							'resources',
-							'job.ts'
-						)
+			const relativeImport = (from: string, target: string) =>
+				prefixRelative(
+					normalise(
+						path
+							.relative(path.dirname(from), target)
+							.replace(/\.(ts|tsx|js|jsx|mjs|cjs)$/u, '')
 					)
-					.replace(/\.(ts|tsx|js|jsx|mjs|cjs)$/u, '')
+				);
+			const expectedResourceImport = relativeImport(
+				appliedScreenPath,
+				resourcePlan.modulePath
 			);
 			expect(screenContents).toContain(
-				`import { job } from "${prefixRelative(expectedResourceImport)}";`
+				`import { job } from "${expectedResourceImport}";`
 			);
-			const expectedRuntimeImport = path.posix
-				.relative(
-					path.posix.dirname(appliedScreenPath),
-					path.posix.join(
-						testLayout.resolve('ui.applied'),
-						'runtime.ts'
-					)
-				)
-				.replace(/\.(ts|tsx|js|jsx|mjs|cjs)$/u, '');
-			expect(screenContents).toContain(
-				`from "${prefixRelative(expectedRuntimeImport)}"`
+			const expectedRuntimeImport = relativeImport(
+				appliedScreenPath,
+				irWithLayout.artifacts.runtime.runtime.applied
 			);
+			expect(screenContents).toContain(`from "${expectedRuntimeImport}"`);
 			expect(screenContents).toContain(
-				'export const jobadminscreenRoute = "demo-namespace-job";'
+				'export const jobAdminScreenRoute = "demo-namespace-job";'
 			);
 
 			expect(output.actions.map((action) => action.file)).toContain(
-				path.posix.join(
-					testLayout.resolve('ui.generated'),
-					'app/job/page.tsx'
-				)
+				paths.generatedScreenPath
 			);
 		});
 	});

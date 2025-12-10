@@ -16,6 +16,7 @@ import {
 	createPipelineContext,
 	seedArtifacts,
 } from '../test-support/php-builder.test-support';
+import { makeIr } from '@cli-tests/ir.test-support';
 import * as phpPrinter from '@wpkernel/php-json-ast/php-driver';
 import type {
 	PhpProgram,
@@ -25,6 +26,7 @@ import type {
 	PhpStmtClassMethod,
 	PhpStmtReturn,
 	PhpExprArray,
+	PhpScalarString,
 } from '@wpkernel/php-json-ast';
 import {
 	makeWpPostResource,
@@ -46,13 +48,6 @@ import {
 } from '../index';
 import { makeCapabilityProtectedResource } from '../test-support/capabilityProtectedResource.test-support';
 import { buildCacheKeyPlan } from '../controller.storageArtifacts';
-
-const makeConfig = (namespace: string) => ({
-	version: 1,
-	namespace,
-	schemas: {},
-	resources: {},
-});
 
 function buildReporter(): Reporter {
 	return {
@@ -78,9 +73,12 @@ async function buildApplyOptionsWithArtifacts(
 	overrides?: { workspace?: Workspace; reporter?: Reporter }
 ) {
 	const reporter = overrides?.reporter ?? buildReporter();
+	if (!ir.resources.length) {
+		ir.resources = [makeWpPostResource()];
+	}
 	ir.resources = ir.resources.map((resource, index) => ({
-		id: resource.id ?? resource.name ?? `res-${index}`,
 		...resource,
+		id: resource.id ?? resource.name ?? `res-${index}`,
 	}));
 	await seedArtifacts(ir, reporter);
 	if (!ir.artifacts?.php) {
@@ -167,31 +165,6 @@ function getRoute(
 	return route;
 }
 
-function hasUseImport(
-	program: PhpProgram,
-	expectedParts: readonly string[]
-): boolean {
-	const namespaceNode = findNamespace(program);
-	if (!namespaceNode) {
-		return false;
-	}
-
-	return namespaceNode.stmts
-		.filter(
-			(statement): statement is PhpStmtUse =>
-				statement.nodeType === 'Stmt_Use'
-		)
-		.some((useStatement) =>
-			useStatement.uses.some(
-				(use) =>
-					use.name.parts.length === expectedParts.length &&
-					use.name.parts.every(
-						(part, index) => part === expectedParts[index]
-					)
-			)
-		);
-}
-
 function getClassMethods(program: PhpProgram): PhpStmtClassMethod[] {
 	const namespaceNode = findNamespace(program);
 	const classNode = namespaceNode?.stmts.find(
@@ -220,15 +193,31 @@ function findReturnScalar(
 		(stmt): stmt is PhpStmtReturn => stmt.nodeType === 'Stmt_Return'
 	);
 	const expr = returnStmt?.expr;
-	return expr && expr.nodeType === 'Scalar_String'
-		? (expr.value as string)
-		: undefined;
+	if (expr && expr.nodeType === 'Scalar_String') {
+		const scalar = expr as PhpScalarString;
+		return typeof scalar.value === 'string' ? scalar.value : undefined;
+	}
+	return undefined;
 }
 
 function findReturnArray(
 	methods: PhpStmtClassMethod[],
 	name: string
 ): string[] {
+	function extractScalarString(
+		value: PhpExprArray['items'][number]['value']
+	): string | undefined {
+		if (
+			value &&
+			value.nodeType === 'Scalar_String' &&
+			'value' in value &&
+			typeof (value as PhpScalarString).value === 'string'
+		) {
+			return (value as PhpScalarString).value;
+		}
+		return undefined;
+	}
+
 	const method = methods.find((candidate) => candidate.name?.name === name);
 	if (!method) {
 		return [];
@@ -241,75 +230,13 @@ function findReturnArray(
 		return [];
 	}
 	return ((expr as PhpExprArray).items ?? [])
-		.map((item) =>
-			item && item.value && item.value.nodeType === 'Scalar_String'
-				? (item.value.value as string)
-				: undefined
-		)
+		.map((item) => (item ? extractScalarString(item.value) : undefined))
 		.filter((value): value is string => typeof value === 'string');
 }
 
 describe('createPhpResourceControllerHelper', () => {
-	function buildIr(): IRv1 {
-		return {
-			meta: {
-				version: 1,
-				namespace: 'demo',
-				sanitizedNamespace: 'Demo',
-				origin: 'typescript',
-				sourcePath: 'wpk.config.ts',
-				features: ['capabilityMap', 'phpAutoload'],
-				ids: {
-					algorithm: 'sha256',
-					resourcePrefix: 'res:',
-					schemaPrefix: 'sch:',
-					blockPrefix: 'blk:',
-					capabilityPrefix: 'cap:',
-				},
-				redactions: ['config.env', 'adapters.secrets'],
-				limits: {
-					maxConfigKB: 256,
-					maxSchemaKB: 1024,
-					policy: 'truncate',
-				},
-			},
-			config: {
-				version: 1,
-				namespace: 'demo',
-				schemas: {},
-				resources: {},
-			},
-			schemas: [],
-			resources: [makeWpPostResource(), makeWpTaxonomyResource()],
-			capabilities: [],
-			capabilityMap: {
-				sourcePath: undefined,
-				definitions: [],
-				fallback: {
-					capability: 'manage_options',
-					appliesTo: 'resource',
-				},
-				missing: [],
-				unused: [],
-				warnings: [],
-			},
-			blocks: [],
-			php: {
-				namespace: 'Demo',
-				autoload: 'inc/',
-				outputDir: 'inc/generated',
-			},
-			layout: {
-				resolve(id: string) {
-					return id;
-				},
-				all: {} satisfies IRv1['layout']['all'],
-			},
-		} satisfies IRv1;
-	}
-
 	it('queues resource controllers with resolved identity and route kinds', async () => {
-		const ir = buildIr();
+		const ir = makeIr();
 		const applyOptions = await buildApplyOptionsWithArtifacts(ir);
 		const { reporter } = applyOptions;
 
@@ -401,7 +328,7 @@ describe('createPhpResourceControllerHelper', () => {
 	});
 
 	it('emits wp-post helpers derived from storage config', async () => {
-		const ir = buildIr();
+		const ir = makeIr();
 		const applyOptions = await buildApplyOptionsWithArtifacts(ir);
 		await runResourceControllerPipeline(applyOptions);
 
@@ -443,6 +370,7 @@ describe('createPhpResourceControllerHelper', () => {
 
 	it('imports the generated capability namespace for protected routes', async () => {
 		const ir = createMinimalIr({
+			namespace: 'Demo\\Plugin',
 			resources: [makeCapabilityProtectedResource()],
 			php: { namespace: 'Demo\\Plugin' },
 		});
@@ -488,19 +416,24 @@ describe('createPhpResourceControllerHelper', () => {
 			tags: { 'resource.wpPost.mutation': 'create' },
 		});
 
-		expect(
-			hasUseImport(entry.program, [
-				'Demo',
-				'Plugin',
-				'Generated',
-				'Capability',
-				'Capability',
-			])
-		).toBe(true);
+		const namespaceNode = findNamespace(entry.program);
+		const imports =
+			namespaceNode?.stmts
+				.filter(
+					(stmt): stmt is PhpStmtUse => stmt.nodeType === 'Stmt_Use'
+				)
+				.flatMap((useStmt) =>
+					useStmt.uses.map((useItem) => useItem.name.parts.join('\\'))
+				) ?? [];
+
+		expect(imports).toContain(
+			'Demo\\Plugin\\Generated\\Capability\\Capability'
+		);
 	});
 
 	it('enforces capabilities inside handlers while permission_callback stays open', async () => {
 		const ir = createMinimalIr({
+			namespace: 'Demo\\Plugin',
 			resources: [makeCapabilityProtectedResource()],
 			php: { namespace: 'Demo\\Plugin' },
 		});
@@ -539,7 +472,9 @@ describe('createPhpResourceControllerHelper', () => {
 		const reporter = buildReporter();
 		const workspace = buildWorkspace();
 
-		const ir = buildIr();
+		const ir = makeIr({
+			resources: [makeWpTaxonomyResource()],
+		});
 
 		const applyOptions = await buildApplyOptionsWithArtifacts(ir, {
 			workspace,
@@ -903,15 +838,13 @@ function buildApplyOptions(
 	const workspace = overrides?.workspace ?? buildWorkspace();
 	const context = createPipelineContext({ workspace, reporter });
 	const output = createBuilderOutput();
-	const config = makeConfig(ir.meta.namespace);
 
 	return {
 		context,
 		input: createBuilderInput({
 			ir,
 			options: {
-				config,
-				namespace: config.namespace,
+				namespace: ir.meta.namespace,
 				origin: ir.meta.origin,
 				sourcePath: ir.meta.sourcePath,
 			},

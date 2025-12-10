@@ -1,13 +1,13 @@
 import path from 'path';
 import { createHelper } from '../../runtime';
 import type { BuilderApplyOptions } from '../../runtime/types';
-import { toPascalCase, toCamelCase } from './metadata';
 import { resolveAdminPaths } from './admin-screen';
 import { resolveAdminScreenComponentMetadata } from './admin-shared';
 import type { CodeBlockWriter, SourceFile } from 'ts-morph';
 import { buildTsMorphAccessor, type TsMorphAccessor } from './imports';
 import type { ResourceDescriptor } from '../types';
 import type { IRArtifactsPlan, IRResource, IRv1 } from '../../ir/publicTypes';
+import { toPascalCase, toCamelCase } from '../../utils';
 
 type AppFormDescriptor = ResourceDescriptor & {
 	config?: {
@@ -32,7 +32,7 @@ function hasAppFormContext({
 		return false;
 	}
 
-	if (!irArtifacts?.uiResources) {
+	if (!irArtifacts?.surfaces) {
 		reporter.debug('AppFormBuilder: missing artifact plan');
 		return false;
 	}
@@ -67,7 +67,7 @@ async function runAppFormBuilder(options: BuilderApplyOptions): Promise<void> {
 		const descriptor = resource as unknown as AppFormDescriptor;
 		reporter.info(`AppFormBuilder: processing ${descriptor.name}`);
 
-		const uiPlan = artifacts.uiResources[resource.id];
+		const uiPlan = artifacts.surfaces[resource.id];
 		if (!uiPlan) {
 			reporter.debug(
 				`AppFormBuilder: missing ui plan for ${descriptor.name}`
@@ -84,7 +84,6 @@ async function runAppFormBuilder(options: BuilderApplyOptions): Promise<void> {
 		const componentMeta = resolveAdminScreenComponentMetadata(descriptor);
 		const { generatedScreenPath } = resolveAdminPaths(
 			uiPlan,
-			descriptor,
 			componentMeta
 		);
 
@@ -139,11 +138,7 @@ export function createAppFormBuilder() {
 		key: 'builder.generate.ts.appForm.core',
 		kind: 'builder',
 		// We depend on the IR being present so we can look up the matching resource.
-		dependsOn: [
-			'ir.resources.core',
-			'ir.ui.resources',
-			'ir.artifacts.plan',
-		],
+		dependsOn: ['ir.resources.core', 'ir.ui.core', 'ir.artifacts.plan'],
 		async apply(options: BuilderApplyOptions) {
 			await runAppFormBuilder(options);
 		},

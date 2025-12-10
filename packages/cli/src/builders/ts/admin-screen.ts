@@ -1,26 +1,20 @@
 import path from 'path';
 import { writeAdminRuntimeStub, buildTsMorphAccessor } from './imports';
-import { toPascalCase, toCamelCase } from './metadata';
 import { createHelper } from '../../runtime';
 import type { BuilderApplyOptions } from '../../runtime/types';
-import type {
-	IRv1,
-	IRResource,
-	IRUiResourceDescriptor,
-	IRUiResourcePlan,
-} from '../../ir/publicTypes';
+import type { IRv1, IRResource, IRSurfacePlan } from '../../ir/publicTypes';
 import type { Reporter } from '@wpkernel/core/reporter';
-import type { ResourceDescriptor, AdminDataViews } from '../types';
+import type { ResourceDescriptor } from '../types';
 import {
 	type AdminScreenResourceDescriptor,
 	resolveAdminScreenComponentMetadata,
 	resolveAdminScreenRoute,
 	resolveInteractivityFeature,
 	type AdminDataViewsWithInteractivity,
-	resolveMenuSlug,
 	resolveListRoutePath,
 } from './admin-shared';
 import type { CodeBlockWriter } from 'ts-morph';
+import { toPascalCase, toCamelCase } from '../../utils';
 
 /**
  * Creates a helper for generating admin screen components from the IR.
@@ -35,11 +29,7 @@ export function createAdminScreenBuilder() {
 	return createHelper({
 		key: 'builder.generate.ts.adminScreen.core',
 		kind: 'builder',
-		dependsOn: [
-			'ir.ui.resources',
-			'ir.artifacts.plan',
-			'ir.resources.core',
-		],
+		dependsOn: ['ir.artifacts.plan', 'ir.resources.core'],
 		async apply(options: BuilderApplyOptions) {
 			const { input, context, output, reporter } = options;
 
@@ -53,11 +43,12 @@ export function createAdminScreenBuilder() {
 				return;
 			}
 
-			const uiResources: readonly IRUiResourceDescriptor[] =
-				ir.ui?.resources ?? [];
+			const surfaces: readonly IRSurfacePlan[] = Object.values(
+				ir.artifacts.surfaces ?? {}
+			);
 			const artifacts = ir.artifacts;
 
-			if (uiResources.length === 0) {
+			if (surfaces.length === 0) {
 				reporter?.debug('admin screen builder: no UI resources.');
 				return;
 			}
@@ -65,7 +56,7 @@ export function createAdminScreenBuilder() {
 			await generateAdminScreens({
 				ir,
 				artifacts,
-				uiResources,
+				surfaces,
 				context,
 				output,
 				reporter,
@@ -77,12 +68,12 @@ export function createAdminScreenBuilder() {
 async function generateAdminScreens(options: {
 	readonly ir: IRv1;
 	readonly artifacts: IRv1['artifacts'];
-	readonly uiResources: readonly IRUiResourceDescriptor[];
+	readonly surfaces: readonly IRSurfacePlan[];
 	readonly context: BuilderApplyOptions['context'];
 	readonly output: BuilderApplyOptions['output'];
 	readonly reporter?: BuilderApplyOptions['reporter'];
 }) {
-	const { ir, artifacts, uiResources, context, output, reporter } = options;
+	const { ir, artifacts, surfaces, context, output, reporter } = options;
 	const { createSourceFile, VariableDeclarationKind } =
 		await buildTsMorphAccessor({
 			workspace: context.workspace,
@@ -92,7 +83,7 @@ async function generateAdminScreens(options: {
 		ir.resources.map((resource) => [resource.name, resource])
 	);
 
-	for (const uiResource of uiResources) {
+	for (const uiResource of surfaces) {
 		await generateAdminScreen({
 			uiResource,
 			ir,
@@ -108,7 +99,7 @@ async function generateAdminScreens(options: {
 }
 
 async function generateAdminScreen(options: {
-	readonly uiResource: IRUiResourceDescriptor;
+	readonly uiResource: IRSurfacePlan;
 	readonly ir: IRv1;
 	readonly artifacts: IRv1['artifacts'];
 	readonly createSourceFile: Awaited<
@@ -150,7 +141,6 @@ async function generateAdminScreen(options: {
 		name: resource.name,
 		namespace: ir.meta.namespace,
 		resource,
-		dataviews: uiResource.dataviews as AdminDataViews,
 		menu: uiResource.menu,
 	};
 
@@ -161,28 +151,26 @@ async function generateAdminScreen(options: {
 	const listRoutePath = resolveListRoutePath(descriptor);
 	const componentMeta = resolveAdminScreenComponentMetadata(descriptor);
 	const names = resolveAdminNames(descriptor, componentMeta);
-	const paths = resolveAdminPaths(uiPlan, descriptor, componentMeta);
+	const paths = resolveAdminPaths(uiPlan, componentMeta);
 
 	const resourceImport = buildRelativeImport(
 		paths.appliedScreenPath,
 		resourcePlan.modulePath
 	);
 
-	if (!ir.artifacts.js?.uiRuntimePath) {
+	const runtimeGenerated = ir.artifacts.runtime?.runtime.generated;
+	if (!runtimeGenerated) {
 		reporter?.debug(
-			'admin screen builder: missing JS runtime path in artifacts.'
+			'admin screen builder: missing runtime path in artifacts.'
 		);
 		return;
 	}
 
-	await writeAdminRuntimeStub(
-		context.workspace,
-		ir.artifacts.js.uiRuntimePath
-	);
+	await writeAdminRuntimeStub(context.workspace, runtimeGenerated);
 
 	const wpkernelImport = buildRelativeImport(
 		paths.appliedScreenPath,
-		path.join(ir.layout.resolve('ui.applied'), 'runtime.ts')
+		runtimeGenerated
 	);
 
 	const sourceFile = createSourceFile(paths.generatedScreenPath);
@@ -492,14 +480,10 @@ function ensureAdminDataViews(
 	descriptor: ResourceDescriptor,
 	reporter: Reporter | undefined
 ): AdminDataViewsWithInteractivity | null {
-	if (!descriptor.dataviews) {
-		reporter?.debug(
-			'admin screen builder: missing dataviews for resource',
-			{ resource: descriptor.key }
-		);
-		return null;
-	}
-	return descriptor.dataviews as AdminDataViewsWithInteractivity;
+	reporter?.debug('admin screen builder: dataviews unavailable', {
+		resource: descriptor.key,
+	});
+	return {} as AdminDataViewsWithInteractivity;
 }
 
 export function resolveAdminNames(
@@ -527,28 +511,21 @@ export function resolveAdminNames(
 }
 
 export function resolveAdminPaths(
-	plan: IRUiResourcePlan,
-	descriptor: AdminScreenResourceDescriptor,
+	plan: IRSurfacePlan,
 	componentMeta: ReturnType<typeof resolveAdminScreenComponentMetadata>
 ) {
-	const menuSlug = resolveMenuSlug(descriptor);
-	const directory =
-		menuSlug && menuSlug.length > 0 ? menuSlug : descriptor.name;
-	const appliedRoot = path.posix.dirname(plan.appDir);
-	const generatedRoot = plan.generatedAppDir
-		? path.posix.dirname(plan.generatedAppDir)
-		: appliedRoot;
+	// Use planned app directories directly; do not recompute from menu slug to avoid duplicates.
+	const appliedRoot = plan.appDir;
+	const generatedRoot = plan.generatedAppDir ?? plan.appDir;
 
-	// Flattened structure: .wpk/generate/ui/app/<slug>/page.tsx
+	// Flattened structure: <plan>.appDir/<componentMeta>/page.tsx
 	const generatedScreenPath = path.join(
 		generatedRoot,
-		directory,
 		...componentMeta.directories,
 		`${componentMeta.fileName}.tsx`
 	);
 	const appliedScreenPath = path.join(
 		appliedRoot,
-		directory,
 		...componentMeta.directories,
 		`${componentMeta.fileName}.tsx`
 	);
@@ -557,21 +534,21 @@ export function resolveAdminPaths(
 }
 
 function resolveAdminScreenContext(options: {
-	readonly uiResource: IRUiResourceDescriptor;
+	readonly uiResource: IRSurfacePlan;
 	readonly artifacts: IRv1['artifacts'];
 	readonly resourceByName: Map<string, IRResource>;
 	readonly reporter?: BuilderApplyOptions['reporter'];
 }): {
 	readonly resource: IRResource;
 	readonly resourcePlan: IRv1['artifacts']['resources'][string];
-	readonly uiPlan: IRUiResourcePlan;
+	readonly uiPlan: IRSurfacePlan;
 } | null {
 	const { uiResource, artifacts, resourceByName, reporter } = options;
 	const resource = resourceByName.get(uiResource.resource);
 	const resourcePlan = resource
 		? artifacts.resources[resource.id]
 		: undefined;
-	const uiPlan = resource ? artifacts.uiResources[resource.id] : undefined;
+	const uiPlan = resource ? artifacts.surfaces[resource.id] : undefined;
 
 	if (!resource || !resourcePlan || !uiPlan || !uiPlan.generatedAppDir) {
 		reporter?.debug('admin screen builder: missing artifact plan', {

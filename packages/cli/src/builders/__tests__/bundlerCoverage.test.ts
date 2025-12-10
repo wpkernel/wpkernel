@@ -12,6 +12,7 @@ import type {
 import type { IRv1 } from '../../ir/publicTypes';
 import type { Workspace } from '../../workspace/types';
 import { DEFAULT_ENTRY_POINT } from '../bundler.constants';
+import { makeIr } from '@cli-tests/ir.test-support';
 import { buildRollupDriverArtifacts } from '../bundler.artifacts';
 
 // Mock buildRollupDriverArtifacts to avoid complex dependency logic
@@ -41,38 +42,26 @@ describe('bundler.state coverage', () => {
 				},
 			},
 			options: {
-				config: {},
+				namespace: 'fallback-ns',
+				origin: 'wpk.config.ts',
+				sourcePath: 'wpk.config.ts',
 			},
 		} as unknown as BuilderInput;
 		expect(resolveBundlerNamespace(input)).toBe('sanitized-ns');
 	});
 
-	it('resolveBundlerNamespace falls back to config namespace', () => {
+	it('resolveBundlerNamespace falls back to options namespace', () => {
 		const input = {
 			ir: {
 				meta: undefined,
 			},
 			options: {
-				config: {
-					namespace: 'config-ns',
-				},
+				namespace: 'config-ns',
+				origin: 'wpk.config.ts',
+				sourcePath: 'wpk.config.ts',
 			},
 		} as unknown as BuilderInput;
 		expect(resolveBundlerNamespace(input)).toBe('config-ns');
-	});
-
-	it('resolveBundlerNamespace returns empty string if no namespace found', () => {
-		const input = {
-			ir: {
-				meta: undefined,
-			},
-			options: {
-				config: {
-					namespace: undefined,
-				},
-			},
-		} as unknown as BuilderInput;
-		expect(resolveBundlerNamespace(input)).toBe('');
 	});
 
 	it('resolveBundlerVersion returns version from IR meta', () => {
@@ -175,18 +164,6 @@ describe('bundler.runner coverage', () => {
 	});
 
 	it('applyBundlerGeneration uses default entry point and alias root when layout resolution fails', async () => {
-		const mockLayout = {
-			resolve: jest.fn((key: string) => {
-				if (key === 'ui.applied') {
-					throw new Error('Not found');
-				}
-				if (key.startsWith('bundler.')) {
-					return `path/to/${key}`;
-				}
-				return key;
-			}),
-		};
-
 		const workspace = {
 			readText: jest.fn().mockResolvedValue('{}'),
 			resolve: jest.fn((p) => `/abs/${p}`),
@@ -209,18 +186,25 @@ describe('bundler.runner coverage', () => {
 			debug: jest.fn(),
 		};
 
+		const ir = makeIr({
+			resources: [
+				{
+					name: 'demo',
+					id: 'res:demo',
+					ui: { admin: {} },
+				} as any,
+			],
+		});
+
 		const input = {
 			phase: 'generate',
-			ir: {
-				layout: mockLayout,
-				resources: [{ ui: { admin: {} } }], // Ensure hasUiResources is true
-			},
+			ir,
 			options: {
-				config: {
-					namespace: 'ns',
-				},
+				namespace: ir.meta.namespace,
+				origin: ir.meta.origin,
+				sourcePath: ir.meta.sourcePath,
 			},
-		} as unknown as BuilderInput;
+		} as BuilderInput;
 
 		await applyBundlerGeneration({
 			context,
@@ -229,11 +213,14 @@ describe('bundler.runner coverage', () => {
 			reporter: reporter as any,
 		});
 
+		const expectedAlias = workspace.resolve(ir.artifacts.bundler.aliasRoot);
+
 		expect(buildRollupDriverArtifacts).toHaveBeenCalledWith(
 			expect.anything(),
 			expect.objectContaining({
-				entryPoint: DEFAULT_ENTRY_POINT,
-				aliasRoot: '/abs/src',
+				entryPoint:
+					ir.artifacts.bundler.entryPoint ?? DEFAULT_ENTRY_POINT,
+				aliasRoot: expectedAlias,
 			})
 		);
 	});

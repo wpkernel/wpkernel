@@ -31,7 +31,7 @@ describe('php builder pipeline config helper', () => {
 		});
 	});
 
-	it('merges adapter driver options and codemod defaults', async () => {
+	it('merges builder driver options and ignores adapter config', async () => {
 		const helper = createPhpBuilderConfigHelper({
 			driver: {
 				binary: 'base-php',
@@ -77,19 +77,14 @@ describe('php builder pipeline config helper', () => {
 		const state = getPhpBuilderConfigState(context as any);
 
 		expect(state.driver).toMatchObject({
-			binary: 'adapter-php',
-			scriptPath: 'adapter.php',
-			autoloadPaths: ['/adapter', '/base', '/shared'],
+			binary: 'base-php',
+			scriptPath: expect.stringContaining(
+				'php-json-ast/php/pretty-print.php'
+			),
+			autoloadPaths: ['/base', '/shared'],
 		});
-		expect(state.codemods).toEqual({
-			files: [' file.php ', ''],
-			configurationPath: '/path/to/codemods.json',
-			enableDiagnostics: true,
-			phpBinary: 'adapter-php',
-			scriptPath: 'codemod.php',
-			importMetaUrl: undefined,
-			autoloadPaths: ['/codemod', '/adapter', '/base', '/shared'],
-		});
+		// Codemods are driven by the IR artifacts now; adapter config is ignored.
+		expect(state.codemods).toBeNull();
 	});
 
 	it('uses bundled defaults when no driver or codemods are provided', async () => {

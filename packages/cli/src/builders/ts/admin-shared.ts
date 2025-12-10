@@ -1,6 +1,6 @@
 import type { IRUiResourceDescriptor } from '../../ir/publicTypes';
+import { toPascalCase } from '../../utils';
 import type { AdminDataViews, ResourceDescriptor } from '../types';
-import { toPascalCase } from './metadata';
 
 export type AdminScreenConfig = {
 	readonly route?: string;
@@ -176,7 +176,12 @@ type DescriptorRoute = {
 export function resolveListRoutePath(
 	descriptor: ResourceDescriptor
 ): string | null {
-	const listRoute = descriptor.resource.routes.find((route) => {
+	const routes = descriptor.resource.routes ?? [];
+	if (!Array.isArray(routes) || routes.length === 0) {
+		return null;
+	}
+
+	const listRoute = routes.find((route) => {
 		const { method, path } = route as DescriptorRoute;
 		const methodValue = String(method ?? '')
 			.toUpperCase()

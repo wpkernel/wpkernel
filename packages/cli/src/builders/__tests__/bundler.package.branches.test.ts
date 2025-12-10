@@ -8,6 +8,7 @@ import {
 	MONOREPO_DEP_DENYLIST,
 } from '../bundler.constants';
 import { resolveDependencyVersions } from '../../commands/init/dependency-versions';
+import type { DependencyVersionSource } from '../../commands/init/dependency-versions';
 
 jest.mock('../../commands/init/dependency-versions');
 
@@ -15,6 +16,8 @@ const resolvedMock = {
 	dependencies: { 'dep-1': '1.0.0', 'monorepo-dep': 'workspace:*' },
 	devDependencies: { 'dev-dep-1': '1.0.0' },
 	peerDependencies: { 'peer-dep-1': '1.0.0' },
+	source: 'fallback' as const,
+	sources: ['fallback'] as DependencyVersionSource[],
 };
 
 describe('bundler.package (branches)', () => {

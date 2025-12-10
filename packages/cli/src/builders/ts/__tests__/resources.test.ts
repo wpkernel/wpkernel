@@ -5,13 +5,19 @@ import {
 	buildReporter,
 	buildOutput,
 } from '@cli-tests/builders/builder-harness.test-support';
+import { makeResource } from '@cli-tests/builders/fixtures.test-support';
 import { createTsResourcesBuilder } from '../resources';
+import { buildEmptyGenerationState } from '../../../apply/manifest';
 
 function buildWorkspace() {
 	const writes: Array<{ file: string; contents: string }> = [];
 	const workspace = makeWorkspaceMock({
-		write: async (file: string, contents: string) => {
-			writes.push({ file, contents: String(contents) });
+		write: async (
+			file: string,
+			data: string | Buffer,
+			_options?: unknown
+		) => {
+			writes.push({ file, contents: String(data) });
 		},
 		resolve: (...parts: string[]) => path.join(process.cwd(), ...parts),
 	});
@@ -31,8 +37,9 @@ describe('createTsResourcesBuilder', () => {
 				input: {
 					phase: 'generate',
 					options: {
-						config: ir.config,
 						namespace: ir.meta.namespace,
+						origin: ir.meta.origin,
+						sourcePath: ir.meta.sourcePath,
 					},
 					ir,
 				},
@@ -40,7 +47,7 @@ describe('createTsResourcesBuilder', () => {
 					workspace,
 					reporter,
 					phase: 'generate',
-					generationState: { files: new Map(), alias: new Map() },
+					generationState: buildEmptyGenerationState(),
 				},
 				output,
 				reporter,
@@ -53,28 +60,13 @@ describe('createTsResourcesBuilder', () => {
 
 	it('writes resource definition when artifact plan exists', async () => {
 		const ir = makeIr();
-		const resource = {
-			id: 'res:job',
-			name: 'job',
-			schemaKey: 'job',
-			schemaProvenance: 'manual',
-			routes: [],
-			cacheKeys: { list: { segments: [], source: 'default' } } as any,
-			hash: { algo: 'sha256', inputs: [], value: 'job' },
-			warnings: [],
-		} as any;
+		const resource = makeResource({ id: 'res:job', name: 'job' });
 		ir.resources = [resource];
 		ir.artifacts.resources[resource.id] = {
-			modulePath: path.posix.join(
-				ir.layout.resolve('ui.resources.applied'),
-				`${resource.name}.ts`
-			),
-			typeDefPath: path.posix.join(
-				ir.layout.resolve('ui.generated'),
-				'types',
-				`${resource.name}.d.ts`
-			),
+			modulePath: `/generated/app/${resource.name}/resource.ts`,
+			typeDefPath: `/generated/types/${resource.name}.d.ts`,
 			typeSource: 'schema',
+			schemaKey: resource.schemaKey,
 		};
 
 		const { workspace, writes } = buildWorkspace();
@@ -86,8 +78,9 @@ describe('createTsResourcesBuilder', () => {
 				input: {
 					phase: 'generate',
 					options: {
-						config: ir.config,
 						namespace: ir.meta.namespace,
+						origin: ir.meta.origin,
+						sourcePath: ir.meta.sourcePath,
 					},
 					ir,
 				},
@@ -95,7 +88,7 @@ describe('createTsResourcesBuilder', () => {
 					workspace,
 					reporter,
 					phase: 'generate',
-					generationState: { files: new Map(), alias: new Map() },
+					generationState: buildEmptyGenerationState(),
 				},
 				output,
 				reporter,
@@ -103,7 +96,7 @@ describe('createTsResourcesBuilder', () => {
 			undefined
 		);
 
-		expect(writes.some((w) => w.file.includes('resources/job.ts'))).toBe(
+		expect(writes.some((w) => w.file.includes('app/job/resource.ts'))).toBe(
 			true
 		);
 	});

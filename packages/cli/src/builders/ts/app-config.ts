@@ -1,13 +1,13 @@
 import path from 'path';
 import { createHelper } from '../../runtime';
 import type { BuilderApplyOptions } from '../../runtime/types';
-import { toPascalCase } from './metadata';
 import { resolveAdminNames, resolveAdminPaths } from './admin-screen';
 import { resolveAdminScreenComponentMetadata } from './admin-shared';
 import type { IRResource } from '../../ir/publicTypes';
 import type { ResourcePostMetaDescriptor } from '@wpkernel/core/resource';
 import type { CodeBlockWriter, SourceFile } from 'ts-morph';
 import { buildTsMorphAccessor, type TsMorphAccessor } from './imports';
+import { toPascalCase } from '../../utils';
 
 export function createAppConfigBuilder() {
 	return createHelper({
@@ -28,7 +28,7 @@ export function createAppConfigBuilder() {
 				await buildTsMorphAccessor({ workspace: context.workspace });
 
 			for (const resource of ir.resources) {
-				const uiPlan = ir.artifacts.uiResources[resource.id];
+				const uiPlan = ir.artifacts.surfaces[resource.id];
 				if (!uiPlan || !uiPlan.generatedAppDir) {
 					reporter?.debug(
 						'app config builder: missing ui plan for resource',
@@ -51,7 +51,6 @@ export function createAppConfigBuilder() {
 				const names = resolveAdminNames(descriptor, componentMeta);
 				const { generatedScreenPath } = resolveAdminPaths(
 					uiPlan,
-					descriptor,
 					componentMeta
 				);
 

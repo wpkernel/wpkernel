@@ -402,12 +402,6 @@ function createBuilderInputFor(ir: IRv1) {
 	return createBuilderInput({
 		ir,
 		options: {
-			config: {
-				version: 1,
-				namespace: ir.meta.namespace,
-				resources: {},
-				schemas: {},
-			},
 			namespace: ir.meta.namespace ?? 'demo',
 			origin: ir.meta.origin ?? 'tests.config.ts',
 			sourcePath: ir.meta.sourcePath ?? 'tests.config.ts',

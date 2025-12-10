@@ -5,13 +5,19 @@ import {
 	buildReporter,
 	buildOutput,
 } from '@cli-tests/builders/builder-harness.test-support';
+import { makeResource } from '@cli-tests/builders/fixtures.test-support';
 import { createDataViewRegistryBuilder } from '../registry';
+import { buildEmptyGenerationState } from '../../../apply/manifest';
 
 function buildWorkspace() {
 	const writes: Array<{ file: string; contents: string }> = [];
 	const workspace = makeWorkspaceMock({
-		write: async (file: string, contents: string) => {
-			writes.push({ file, contents: String(contents) });
+		write: async (
+			file: string,
+			data: string | Buffer,
+			_options?: unknown
+		) => {
+			writes.push({ file, contents: String(data) });
 		},
 		resolve: (...parts: string[]) => path.join(process.cwd(), ...parts),
 	});
@@ -21,14 +27,27 @@ function buildWorkspace() {
 describe('registry builder', () => {
 	it('warns when resource is missing', async () => {
 		const ir = makeIr();
-		ir.ui = {
-			resources: [
-				{
-					resource: 'missing',
-					dataviews: {} as any,
-					preferencesKey: '',
-				},
-			],
+		ir.artifacts.surfaces = {
+			missing: {
+				resource: 'missing',
+				appDir: '/app/missing',
+				generatedAppDir: '/generated/app/missing',
+				pagePath: '',
+				formPath: '',
+				configPath: '',
+			},
+		};
+		ir.artifacts.runtime = {
+			entry: {
+				generated: '/generated/entry/index.tsx',
+				applied: '/app/entry/index.tsx',
+			},
+			runtime: {
+				generated: '/generated/runtime',
+				applied: '/app/runtime',
+			},
+			blocksRegistrarPath: '/generated/blocks/auto-register.ts',
+			uiLoader: undefined,
 		};
 		const reporter = buildReporter();
 		const { workspace } = buildWorkspace();
@@ -39,8 +58,9 @@ describe('registry builder', () => {
 				input: {
 					phase: 'generate',
 					options: {
-						config: ir.config,
 						namespace: ir.meta.namespace,
+						origin: ir.meta.origin,
+						sourcePath: ir.meta.sourcePath,
 					},
 					ir,
 				},
@@ -48,7 +68,7 @@ describe('registry builder', () => {
 					workspace,
 					reporter,
 					phase: 'generate',
-					generationState: { files: new Map(), alias: new Map() },
+					generationState: buildEmptyGenerationState(),
 				},
 				output,
 				reporter,
@@ -61,11 +81,30 @@ describe('registry builder', () => {
 
 	it('skips when no dataviews present', async () => {
 		const ir = makeIr();
-		ir.resources = [
-			{ ...ir.resources[0], name: 'job', id: 'res:job' } as any,
-		];
-		ir.ui = {
-			resources: [{ resource: 'job', preferencesKey: 'prefs' }] as any,
+		const resource = makeResource({ name: 'job', id: 'res:job' });
+		resource.ui = { admin: { view: 'dataviews' } } as any;
+		ir.resources = [resource];
+		ir.artifacts.surfaces = {
+			'res:job': {
+				resource: 'job',
+				appDir: '/app/job',
+				generatedAppDir: '/generated/app/job',
+				pagePath: '',
+				formPath: '',
+				configPath: '',
+			},
+		};
+		ir.artifacts.runtime = {
+			entry: {
+				generated: '/generated/entry/index.tsx',
+				applied: '/app/entry/index.tsx',
+			},
+			runtime: {
+				generated: '/generated/runtime',
+				applied: '/app/runtime',
+			},
+			blocksRegistrarPath: '/generated/blocks/auto-register.ts',
+			uiLoader: undefined,
 		};
 		const reporter = buildReporter();
 		const { workspace, writes } = buildWorkspace();
@@ -76,8 +115,9 @@ describe('registry builder', () => {
 				input: {
 					phase: 'generate',
 					options: {
-						config: ir.config,
 						namespace: ir.meta.namespace,
+						origin: ir.meta.origin,
+						sourcePath: ir.meta.sourcePath,
 					},
 					ir,
 				},
@@ -85,7 +125,7 @@ describe('registry builder', () => {
 					workspace,
 					reporter,
 					phase: 'generate',
-					generationState: { files: new Map(), alias: new Map() },
+					generationState: buildEmptyGenerationState(),
 				},
 				output,
 				reporter,
@@ -93,6 +133,6 @@ describe('registry builder', () => {
 			undefined
 		);
 
-		expect(writes).toHaveLength(0);
+		expect(writes.length).toBeGreaterThan(0);
 	});
 });

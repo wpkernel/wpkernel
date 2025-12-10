@@ -4,7 +4,6 @@ import type {
 	IRResource,
 	IRSchema,
 	IRv1,
-	BuildIrOptions,
 	IRBlock,
 	IRHashProvenance,
 } from '../../../ir/publicTypes';
@@ -19,7 +18,6 @@ import {
 } from '@cli-tests/builders/ts.test-support';
 import { buildWorkspace } from '../../../workspace';
 import type { Workspace } from '../../../workspace';
-import { makeIr } from '@cli-tests/ir.test-support';
 import { buildEmptyGenerationState } from '../../../apply/manifest';
 
 const withWorkspace = (
@@ -49,6 +47,19 @@ const makeBlock = (
 	manifestSource,
 });
 
+function materialiseArtifacts(
+	artifacts: Pick<
+		ReturnType<typeof buildBuilderArtifacts>,
+		'ir' | 'options' | 'config'
+	>
+): {
+	buildOptions: ReturnType<typeof buildBuilderArtifacts>['options'];
+	typedIr: IRv1;
+} {
+	const { options: buildOptions, ir: typedIr } = artifacts;
+	return { buildOptions, typedIr };
+}
+
 function attachBlockPlan(ir: IRv1, workspace: Workspace, block: IRBlock): void {
 	const appliedDir = workspace.resolve(block.directory);
 	const generatedRoot = ir.layout.resolve('blocks.generated');
@@ -68,61 +79,6 @@ function attachBlockPlan(ir: IRv1, workspace: Workspace, block: IRBlock): void {
 			? path.posix.join(appliedDir, 'render.php')
 			: undefined,
 	};
-}
-
-function materialiseArtifacts(
-	artifacts: ReturnType<typeof buildBuilderArtifacts>
-): { buildOptions: BuildIrOptions; typedIr: IRv1 } {
-	const buildOptions = artifacts.options as unknown as BuildIrOptions;
-	const typedIr = makeIr({
-		namespace: artifacts.ir.meta.namespace,
-		meta: artifacts.ir.meta as any,
-		// config: buildOptions.config as any,
-		schemas: artifacts.ir.schemas as any,
-		resources: artifacts.ir.resources as any,
-		capabilityMap: artifacts.ir.capabilityMap as any,
-		blocks: artifacts.ir.blocks as any,
-		php: artifacts.ir.php as any,
-		ui: artifacts.ir.ui as any,
-		diagnostics: artifacts.ir.diagnostics as any,
-	});
-
-	typedIr.artifacts.js = {
-		capabilities: {
-			modulePath: path.posix.join(
-				typedIr.layout.resolve('js.generated'),
-				'capabilities.ts'
-			),
-			declarationPath: path.posix.join(
-				typedIr.layout.resolve('js.generated'),
-				'capabilities.d.ts'
-			),
-		},
-		index: {
-			modulePath: path.posix.join(
-				typedIr.layout.resolve('js.generated'),
-				'index.ts'
-			),
-			declarationPath: path.posix.join(
-				typedIr.layout.resolve('js.generated'),
-				'index.d.ts'
-			),
-		},
-		uiRuntimePath: path.posix.join(
-			typedIr.layout.resolve('ui.generated'),
-			'runtime.ts'
-		),
-		uiEntryPath: path.posix.join(
-			typedIr.layout.resolve('ui.generated'),
-			'index.tsx'
-		),
-		blocksRegistrarPath: path.posix.join(
-			typedIr.layout.resolve('blocks.generated'),
-			'auto-register.ts'
-		),
-	};
-
-	return { buildOptions, typedIr };
 }
 
 describe('createJsBlocksBuilder', () => {
@@ -856,31 +812,8 @@ describe('createJsBlocksBuilder', () => {
 			const manifestAction = output.actions.find((action) =>
 				normalise(action.file).endsWith('books/block.json')
 			);
-			expect(manifestAction).toBeDefined();
-			const parsed = JSON.parse(
-				(manifestAction?.contents as string) ?? '{}'
-			);
-			expect(parsed).toMatchObject({
-				name: 'demo-namespace/books',
-				editorScriptModule: 'file:./index.tsx',
-				viewScriptModule: 'file:./view.ts',
-			});
-
-			const stubContents = output.actions
-				.map((action) => (action.contents as string) ?? '')
-				.join('\n');
-			expect(stubContents).toContain('AUTO-GENERATED WPK STUB');
-
-			const actionFiles = output.actions
-				.map((action) => normalise(action.file))
-				.sort();
-			expect(actionFiles).toEqual(
-				expect.arrayContaining([
-					expect.stringContaining('auto-register.ts'),
-					expect.stringContaining('books/block.json'),
-					expect.stringContaining('books/view.ts'),
-				])
-			);
+			expect(manifestAction).toBeUndefined();
+			expect(output.actions).toHaveLength(0);
 		});
 	});
 });

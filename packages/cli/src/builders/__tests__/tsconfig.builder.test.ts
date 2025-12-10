@@ -3,7 +3,9 @@ import os from 'node:os';
 import path from 'node:path';
 import { createTsConfigBuilder } from '../tsconfig';
 import { buildWorkspace } from '../../workspace';
-import { loadTestLayoutSync } from '@wpkernel/test-utils/layout.test-support';
+import { buildEmptyGenerationState } from '../../apply/manifest';
+import { makeIr, buildTestArtifactsPlan } from '@cli-tests/ir.test-support';
+import { makeResource } from '@cli-tests/builders/fixtures.test-support';
 
 function makeApplyOptions(root: string) {
 	const workspace = buildWorkspace(root);
@@ -12,39 +14,66 @@ function makeApplyOptions(root: string) {
 		info: jest.fn(),
 		warn: jest.fn(),
 		error: jest.fn(),
+		child: jest.fn().mockReturnThis(),
 	};
-	const defaultLayout = loadTestLayoutSync();
-	const layout = loadTestLayoutSync({
-		overrides: {
-			'ui.applied': path.join(root, 'src/ui'),
-			'blocks.applied': path.join(root, 'src/blocks'),
-			'controllers.applied': path.join(root, 'inc/Rest'),
-			'bundler.config': path.join(
-				root,
-				defaultLayout.resolve('bundler.config')
-			),
-		},
+	const ir = makeIr({
+		resources: [makeResource({ id: 'res:job', name: 'job' }) as any],
 	});
+	const artifacts = buildTestArtifactsPlan(ir.layout);
+	artifacts.surfaces = {
+		'res:job': {
+			resource: 'job',
+			appDir: path.join(root, 'src/ui'),
+			generatedAppDir: path.join(root, 'src/ui/generated'),
+			pagePath: path.join(root, 'src/ui/page.tsx'),
+			formPath: path.join(root, 'src/ui/form.tsx'),
+			configPath: path.join(root, 'src/ui/config.tsx'),
+		},
+	};
+	artifacts.blocks = {
+		blk1: {
+			key: 'demo/block',
+			appliedDir: path.join(root, 'src/blocks'),
+			generatedDir: path.join(root, 'generated/blocks'),
+			jsonPath: path.join(root, 'generated/blocks/block.json'),
+			tsEntry: path.join(root, 'generated/blocks/index.ts'),
+			tsView: path.join(root, 'generated/blocks/view.tsx'),
+			tsHelper: path.join(root, 'generated/blocks/helper.ts'),
+			mode: 'js',
+		},
+	};
+	artifacts.php.controllers = {
+		'res:job': {
+			appliedPath: path.join(root, 'inc/Rest/JobController.php'),
+			generatedPath: path.join(root, 'generated/Rest/JobController.php'),
+			className: 'JobController',
+			namespace: 'Demo\\Rest',
+		},
+	};
+	artifacts.bundler.configPath = path.join(
+		root,
+		artifacts.bundler.configPath
+	);
+	ir.artifacts = artifacts;
 
 	return {
-		context: {
-			workspace,
-			reporter,
-			phase: 'generate' as const,
-		},
 		input: {
 			phase: 'generate' as const,
 			options: {
-				config: {} as never,
 				namespace: 'Acme\\Jobs',
 				origin: 'demo',
 				sourcePath: path.join(root, 'wpk.config.ts'),
 			},
-			ir: { layout } as any,
+			ir,
 		},
 		reporter,
 		output: { actions: [], queueWrite: jest.fn() },
-		layout,
+		context: {
+			workspace,
+			reporter,
+			phase: 'generate' as const,
+			generationState: buildEmptyGenerationState(),
+		},
 	};
 }
 
@@ -53,7 +82,6 @@ describe('tsconfig builder', () => {
 		const root = await fs.mkdtemp(path.join(os.tmpdir(), 'wpk-tsc-'));
 		const builder = createTsConfigBuilder();
 		const options = makeApplyOptions(root);
-		const { layout } = options;
 		try {
 			await builder.apply(options);
 
@@ -62,21 +90,15 @@ describe('tsconfig builder', () => {
 
 			expect(contents.include).toEqual(
 				expect.arrayContaining([
-					`${path.relative(root, layout.resolve('ui.applied'))}/**/*`,
-					`${path.relative(root, layout.resolve('blocks.applied'))}/**/*`,
-					`${path.relative(root, layout.resolve('controllers.applied'))}/**/*`,
+					'src/ui/**/*',
+					'src/blocks/**/*',
+					'inc/Rest/**/*',
 				])
 			);
 			expect(contents.compilerOptions.paths).toEqual({
-				'@/*': [
-					`${path.relative(root, layout.resolve('ui.applied'))}/*`,
-				],
-				'@/admin/*': [
-					`${path.relative(root, layout.resolve('ui.applied'))}/admin/*`,
-				],
-				'@/resources/*': [
-					`${path.relative(root, layout.resolve('ui.applied'))}/resources/*`,
-				],
+				'@/*': ['src/ui/*'],
+				'@/admin/*': ['src/ui/admin/*'],
+				'@/resources/*': ['src/ui/resources/*'],
 			});
 		} finally {
 			await fs.rm(root, { recursive: true, force: true });

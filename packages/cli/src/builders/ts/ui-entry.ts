@@ -6,22 +6,21 @@ import { resolveAdminPaths } from './admin-screen';
 import { writeAdminRuntimeStub } from './imports';
 import { loadTsMorph } from './runtime-loader';
 import type { SourceFile, VariableDeclarationKind } from 'ts-morph';
-import type { ResourceDescriptor, AdminDataViews } from '../types';
+import type { ResourceDescriptor } from '../types';
 import type {
 	IRBlockPlan,
 	IRResource,
-	IRUiResourceDescriptor,
-	IRUiResourcePlan,
+	IRSurfacePlan,
 	IRv1,
 } from '../../ir/publicTypes';
-import { toCamelCase } from './metadata';
+import { toCamelCase } from '../../utils';
 
 const DEFAULT_RUNTIME_SYMBOL = 'adminScreenRuntime';
 
 type PlannedUiResource = {
-	readonly uiResource: IRUiResourceDescriptor;
+	readonly uiResource: IRSurfacePlan;
 	readonly resource: IRResource;
-	readonly uiPlan: IRUiResourcePlan;
+	readonly uiPlan: IRSurfacePlan;
 	readonly resourcePlan: IRv1['artifacts']['resources'][string];
 };
 
@@ -39,10 +38,8 @@ export function createUiEntryBuilder(): BuilderHelper {
 			'ir.resources.core',
 			'ir.capability-map.core',
 			'ir.blocks.core',
-			'ir.layout.core',
 			'ir.meta.core',
 			'ir.artifacts.plan',
-			'ir.ui.resources',
 		],
 		async apply({ context, input, output, reporter }) {
 			const ir = input.ir as IRv1 | null;
@@ -72,9 +69,10 @@ export function createUiEntryBuilder(): BuilderHelper {
 }
 
 function prepareUiPlans(ir: IRv1): PlannedUiResource[] {
-	const uiResources: readonly IRUiResourceDescriptor[] =
-		ir.ui?.resources ?? [];
-	if (uiResources.length === 0) {
+	const surfaces: readonly IRSurfacePlan[] = Object.values(
+		ir.artifacts.surfaces ?? {}
+	);
+	if (surfaces.length === 0) {
 		return [];
 	}
 
@@ -83,12 +81,12 @@ function prepareUiPlans(ir: IRv1): PlannedUiResource[] {
 	);
 
 	const planned: PlannedUiResource[] = [];
-	for (const uiResource of uiResources) {
+	for (const uiResource of surfaces) {
 		const resource = resourcesByName.get(uiResource.resource);
 		if (!resource) {
 			continue;
 		}
-		const uiPlan = ir.artifacts.uiResources[resource.id];
+		const uiPlan = ir.artifacts.surfaces[resource.id];
 		const resourcePlan = ir.artifacts.resources[resource.id];
 		if (!uiPlan || !resourcePlan) {
 			continue;
@@ -106,6 +104,12 @@ async function emitUiEntry(options: {
 	readonly output: BuilderApplyOptions['output'];
 }): Promise<void> {
 	const { ir, plannedResources, context, output } = options;
+	if (!ir.artifacts.runtime?.entry.generated) {
+		context.reporter.debug(
+			'createUiEntryBuilder: missing entry path in artifacts.'
+		);
+		return;
+	}
 	const entryPaths = await createEntrySource(ir);
 	addBaseImports(entryPaths.sourceFile, ir, entryPaths.entryModulePath);
 	addResourceImports(
@@ -129,7 +133,6 @@ async function emitUiEntry(options: {
 
 	const screenImports = buildScreenImports(
 		plannedResources,
-		ir,
 		entryPaths.entryModulePath
 	);
 	addScreenImports(entryPaths.sourceFile, screenImports);
@@ -141,17 +144,15 @@ async function emitUiEntry(options: {
 
 	entryPaths.sourceFile.formatText({ ensureNewLineAtEndOfFile: true });
 
-	if (!ir.artifacts.js?.uiRuntimePath) {
+	const runtimePath = ir.artifacts.runtime?.runtime.generated;
+	if (!runtimePath) {
 		context.reporter.debug(
-			'createUiEntryBuilder: missing JS runtime path in artifacts.'
+			'createUiEntryBuilder: missing runtime path in artifacts.'
 		);
 		return;
 	}
 
-	await writeAdminRuntimeStub(
-		context.workspace,
-		ir.artifacts.js.uiRuntimePath
-	);
+	await writeAdminRuntimeStub(context.workspace, runtimePath);
 
 	const contents = entryPaths.sourceFile.getFullText();
 	await context.workspace.write(entryPaths.entryPath, contents, {
@@ -174,10 +175,8 @@ async function createEntrySource(ir: IRv1): Promise<{
 		NewLineKind,
 	} = await loadTsMorph();
 
-	const uiGenerated = ir.layout.resolve('ui.generated');
-	const uiApplied = ir.layout.resolve('ui.applied');
-	const entryPath = path.posix.join(uiGenerated, 'index.tsx');
-	const entryModulePath = path.posix.join(uiApplied, 'index.tsx');
+	const entryPath = ir.artifacts.runtime?.entry.generated ?? '';
+	const entryModulePath = entryPath;
 	const project = new Project({
 		useInMemoryFileSystem: true,
 		manipulationSettings: {
@@ -224,10 +223,7 @@ function addBaseImports(
 	sourceFile.addImportDeclaration({
 		moduleSpecifier: buildRelativeImport(
 			entryModulePath,
-			path.posix.join(
-				ir.layout.resolve('js.generated'),
-				'capabilities.ts'
-			)
+			ir.artifacts.runtime?.runtime.generated ?? ''
 		),
 		namedImports: ['capabilities'],
 	});
@@ -244,7 +240,7 @@ function addBaseImports(
 	sourceFile.addImportDeclaration({
 		moduleSpecifier: buildRelativeImport(
 			entryModulePath,
-			path.posix.join(ir.layout.resolve('ui.applied'), 'runtime.ts')
+			ir.artifacts.runtime!.runtime.generated
 		),
 		namedImports: [DEFAULT_RUNTIME_SYMBOL],
 	});
@@ -269,7 +265,6 @@ function addResourceImports(
 
 function buildScreenImports(
 	plannedResources: readonly PlannedUiResource[],
-	ir: IRv1,
 	entryModulePath: string
 ): ScreenImport[] {
 	return plannedResources.map(({ uiResource, resource, uiPlan }) => {
@@ -277,20 +272,11 @@ function buildScreenImports(
 			key: uiResource.resource,
 			name: resource.name,
 			resource,
-			dataviews: uiResource.dataviews as AdminDataViews,
 		};
 
 		const metadata = resolveAdminScreenComponentMetadata(descriptor);
 		const routeConst = `${toCamelCase(metadata.identifier)}Route`;
-		const { appliedScreenPath } = resolveAdminPaths(
-			uiPlan,
-			{
-				...(descriptor as ResourceDescriptor),
-				menu: uiResource.menu,
-				namespace: ir.meta.namespace,
-			},
-			metadata
-		);
+		const { appliedScreenPath } = resolveAdminPaths(uiPlan, metadata);
 		const moduleSpecifier = buildRelativeImport(
 			entryModulePath,
 			appliedScreenPath
@@ -505,10 +491,10 @@ async function removeEntryIfPresent(
 	context: BuilderApplyOptions['context'],
 	reporter: BuilderApplyOptions['reporter']
 ): Promise<void> {
-	const entryPath = path.posix.join(
-		ir.layout.resolve('ui.generated'),
-		'index.tsx'
-	);
+	const entryPath = ir.artifacts.runtime?.entry.generated;
+	if (!entryPath) {
+		return;
+	}
 	if (await context.workspace.exists(entryPath)) {
 		await context.workspace.rm(entryPath);
 		reporter?.debug(

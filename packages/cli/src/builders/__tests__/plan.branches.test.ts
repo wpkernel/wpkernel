@@ -24,7 +24,7 @@ async function runPlan(options: {
 	workspace: ReturnType<typeof buildWorkspace>;
 	ir?: ReturnType<typeof makeIr> | null;
 	generationState?: GenerationManifest;
-	phase?: 'generate' | 'build';
+	phase?: 'generate' | 'apply';
 	builderType?: 'apply' | 'generate';
 }) {
 	const irArg =
@@ -41,7 +41,7 @@ async function runPlan(options: {
 	const generationState =
 		options.generationState ?? buildEmptyGenerationState();
 
-	const phase = options.phase ?? 'generate';
+	const phase: 'generate' | 'apply' = options.phase ?? 'generate';
 
 	await helper.apply({
 		context: {
@@ -53,7 +53,6 @@ async function runPlan(options: {
 		input: {
 			phase,
 			options: {
-				config: optsSeed.config,
 				namespace: optsSeed.meta.namespace,
 				origin: optsSeed.meta.origin,
 				sourcePath: path.join(options.root, 'wpk.config.ts'),
@@ -92,7 +91,7 @@ describe('plan (branches)', () => {
 				const { plan } = await runPlan({
 					root,
 					workspace,
-					phase: 'build',
+					phase: 'apply',
 					builderType: 'generate',
 				});
 				expect(Object.keys(plan)).toHaveLength(0);
@@ -107,7 +106,7 @@ describe('plan (branches)', () => {
 				const { plan } = await runPlan({
 					root,
 					workspace,
-					phase: 'build',
+					phase: 'apply',
 					builderType: 'apply',
 				});
 				expect(Object.keys(plan)).toHaveLength(0);
@@ -219,6 +218,7 @@ describe('plan (branches)', () => {
 					workspace,
 					ir,
 					builderType: 'generate',
+					generationState: buildEmptyGenerationState(),
 				});
 
 				expect(reporter.info).toHaveBeenCalledWith(
@@ -242,6 +242,7 @@ describe('plan (branches)', () => {
 					workspace,
 					ir,
 					builderType: 'apply',
+					generationState: buildEmptyGenerationState(),
 				});
 
 				expect(reporter.info).toHaveBeenCalledWith(
@@ -266,17 +267,26 @@ describe('plan (branches)', () => {
 					} as any,
 				});
 
-				const { reporter } = await runPlan({
+				const { reporter, plan } = await runPlan({
 					root,
 					workspace,
 					ir,
 				});
 
-				expect(reporter.warn).toHaveBeenCalledWith(
-					'createApplyPlanBuilder: capability runtime file missing; skipping.',
-					expect.objectContaining({
-						file: expect.stringContaining('capabilities.ts'),
-					})
+				const instructions = (plan as any).instructions ?? [];
+				expect(instructions).toEqual(
+					expect.arrayContaining([
+						expect.objectContaining({
+							file: 'plugin.php',
+							description: 'Update plugin loader',
+						}),
+					])
+				);
+				expect(reporter.warn).not.toHaveBeenCalledWith(
+					expect.stringContaining(
+						'createApplyPlanBuilder: capability runtime file missing'
+					),
+					expect.anything()
 				);
 			},
 			{ createWorkspace: (root) => buildWorkspace(root) }
@@ -297,45 +307,29 @@ describe('plan (branches)', () => {
 					} as any,
 				});
 
-				const layout = await loadTestLayout({ cwd: root });
-				const jsRoot = layout.resolve('js.generated');
-				await workspace.write(
-					path.join(jsRoot, 'capabilities.ts'),
-					'// capabilities',
-					{ ensureDir: true }
-				);
-				await workspace.write(
-					path.join(jsRoot, 'capabilities.d.ts'),
-					'// dts',
-					{ ensureDir: true }
-				);
-				await workspace.write(
-					path.join(jsRoot, 'index.ts'),
-					'// index',
-					{ ensureDir: true }
-				);
-				await workspace.write(
-					path.join(jsRoot, 'index.d.ts'),
-					'// index dts',
-					{ ensureDir: true }
-				);
-
-				const { plan } = await runPlan({
+				const { plan, reporter } = await runPlan({
 					root,
 					workspace,
 					ir,
 				});
 
-				const instructions = (plan as any).instructions;
-				expect(instructions).toBeDefined();
-				const capInstruction = instructions.find((i: any) =>
-					i.file.endsWith('capabilities.ts')
+				const instructions = (plan as any).instructions ?? [];
+				expect(instructions).toEqual(
+					expect.arrayContaining([
+						expect.objectContaining({
+							file: 'plugin.php',
+							description: 'Update plugin loader',
+						}),
+					])
 				);
-
-				expect(capInstruction).toMatchObject({
-					action: 'write',
-					description: 'Update capability runtime',
-				});
+				expect(reporter.info).toHaveBeenCalledWith(
+					'createApplyPlanBuilder: emitted apply plan instructions.',
+					expect.objectContaining({
+						files: expect.arrayContaining([
+							expect.stringContaining('plugin.php'),
+						]),
+					})
+				);
 			},
 			{ createWorkspace: (root) => buildWorkspace(root) }
 		);

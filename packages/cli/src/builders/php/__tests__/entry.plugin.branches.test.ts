@@ -7,6 +7,7 @@ import {
 } from '@cli-tests/builders/builder-harness.test-support';
 import { AUTO_GUARD_BEGIN } from '@wpkernel/wp-json-ast';
 import { loadTestLayoutSync } from '@wpkernel/test-utils/layout.test-support';
+import { buildEmptyGenerationState } from '../../../apply/manifest';
 
 const layout = loadTestLayoutSync();
 
@@ -20,15 +21,19 @@ describe('entry.plugin (branches)', () => {
 
 		await createPhpPluginLoaderHelper().apply({
 			input: {
-				phase: 'build',
-				options: { config: ir.config, namespace: ir.meta.namespace },
+				phase: 'apply',
+				options: {
+					namespace: ir.meta.namespace,
+					origin: ir.meta.origin,
+					sourcePath: ir.meta.sourcePath,
+				},
 				ir,
 			},
 			context: {
 				workspace,
 				reporter,
-				phase: 'build',
-				generationState: { files: new Map(), alias: new Map() },
+				phase: 'apply',
+				generationState: buildEmptyGenerationState(),
 			},
 			output,
 			reporter,
@@ -48,14 +53,18 @@ describe('entry.plugin (branches)', () => {
 		await createPhpPluginLoaderHelper().apply({
 			input: {
 				phase: 'generate',
-				options: { config: ir.config, namespace: ir.meta.namespace },
+				options: {
+					namespace: ir.meta.namespace,
+					origin: ir.meta.origin,
+					sourcePath: ir.meta.sourcePath,
+				},
 				ir,
 			},
 			context: {
 				workspace,
 				reporter,
 				phase: 'generate',
-				generationState: { files: new Map(), alias: new Map() },
+				generationState: buildEmptyGenerationState(),
 			},
 			output,
 			reporter,
@@ -85,14 +94,18 @@ describe('entry.plugin (branches)', () => {
 		await createPhpPluginLoaderHelper().apply({
 			input: {
 				phase: 'generate',
-				options: { config: ir.config, namespace: ir.meta.namespace },
+				options: {
+					namespace: ir.meta.namespace,
+					origin: ir.meta.origin,
+					sourcePath: ir.meta.sourcePath,
+				},
 				ir,
 			},
 			context: {
 				workspace,
 				reporter,
 				phase: 'generate',
-				generationState: { files: new Map(), alias: new Map() },
+				generationState: buildEmptyGenerationState(),
 			},
 			output,
 			reporter,
@@ -124,14 +137,18 @@ describe('entry.plugin (branches)', () => {
 		await createPhpPluginLoaderHelper().apply({
 			input: {
 				phase: 'generate',
-				options: { config: ir.config, namespace: ir.meta.namespace },
+				options: {
+					namespace: ir.meta.namespace,
+					origin: ir.meta.origin,
+					sourcePath: ir.meta.sourcePath,
+				},
 				ir,
 			},
 			context: {
 				workspace,
 				reporter,
 				phase: 'generate',
-				generationState: { files: new Map(), alias: new Map() },
+				generationState: buildEmptyGenerationState(),
 			},
 			output,
 			reporter,
@@ -184,14 +201,18 @@ describe('entry.plugin (branches)', () => {
 		await createPhpPluginLoaderHelper().apply({
 			input: {
 				phase: 'generate',
-				options: { config: ir.config, namespace: ir.meta.namespace },
+				options: {
+					namespace: ir.meta.namespace,
+					origin: ir.meta.origin,
+					sourcePath: ir.meta.sourcePath,
+				},
 				ir,
 			},
 			context: {
 				workspace,
 				reporter,
 				phase: 'generate',
-				generationState: { files: new Map(), alias: new Map() },
+				generationState: buildEmptyGenerationState(),
 			},
 			output,
 			reporter,
@@ -235,14 +256,18 @@ describe('entry.plugin (branches)', () => {
 		await createPhpPluginLoaderHelper().apply({
 			input: {
 				phase: 'generate',
-				options: { config: ir.config, namespace: ir.meta.namespace },
+				options: {
+					namespace: ir.meta.namespace,
+					origin: ir.meta.origin,
+					sourcePath: ir.meta.sourcePath,
+				},
 				ir,
 			},
 			context: {
 				workspace,
 				reporter,
 				phase: 'generate',
-				generationState: { files: new Map(), alias: new Map() },
+				generationState: buildEmptyGenerationState(),
 			},
 			output,
 			reporter,

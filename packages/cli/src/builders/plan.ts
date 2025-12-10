@@ -347,7 +347,7 @@ async function buildJsRuntimePlan({
 }): Promise<PlanInstruction[]> {
 	const { reporter, context, output } = options;
 	const manifest = buildGenerationManifestFromIr(options.input.ir ?? null);
-	const files = manifest.jsRuntime?.files ?? [];
+	const files = manifest.runtime?.files ?? [];
 
 	if (files.length === 0) {
 		return [];
@@ -355,7 +355,8 @@ async function buildJsRuntimePlan({
 
 	const instructions: PlanInstruction[] = [];
 
-	for (const file of files) {
+	for (const pair of files) {
+		const file = pair.generated;
 		const contents = await context.workspace.readText(file);
 		if (contents === null) {
 			reporter.warn(
@@ -366,7 +367,7 @@ async function buildJsRuntimePlan({
 		}
 
 		const incomingPath = path.posix.join(paths.planIncoming, file);
-		const basePath = path.posix.join(paths.planBase, file);
+		const basePath = path.posix.join(paths.planBase, pair.applied);
 
 		await context.workspace.write(incomingPath, contents, {
 			ensureDir: true,
@@ -383,7 +384,7 @@ async function buildJsRuntimePlan({
 
 		instructions.push({
 			action: 'write',
-			file,
+			file: pair.applied,
 			base: basePath,
 			incoming: incomingPath,
 			description: 'Update capability runtime',

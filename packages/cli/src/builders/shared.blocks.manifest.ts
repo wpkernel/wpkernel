@@ -3,7 +3,7 @@ import type { Workspace } from '../workspace/types';
 import type { IRBlock } from '../ir/publicTypes';
 import { buildBlockRegistrarMetadata } from './ts/metadata';
 import type { BlockRegistrarMetadata } from './ts/types';
-import { resolveBlockPath, toWorkspaceRelative } from './shared.blocks.paths';
+import { resolveBlockPath } from './shared.blocks.paths';
 import {
 	type BlockManifestSignature,
 	buildBlockSignature,
@@ -14,6 +14,7 @@ import {
 	manifestDeclaresRenderCallback,
 	validateBlockManifest,
 } from './shared.blocks.validation';
+import { toWorkspaceRelative } from '../workspace';
 
 type BlockManifest = Record<string, unknown>;
 

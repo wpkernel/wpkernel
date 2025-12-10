@@ -4,7 +4,7 @@ import type {
 	BuilderHelper,
 	PipelineContext,
 } from '../../runtime/types';
-import { makeErrorCodeFactory, toPascalCase } from './utils';
+import { makeErrorCodeFactory, toPascalCase } from '../../utils';
 export { resolveIdentityConfig } from '@wpkernel/wp-json-ast';
 
 import {

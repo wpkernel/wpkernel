@@ -97,9 +97,9 @@ function buildResourceLocalizationArray(
 		buildArrayItem(buildScalarString(resource.resource), {
 			key: buildScalarString('resource'),
 		}),
-		buildArrayItem(buildScalarString(resource.preferencesKey), {
-			key: buildScalarString('preferencesKey'),
-		}),
+		// buildArrayItem(buildScalarString(resource.preferencesKey), {
+		// 	key: buildScalarString('preferencesKey'),
+		// }),
 	];
 
 	if (resource.menu) {

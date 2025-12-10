@@ -7,13 +7,6 @@ import { collectResourceInstructions } from '../plan.shims';
 import { buildWorkspace } from '../../workspace';
 import { loadTestLayoutSync } from '@wpkernel/test-utils/layout.test-support';
 
-const makeConfig = (namespace: string) => ({
-	version: 1,
-	namespace,
-	schemas: {},
-	resources: {},
-});
-
 function makeOptions(root: string) {
 	const workspace = buildWorkspace(root);
 	const layout = loadTestLayoutSync();
@@ -40,7 +33,6 @@ function makeOptions(root: string) {
 		input: {
 			phase: 'generate' as const,
 			options: {
-				config: makeConfig(ir.meta.namespace),
 				namespace: ir.meta.namespace,
 				origin: ir.meta.origin,
 				sourcePath: path.join(root, 'wpk.config.ts'),

@@ -2,19 +2,19 @@ import {
 	resolveInteractivityFeature,
 	resolveListRoutePath,
 } from '../admin-shared';
-import type { ResourceDescriptor } from '../types';
+import type { AdminScreenResourceDescriptor } from '../admin-shared';
 
 const makeDescriptor = (
-	overrides: Partial<ResourceDescriptor> = {}
-): ResourceDescriptor => ({
+	overrides: Partial<AdminScreenResourceDescriptor> = {}
+): AdminScreenResourceDescriptor => ({
 	key: 'job',
 	name: 'Job',
 	resource: {
 		name: 'Job',
 		routes: [],
 	} as any,
-	adminView: 'dataviews',
-	dataviews: undefined as any,
+	menu: { slug: 'job', title: 'Job' },
+	adminView: 'admin-screen',
 	...overrides,
 });
 

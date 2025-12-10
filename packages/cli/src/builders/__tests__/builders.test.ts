@@ -2,7 +2,7 @@ import path from 'node:path';
 import { execFile } from 'node:child_process';
 import { createPatcher } from '../patcher';
 import { createPhpDriverInstaller } from '@wpkernel/php-json-ast';
-import type { BuildIrOptions, IRv1 } from '../../ir/publicTypes';
+import type { IRv1 } from '../../ir/publicTypes';
 import type { BuilderOutput } from '../../runtime/types';
 import type { Workspace } from '../../workspace/types';
 import { makeWorkspaceMock } from '@cli-tests/workspace.test-support';
@@ -12,7 +12,7 @@ import {
 	buildOutput,
 } from '@cli-tests/builders/builder-harness.test-support';
 import { loadTestLayoutSync } from '@wpkernel/test-utils/layout.test-support';
-import { makeIrMeta } from '@cli-tests/ir.test-support';
+import { makeIr } from '@cli-tests/ir.test-support';
 import { buildEmptyGenerationState } from '../../apply/manifest';
 
 jest.mock('node:child_process', () => {
@@ -34,13 +34,7 @@ jest.mock('node:child_process', () => {
 	return { execFile: execFileMock };
 });
 
-const buildOptions: BuildIrOptions = {
-	config: {
-		version: 1,
-		namespace: 'test',
-		schemas: {},
-		resources: {},
-	},
+const buildOptions = {
 	namespace: 'test',
 	origin: 'typescript',
 	sourcePath: '/workspace/wpk.config.ts',
@@ -48,31 +42,19 @@ const buildOptions: BuildIrOptions = {
 
 const layout = loadTestLayoutSync();
 
-const ir: IRv1 = {
-	meta: makeIrMeta('test', {
+const ir: IRv1 = makeIr({
+	namespace: 'test',
+	meta: {
 		origin: 'typescript',
 		sourcePath: 'wpk.config.ts',
-	}),
-	config: buildOptions.config,
-	schemas: [],
-	resources: [],
-	capabilities: [],
-	capabilityMap: {
-		sourcePath: undefined,
-		definitions: [],
-		fallback: { capability: 'manage_options', appliesTo: 'resource' },
-		missing: [],
-		unused: [],
-		warnings: [],
 	},
-	blocks: [],
+	layout,
 	php: {
 		namespace: 'Test',
 		autoload: 'inc/',
 		outputDir: layout.resolve('php.generated'),
 	},
-	layout,
-};
+});
 
 const stubHelpers = [createPatcher(), createPhpDriverInstaller()];
 

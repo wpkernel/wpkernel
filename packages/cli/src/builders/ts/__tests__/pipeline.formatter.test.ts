@@ -1,14 +1,17 @@
+import type { Project } from 'ts-morph';
 import { buildProject } from '../utils';
 import { buildTsFormatter } from '../formatter';
 
-jest.mock('../utils', () => ({
-	buildProject: jest.fn(() => ({
-		createSourceFile: jest.fn(() => ({
-			formatText: jest.fn(),
-			getFullText: jest.fn(() => 'formatted output'),
-			forget: jest.fn(),
-		})),
+const mockProject = {
+	createSourceFile: jest.fn(() => ({
+		formatText: jest.fn(),
+		getFullText: jest.fn(() => 'formatted output'),
+		forget: jest.fn(),
 	})),
+};
+
+jest.mock('../utils', () => ({
+	buildProject: jest.fn(async () => mockProject as unknown as Project),
 }));
 
 const mockedBuildProject = jest.mocked(buildProject);
@@ -26,13 +29,12 @@ describe('buildTsFormatter', () => {
 		});
 
 		expect(mockedBuildProject).toHaveBeenCalledTimes(1);
-		const project = mockedBuildProject.mock.results[0]?.value;
-		expect(project.createSourceFile).toHaveBeenCalledWith(
+		expect(mockProject.createSourceFile).toHaveBeenCalledWith(
 			'/tmp/example.ts',
 			'const value=1;',
 			{ overwrite: true }
 		);
-		const source = project.createSourceFile.mock.results[0]?.value;
+		const source = mockProject.createSourceFile.mock.results[0]?.value;
 		expect(source.formatText).toHaveBeenCalledWith({
 			ensureNewLineAtEndOfFile: true,
 		});
@@ -50,7 +52,12 @@ describe('buildTsFormatter', () => {
 			getFullText,
 			forget,
 		}));
-		const projectFactory = jest.fn(() => ({ createSourceFile }));
+		const projectFactory = jest.fn(
+			async () =>
+				({
+					createSourceFile,
+				}) as unknown as Project
+		);
 
 		const formatter = buildTsFormatter({ projectFactory });
 		const result = await formatter.format({

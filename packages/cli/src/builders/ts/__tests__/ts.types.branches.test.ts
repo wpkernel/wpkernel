@@ -6,6 +6,7 @@ import {
 	buildOutput,
 } from '@cli-tests/builders/builder-harness.test-support';
 import { createTsTypesBuilder } from '../ts.types';
+import { buildEmptyGenerationState } from '../../../apply/manifest';
 
 const baseResource = {
 	id: 'res:article',
@@ -21,8 +22,12 @@ const baseResource = {
 function buildWorkspace() {
 	const writes: Array<{ file: string; contents: string }> = [];
 	const workspace = makeWorkspaceMock({
-		write: async (file: string, contents: string) => {
-			writes.push({ file, contents: String(contents) });
+		write: async (
+			file: string,
+			data: string | Buffer,
+			_options?: unknown
+		) => {
+			writes.push({ file, contents: String(data) });
 		},
 		resolve: (...parts: string[]) => path.join(process.cwd(), ...parts),
 	});
@@ -49,29 +54,23 @@ describe('ts.types builder branch coverage', () => {
 		};
 		ir.resources = [resource];
 		ir.schemas.push({
+			id: 'some',
+			provenance: 'auto',
 			key: resource.schemaKey,
 			hash: { algo: 'sha256', inputs: [], value: 'schema' },
 			schema: { type: 'object', properties: {} },
 			sourcePath: 'schema.json',
-			warnings: [],
-			source: 'config',
+			// warnings: [],
+			// source: 'config',
 		});
 		ir.artifacts.schemas[resource.schemaKey] = {
-			schemaPath: 'schema.json',
-			typeDefPath: path.posix.join(
-				ir.layout.resolve('ui.generated'),
-				'types',
-				`${resource.name}.d.ts`
-			),
-			typeSource: 'inferred',
+			// schemaPath: 'schema.json',
+			typeDefPath: `/generated/types/${resource.name}.d.ts`,
+			// typeSource: 'inferred',
 		};
 		ir.artifacts.resources[resource.id] = {
 			modulePath: '',
-			typeDefPath: path.posix.join(
-				ir.layout.resolve('ui.generated'),
-				'types',
-				`${resource.name}.d.ts`
-			),
+			typeDefPath: `/generated/types/${resource.name}.d.ts`,
 			typeSource: 'inferred',
 		};
 
@@ -84,7 +83,8 @@ describe('ts.types builder branch coverage', () => {
 				input: {
 					phase: 'generate',
 					options: {
-						config: ir.config,
+						origin: 'wpk.config.ts',
+						sourcePath: 'wpk.config.ts',
 						namespace: ir.meta.namespace,
 					},
 					ir,
@@ -93,7 +93,7 @@ describe('ts.types builder branch coverage', () => {
 					workspace,
 					reporter,
 					phase: 'generate',
-					generationState: { files: new Map(), alias: new Map() },
+					generationState: buildEmptyGenerationState(),
 				},
 				output,
 				reporter,

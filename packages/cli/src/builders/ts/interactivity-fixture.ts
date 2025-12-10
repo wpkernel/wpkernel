@@ -8,19 +8,15 @@ import {
 	type AdminDataViewsWithInteractivity,
 	type AdminScreenResourceDescriptor,
 } from './admin-shared';
-import { toCamelCase } from './metadata';
-import type { IRResource } from '../../ir/publicTypes';
+import type { IRResource, IRSurfacePlan } from '../../ir/publicTypes';
 import type { CodeBlockWriter } from 'ts-morph';
+import { toCamelCase } from '../../utils';
 
 export function createDataViewInteractivityFixtureBuilder() {
 	return createHelper({
 		key: 'builder.generate.ts.dataviewInteractivityFixture.core',
 		kind: 'builder',
-		dependsOn: [
-			'ir.artifacts.plan',
-			'ir.ui.resources',
-			'ir.resources.core',
-		],
+		dependsOn: ['ir.artifacts.plan', 'ir.ui.core', 'ir.resources.core'],
 		async apply({ input, context, output, reporter }: BuilderApplyOptions) {
 			if (input.phase !== 'generate' || !input.ir?.artifacts) {
 				reporter?.debug(
@@ -30,12 +26,6 @@ export function createDataViewInteractivityFixtureBuilder() {
 						hasIr: Boolean(input.ir),
 						hasArtifacts: Boolean(input.ir?.artifacts),
 					}
-				);
-				return;
-			}
-			if (!input.ir.layout) {
-				reporter?.debug(
-					'interactivity fixture builder: missing layout.'
 				);
 				return;
 			}
@@ -50,6 +40,7 @@ export function createDataViewInteractivityFixtureBuilder() {
 	});
 }
 
+/* eslint-disable complexity */
 async function generateInteractivityFixtures(options: {
 	readonly ir: NonNullable<BuilderApplyOptions['input']['ir']>;
 	readonly context: BuilderApplyOptions['context'];
@@ -57,9 +48,16 @@ async function generateInteractivityFixtures(options: {
 	readonly reporter?: BuilderApplyOptions['reporter'];
 }) {
 	const { ir, context, output, reporter } = options;
-	const uiResources = ir.ui?.resources ?? [];
-	if (uiResources.length === 0) {
+	const surfaces = Object.values(ir.artifacts.surfaces ?? {});
+	if (surfaces.length === 0) {
 		reporter?.debug('interactivity fixture builder: no UI resources.');
+		return;
+	}
+	const runtimePath = ir.artifacts.runtime?.runtime.generated;
+	if (!runtimePath) {
+		reporter?.debug(
+			'interactivity fixture builder: missing runtime path in artifacts.'
+		);
 		return;
 	}
 
@@ -69,10 +67,7 @@ async function generateInteractivityFixtures(options: {
 	const resourceByName = new Map<string, IRResource>(
 		ir.resources.map((resource) => [resource.name, resource])
 	);
-	const generatedRoot = ir.layout!.resolve('ui.generated');
-	const appliedRoot = ir.layout!.resolve('ui.applied');
-
-	for (const uiResource of uiResources) {
+	for (const uiResource of surfaces) {
 		const validated = validateInteractivityInputs({
 			uiResource,
 			ir,
@@ -83,26 +78,34 @@ async function generateInteractivityFixtures(options: {
 			continue;
 		}
 
+		if (!uiResource.generatedAppDir || !uiResource.appDir) {
+			reporter?.debug(
+				'interactivity fixture builder: missing surface plan paths',
+				{ resource: validated.resource.name }
+			);
+			continue;
+		}
+
 		await emitFixture({
 			ir,
 			resource: validated.resource,
 			uiResource,
 			resourcePlan: validated.resourcePlan,
-			generatedRoot,
-			appliedRoot,
+			generatedRoot: uiResource.generatedAppDir ?? '',
+			appliedRoot: uiResource.appDir ?? '',
 			project,
 			VariableDeclarationKind,
 			context,
 			output,
 			reporter,
+			runtimePath,
 		});
 	}
 }
+/* eslint-enable complexity */
 
 function validateInteractivityInputs(options: {
-	readonly uiResource: NonNullable<
-		NonNullable<BuilderApplyOptions['input']['ir']>['ui']
-	>['resources'][number];
+	readonly uiResource: IRSurfacePlan;
 	readonly ir: NonNullable<BuilderApplyOptions['input']['ir']>;
 	readonly resourceByName: Map<string, IRResource>;
 	readonly reporter?: BuilderApplyOptions['reporter'];
@@ -118,7 +121,7 @@ function validateInteractivityInputs(options: {
 	}
 
 	const resourcePlan = ir.artifacts.resources[resource.id];
-	if (!resourcePlan?.modulePath || !uiResource.dataviews) {
+	if (!resourcePlan?.modulePath) {
 		reporter?.debug('interactivity fixture builder: missing plan/data', {
 			resource: resource.name,
 		});
@@ -131,12 +134,11 @@ function validateInteractivityInputs(options: {
 async function emitFixture(options: {
 	readonly ir: NonNullable<BuilderApplyOptions['input']['ir']>;
 	readonly resource: IRResource;
-	readonly uiResource: NonNullable<
-		NonNullable<BuilderApplyOptions['input']['ir']>['ui']
-	>['resources'][number];
+	readonly uiResource: IRSurfacePlan;
 	readonly resourcePlan: { modulePath: string };
 	readonly generatedRoot: string;
 	readonly appliedRoot: string;
+	readonly runtimePath: string;
 	readonly project: Awaited<
 		ReturnType<typeof buildTsMorphAccessor>
 	>['project'];
@@ -154,6 +156,7 @@ async function emitFixture(options: {
 		resourcePlan,
 		generatedRoot,
 		appliedRoot,
+		runtimePath,
 		project,
 		VariableDeclarationKind,
 		context,
@@ -166,12 +169,11 @@ async function emitFixture(options: {
 		name: resource.name,
 		namespace: ir.meta.namespace,
 		resource,
-		dataviews: uiResource.dataviews,
 		menu: uiResource.menu,
 	};
 
 	const dataviews = descriptor.dataviews as AdminDataViewsWithInteractivity;
-	const screenConfig = dataviews.screen ?? {};
+	const screenConfig = dataviews?.screen ?? {};
 	const { identifier: componentIdentifier } =
 		resolveAdminScreenComponentMetadata(descriptor);
 	const componentIdentifierCamel = toCamelCase(componentIdentifier);
@@ -197,10 +199,7 @@ async function emitFixture(options: {
 		appliedFixturePath,
 		resourcePlan.modulePath
 	);
-	const wpkernelImport = buildRelativeImport(
-		appliedFixturePath,
-		path.join(appliedRoot, 'runtime.ts')
-	);
+	const wpkernelImport = buildRelativeImport(appliedFixturePath, runtimePath);
 	if (!resourceImport || !wpkernelImport) {
 		reporter?.debug('interactivity fixture builder: missing imports', {
 			resource: resource.name,
@@ -208,10 +207,7 @@ async function emitFixture(options: {
 		return;
 	}
 
-	await writeAdminRuntimeStub(
-		context.workspace,
-		path.join(generatedRoot, 'runtime.ts')
-	);
+	await writeAdminRuntimeStub(context.workspace, runtimePath);
 
 	const sourceFile = project.createSourceFile(generatedFixturePath, '', {
 		overwrite: true,

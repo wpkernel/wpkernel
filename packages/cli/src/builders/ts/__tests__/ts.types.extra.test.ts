@@ -6,12 +6,17 @@ import {
 	buildOutput,
 } from '@cli-tests/builders/builder-harness.test-support';
 import { createTsTypesBuilder } from '../ts.types';
+import { buildEmptyGenerationState } from '../../../apply/manifest';
 
 function buildWorkspace() {
 	const writes: Array<{ file: string; contents: string }> = [];
 	const workspace = makeWorkspaceMock({
-		write: async (file: string, contents: string) => {
-			writes.push({ file, contents: String(contents) });
+		write: async (
+			file: string,
+			data: string | Buffer,
+			_options?: unknown
+		) => {
+			writes.push({ file, contents: String(data) });
 		},
 		resolve: (...parts: string[]) => path.join(process.cwd(), ...parts),
 	});
@@ -42,7 +47,8 @@ describe('ts.types builder (branches)', () => {
 				input: {
 					phase: 'init',
 					options: {
-						config: ir.config,
+						origin: 'wpk.config.ts',
+						sourcePath: 'wpk.config.ts',
 						namespace: ir.meta.namespace,
 					},
 					ir,
@@ -51,7 +57,7 @@ describe('ts.types builder (branches)', () => {
 					workspace,
 					reporter,
 					phase: 'init',
-					generationState: { files: new Map(), alias: new Map() },
+					generationState: buildEmptyGenerationState(),
 				},
 				output,
 				reporter,
@@ -77,8 +83,9 @@ describe('ts.types builder (branches)', () => {
 				input: {
 					phase: 'generate',
 					options: {
-						config: ir.config,
 						namespace: ir.meta.namespace,
+						origin: ir.meta.origin,
+						sourcePath: ir.meta.sourcePath,
 					},
 					ir,
 				},
@@ -86,7 +93,7 @@ describe('ts.types builder (branches)', () => {
 					workspace,
 					reporter,
 					phase: 'generate',
-					generationState: { files: new Map(), alias: new Map() },
+					generationState: buildEmptyGenerationState(),
 				},
 				output,
 				reporter,
@@ -102,30 +109,21 @@ describe('ts.types builder (branches)', () => {
 		const resource = { ...baseResource, storage: undefined };
 		ir.resources = [resource];
 		ir.schemas.push({
+			id: `sch:${resource.schemaKey}`,
 			key: resource.schemaKey,
 			hash: { algo: 'sha256', inputs: [], value: 'schema' },
 			schema: { type: 'object', properties: {} },
 			sourcePath: 'schema.json',
-			warnings: [],
-			source: 'config',
+			provenance: 'manual',
 		});
 		ir.artifacts.schemas[resource.schemaKey] = {
-			schemaPath: 'schema.json',
-			typeDefPath: path.posix.join(
-				ir.layout.resolve('ui.generated'),
-				'types',
-				`${resource.name}.d.ts`
-			),
-			typeSource: 'inferred',
+			typeDefPath: `/generated/types/${resource.name}.d.ts`,
 		};
 		ir.artifacts.resources[resource.id] = {
+			typeSource: 'schema',
 			modulePath: '',
-			typeDefPath: path.posix.join(
-				ir.layout.resolve('ui.generated'),
-				'types',
-				`${resource.name}.d.ts`
-			),
-			typeSource: 'inferred',
+			typeDefPath: `/generated/types/${resource.name}.d.ts`,
+			schemaKey: resource.schemaKey,
 		};
 		const { workspace, writes } = buildWorkspace();
 		const reporter = buildReporter();
@@ -136,8 +134,9 @@ describe('ts.types builder (branches)', () => {
 				input: {
 					phase: 'generate',
 					options: {
-						config: ir.config,
 						namespace: ir.meta.namespace,
+						origin: ir.meta.origin,
+						sourcePath: ir.meta.sourcePath,
 					},
 					ir,
 				},
@@ -145,7 +144,7 @@ describe('ts.types builder (branches)', () => {
 					workspace,
 					reporter,
 					phase: 'generate',
-					generationState: { files: new Map(), alias: new Map() },
+					generationState: buildEmptyGenerationState(),
 				},
 				output,
 				reporter,
@@ -174,29 +173,19 @@ describe('ts.types builder (branches)', () => {
 		};
 		ir.resources = [resource];
 		ir.schemas.push({
+			id: `sch:${resource.schemaKey}`,
 			key: resource.schemaKey,
 			hash: { algo: 'sha256', inputs: [], value: 'schema' },
 			schema: { type: 'object', properties: {} },
 			sourcePath: 'schema.json',
-			warnings: [],
-			source: 'config',
+			provenance: 'manual',
 		});
 		ir.artifacts.schemas[resource.schemaKey] = {
-			schemaPath: 'schema.json',
-			typeDefPath: path.posix.join(
-				ir.layout.resolve('ui.generated'),
-				'types',
-				`${resource.name}.d.ts`
-			),
-			typeSource: 'inferred',
+			typeDefPath: `/generated/types/${resource.name}.d.ts`,
 		};
 		ir.artifacts.resources[resource.id] = {
 			modulePath: '',
-			typeDefPath: path.posix.join(
-				ir.layout.resolve('ui.generated'),
-				'types',
-				`${resource.name}.d.ts`
-			),
+			typeDefPath: `/generated/types/${resource.name}.d.ts`,
 			typeSource: 'inferred',
 		};
 		const { workspace, writes } = buildWorkspace();
@@ -208,8 +197,9 @@ describe('ts.types builder (branches)', () => {
 				input: {
 					phase: 'generate',
 					options: {
-						config: ir.config,
 						namespace: ir.meta.namespace,
+						origin: ir.meta.origin,
+						sourcePath: ir.meta.sourcePath,
 					},
 					ir,
 				},
@@ -217,7 +207,7 @@ describe('ts.types builder (branches)', () => {
 					workspace,
 					reporter,
 					phase: 'generate',
-					generationState: { files: new Map(), alias: new Map() },
+					generationState: buildEmptyGenerationState(),
 				},
 				output,
 				reporter,
@@ -241,30 +231,21 @@ describe('ts.types builder (branches)', () => {
 		};
 		ir.resources = [resource];
 		ir.schemas.push({
+			id: 'sch:article',
 			key: 'article',
 			hash: { algo: 'sha256', inputs: [], value: 'schema' },
 			schema: { type: 'object', properties: {} },
 			sourcePath: 'schema.json',
-			warnings: [],
-			source: 'config',
+			provenance: 'manual',
 		});
 		ir.artifacts.schemas.article = {
-			schemaPath: 'schema.json',
-			typeDefPath: path.posix.join(
-				ir.layout.resolve('ui.generated'),
-				'types',
-				'article.d.ts'
-			),
-			typeSource: 'inferred',
+			typeDefPath: '/generated/types/article.d.ts',
 		};
 		ir.artifacts.resources[resource.id] = {
 			modulePath: '',
-			typeDefPath: path.posix.join(
-				ir.layout.resolve('ui.generated'),
-				'types',
-				'article.d.ts'
-			),
+			typeDefPath: '/generated/types/article.d.ts',
 			typeSource: 'inferred',
+			schemaKey: 'article',
 		};
 
 		const { workspace, writes } = buildWorkspace();
@@ -276,8 +257,9 @@ describe('ts.types builder (branches)', () => {
 				input: {
 					phase: 'generate',
 					options: {
-						config: ir.config,
 						namespace: ir.meta.namespace,
+						origin: ir.meta.origin,
+						sourcePath: ir.meta.sourcePath,
 					},
 					ir,
 				},
@@ -285,7 +267,7 @@ describe('ts.types builder (branches)', () => {
 					workspace,
 					reporter,
 					phase: 'generate',
-					generationState: { files: new Map(), alias: new Map() },
+					generationState: buildEmptyGenerationState(),
 				},
 				output,
 				reporter,
@@ -301,30 +283,21 @@ describe('ts.types builder (branches)', () => {
 		const resource = { ...baseResource };
 		ir.resources = [resource];
 		ir.schemas.push({
+			id: `sch:${resource.schemaKey}`,
 			key: resource.schemaKey,
 			hash: { algo: 'sha256', inputs: [], value: 'schema' },
 			schema: { type: 'object', properties: {} },
 			sourcePath: 'schema.json',
-			warnings: [],
-			source: 'config',
+			provenance: 'manual',
 		});
 		ir.artifacts.schemas[resource.schemaKey] = {
-			schemaPath: 'schema.json',
-			typeDefPath: path.posix.join(
-				ir.layout.resolve('ui.generated'),
-				'types',
-				`${resource.name}.d.ts`
-			),
-			typeSource: 'inferred',
+			typeDefPath: `/generated/types/${resource.name}.d.ts`,
 		};
 		ir.artifacts.resources[resource.id] = {
 			modulePath: '',
-			typeDefPath: path.posix.join(
-				ir.layout.resolve('ui.generated'),
-				'types',
-				`${resource.name}.d.ts`
-			),
+			typeDefPath: `/generated/types/${resource.name}.d.ts`,
 			typeSource: 'inferred',
+			schemaKey: resource.schemaKey,
 		};
 
 		const { workspace, writes } = buildWorkspace();
@@ -339,8 +312,9 @@ describe('ts.types builder (branches)', () => {
 				input: {
 					phase: 'generate',
 					options: {
-						config: ir.config,
 						namespace: ir.meta.namespace,
+						origin: ir.meta.origin,
+						sourcePath: ir.meta.sourcePath,
 					},
 					ir,
 				},
@@ -348,7 +322,7 @@ describe('ts.types builder (branches)', () => {
 					workspace,
 					reporter,
 					phase: 'generate',
-					generationState: { files: new Map(), alias: new Map() },
+					generationState: buildEmptyGenerationState(),
 				},
 				output,
 				reporter,

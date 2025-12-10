@@ -7,7 +7,7 @@ import type {
 	BuilderInput,
 } from '../runtime/types';
 import type { Workspace } from '../workspace/types';
-import type { IRResource, IRv1 } from '../ir/publicTypes';
+import type { IRResource } from '../ir/publicTypes';
 import { buildRollupDriverArtifacts } from './bundler.artifacts';
 import {
 	ensureBundlerDependencies,
@@ -16,7 +16,6 @@ import {
 import {
 	BUNDLER_TRANSACTION_LABEL,
 	VITE_CONFIG_FILENAME,
-	DEFAULT_ENTRY_POINT,
 } from './bundler.constants';
 import { buildViteConfigSource } from './bundler.vite';
 import type { PackageJsonLike, RollupDriverArtifacts } from './types';
@@ -42,54 +41,33 @@ function hasUiResources(input: BuilderInput): boolean {
 export async function applyBundlerGeneration(
 	applyOptions: BuilderApplyOptions
 ): Promise<void> {
-	const { context, output, reporter, input } = applyOptions;
+	const { context, output, reporter } = applyOptions;
 
-	if (input.phase !== 'generate') {
-		reporter.debug(
-			'createBundler: skipping phase without bundler support.',
-			{
-				phase: input.phase,
-			}
-		);
-		return;
-	}
-
-	if (!hasUiResources(input)) {
-		reporter.debug(
-			'createBundler: no UI resources detected; skipping bundler artifacts.'
-		);
+	const bundlerContext = await prepareBundlerContext(applyOptions);
+	if (!bundlerContext) {
 		return;
 	}
 
 	context.workspace.begin(BUNDLER_TRANSACTION_LABEL);
 
 	try {
-		const pkg = await readPackageJson(context.workspace);
-		const sanitizedNamespace = resolveBundlerNamespace(input);
-		const version = resolveBundlerVersion(input, pkg);
-		const entryPoint = resolveUiEntryPoint(input.ir);
-		const paths = resolveBundlerPaths(input.ir);
-		const aliasRoot = resolveUiAliasRoot(context.workspace, input.ir);
-		const hasDataViews = hasBundlerDataViews(input);
-		const hasUi = hasUiResources(input);
-		const shimsDir = context.workspace.resolve(paths.shimsDir);
 		const dependencyResult = await ensureBundlerDependencies({
 			workspaceRoot: context.workspace.root,
-			pkg,
+			pkg: bundlerContext.pkg,
 			hasUiResources: true,
-			namespace: input.options.config.namespace,
-			version,
+			namespace: bundlerContext.namespace,
+			version: bundlerContext.version,
 		});
 
 		const scriptResult = ensureBundlerScripts(dependencyResult.pkg);
 		const artifacts = buildRollupDriverArtifacts(scriptResult.pkg, {
-			aliasRoot,
-			shimDir: shimsDir,
-			sanitizedNamespace,
-			hasUi,
-			hasDataViews,
-			entryPoint,
-			version,
+			aliasRoot: bundlerContext.aliasRoot,
+			shimDir: bundlerContext.shimsDir,
+			sanitizedNamespace: bundlerContext.sanitizedNamespace,
+			hasUi: bundlerContext.hasUi,
+			hasDataViews: bundlerContext.hasDataViews,
+			entryPoint: bundlerContext.entryPoint,
+			version: bundlerContext.version,
 		});
 
 		await persistBundlerArtifacts({
@@ -97,7 +75,7 @@ export async function applyBundlerGeneration(
 			output,
 			reporter,
 			artifacts,
-			paths,
+			paths: bundlerContext.paths,
 			packageResult: {
 				pkg: scriptResult.pkg,
 				changed: dependencyResult.changed || scriptResult.changed,
@@ -111,6 +89,77 @@ export async function applyBundlerGeneration(
 			stage: 'bundler.apply',
 		});
 	}
+}
+
+interface PreparedBundlerContext {
+	readonly pkg: PackageJsonLike | null;
+	readonly sanitizedNamespace: string;
+	readonly version: string;
+	readonly entryPoint: string;
+	readonly paths: ReturnType<typeof resolveBundlerPaths>;
+	readonly aliasRoot: string;
+	readonly hasDataViews: boolean;
+	readonly hasUi: boolean;
+	readonly shimsDir: string;
+	readonly namespace: string;
+}
+
+async function prepareBundlerContext(
+	applyOptions: BuilderApplyOptions
+): Promise<PreparedBundlerContext | null> {
+	const { input, reporter, context } = applyOptions;
+
+	if (input.phase !== 'generate') {
+		reporter.debug(
+			'createBundler: skipping phase without bundler support.',
+			{
+				phase: input.phase,
+			}
+		);
+		return null;
+	}
+
+	if (!hasUiResources(input)) {
+		reporter.debug(
+			'createBundler: no UI resources detected; skipping bundler artifacts.'
+		);
+		return null;
+	}
+
+	if (!input.ir?.artifacts.bundler) {
+		reporter.debug(
+			'createBundler: missing bundler artifacts; skipping bundler generation.'
+		);
+		return null;
+	}
+
+	const paths = resolveBundlerPaths(input.ir);
+	const pkg = await readPackageJson(context.workspace);
+	const sanitizedNamespace = resolveBundlerNamespace(input);
+	const version = resolveBundlerVersion(input, pkg);
+	const entryPoint = paths.entryPoint;
+	if (!entryPoint) {
+		reporter.debug(
+			'createBundler: missing runtime entry artifact; skipping bundler generation.'
+		);
+		return null;
+	}
+	const aliasRoot = context.workspace.resolve(paths.aliasRoot);
+	const shimsDir = context.workspace.resolve(paths.shimsDir);
+	const namespace = input.ir?.meta?.namespace ?? input.options.namespace;
+
+	return {
+		pkg,
+		sanitizedNamespace,
+		version,
+		entryPoint,
+		paths,
+		aliasRoot,
+		hasDataViews: hasBundlerDataViews(input),
+		hasUi: hasUiResources(input),
+		shimsDir,
+		namespace,
+	};
 }
 
 async function readPackageJson(
@@ -288,32 +337,4 @@ async function persistBundlerArtifacts(
 	reporter.debug('Bundler configuration generated.', {
 		files: manifest.writes,
 	});
-}
-
-function resolveUiEntryPoint(ir: IRv1 | null | undefined): string {
-	if (!ir?.layout) {
-		return DEFAULT_ENTRY_POINT;
-	}
-
-	try {
-		const uiApplied = ir.layout.resolve('ui.applied');
-		return `${uiApplied}/index.tsx`;
-	} catch {
-		return DEFAULT_ENTRY_POINT;
-	}
-}
-
-function resolveUiAliasRoot(
-	workspace: Workspace,
-	ir: IRv1 | null | undefined
-): string {
-	if (!ir?.layout) {
-		return workspace.resolve('src');
-	}
-
-	try {
-		return workspace.resolve(ir.layout.resolve('ui.applied'));
-	} catch {
-		return workspace.resolve('src');
-	}
 }

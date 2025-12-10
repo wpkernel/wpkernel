@@ -8,8 +8,6 @@ import type { Workspace } from '../../../workspace';
 import { loadTestLayoutSync } from '@wpkernel/test-utils/layout.test-support';
 import {
 	buildBlockRegistrarMetadata,
-	toPascalCase,
-	toCamelCase,
 	formatBlockVariableName,
 } from '../metadata';
 import { buildModuleSpecifier, resolveResourceImport } from '../imports';
@@ -17,6 +15,8 @@ import {
 	buildAutoRegisterModuleMetadata,
 	generateBlockImportPath,
 } from '../registrar';
+import { toCamelCase, toPascalCase } from '../../../utils';
+import { buildTestArtifactsPlan } from '@cli-tests/ir.test-support';
 
 const withWorkspace = (
 	run: (context: BuilderHarnessContext<Workspace>) => Promise<void>
@@ -27,13 +27,13 @@ const withWorkspace = (
 
 describe('ts shared helpers', () => {
 	const layout = loadTestLayoutSync();
-	const uiGenerated = layout.resolve('ui.generated');
-	const uiApplied = layout.resolve('ui.applied');
-	const generatedResourcesDir = path.join(uiGenerated, 'resources');
-	const appliedResourcesDir = path.join(uiApplied, 'resources');
+	const artifacts = buildTestArtifactsPlan(layout);
+	const runtimeGenerated = artifacts.runtime.runtime.generated;
+	const runtimeApplied = artifacts.runtime.runtime.applied;
+	const generatedResourcesDir = path.join(runtimeGenerated, 'resources');
+	const appliedResourcesDir = path.join(runtimeApplied, 'resources');
 	const adminScreenPath = path.join(
-		uiApplied,
-		'app',
+		artifacts.surfaces['res:job']?.appDir ?? runtimeApplied,
 		'job',
 		'admin',
 		'JobsAdminScreen.tsx'
@@ -45,7 +45,7 @@ describe('ts shared helpers', () => {
 				const specifier = buildModuleSpecifier({
 					workspace,
 					from: path.join(
-						uiGenerated,
+						runtimeGenerated,
 						'fixtures',
 						'dataviews',
 						'job.ts'
@@ -53,7 +53,7 @@ describe('ts shared helpers', () => {
 					target: path.join('src', 'resources', 'job.ts'),
 				});
 
-				expect(specifier).toBe('../../../../../src/resources/job');
+				expect(specifier).toBe('../../../../../../src/resources/job');
 			});
 		});
 

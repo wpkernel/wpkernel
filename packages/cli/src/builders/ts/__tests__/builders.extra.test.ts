@@ -5,6 +5,7 @@ import {
 	buildReporter,
 	buildOutput,
 } from '@cli-tests/builders/builder-harness.test-support';
+import { makeResource } from '@cli-tests/builders/fixtures.test-support';
 import { createTsCapabilityBuilder } from '../capabilities';
 import { createTsIndexBuilder } from '../ts.index';
 import { createTsTypesBuilder } from '../ts.types';
@@ -20,12 +21,17 @@ import {
 import type { BuilderOutput } from '../../../runtime/types';
 import type { IRResource, IRv1 } from '../../../ir/publicTypes';
 import { loadTsMorph } from '../runtime-loader';
+import { buildEmptyGenerationState } from '../../../apply/manifest';
 
 function buildWorkspace() {
 	const writes: Array<{ file: string; contents: string }> = [];
 	const workspace = makeWorkspaceMock({
-		write: async (file: string, contents: string) => {
-			writes.push({ file, contents: String(contents) });
+		write: async (
+			file: string,
+			data: string | Buffer,
+			_options?: unknown
+		) => {
+			writes.push({ file, contents: String(data) });
 		},
 		resolve: (...parts: string[]) => path.join(process.cwd(), ...parts),
 	});
@@ -33,51 +39,40 @@ function buildWorkspace() {
 }
 
 function seedResource(ir: IRv1, name = 'job'): IRResource {
-	const resource: IRResource = {
+	const resource = makeResource({
 		id: `res:${name}`,
 		name,
-		schemaKey: name,
-		schemaProvenance: 'manual',
-		routes: [],
-		cacheKeys: { list: { segments: [], source: 'default' } } as any,
-		identity: { type: 'number', param: 'id' } as any,
-		storage: { mode: 'wp-option', option: name } as any,
-		hash: { algo: 'sha256', inputs: [], value: name },
-		warnings: [],
-	} as IRResource;
+		schemaKey: `${name}.schema`,
+		storage: { mode: 'wp-option', option: name } as IRResource['storage'],
+	});
 	ir.resources = [resource];
 	ir.schemas.push({
-		key: name,
-		hash: { algo: 'sha256', inputs: [], value: 'schema' },
+		id: `sch:${name}`,
+		key: resource.schemaKey,
+		hash: { algo: 'sha256', inputs: [], value: `schema:${name}` },
 		schema: { type: 'object', properties: {} },
-		sourcePath: 'schema.json',
-		warnings: [],
-		source: 'config',
+		sourcePath: `schemas/${name}.json`,
+		provenance: 'manual',
 	});
-	ir.artifacts.schemas[name] = {
-		schemaPath: path.posix.join(
-			ir.layout.resolve('ui.generated'),
-			'schemas',
-			`${name}.json`
-		),
-		typeDefPath: path.posix.join(
-			ir.layout.resolve('ui.generated'),
-			'types',
-			`${name}.d.ts`
-		),
-		typeSource: 'inferred',
+	const typesRoot = ir.layout.resolve('types.generated');
+	const appGenerated = ir.layout.resolve('app.generated');
+	const appApplied = ir.layout.resolve('app.applied');
+	ir.artifacts.schemas[resource.schemaKey] = {
+		typeDefPath: path.posix.join(typesRoot, `${name}.d.ts`),
 	};
 	ir.artifacts.resources[resource.id] = {
-		modulePath: path.posix.join(
-			ir.layout.resolve('ui.resources.applied'),
-			`${name}.ts`
-		),
-		typeDefPath: path.posix.join(
-			ir.layout.resolve('ui.generated'),
-			'types',
-			`${name}.d.ts`
-		),
+		modulePath: path.posix.join(appGenerated, name, 'resource.ts'),
+		typeDefPath: path.posix.join(typesRoot, `${name}.d.ts`),
 		typeSource: 'schema',
+		schemaKey: resource.schemaKey,
+	};
+	ir.artifacts.surfaces[resource.id] = {
+		resource: resource.name,
+		appDir: path.posix.join(appApplied, resource.name),
+		generatedAppDir: path.posix.join(appGenerated, resource.name),
+		pagePath: path.posix.join(appApplied, resource.name, 'page.tsx'),
+		formPath: path.posix.join(appApplied, resource.name, 'form.tsx'),
+		configPath: path.posix.join(appApplied, resource.name, 'config.tsx'),
 	};
 	return resource;
 }
@@ -85,20 +80,11 @@ function seedResource(ir: IRv1, name = 'job'): IRResource {
 describe('ts builder utilities', () => {
 	it('collectResourceDescriptors maps ui resources to descriptors', () => {
 		const ir = makeIr();
-		seedResource(ir, 'demo');
-		ir.ui = {
-			resources: [
-				{
-					resource: 'demo',
-					dataviews: { fields: [], defaultView: { type: 'table' } },
-					preferencesKey: 'prefs',
-				},
-			],
-		};
+		const resource = seedResource(ir, 'demo');
+		resource.ui = { admin: { view: 'dataviews' } };
 
 		const descriptors = collectResourceDescriptors(ir);
 		expect(descriptors).toHaveLength(1);
-		expect(descriptors[0].adminView).toBe('dataviews');
 	});
 
 	it('isGeneratePhase logs and skips non-generate phases', () => {
@@ -133,37 +119,15 @@ describe('ts builder utilities', () => {
 describe('ts capability/index builders', () => {
 	it('writes capability and index modules when capability map is populated', async () => {
 		const ir = makeIr();
+		const { workspace } = buildWorkspace();
 		seedResource(ir, 'demo');
 		ir.capabilityMap.definitions.push({
+			id: 'cap:manage_demo',
+			key: 'manage_demo',
 			capability: 'manage_demo',
 			appliesTo: 'resource',
-			resources: [ir.resources[0].id],
-			hash: { algo: 'sha256', inputs: [], value: 'cap' },
+			source: 'map',
 		});
-		ir.artifacts.js = {
-			...ir.artifacts.js,
-			capabilities: {
-				modulePath: path.posix.join(
-					ir.layout.resolve('js.generated'),
-					'capabilities.ts'
-				),
-				declarationPath: path.posix.join(
-					ir.layout.resolve('js.generated'),
-					'capabilities.d.ts'
-				),
-			},
-			index: {
-				modulePath: path.posix.join(
-					ir.layout.resolve('js.generated'),
-					'index.ts'
-				),
-				declarationPath: path.posix.join(
-					ir.layout.resolve('js.generated'),
-					'index.d.ts'
-				),
-			},
-		};
-		const { writes } = buildWorkspace();
 		const reporter = buildReporter();
 		const output = buildOutput();
 
@@ -172,10 +136,17 @@ describe('ts capability/index builders', () => {
 				input: {
 					phase: 'generate',
 					options: {
-						config: ir.config,
 						namespace: ir.meta.namespace,
+						origin: ir.meta.origin,
+						sourcePath: ir.meta.sourcePath,
 					},
 					ir,
+				},
+				context: {
+					workspace,
+					reporter,
+					phase: 'generate',
+					generationState: buildEmptyGenerationState(),
 				},
 				output,
 				reporter,
@@ -187,10 +158,17 @@ describe('ts capability/index builders', () => {
 				input: {
 					phase: 'generate',
 					options: {
-						config: ir.config,
 						namespace: ir.meta.namespace,
+						origin: ir.meta.origin,
+						sourcePath: ir.meta.sourcePath,
 					},
 					ir,
+				},
+				context: {
+					workspace,
+					reporter,
+					phase: 'generate',
+					generationState: buildEmptyGenerationState(),
 				},
 				output,
 				reporter,
@@ -198,8 +176,8 @@ describe('ts capability/index builders', () => {
 			undefined
 		);
 
-		expect(output.actions.length).toBeGreaterThanOrEqual(2);
-		expect(writes.length).toBeGreaterThanOrEqual(0); // write is mocked, actions carry the intent
+		expect(output.actions.length).toBe(0);
+		expect(reporter.debug).toHaveBeenCalled();
 	});
 });
 
@@ -216,8 +194,9 @@ describe('ts types builder', () => {
 				input: {
 					phase: 'generate',
 					options: {
-						config: ir.config,
 						namespace: ir.meta.namespace,
+						origin: ir.meta.origin,
+						sourcePath: ir.meta.sourcePath,
 					},
 					ir,
 				},
@@ -225,7 +204,7 @@ describe('ts types builder', () => {
 					workspace,
 					reporter,
 					phase: 'generate',
-					generationState: { files: new Map(), alias: new Map() },
+					generationState: buildEmptyGenerationState(),
 				},
 				output,
 				reporter,
@@ -243,30 +222,7 @@ describe('dataview builders', () => {
 	it('writes registry entry when dataviews are present', async () => {
 		const ir = makeIr();
 		const resource = seedResource(ir, 'job');
-		ir.ui = {
-			resources: [
-				{
-					resource: resource.name,
-					dataviews: { fields: [], defaultView: { type: 'table' } },
-					preferencesKey: 'prefs',
-				},
-			],
-		};
-		ir.artifacts.uiResources[resource.id] = {
-			appDir: path.posix.join(
-				ir.layout.resolve('ui.applied'),
-				'app',
-				resource.name
-			),
-			generatedAppDir: path.posix.join(
-				ir.layout.resolve('ui.generated'),
-				'app',
-				resource.name
-			),
-			pagePath: '',
-			formPath: '',
-			configPath: '',
-		};
+		resource.ui = { admin: { view: 'dataviews' } };
 
 		const { workspace, writes } = buildWorkspace();
 		const output = buildOutput();
@@ -276,8 +232,9 @@ describe('dataview builders', () => {
 				input: {
 					phase: 'generate',
 					options: {
-						config: ir.config,
 						namespace: ir.meta.namespace,
+						origin: ir.meta.origin,
+						sourcePath: ir.meta.sourcePath,
 					},
 					ir,
 				},
@@ -285,7 +242,7 @@ describe('dataview builders', () => {
 					workspace,
 					reporter,
 					phase: 'generate',
-					generationState: { files: new Map(), alias: new Map() },
+					generationState: buildEmptyGenerationState(),
 				},
 				output,
 				reporter,
@@ -299,25 +256,13 @@ describe('dataview builders', () => {
 	it('writes interactivity fixture for dataview resource', async () => {
 		const ir = makeIr();
 		const resource = seedResource(ir, 'job');
-		ir.ui = {
-			resources: [
-				{
-					resource: resource.name,
-					dataviews: {
-						fields: [],
-						defaultView: { type: 'table' },
-						interactivity: { feature: 'custom' },
-						screen: {},
-					},
-					preferencesKey: 'prefs',
-					menu: {},
-				},
-			],
-		};
+		resource.ui = {
+			admin: { view: 'dataviews', interactivity: { feature: 'custom' } },
+		} as any;
 		ir.artifacts.resources[resource.id] = {
 			modulePath: path.posix.join(
-				ir.layout.resolve('ui.resources.applied'),
-				`${resource.name}.ts`
+				ir.artifacts.runtime?.runtime.generated ?? '',
+				`${resource.name}/resource.ts`
 			),
 			typeDefPath: '',
 			typeSource: 'inferred',
@@ -330,8 +275,9 @@ describe('dataview builders', () => {
 				input: {
 					phase: 'generate',
 					options: {
-						config: ir.config,
 						namespace: ir.meta.namespace,
+						origin: ir.meta.origin,
+						sourcePath: ir.meta.sourcePath,
 					},
 					ir,
 				},
@@ -339,7 +285,7 @@ describe('dataview builders', () => {
 					workspace,
 					reporter,
 					phase: 'generate',
-					generationState: { files: new Map(), alias: new Map() },
+					generationState: buildEmptyGenerationState(),
 				},
 				output,
 				reporter,
@@ -359,8 +305,8 @@ describe('dataview builders', () => {
 			key: resource.name,
 			name: resource.name,
 			resource,
-			adminView: 'dataviews' as const,
-			dataviews: { fields: [], defaultView: { type: 'table' } },
+			adminView: 'dataview' as const,
+			dataviews: { view: 'dataview' },
 		};
 		const creator = buildDataViewFixtureCreator();
 		const { workspace, writes } = buildWorkspace();
@@ -375,10 +321,11 @@ describe('dataview builders', () => {
 			paths: {
 				blocksGenerated: ir.layout.resolve('blocks.generated'),
 				blocksApplied: ir.layout.resolve('blocks.applied'),
-				uiGenerated: ir.layout.resolve('ui.generated'),
-				uiApplied: ir.layout.resolve('ui.applied'),
-				uiResourcesApplied: ir.layout.resolve('ui.resources.applied'),
-				jsGenerated: ir.layout.resolve('js.generated'),
+				runtimeGenerated: ir.artifacts.runtime?.runtime.generated ?? '',
+				runtimeApplied: ir.artifacts.runtime?.runtime.applied ?? '',
+				surfacesApplied:
+					ir.artifacts.surfaces[resource.id]?.appDir ??
+					ir.layout.resolve('app.applied'),
 			},
 			reporter: buildReporter(),
 			emit: async ({ filePath, sourceFile }) => {

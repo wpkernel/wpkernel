@@ -18,7 +18,7 @@ import {
 	toWordPressGlobal,
 	toWordPressHandle,
 } from '../bundler';
-import { makeIrMeta } from '@cli-tests/ir.test-support';
+import { makeIrMeta, buildTestArtifactsPlan } from '@cli-tests/ir.test-support';
 import { withWorkspace as baseWithWorkspace } from '@cli-tests/builders/builder-harness.test-support';
 import type { BuilderHarnessContext } from '@cli-tests/builders/builder-harness.test-support';
 import { buildEmptyGenerationState } from '../../apply/manifest';
@@ -43,24 +43,17 @@ describe('createBundler', () => {
 		workspaceRoot,
 		phase,
 		resources = [],
-		resourceConfigs = {},
 	}: {
 		namespace: string;
 		sanitizedNamespace: string;
 		workspaceRoot: string;
 		phase: 'generate' | 'apply';
 		resources?: IRResource[];
-		resourceConfigs?: Record<string, unknown>;
 	}): BuilderInput {
+		const layout = loadTestLayoutSync();
 		return {
 			phase,
 			options: {
-				config: {
-					version: 1,
-					namespace,
-					schemas: {},
-					resources: resourceConfigs as Record<string, never>,
-				},
 				namespace,
 				origin: 'wpk.config.ts',
 				sourcePath: path.join(workspaceRoot, 'wpk.config.ts'),
@@ -71,12 +64,6 @@ describe('createBundler', () => {
 					origin: 'wpk.config.ts',
 					sourcePath: 'wpk.config.ts',
 				}),
-				config: {
-					version: 1,
-					namespace,
-					schemas: {},
-					resources: resourceConfigs as Record<string, never>,
-				},
 				schemas: [],
 				resources,
 				capabilities: [],
@@ -95,9 +82,10 @@ describe('createBundler', () => {
 				php: {
 					namespace: sanitizedNamespace,
 					autoload: 'inc/',
-					outputDir: loadTestLayoutSync().resolve('php.generated'),
+					outputDir: layout.resolve('php.generated'),
 				},
-				layout: loadTestLayoutSync(),
+				layout,
+				artifacts: buildTestArtifactsPlan(layout),
 			},
 		};
 	}
@@ -214,7 +202,9 @@ describe('createBundler', () => {
 				expect.arrayContaining(['wp-interactivity'])
 			);
 			const aliasRoot = workspace
-				.resolve(layout.resolve('ui.applied'))
+				.resolve(
+					path.posix.dirname(layout.resolve('runtime.generated'))
+				)
 				.replace(/\\/g, '/');
 			const shimDir = workspace
 				.resolve(layout.resolve('bundler.shims'))
@@ -311,10 +301,11 @@ describe('createBundler', () => {
 				])
 			);
 
-			const uiApplied = layout.resolve('ui.applied');
-			expect(config.input.index).toBe(
-				path.posix.join(uiApplied, 'index.tsx')
-			);
+			const runtimeEntry = layout
+				.resolve('entry.generated')
+				.replace(/\\/g, '/');
+			const runtimeEntryFile = path.posix.join(runtimeEntry, 'index.tsx');
+			expect(config.input.index).toBe(runtimeEntryFile);
 
 			const viteConfig = await workspace.readText('vite.config.ts');
 			const relativeImport = path.posix
@@ -377,18 +368,6 @@ describe('createBundler', () => {
 				workspaceRoot,
 				phase: 'generate',
 				resources: [dataviewResource],
-				resourceConfigs: {
-					books: {
-						name: 'books',
-						ui: {
-							admin: {
-								dataviews: {
-									preferencesKey: 'books/admin',
-								},
-							},
-						},
-					},
-				},
 			});
 
 			await builder.apply(

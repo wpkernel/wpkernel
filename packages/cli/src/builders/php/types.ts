@@ -110,7 +110,9 @@ export interface PopulateWpPostRouteBundlesOptions {
 	readonly state: WpPostRouteHelperState;
 }
 export type NormalizedMenuConfig = IRUiMenuConfig;
-export type PluginLoaderUiResourceDescriptor = IRUiResourceDescriptor;
+export type PluginLoaderUiResourceDescriptor = IRUiResourceDescriptor & {
+	preferencesKey: string;
+};
 export interface PluginLoaderUiConfig {
 	readonly handle: string;
 	readonly assetPath: string;

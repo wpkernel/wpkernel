@@ -2,38 +2,33 @@ import path from 'path';
 import { createHelper } from '../../runtime';
 import type { BuilderApplyOptions } from '../../runtime/types';
 import { buildTsMorphAccessor } from './imports';
-import { toCamelCase } from './metadata';
 import { resolveListRoutePath } from './admin-shared';
 import type { IRResource } from '../../ir/publicTypes';
 import type { SourceFile, VariableDeclarationKind } from 'ts-morph';
 import type { ResourceDescriptor } from '../types';
+import { toCamelCase } from '../../utils';
 
 export function createDataViewRegistryBuilder() {
 	return createHelper({
 		key: 'builder.generate.ts.dataviewRegistry.core',
 		kind: 'builder',
-		dependsOn: [
-			'ir.artifacts.plan',
-			'ir.ui.resources',
-			'ir.resources.core',
-		],
+		dependsOn: ['ir.artifacts.plan', 'ir.ui.core', 'ir.resources.core'],
 		async apply({ input, context, output, reporter }: BuilderApplyOptions) {
 			if (input.phase !== 'generate') {
 				return;
 			}
-			if (!input.ir?.artifacts || !input.ir.layout) {
+			if (!input.ir?.artifacts) {
 				reporter?.debug('registry builder: prerequisites missing', {
 					phase: input.phase,
 					hasIr: Boolean(input.ir),
 					hasArtifacts: Boolean(input.ir?.artifacts),
-					hasLayout: Boolean(input.ir?.layout),
 				});
 				return;
 			}
 
 			await generateRegistryEntries({
 				ir: input.ir,
-				uiResources: input.ir.ui?.resources ?? [],
+				surfaces: Object.values(input.ir.artifacts.surfaces ?? {}),
 				context,
 				output,
 				reporter,
@@ -44,22 +39,27 @@ export function createDataViewRegistryBuilder() {
 
 async function generateRegistryEntries(options: {
 	readonly ir: NonNullable<BuilderApplyOptions['input']['ir']>;
-	readonly uiResources: NonNullable<
-		NonNullable<BuilderApplyOptions['input']['ir']>['ui']
-	>['resources'];
+	readonly surfaces: Array<{
+		readonly resource: string;
+		readonly menu?: { readonly slug?: string; readonly title?: string };
+	}>;
 	readonly context: BuilderApplyOptions['context'];
 	readonly output: BuilderApplyOptions['output'];
 	readonly reporter?: BuilderApplyOptions['reporter'];
 }) {
-	const { ir, uiResources, context, output, reporter } = options;
+	const { ir, surfaces, context, output, reporter } = options;
 	const { createSourceFile, VariableDeclarationKind } =
 		await buildTsMorphAccessor({ workspace: context.workspace });
 	const resourceByName = new Map<string, IRResource>(
 		ir.resources.map((resource) => [resource.name, resource])
 	);
-	const uiGenerated = ir.layout!.resolve('ui.generated');
+	const runtimeGenerated = ir.artifacts.runtime?.runtime.generated;
+	if (!runtimeGenerated) {
+		reporter?.debug('registry builder: missing runtime path in artifacts.');
+		return;
+	}
 
-	for (const uiResource of uiResources) {
+	for (const uiResource of surfaces) {
 		const resource = resourceByName.get(uiResource.resource);
 		if (!resource) {
 			reporter?.warn(
@@ -68,15 +68,9 @@ async function generateRegistryEntries(options: {
 			);
 			continue;
 		}
-		if (!uiResource.dataviews) {
-			reporter?.debug('registry builder: missing dataviews', {
-				resource: resource.name,
-			});
-			continue;
-		}
 
 		const registryPath = path.join(
-			uiGenerated,
+			runtimeGenerated,
 			'registry',
 			'dataviews',
 			`${uiResource.resource}.ts`
@@ -85,14 +79,12 @@ async function generateRegistryEntries(options: {
 			key: uiResource.resource,
 			name: resource.name,
 			resource,
-			adminView: 'dataviews',
-			dataviews: uiResource.dataviews,
+			adminView: 'dataview',
 		};
 
 		const listRoutePath = resolveListRoutePath(descriptor);
 		const names = {
 			identifier: `${toCamelCase(descriptor.name)}DataViewRegistryEntry`,
-			preferencesKey: uiResource.preferencesKey,
 		};
 
 		const sourceFile = createSourceFile(registryPath);
@@ -103,7 +95,6 @@ async function generateRegistryEntries(options: {
 			descriptor,
 			listRoutePath,
 			identifier: names.identifier,
-			preferencesKey: names.preferencesKey,
 		});
 
 		sourceFile.formatText({ ensureNewLineAtEndOfFile: true });
@@ -155,7 +146,6 @@ function addRegistryEntry(options: {
 	descriptor: { name: string };
 	listRoutePath: string | null;
 	identifier: string;
-	preferencesKey: string;
 }) {
 	const {
 		sourceFile,
@@ -163,7 +153,6 @@ function addRegistryEntry(options: {
 		descriptor,
 		listRoutePath,
 		identifier,
-		preferencesKey,
 	} = options;
 
 	sourceFile.addVariableStatement({
@@ -178,9 +167,6 @@ function addRegistryEntry(options: {
 					writer.indent(() => {
 						writer.write('resource: ');
 						writer.quote(descriptor.name);
-						writer.writeLine(',');
-						writer.write('preferencesKey: ');
-						writer.quote(preferencesKey);
 						writer.writeLine(',');
 						writer.write('metadata: ');
 						writer.write(

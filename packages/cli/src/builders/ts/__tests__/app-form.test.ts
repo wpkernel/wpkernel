@@ -6,13 +6,18 @@ import {
 	buildReporter,
 	buildOutput,
 } from '@cli-tests/builders/builder-harness.test-support';
+import { buildEmptyGenerationState } from '../../../apply/manifest';
 import { createAppFormBuilder } from '../app-form';
 
 function buildWorkspace() {
 	const writes: Array<{ file: string; contents: string }> = [];
 	const workspace = makeWorkspaceMock({
-		write: async (file: string, contents: string) => {
-			writes.push({ file, contents: String(contents) });
+		write: async (
+			file: string,
+			data: string | Buffer,
+			_options?: unknown
+		) => {
+			writes.push({ file, contents: String(data) });
 		},
 		resolve: (...parts: string[]) => path.join(process.cwd(), ...parts),
 	});
@@ -31,8 +36,9 @@ describe('app-form builder', () => {
 				input: {
 					phase: 'init',
 					options: {
-						config: ir.config,
 						namespace: ir.meta.namespace,
+						origin: ir.meta.origin,
+						sourcePath: ir.meta.sourcePath,
 					},
 					ir,
 				},
@@ -40,7 +46,7 @@ describe('app-form builder', () => {
 					workspace,
 					reporter,
 					phase: 'init',
-					generationState: { files: new Map(), alias: new Map() },
+					generationState: buildEmptyGenerationState(),
 				},
 				output,
 				reporter,
@@ -62,8 +68,9 @@ describe('app-form builder', () => {
 				input: {
 					phase: 'generate',
 					options: {
-						config: ir.config,
 						namespace: ir.meta.namespace,
+						origin: ir.meta.origin,
+						sourcePath: ir.meta.sourcePath,
 					},
 					ir,
 				},
@@ -71,7 +78,7 @@ describe('app-form builder', () => {
 					workspace,
 					reporter,
 					phase: 'generate',
-					generationState: { files: new Map(), alias: new Map() },
+					generationState: buildEmptyGenerationState(),
 				},
 				output,
 				reporter,
@@ -86,7 +93,8 @@ describe('app-form builder', () => {
 		const ir = makeIr();
 		const resource = makeResource({ name: 'job' });
 		ir.resources = [resource];
-		ir.artifacts.uiResources[resource.id] = {
+		ir.artifacts.surfaces[resource.id] = {
+			resource: resource.id,
 			appDir: '',
 			generatedAppDir: '',
 			pagePath: '',
@@ -102,8 +110,9 @@ describe('app-form builder', () => {
 				input: {
 					phase: 'generate',
 					options: {
-						config: ir.config,
 						namespace: ir.meta.namespace,
+						origin: ir.meta.origin,
+						sourcePath: ir.meta.sourcePath,
 					},
 					ir,
 				},
@@ -111,7 +120,7 @@ describe('app-form builder', () => {
 					workspace,
 					reporter,
 					phase: 'generate',
-					generationState: { files: new Map(), alias: new Map() },
+					generationState: buildEmptyGenerationState(),
 				},
 				output,
 				reporter,
@@ -135,17 +144,10 @@ describe('app-form builder', () => {
 			} as any,
 		});
 		ir.resources = [resource];
-		ir.artifacts.uiResources[resource.id] = {
-			appDir: path.posix.join(
-				ir.layout.resolve('ui.applied'),
-				'app',
-				resource.name
-			),
-			generatedAppDir: path.posix.join(
-				ir.layout.resolve('ui.generated'),
-				'app',
-				resource.name
-			),
+		ir.artifacts.surfaces[resource.id] = {
+			resource: resource.id,
+			appDir: `/app/${resource.name}`,
+			generatedAppDir: `/generated/app/${resource.name}`,
 			pagePath: '',
 			formPath: '',
 			configPath: '',
@@ -159,8 +161,9 @@ describe('app-form builder', () => {
 				input: {
 					phase: 'generate',
 					options: {
-						config: ir.config,
 						namespace: ir.meta.namespace,
+						origin: ir.meta.origin,
+						sourcePath: ir.meta.sourcePath,
 					},
 					ir,
 				},
@@ -168,7 +171,7 @@ describe('app-form builder', () => {
 					workspace,
 					reporter,
 					phase: 'generate',
-					generationState: { files: new Map(), alias: new Map() },
+					generationState: buildEmptyGenerationState(),
 				},
 				output,
 				reporter,

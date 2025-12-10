@@ -1,7 +1,7 @@
 import path from 'path';
 import { type TsBuilderCreator } from '../types';
 import { buildModuleSpecifier } from './imports';
-import { toCamelCase } from './metadata';
+import { toCamelCase } from '../../utils';
 
 /**
  * Builds a `TsBuilderCreator` for generating DataView fixture modules.
@@ -19,16 +19,19 @@ export function buildDataViewFixtureCreator(): TsBuilderCreator {
 			if (!descriptor.dataviews) {
 				return;
 			}
-			const fixturePath = path.join(
-				context.paths.uiGenerated,
+			const fixturesDir = path.join(
+				context.paths.runtimeGenerated,
 				'fixtures',
-				'dataviews',
-				`${descriptor.key}.ts`
+				'dataviews'
+			);
+			const fixturePath = path.join(fixturesDir, `${descriptor.key}.ts`);
+			const appliedFixturesDir = path.join(
+				context.paths.runtimeApplied,
+				'fixtures',
+				'dataviews'
 			);
 			const appliedFixturePath = path.join(
-				context.paths.uiApplied,
-				'fixtures',
-				'dataviews',
+				appliedFixturesDir,
 				`${descriptor.key}.ts`
 			);
 
@@ -165,6 +168,7 @@ export function buildDataViewFixtureCreator(): TsBuilderCreator {
 			]);
 
 			await context.emit({ filePath: fixturePath, sourceFile });
+			await context.emit({ filePath: appliedFixturePath, sourceFile });
 		},
 	};
 }

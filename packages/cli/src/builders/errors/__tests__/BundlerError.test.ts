@@ -2,8 +2,7 @@ import { BundlerError } from '../BundlerError';
 
 describe('BundlerError', () => {
 	it('captures code and context', () => {
-		const error = new BundlerError('DeveloperError', {
-			message: 'Failed to build',
+		const error = new BundlerError('Failed to build', {
 			context: { step: 'bundle' },
 		});
 

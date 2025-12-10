@@ -6,12 +6,17 @@ import {
 	buildReporter,
 	buildOutput,
 } from '@cli-tests/builders/builder-harness.test-support';
+import { buildEmptyGenerationState } from '../../../apply/manifest';
 
 function buildWorkspace() {
 	const writes: Array<{ file: string; contents: string }> = [];
 	const workspace = makeWorkspaceMock({
-		write: async (file: string, contents: string) => {
-			writes.push({ file, contents: String(contents) });
+		write: async (
+			file: string,
+			data: string | Buffer,
+			_options?: unknown
+		) => {
+			writes.push({ file, contents: String(data) });
 		},
 		resolve: (...parts: string[]) => path.join(process.cwd(), ...parts),
 	});
@@ -27,15 +32,19 @@ describe('app-form builder (branches)', () => {
 
 		await createAppFormBuilder().apply({
 			input: {
-				phase: 'build',
-				options: { config: ir.config, namespace: ir.meta.namespace },
+				phase: 'init',
+				options: {
+					namespace: ir.meta.namespace,
+					origin: ir.meta.origin,
+					sourcePath: ir.meta.sourcePath,
+				},
 				ir,
 			},
 			context: {
 				workspace,
 				reporter,
-				phase: 'build',
-				generationState: { files: new Map(), alias: new Map() },
+				phase: 'init',
+				generationState: buildEmptyGenerationState(),
 			},
 			output,
 			reporter,
@@ -57,14 +66,18 @@ describe('app-form builder (branches)', () => {
 		await createAppFormBuilder().apply({
 			input: {
 				phase: 'generate',
-				options: { config: ir.config, namespace: ir.meta.namespace },
+				options: {
+					namespace: ir.meta.namespace,
+					origin: ir.meta.origin,
+					sourcePath: ir.meta.sourcePath,
+				},
 				ir,
 			},
 			context: {
 				workspace,
 				reporter,
 				phase: 'generate',
-				generationState: { files: new Map(), alias: new Map() },
+				generationState: buildEmptyGenerationState(),
 			},
 			output,
 			reporter,
@@ -89,19 +102,23 @@ describe('app-form builder (branches)', () => {
 			],
 		});
 		// artifacts default to empty object in makeIr but explicit null helps
-		ir.artifacts.uiResources = {};
+		ir.artifacts.surfaces = {};
 
 		await createAppFormBuilder().apply({
 			input: {
 				phase: 'generate',
-				options: { config: ir.config, namespace: ir.meta.namespace },
+				options: {
+					namespace: ir.meta.namespace,
+					origin: ir.meta.origin,
+					sourcePath: ir.meta.sourcePath,
+				},
 				ir,
 			},
 			context: {
 				workspace,
 				reporter,
 				phase: 'generate',
-				generationState: { files: new Map(), alias: new Map() },
+				generationState: buildEmptyGenerationState(),
 			},
 			output,
 			reporter,
@@ -125,8 +142,9 @@ describe('app-form builder (branches)', () => {
 				} as any,
 			],
 		});
-		ir.artifacts.uiResources = {
+		ir.artifacts.surfaces = {
 			test: {
+				resource: 'test',
 				modulePath: 'path',
 				appDir: 'app',
 				// generatedAppDir missing
@@ -136,14 +154,18 @@ describe('app-form builder (branches)', () => {
 		await createAppFormBuilder().apply({
 			input: {
 				phase: 'generate',
-				options: { config: ir.config, namespace: ir.meta.namespace },
+				options: {
+					namespace: ir.meta.namespace,
+					origin: ir.meta.origin,
+					sourcePath: ir.meta.sourcePath,
+				},
 				ir,
 			},
 			context: {
 				workspace,
 				reporter,
 				phase: 'generate',
-				generationState: { files: new Map(), alias: new Map() },
+				generationState: buildEmptyGenerationState(),
 			},
 			output,
 			reporter,
@@ -180,8 +202,9 @@ describe('app-form builder (branches)', () => {
 				} as any,
 			],
 		});
-		ir.artifacts.uiResources = {
+		ir.artifacts.surfaces = {
 			post: {
+				resource: 'post',
 				modulePath: 'path',
 				appDir: 'app',
 				generatedAppDir: 'generated/app',
@@ -191,21 +214,25 @@ describe('app-form builder (branches)', () => {
 		await createAppFormBuilder().apply({
 			input: {
 				phase: 'generate',
-				options: { config: ir.config, namespace: ir.meta.namespace },
+				options: {
+					namespace: ir.meta.namespace,
+					origin: ir.meta.origin,
+					sourcePath: ir.meta.sourcePath,
+				},
 				ir,
 			},
 			context: {
 				workspace,
 				reporter,
 				phase: 'generate',
-				generationState: { files: new Map(), alias: new Map() },
+				generationState: buildEmptyGenerationState(),
 			},
 			output,
 			reporter,
 		});
 
 		expect(writes).toHaveLength(1);
-		const content = writes[0].contents;
+		const content = writes[0]?.contents ?? '';
 		expect(content).toContain("title: '',"); // default form
 		expect(content).toContain('rating: undefined,');
 		expect(content).toContain('isFeatured: undefined,');
@@ -238,8 +265,9 @@ describe('app-form builder (branches)', () => {
 				} as any,
 			],
 		});
-		ir.artifacts.uiResources = {
+		ir.artifacts.surfaces = {
 			simple: {
+				resource: 'simple',
 				modulePath: 'path',
 				appDir: 'app',
 				generatedAppDir: 'generated/app',
@@ -249,21 +277,25 @@ describe('app-form builder (branches)', () => {
 		await createAppFormBuilder().apply({
 			input: {
 				phase: 'generate',
-				options: { config: ir.config, namespace: ir.meta.namespace },
+				options: {
+					namespace: ir.meta.namespace,
+					origin: ir.meta.origin,
+					sourcePath: ir.meta.sourcePath,
+				},
 				ir,
 			},
 			context: {
 				workspace,
 				reporter,
 				phase: 'generate',
-				generationState: { files: new Map(), alias: new Map() },
+				generationState: buildEmptyGenerationState(),
 			},
 			output,
 			reporter,
 		});
 
 		expect(writes).toHaveLength(1);
-		const content = writes[0].contents;
+		const content = writes[0]?.contents ?? '';
 		expect(content).not.toContain("title: '',");
 		expect(content).not.toContain('status:');
 	});

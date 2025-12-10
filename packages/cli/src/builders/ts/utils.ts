@@ -2,7 +2,6 @@ import { WPKernelError } from '@wpkernel/core/error';
 import type { Reporter } from '@wpkernel/core/reporter';
 import type { BuilderOutput, PipelinePhase } from '../../runtime/types';
 import {
-	type AdminDataViews,
 	type ResourceDescriptor,
 	type TsBuilderEmitOptions,
 	type TsBuilderEmitResult,
@@ -19,8 +18,8 @@ import { loadTsMorph } from './runtime-loader';
  * @category Builders
  */
 export function collectResourceDescriptors(ir: IRv1): ResourceDescriptor[] {
-	const uiResources = ir.ui?.resources ?? [];
-	if (uiResources.length === 0) {
+	const surfaces = Object.values(ir.artifacts.surfaces ?? {});
+	if (surfaces.length === 0) {
 		return [];
 	}
 
@@ -29,21 +28,20 @@ export function collectResourceDescriptors(ir: IRv1): ResourceDescriptor[] {
 		ir.resources.map((resource) => [resource.name, resource])
 	);
 
-	return uiResources.reduce<ResourceDescriptor[]>((acc, uiResource) => {
+	return surfaces.reduce<ResourceDescriptor[]>((acc, uiResource) => {
 		const irResource = resourcesByName.get(uiResource.resource);
-		if (!irResource || !uiResource.dataviews) {
+		if (!irResource) {
 			return acc;
 		}
 
 		const adminUi = irResource.ui?.admin as { view?: string } | undefined;
-		const adminView = adminUi?.view ?? 'dataviews';
+		const adminView = adminUi?.view ?? 'dataview';
 
 		acc.push({
 			key: uiResource.resource,
 			name: irResource.name ?? uiResource.resource,
 			resource: irResource, // instead of raw config
 			adminView,
-			dataviews: uiResource.dataviews as AdminDataViews,
 		});
 
 		return acc;

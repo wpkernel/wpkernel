@@ -13,7 +13,7 @@ import {
 	ensureWpTaxonomyStorage,
 	resolveIdentityConfig,
 } from '@wpkernel/wp-json-ast';
-import { makeErrorCodeFactory, toPascalCase } from './utils';
+import { makeErrorCodeFactory, toPascalCase } from '../../utils';
 import { ensureWpOptionStorage } from './storage.guards';
 import {
 	type PopulateArtifactsBaseOptions,

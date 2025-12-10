@@ -81,7 +81,6 @@ describe('plugin ui helpers', () => {
 				resources: [
 					{
 						resource: 'job',
-						preferencesKey: 'acme/dataviews/job',
 						menu: { slug: 'jobs', title: 'Jobs' },
 					},
 				],

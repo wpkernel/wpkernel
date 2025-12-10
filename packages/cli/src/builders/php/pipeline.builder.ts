@@ -5,15 +5,14 @@ import type {
 	PipelineContext,
 } from '../../runtime/types';
 import { type CreatePhpBuilderOptions } from './types';
-import type { BuildIrOptions } from '../../ir/publicTypes';
 import type {
-	AdapterContext,
 	PhpCodemodAdapterConfig,
 	PhpCodemodDriverOptions,
 } from '../../config/types';
 import type { PhpDriverConfigurationOptions } from '@wpkernel/php-json-ast';
 import { resolveBundledPhpDriverPrettyPrintPath } from '../../utils/phpAssets';
 import type { CreatePhpCodemodIngestionHelperOptions } from './pipeline.codemods';
+import { isNonEmptyString } from '../../utils';
 
 const BUNDLED_PHP_PRETTY_PRINT_SCRIPT_PATH =
 	resolveBundledPhpDriverPrettyPrintPath();
@@ -55,26 +54,16 @@ export function createPhpBuilderConfigHelper(
 		kind: 'builder',
 		dependsOn: ['builder.generate.php.channel.bootstrap'],
 		async apply(applyOptions: BuilderApplyOptions) {
-			const { input, reporter, context } = applyOptions;
+			const { input, context } = applyOptions;
 			if (input.phase !== 'generate' || !input.ir) {
 				return;
 			}
 
-			const buildOptions = input.options as BuildIrOptions;
-			const adapterContext = buildAdapterContext(
-				buildOptions,
-				input.ir,
-				reporter
-			);
-			const adapterConfig = resolvePhpAdapterConfig(
-				buildOptions,
-				adapterContext
-			);
 			const driverOptions = ensureBundledDriverDefaults(
-				mergeDriverOptions(options.driver, adapterConfig?.driver)
+				mergeDriverOptions(options.driver, undefined)
 			);
 			const codemodOptions = buildCodemodHelperOptions(
-				adapterConfig?.codemods,
+				undefined,
 				driverOptions
 			);
 
@@ -84,35 +73,6 @@ export function createPhpBuilderConfigHelper(
 			});
 		},
 	});
-}
-
-function resolvePhpAdapterConfig(
-	buildOptions: BuildIrOptions,
-	adapterContext: AdapterContext | null
-) {
-	const adapterFactory = buildOptions.config?.adapters?.php;
-	if (!adapterFactory || !adapterContext) {
-		return undefined;
-	}
-
-	return adapterFactory(adapterContext) ?? undefined;
-}
-
-function buildAdapterContext(
-	buildOptions: BuildIrOptions,
-	ir: BuilderApplyOptions['input']['ir'],
-	reporter: BuilderApplyOptions['reporter']
-): AdapterContext | null {
-	if (!ir) {
-		return null;
-	}
-
-	return {
-		config: buildOptions.config,
-		namespace: buildOptions.namespace,
-		reporter,
-		ir,
-	} satisfies AdapterContext;
 }
 
 function mergeDriverOptions(
@@ -236,10 +196,6 @@ function selectDriverValue(
 
 	const fallback = defaultDriver?.[key];
 	return isNonEmptyString(fallback) ? fallback : undefined;
-}
-
-function isNonEmptyString(value: unknown): value is string {
-	return typeof value === 'string' && value.length > 0;
 }
 
 function ensureBundledDriverDefaults(

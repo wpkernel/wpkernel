@@ -14,7 +14,6 @@ export interface PluginLoaderProgramConfig {
 }
 export interface PluginLoaderUiResourceConfig {
 	readonly resource: string;
-	readonly preferencesKey: string;
 	readonly menu?: {
 		readonly slug?: string;
 		readonly title?: string;

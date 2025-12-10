@@ -17,6 +17,27 @@ import { createReporterMock } from '@cli-tests/reporter';
 import { buildOutput } from '@cli-tests/builders/builder-harness.test-support';
 import { resolvePlanPaths } from '../plan.paths';
 
+function seedBlockArtifacts(
+	ir: ReturnType<typeof makeIr>,
+	layout: { resolve: (id: string) => string }
+) {
+	const generated = layout.resolve('blocks.generated');
+	const applied = layout.resolve('blocks.applied');
+	ir.artifacts.blocks = {
+		[`${ir.meta.namespace}-block`]: {
+			key: 'demo',
+			appliedDir: applied,
+			generatedDir: generated,
+			jsonPath: path.posix.join(generated, 'demo/block.json'),
+			tsEntry: path.posix.join(generated, 'demo/index.tsx'),
+			tsView: path.posix.join(generated, 'demo/view.tsx'),
+			tsHelper: path.posix.join(generated, 'demo/helper.ts'),
+			mode: 'js',
+			phpRenderPath: undefined,
+		},
+	};
+}
+
 async function withTempWorkspace(
 	run: (context: {
 		root: string;
@@ -44,6 +65,12 @@ async function runPlan(options: {
 			? makeIr()
 			: (options.ir as ReturnType<typeof makeIr> | null);
 	const optsSeed = irArg ?? makeIr();
+	const config = {
+		version: 1 as const,
+		namespace: optsSeed.meta.namespace,
+		schemas: {},
+		resources: {},
+	};
 	const reporter = createReporterMock();
 	const output = buildOutput();
 	const helper = createApplyPlanBuilder();
@@ -60,8 +87,7 @@ async function runPlan(options: {
 		input: {
 			phase: 'generate',
 			options: {
-				config: optsSeed.config,
-				namespace: optsSeed.meta.namespace,
+				namespace: config.namespace,
 				origin: optsSeed.meta.origin,
 				sourcePath: path.join(options.root, 'wpk.config.ts'),
 			},
@@ -98,7 +124,7 @@ describe('plan (orchestrator)', () => {
 					phase: 'generate',
 					options: {
 						config: {
-							version: 1,
+							version: 1 as const,
 							namespace: 'demo',
 							schemas: {},
 							resources: {},
@@ -138,6 +164,7 @@ describe('plan (orchestrator)', () => {
 					},
 				],
 			});
+			seedBlockArtifacts(ir, layout);
 
 			const { plan } = await runPlan({ root, workspace, ir });
 
@@ -243,6 +270,8 @@ describe('plan (orchestrator)', () => {
 			await workspace.write('vite.config.ts', '// vite config', {
 				ensureDir: true,
 			});
+
+			seedBlockArtifacts(ir, ir.layout);
 
 			const { plan } = await runPlan({
 				root,

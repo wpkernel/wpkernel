@@ -8,7 +8,7 @@ import {
 	type ModuleIndexEntry,
 } from '@wpkernel/wp-json-ast';
 import type { IRv1 } from '../../ir/publicTypes';
-import { toPascalCase } from './utils';
+import { toPascalCase } from '../../utils';
 import { getPhpBuilderChannel } from '@wpkernel/php-json-ast';
 
 /**

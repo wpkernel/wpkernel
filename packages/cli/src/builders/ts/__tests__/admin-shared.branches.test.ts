@@ -122,7 +122,7 @@ describe('admin-shared', () => {
 			});
 			const meta = resolveAdminScreenComponentMetadata(descriptor);
 			expect(meta).toEqual({
-				identifier: 'Mycomponent',
+				identifier: 'MyComponent',
 				fileName: 'MyComponent',
 				directories: ['custom', 'path'],
 			});
@@ -134,7 +134,7 @@ describe('admin-shared', () => {
 			});
 			const meta = resolveAdminScreenComponentMetadata(descriptor);
 			expect(meta).toEqual({
-				identifier: 'Testnameadminscreen',
+				identifier: 'TestNameAdminScreen',
 				fileName: 'page',
 				directories: ['custom'],
 			});
@@ -146,7 +146,7 @@ describe('admin-shared', () => {
 			});
 			const meta = resolveAdminScreenComponentMetadata(descriptor);
 			expect(meta).toEqual({
-				identifier: '_123component',
+				identifier: '_123Component',
 				fileName: '123Component',
 				directories: [],
 			});

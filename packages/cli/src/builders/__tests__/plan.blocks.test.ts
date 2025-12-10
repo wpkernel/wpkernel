@@ -11,13 +11,6 @@ import { makeIr } from '@cli-tests/ir.test-support';
 import { buildEmptyGenerationState } from '../../apply/manifest';
 import { loadTestLayoutSync } from '@wpkernel/test-utils/layout.test-support';
 
-const makeConfig = (namespace: string) => ({
-	version: 1,
-	namespace,
-	schemas: {},
-	resources: {},
-});
-
 function makeOptions(root: string) {
 	const workspace = buildWorkspace(root);
 	const reporter = {
@@ -25,10 +18,25 @@ function makeOptions(root: string) {
 		debug: jest.fn(),
 		warn: jest.fn(),
 		error: jest.fn(),
+		child: jest.fn().mockReturnThis(),
 	};
 	const layout = loadTestLayoutSync();
 	const ir = { ...makeIr(), layout };
-	const config = makeConfig(ir.meta.namespace);
+	const blockGenerated = layout.resolve('blocks.generated');
+	const blockApplied = layout.resolve('blocks.applied');
+	ir.artifacts.blocks = {
+		'demo-block': {
+			key: 'demo',
+			appliedDir: blockApplied,
+			generatedDir: blockGenerated,
+			jsonPath: path.posix.join(blockGenerated, 'demo', 'block.json'),
+			tsEntry: path.posix.join(blockGenerated, 'demo', 'index.tsx'),
+			tsView: path.posix.join(blockGenerated, 'demo', 'view.tsx'),
+			tsHelper: path.posix.join(blockGenerated, 'demo', 'helper.ts'),
+			mode: 'js',
+			phpRenderPath: undefined,
+		},
+	};
 	const options = {
 		reporter,
 		options: {
@@ -36,8 +44,7 @@ function makeOptions(root: string) {
 			input: {
 				phase: 'generate' as const,
 				options: {
-					config,
-					namespace: config.namespace,
+					namespace: ir.meta.namespace,
 					origin: ir.meta.origin,
 					sourcePath: path.join(root, 'wpk.config.ts'),
 				},

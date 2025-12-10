@@ -1,4 +1,4 @@
-import { sanitizeJson } from './utils';
+import { sanitizeJson } from '../../utils';
 import type { IRResource, IRSchema } from '../../ir/publicTypes';
 
 function isRecord(value: unknown): value is Record<string, unknown> {

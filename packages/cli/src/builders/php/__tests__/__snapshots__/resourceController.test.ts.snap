@@ -46,7 +46,7 @@ exports[`createPhpResourceControllerHelper queues resource controllers with reso
       "attributes": {},
       "nodeType": "Name",
       "parts": [
-        "Demo",
+        "demo-namespace",
         "Generated",
         "Rest",
       ],
@@ -178,7 +178,7 @@ exports[`createPhpResourceControllerHelper queues resource controllers with reso
         "implements": [],
         "name": {
           "attributes": {},
-          "name": "booksController",
+          "name": "BooksController",
           "nodeType": "Identifier",
         },
         "namespacedName": null,
@@ -8677,7 +8677,7 @@ exports[`createPhpResourceControllerHelper queues taxonomy controllers with pagi
       "attributes": {},
       "nodeType": "Name",
       "parts": [
-        "Demo",
+        "demo-namespace",
         "Generated",
         "Rest",
       ],
@@ -8809,7 +8809,7 @@ exports[`createPhpResourceControllerHelper queues taxonomy controllers with pagi
         "implements": [],
         "name": {
           "attributes": {},
-          "name": "jobCategoriesController",
+          "name": "JobCategoriesController",
           "nodeType": "Identifier",
         },
         "namespacedName": null,

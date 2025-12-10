@@ -1,7 +1,7 @@
 import path from 'node:path';
 import { createHelper } from '../../runtime';
 import type { BuilderApplyOptions } from '../../runtime/types';
-import { toPascalCase, toCamelCase } from './metadata';
+import { toPascalCase, toCamelCase } from '../../utils';
 
 /**
  * Creates a builder helper for generating resource definition files.
@@ -27,14 +27,10 @@ export function createTsResourcesBuilder() {
 				return;
 			}
 
-			const resourcesRoot = input.ir.artifacts.resources;
-			const generatedResourcesDir = path.posix.join(
-				input.ir.layout.resolve('ui.generated'),
-				'resources'
-			);
+			const resourcesPlan = input.ir.artifacts.resources;
 
 			for (const resource of resources) {
-				const plan = resourcesRoot[resource.id];
+				const plan = resourcesPlan[resource.id];
 				if (!plan) {
 					reporter.debug(
 						'createTsResourcesBuilder: missing artifact plan for resource.',
@@ -43,14 +39,15 @@ export function createTsResourcesBuilder() {
 					continue;
 				}
 
-				const fileName = `${resource.name}.ts`;
-				const generatedFilePath = path.join(
-					generatedResourcesDir,
-					fileName
-				);
+				const generatedFilePath = plan.modulePath;
 
-				// Path to type definition
-				// Assuming types are in '@/types/[resource.name]'
+				const typeImportPath = path.posix.relative(
+					path.posix.dirname(plan.modulePath),
+					plan.typeDefPath
+				);
+				const normalizedTypeImport = typeImportPath.startsWith('.')
+					? typeImportPath
+					: `./${typeImportPath}`;
 				const pascalName = toPascalCase(resource.name);
 				const camelName = toCamelCase(resource.name);
 
@@ -59,7 +56,7 @@ export function createTsResourcesBuilder() {
 					"import { defineResource } from '@wpkernel/core/resource';"
 				);
 				lines.push(
-					`import type { ${pascalName} } from '@/types/${resource.name}';`
+					`import type { ${pascalName} } from '${normalizedTypeImport.replace(/\\.d\\.ts$/, '')}';`
 				);
 				lines.push('');
 				lines.push(

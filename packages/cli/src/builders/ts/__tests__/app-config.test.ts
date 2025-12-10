@@ -7,11 +7,12 @@ import {
 	buildOutput,
 } from '@cli-tests/builders/builder-harness.test-support';
 import { createAppConfigBuilder } from '../app-config';
+import { buildEmptyGenerationState } from '../../../apply/manifest';
 
 function buildWorkspace() {
 	const writes: Array<{ file: string; contents: string }> = [];
 	const workspace = makeWorkspaceMock({
-		write: async (file: string, contents: string) => {
+		write: async (file: string, contents: string | Buffer) => {
 			writes.push({ file, contents: String(contents) });
 		},
 		resolve: (...parts: string[]) => path.join(process.cwd(), ...parts),
@@ -29,18 +30,19 @@ describe('app-config builder', () => {
 		await createAppConfigBuilder().apply(
 			{
 				input: {
-					phase: 'init',
+					phase: 'apply',
 					options: {
-						config: ir.config,
 						namespace: ir.meta.namespace,
+						origin: ir.meta.origin,
+						sourcePath: ir.meta.sourcePath,
 					},
 					ir,
 				},
 				context: {
 					workspace,
 					reporter,
-					phase: 'init',
-					generationState: { files: new Map(), alias: new Map() },
+					phase: 'apply',
+					generationState: buildEmptyGenerationState(),
 				},
 				output,
 				reporter,
@@ -62,8 +64,9 @@ describe('app-config builder', () => {
 				input: {
 					phase: 'generate',
 					options: {
-						config: ir.config,
 						namespace: ir.meta.namespace,
+						origin: ir.meta.origin,
+						sourcePath: ir.meta.sourcePath,
 					},
 					ir,
 				},
@@ -71,7 +74,7 @@ describe('app-config builder', () => {
 					workspace,
 					reporter,
 					phase: 'generate',
-					generationState: { files: new Map(), alias: new Map() },
+					generationState: buildEmptyGenerationState(),
 				},
 				output,
 				reporter,
@@ -98,17 +101,10 @@ describe('app-config builder', () => {
 			} as any,
 		});
 		ir.resources = [resource];
-		ir.artifacts.uiResources[resource.id] = {
-			appDir: path.posix.join(
-				ir.layout.resolve('ui.applied'),
-				'app',
-				resource.name
-			),
-			generatedAppDir: path.posix.join(
-				ir.layout.resolve('ui.generated'),
-				'app',
-				resource.name
-			),
+		ir.artifacts.surfaces[resource.id] = {
+			resource: resource.name,
+			appDir: `/app/${resource.name}`,
+			generatedAppDir: `/generated/app/${resource.name}`,
 			pagePath: '',
 			formPath: '',
 			configPath: '',
@@ -122,8 +118,9 @@ describe('app-config builder', () => {
 				input: {
 					phase: 'generate',
 					options: {
-						config: ir.config,
 						namespace: ir.meta.namespace,
+						origin: ir.meta.origin,
+						sourcePath: ir.meta.sourcePath,
 					},
 					ir,
 				},
@@ -131,7 +128,7 @@ describe('app-config builder', () => {
 					workspace,
 					reporter,
 					phase: 'generate',
-					generationState: { files: new Map(), alias: new Map() },
+					generationState: buildEmptyGenerationState(),
 				},
 				output,
 				reporter,
@@ -150,13 +147,10 @@ describe('app-config builder', () => {
 		const ir = makeIr();
 		const resource = makeResource({ name: 'ghost', storage: undefined });
 		ir.resources = [resource];
-		ir.artifacts.uiResources[resource.id] = {
+		ir.artifacts.surfaces[resource.id] = {
 			appDir: '',
-			generatedAppDir: path.posix.join(
-				ir.layout.resolve('ui.generated'),
-				'app',
-				resource.name
-			),
+			resource: resource.name,
+			generatedAppDir: `/generated/app/${resource.name}`,
 			pagePath: '',
 			formPath: '',
 			configPath: '',
@@ -170,8 +164,9 @@ describe('app-config builder', () => {
 				input: {
 					phase: 'generate',
 					options: {
-						config: ir.config,
 						namespace: ir.meta.namespace,
+						origin: ir.meta.origin,
+						sourcePath: ir.meta.sourcePath,
 					},
 					ir,
 				},
@@ -179,7 +174,7 @@ describe('app-config builder', () => {
 					workspace,
 					reporter,
 					phase: 'generate',
-					generationState: { files: new Map(), alias: new Map() },
+					generationState: buildEmptyGenerationState(),
 				},
 				output,
 				reporter,

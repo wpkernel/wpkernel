@@ -20,6 +20,8 @@ import {
 } from '@cli-tests/builders/fixtures.test-support';
 import { loadTestLayoutSync } from '@wpkernel/test-utils/layout.test-support';
 
+const layout = loadTestLayoutSync();
+
 describe('createPhpPluginLoaderHelper', () => {
 	it('skips when no IR is available', async () => {
 		const context = createPipelineContext();
@@ -176,14 +178,40 @@ describe('createPhpPluginLoaderHelper', () => {
 				}),
 			],
 		});
+		ir.artifacts.surfaces = {
+			'res:books': {
+				resource: 'books',
+				appDir: layout.resolve('app.applied'),
+				generatedAppDir: layout.resolve('app.generated'),
+				pagePath: path.join(
+					layout.resolve('app.applied'),
+					'books/page.tsx'
+				),
+				formPath: path.join(
+					layout.resolve('app.applied'),
+					'books/form.tsx'
+				),
+				configPath: path.join(
+					layout.resolve('app.applied'),
+					'books/config.tsx'
+				),
+				menu: { slug: 'books', title: 'Books' },
+			},
+		};
 		ir.ui = {
 			resources: [
 				{
 					resource: 'books',
-					preferencesKey: 'books/admin',
 					menu: { slug: 'books', title: 'Books' },
 				},
 			],
+			loader: {
+				handle: 'wp-demo-plugin-ui',
+				assetPath: 'build/index.asset.json',
+				scriptPath: 'build/index.js',
+				localizationObject: 'wpKernelUISettings',
+				namespace: 'demo-plugin',
+			},
 		};
 		await seedArtifacts(ir, context.reporter);
 

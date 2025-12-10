@@ -16,11 +16,17 @@ export async function collectUiSurfaceInstructions({
 	instructions: PlanInstruction[];
 	generatedSuffixes: Set<string>;
 }> {
+	if (!options.input.ir?.artifacts.runtime) {
+		options.reporter.debug(
+			'collectUiSurfaceInstructions: missing runtime artifacts; skipping UI surfacing.'
+		);
+		return { instructions: [], generatedSuffixes: new Set<string>() };
+	}
 	const instructions: PlanInstruction[] = [];
 	const generatedSuffixes = new Set<string>();
 	const { context, output, reporter } = options;
 	const paths = resolvePlanPaths(options);
-	const files = manifest.ui?.files ?? [];
+	const files = manifest.runtime?.files ?? [];
 
 	for (const filePair of files) {
 		const result = await buildUiInstruction({
@@ -64,7 +70,9 @@ async function buildUiInstruction({
 	readonly context: BuilderApplyOptions['context'];
 	readonly output: BuilderApplyOptions['output'];
 	readonly paths: ReturnType<typeof resolvePlanPaths>;
-	readonly filePair: NonNullable<GenerationManifest['ui']>['files'][number];
+	readonly filePair: NonNullable<
+		GenerationManifest['runtime']
+	>['files'][number];
 }): Promise<{ instruction: PlanInstruction; suffix: string | null } | null> {
 	const sourceContents =
 		(await context.workspace.readText(filePair.generated)) ?? '';
@@ -95,7 +103,7 @@ async function buildUiInstruction({
 		output.queueWrite({ file: basePath, contents: baseSnapshot });
 	}
 
-	const suffix = path.posix.relative(paths.uiApplied, filePair.applied);
+	const suffix = path.posix.relative(paths.runtimeApplied, filePair.applied);
 	const safeSuffix =
 		!suffix.startsWith('..') && suffix.length > 0 ? suffix : null;
 
@@ -121,74 +129,111 @@ export async function collectUiDeletionInstructions({
 	instructions: PlanInstruction[];
 	skippedDeletions: PlanDeletionSkip[];
 }> {
-	const instructions: PlanInstruction[] = [];
-	const skippedDeletions: PlanDeletionSkip[] = [];
+	if (!options.input.ir?.artifacts.runtime) {
+		options.reporter.debug(
+			'collectUiDeletionInstructions: missing runtime artifacts; skipping UI deletions.'
+		);
+		return { instructions: [], skippedDeletions: [] };
+	}
 	const { context, reporter } = options;
 	const paths = resolvePlanPaths(options);
 	const targets = await context.workspace.glob([
-		path.posix.join(paths.uiApplied, '*'),
-		path.posix.join(paths.uiApplied, '**/*'),
+		path.posix.join(paths.runtimeApplied, '*'),
+		path.posix.join(paths.runtimeApplied, '**/*'),
 	]);
 
+	const accumulator = {
+		instructions: [] as PlanInstruction[],
+		skippedDeletions: [] as PlanDeletionSkip[],
+	};
+
 	for (const target of targets) {
-		const stats = await statIfFile(target);
-		if (!stats) {
-			continue;
-		}
-
-		const workspaceRelative = toWorkspaceRelative(
-			context.workspace,
-			target
-		);
-		const suffix = path.posix.relative(paths.uiApplied, workspaceRelative);
-		if (suffix.startsWith('..') || suffix.length === 0) {
-			continue;
-		}
-
-		if (generatedSuffixes.has(suffix)) {
-			continue;
-		}
-
-		const currentContents =
-			await context.workspace.readText(workspaceRelative);
-		if (currentContents === null) {
-			continue;
-		}
-
-		const basePath = path.posix.join(paths.planBase, workspaceRelative);
-		const baseContents = await context.workspace.readText(basePath);
-		if (baseContents === null) {
-			skippedDeletions.push({
-				file: workspaceRelative,
-				description: `Remove UI asset ${suffix}`,
-				reason: 'missing-base',
-			});
-			reporter.debug(
-				'createApplyPlanBuilder: skipping UI deletion due to missing base snapshot.',
-				{ file: workspaceRelative }
-			);
-			continue;
-		}
-
-		if (baseContents !== currentContents) {
-			skippedDeletions.push({
-				file: workspaceRelative,
-				description: `Remove UI asset ${suffix}`,
-				reason: 'modified-target',
-			});
-			reporter.debug(
-				'createApplyPlanBuilder: skipping UI deletion for modified target.',
-				{ file: workspaceRelative }
-			);
-			continue;
-		}
-
-		instructions.push({
-			action: 'delete',
-			file: workspaceRelative,
-			description: `Remove UI asset ${suffix}`,
+		await evaluateDeletionCandidate({
+			target,
+			generatedSuffixes,
+			paths,
+			context,
+			reporter,
+			accumulator,
 		});
 	}
 
-	return { instructions, skippedDeletions };
+	return accumulator;
+}
+
+interface DeletionEvaluationOptions {
+	readonly target: string;
+	readonly generatedSuffixes: ReadonlySet<string>;
+	readonly paths: ReturnType<typeof resolvePlanPaths>;
+	readonly context: BuilderApplyOptions['context'];
+	readonly reporter: BuilderApplyOptions['reporter'];
+	readonly accumulator: {
+		instructions: PlanInstruction[];
+		skippedDeletions: PlanDeletionSkip[];
+	};
+}
+
+async function evaluateDeletionCandidate(
+	options: DeletionEvaluationOptions
+): Promise<void> {
+	const stats = await statIfFile(options.target);
+	if (!stats) {
+		return;
+	}
+
+	const workspaceRelative = toWorkspaceRelative(
+		options.context.workspace,
+		options.target
+	);
+	const suffix = path.posix.relative(
+		options.paths.runtimeApplied,
+		workspaceRelative
+	);
+	if (suffix.startsWith('..') || suffix.length === 0) {
+		return;
+	}
+
+	if (options.generatedSuffixes.has(suffix)) {
+		return;
+	}
+
+	const currentContents =
+		await options.context.workspace.readText(workspaceRelative);
+	if (currentContents === null) {
+		return;
+	}
+
+	const basePath = path.posix.join(options.paths.planBase, workspaceRelative);
+	const baseContents = await options.context.workspace.readText(basePath);
+	if (baseContents === null) {
+		options.accumulator.skippedDeletions.push({
+			file: workspaceRelative,
+			description: `Remove UI asset ${suffix}`,
+			reason: 'missing-base',
+		});
+		options.reporter.debug(
+			'createApplyPlanBuilder: skipping UI deletion due to missing base snapshot.',
+			{ file: workspaceRelative }
+		);
+		return;
+	}
+
+	if (baseContents !== currentContents) {
+		options.accumulator.skippedDeletions.push({
+			file: workspaceRelative,
+			description: `Remove UI asset ${suffix}`,
+			reason: 'modified-target',
+		});
+		options.reporter.debug(
+			'createApplyPlanBuilder: skipping UI deletion for modified target.',
+			{ file: workspaceRelative }
+		);
+		return;
+	}
+
+	options.accumulator.instructions.push({
+		action: 'delete',
+		file: workspaceRelative,
+		description: `Remove UI asset ${suffix}`,
+	});
 }

@@ -84,10 +84,9 @@ export interface TsBuilderCreatorContext {
 	readonly paths: {
 		readonly blocksGenerated: string;
 		readonly blocksApplied: string;
-		readonly uiGenerated: string;
-		readonly uiApplied: string;
-		readonly uiResourcesApplied: string;
-		readonly jsGenerated: string;
+		readonly runtimeApplied: string;
+		readonly surfacesApplied: string;
+		readonly runtimeGenerated: string;
 	};
 	/** The reporter instance for logging. */
 	readonly reporter: Reporter;

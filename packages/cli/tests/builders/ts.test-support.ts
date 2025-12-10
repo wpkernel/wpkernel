@@ -1,8 +1,7 @@
 import path from 'node:path';
-import { WPK_CONFIG_SOURCES } from '@wpkernel/core/contracts';
 import type { ResourceConfig } from '@wpkernel/core/resource';
 import type {
-	BuildIrOptions,
+	IRArtifactsPlan,
 	IRHashProvenance,
 	IRResource,
 	IRv1,
@@ -19,29 +18,14 @@ export type {
 	WorkspaceFactoryOptions,
 } from './builder-harness.test-support.js';
 import { loadDefaultLayout } from '../layout.test-support.js';
-type TestArtifactsPlan = {
-	pluginLoader?: unknown;
-	controllers: Record<string, unknown>;
-	resources: Record<
-		string,
-		{
-			modulePath: string;
-			typeDefPath: string;
-			typeSource: 'inferred' | 'schema';
-			schemaKey?: string;
-		}
-	>;
-	uiResources: Record<string, unknown>;
-	blocks: Record<string, unknown>;
-	schemas: Record<string, unknown>;
-	js?: IRv1['artifacts']['js'];
-	php?: IRv1['artifacts']['php'];
-};
 import {
 	buildControllerClassName,
 	buildPluginMetaFixture,
 } from '../ir/meta.test-support.js';
 import { type WPKernelConfigV1 } from '../../src/config';
+import { toPascalCase } from '../../src/utils';
+import { buildTestArtifactsPlan, makeIr } from '../ir.test-support';
+import { makeResource, makeRoute } from './fixtures.test-support.js';
 
 const makeHash = (value: string): IRHashProvenance => ({
 	algo: 'sha256',
@@ -110,7 +94,7 @@ export function buildDataViewsConfig(
 	if (overrides.view === null) {
 		return {};
 	}
-	return { view: overrides.view ?? 'dataviews' };
+	return { view: overrides.view ?? 'dataview' };
 }
 
 export interface BuilderArtifactOptions {
@@ -122,9 +106,13 @@ export interface BuilderArtifactOptions {
 }
 
 export interface BuilderArtifacts {
-	readonly config: WPKernelConfigV1;
+	readonly config?: WPKernelConfigV1;
 	readonly ir: IRv1;
-	readonly options: BuildIrOptions;
+	readonly options: {
+		readonly namespace: string;
+		readonly origin: string;
+		readonly sourcePath: string;
+	};
 }
 
 export function buildBuilderArtifacts(
@@ -144,7 +132,7 @@ export function buildBuilderArtifacts(
 		schema: 'auto',
 		routes: {},
 		cacheKeys: {},
-		...(dataviews ? { ui: { admin: { view: 'dataviews' } } } : {}),
+		...(dataviews ? { ui: { admin: { view: 'dataview' } } } : {}),
 	} as ResourceConfig;
 
 	const config: WPKernelConfigV1 = {
@@ -156,96 +144,61 @@ export function buildBuilderArtifacts(
 		},
 	};
 
-	const irResource: IRResource = {
+	const sanitizedNamespace = toPascalCase(namespace);
+	const pluginMeta = buildPluginMetaFixture({ namespace });
+	const irResource: IRResource = makeResource({
 		id: `${resourceKey}:resource`,
 		name: resourceName,
 		controllerClass: buildControllerClassName(namespace, resourceName),
 		schemaKey: resourceKey,
-		schemaProvenance: 'manual',
 		routes: [
-			{
-				method: 'GET',
+			makeRoute({
 				path: `/${namespace}/v1/${resourceName}`,
-				capability: undefined,
 				hash: {
 					algo: 'sha256',
 					inputs: ['method', 'path'],
 					value: `${resourceName}-list`,
 				},
-				transport: 'local',
-			},
+			}),
 		],
 		cacheKeys: {
 			list: { segments: [resourceKey, 'list'], source: 'config' },
 			get: { segments: [resourceKey, 'get'], source: 'config' },
+			create: { segments: [resourceKey, 'create'], source: 'config' },
+			update: { segments: [resourceKey, 'update'], source: 'config' },
+			remove: { segments: [resourceKey, 'remove'], source: 'config' },
 		},
 		hash: makeHash('demo-hash'),
-		warnings: [],
-	} as IRResource;
+		ui:
+			resourceConfig.ui?.admin?.view === 'dataviews'
+				? {
+						admin: { view: 'dataviews' },
+					}
+				: resourceConfig.ui,
+	}) as IRResource;
 
-	const sanitizedNamespace = toPascalCase(namespace);
-	const pluginMeta = buildPluginMetaFixture({ namespace });
-
-	const ir: IRv1 = {
+	const ir: IRv1 = makeIr({
+		namespace,
+		layout,
 		meta: {
-			version: 1,
-			namespace,
 			origin: 'typescript',
-			sourcePath: WPK_CONFIG_SOURCES.WPK_CONFIG_TS,
+			sourcePath,
 			sanitizedNamespace,
 			plugin: pluginMeta,
 			features: [],
-			ids: {
-				algorithm: 'sha256',
-				resourcePrefix: 'res:',
-				schemaPrefix: 'sch:',
-				blockPrefix: 'blk:',
-				capabilityPrefix: 'cap:',
-			},
-			redactions: [],
-			limits: {
-				maxConfigKB: 0,
-				maxSchemaKB: 0,
-				policy: 'truncate',
-			},
 		},
-		schemas: [],
-		resources: [
-			{
-				...irResource,
-				ui:
-					resourceConfig.ui?.admin?.view === 'dataviews'
-						? {
-								admin: { view: 'dataviews' },
-							}
-						: resourceConfig.ui,
-			} as IRResource,
-		],
-		capabilities: [],
-		capabilityMap: {
-			sourcePath: undefined,
-			definitions: [],
-			fallback: {
-				capability: 'manage_options',
-				appliesTo: 'resource',
-			},
-			missing: [],
-			unused: [],
-			warnings: [],
-		},
-		blocks: [],
+		resources: [irResource],
 		php: {
 			namespace: sanitizedNamespace,
 			autoload: 'inc/',
 			outputDir: layout.resolve('php.generated'),
 		},
-		layout,
 		artifacts: buildArtifactsPlan({
-			layout,
 			resourceId: irResource.id,
 			resourceName,
 			resourceKey,
-		}) as unknown as IRv1['artifacts'],
+			layout,
+		}),
 		ui:
 			resourceConfig.ui?.admin?.view === 'dataviews'
 				? {
@@ -253,39 +206,23 @@ export function buildBuilderArtifacts(
 						resources: [
 							{
 								resource: resourceKey,
-								preferencesKey: `${namespace}/dataviews/${resourceName}`,
-								dataviews: {
-									fields: [],
-									defaultView: { type: 'table' },
-									mapQuery: (view: Record<string, unknown>) =>
-										view ?? {},
-									preferencesKey: `${namespace}/dataviews/${resourceName}`,
+								menu: {
+									slug: resourceName,
+									title: resourceName,
 								},
 							},
 						],
 					}
 				: { resources: [] },
-	} as IRv1;
+	});
 
-	const buildOptions: BuildIrOptions = {
-		config,
+	const buildOptions = {
 		namespace,
 		origin: 'typescript',
 		sourcePath,
-	} as BuildIrOptions;
+	};
 
 	return { ir, options: buildOptions, config } satisfies BuilderArtifacts;
-}
-
-function toPascalCase(value: string): string {
-	return value
-		.split(/[^a-zA-Z0-9]+/u)
-		.filter(Boolean)
-		.map(
-			(segment) =>
-				segment.charAt(0).toUpperCase() + segment.slice(1).toLowerCase()
-		)
-		.join('');
 }
 
 function buildArtifactsPlan(options: {
@@ -293,67 +230,53 @@ function buildArtifactsPlan(options: {
 	resourceId: string;
 	resourceName: string;
 	resourceKey: string;
-}): TestArtifactsPlan {
-	const resourceModule = path.posix.join(
-		options.layout.resolve('ui.resources.applied'),
-		`${options.resourceKey}.ts`
-	);
-	const typeDefPath = path.posix.join(
-		options.layout.resolve('ui.resources.applied'),
-		'../types',
-		`${options.resourceKey}.d.ts`
-	);
-	const appDir = path.posix.join(
-		options.layout.resolve('ui.applied'),
-		'app',
-		options.resourceKey
-	);
-	const generatedAppDir = path.posix.join(
-		options.layout.resolve('ui.generated'),
-		'app',
-		options.resourceKey
-	);
-	const uiGeneratedRoot = options.layout.resolve('ui.generated');
-	const blocksGenerated = options.layout.resolve('blocks.generated');
+}): IRArtifactsPlan {
+	const base = buildTestArtifactsPlan(options.layout);
+	const appApplied = options.layout.resolve('app.applied');
+	const appGenerated = options.layout.resolve('app.generated');
+	const typesGenerated = options.layout.resolve('types.generated');
+
 	return {
-		pluginLoader: undefined,
-		controllers: Object.create(null),
+		...base,
 		resources: {
 			[options.resourceId]: {
-				modulePath: resourceModule,
-				typeDefPath,
+				modulePath: path.posix.join(
+					appGenerated,
+					options.resourceName,
+					'resource.ts'
+				),
+				typeDefPath: path.posix.join(
+					typesGenerated,
+					`${options.resourceName}.d.ts`
+				),
 				typeSource: 'inferred',
+				schemaKey: options.resourceKey,
 			},
 		},
-		uiResources: {
+		surfaces: {
 			[options.resourceId]: {
-				appDir,
-				generatedAppDir,
-				pagePath: path.posix.join(appDir, 'page.tsx'),
-				formPath: path.posix.join(appDir, 'form.tsx'),
-				configPath: path.posix.join(appDir, 'config.tsx'),
-			},
-		},
-		blocks: Object.create(null),
-		schemas: Object.create(null),
-		js: {
-			capabilities: {
-				modulePath: path.posix.join(uiGeneratedRoot, 'capabilities.ts'),
-				declarationPath: path.posix.join(
-					uiGeneratedRoot,
-					'capabilities.d.ts'
+				resource: options.resourceName,
+				appDir: path.posix.join(appApplied, options.resourceName),
+				generatedAppDir: path.posix.join(
+					appGenerated,
+					options.resourceName
+				),
+				pagePath: path.posix.join(
+					appApplied,
+					options.resourceName,
+					'page.tsx'
+				),
+				formPath: path.posix.join(
+					appApplied,
+					options.resourceName,
+					'form.tsx'
+				),
+				configPath: path.posix.join(
+					appApplied,
+					options.resourceName,
+					'config.tsx'
 				),
 			},
-			index: {
-				modulePath: path.posix.join(uiGeneratedRoot, 'index.ts'),
-				declarationPath: path.posix.join(uiGeneratedRoot, 'index.d.ts'),
-			},
-			uiRuntimePath: path.posix.join(uiGeneratedRoot, 'runtime.ts'),
-			uiEntryPath: path.posix.join(uiGeneratedRoot, 'index.tsx'),
-			blocksRegistrarPath: path.posix.join(
-				blocksGenerated,
-				'auto-register.ts'
-			),
 		},
 	};
 }

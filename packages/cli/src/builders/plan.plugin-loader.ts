@@ -5,7 +5,7 @@ import { buildPluginLoaderProgram } from '@wpkernel/wp-json-ast';
 import path from 'path';
 import { buildUiConfig } from './php/pluginLoader.ui';
 import { resolvePlanPaths } from './plan.paths';
-import { toPascalCase } from './ts';
+import { toPascalCase } from '../utils';
 
 export async function addPluginLoaderInstruction({
 	options,
@@ -116,7 +116,11 @@ function buildResourceClassNames(ir: PluginIr): string[] {
 }
 
 function resolvePhpGeneratedPath(ir: PluginIr): string {
-	return ir.layout?.resolve('php.generated') ?? ir.php.outputDir;
+	const pluginLoaderPath = ir.artifacts?.php?.pluginLoaderPath;
+	if (pluginLoaderPath) {
+		return path.posix.dirname(pluginLoaderPath);
+	}
+	return ir.php.outputDir;
 }
 
 async function readExistingPlugin({

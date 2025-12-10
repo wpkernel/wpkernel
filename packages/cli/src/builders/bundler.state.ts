@@ -4,8 +4,8 @@ import type { PackageJsonLike } from './types';
 export function resolveBundlerNamespace(input: BuilderInput): string {
 	return (
 		input.ir?.meta?.sanitizedNamespace ??
-		input.options.config.namespace ??
-		''
+		input.ir?.meta?.namespace ??
+		input.options.namespace
 	);
 }
 

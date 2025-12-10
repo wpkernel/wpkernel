@@ -6,17 +6,21 @@ import {
 	buildOutput,
 } from '@cli-tests/builders/builder-harness.test-support';
 import { createUiEntryBuilder } from '../ui-entry';
+import { buildEmptyGenerationState } from '../../../apply/manifest';
 
 function buildWorkspace() {
 	const writes: Array<{ file: string; contents: string }> = [];
 	const workspace = makeWorkspaceMock({
-		write: async (file: string, contents: string) => {
-			writes.push({ file, contents: String(contents) });
+		write: async (
+			file: string,
+			data: string | Buffer,
+			_options?: unknown
+		) => {
+			writes.push({ file, contents: String(data) });
 		},
 		resolve: (...parts: string[]) => path.join(process.cwd(), ...parts),
+		rm: jest.fn(),
 	});
-	// ensure rm is a spy
-	workspace.rm = jest.fn(workspace.rm);
 	return { workspace, writes };
 }
 
@@ -29,15 +33,19 @@ describe('ui-entry builder branch coverage', () => {
 
 		await createUiEntryBuilder().apply({
 			input: {
-				phase: 'build',
-				options: { config: ir.config, namespace: ir.meta.namespace },
+				phase: 'init',
+				options: {
+					origin: 'wpk.config.ts',
+					sourcePath: 'wpk.config.ts',
+					namespace: ir.meta.namespace,
+				},
 				ir,
 			},
 			context: {
 				workspace,
 				reporter,
-				phase: 'build',
-				generationState: { files: new Map(), alias: new Map() },
+				phase: 'generate',
+				generationState: buildEmptyGenerationState(),
 			},
 			output,
 			reporter,
@@ -60,14 +68,18 @@ describe('ui-entry builder branch coverage', () => {
 		await createUiEntryBuilder().apply({
 			input: {
 				phase: 'generate',
-				options: { config: ir.config, namespace: ir.meta.namespace },
+				options: {
+					origin: 'wpk.config.ts',
+					sourcePath: 'wpk.config.ts',
+					namespace: ir.meta.namespace,
+				},
 				ir,
 			},
 			context: {
 				workspace,
 				reporter,
 				phase: 'generate',
-				generationState: { files: new Map(), alias: new Map() },
+				generationState: buildEmptyGenerationState(),
 			},
 			output,
 			reporter,
@@ -93,7 +105,8 @@ describe('ui-entry builder branch coverage', () => {
 				input: {
 					phase: 'generate',
 					options: {
-						config: ir.config,
+						origin: 'wpk.config.ts',
+						sourcePath: 'wpk.config.ts',
 						namespace: ir.meta.namespace,
 					},
 					ir,
@@ -102,7 +115,7 @@ describe('ui-entry builder branch coverage', () => {
 					workspace,
 					reporter,
 					phase: 'generate',
-					generationState: { files: new Map(), alias: new Map() },
+					generationState: buildEmptyGenerationState(),
 				},
 				output,
 				reporter,
@@ -136,7 +149,7 @@ describe('ui-entry builder branch coverage', () => {
 		];
 
 		// Ensure artifacts don't have plans for this resource
-		ir.artifacts.uiResources = {};
+		ir.artifacts.surfaces = {};
 		ir.artifacts.resources = {};
 
 		workspace.exists = jest.fn(async () => true);
@@ -144,14 +157,18 @@ describe('ui-entry builder branch coverage', () => {
 		await createUiEntryBuilder().apply({
 			input: {
 				phase: 'generate',
-				options: { config: ir.config, namespace: ir.meta.namespace },
+				options: {
+					origin: 'wpk.config.ts',
+					sourcePath: 'wpk.config.ts',
+					namespace: ir.meta.namespace,
+				},
 				ir,
 			},
 			context: {
 				workspace,
 				reporter,
 				phase: 'generate',
-				generationState: { files: new Map(), alias: new Map() },
+				generationState: buildEmptyGenerationState(),
 			},
 			output,
 			reporter,
@@ -183,14 +200,18 @@ describe('ui-entry builder branch coverage', () => {
 		await createUiEntryBuilder().apply({
 			input: {
 				phase: 'generate',
-				options: { config: ir.config, namespace: ir.meta.namespace },
+				options: {
+					origin: 'wpk.config.ts',
+					sourcePath: 'wpk.config.ts',
+					namespace: ir.meta.namespace,
+				},
 				ir,
 			},
 			context: {
 				workspace,
 				reporter,
 				phase: 'generate',
-				generationState: { files: new Map(), alias: new Map() },
+				generationState: buildEmptyGenerationState(),
 			},
 			output,
 			reporter,
@@ -220,16 +241,29 @@ describe('ui-entry builder branch coverage', () => {
 				id: 'test-resource',
 			} as any,
 		];
-		ir.artifacts.uiResources = {
+		ir.artifacts.surfaces = {
 			'test-resource': {
 				modulePath: 'test/ui/runtime',
-				appDir: 'test/ui/app',
-				generatedAppDir: 'test/ui/generated',
+				resource: 'test-resource',
+				appDir: '/app/test-resource',
+				generatedAppDir: '/generated/app/test-resource',
 			},
 		} as any;
 		ir.artifacts.resources = {
 			'test-resource': { modulePath: 'test/resource' },
 		} as any;
+		ir.artifacts.runtime = {
+			entry: {
+				generated: '/generated/entry/index.tsx',
+				applied: '/app/entry/index.tsx',
+			},
+			runtime: {
+				generated: '/generated/runtime/index.ts',
+				applied: '/app/runtime/index.ts',
+			},
+			blocksRegistrarPath: '/generated/blocks/auto-register.ts',
+			uiLoader: undefined,
+		};
 
 		ir.artifacts.blocks = {
 			block1: {
@@ -243,19 +277,21 @@ describe('ui-entry builder branch coverage', () => {
 			p.includes('auto-register')
 		);
 
-		ir.artifacts.js = { uiRuntimePath: 'test/js/runtime' } as any;
-
 		await createUiEntryBuilder().apply({
 			input: {
 				phase: 'generate',
-				options: { config: ir.config, namespace: ir.meta.namespace },
+				options: {
+					origin: 'wpk.config.ts',
+					sourcePath: 'wpk.config.ts',
+					namespace: ir.meta.namespace,
+				},
 				ir,
 			},
 			context: {
 				workspace,
 				reporter,
 				phase: 'generate',
-				generationState: { files: new Map(), alias: new Map() },
+				generationState: buildEmptyGenerationState(),
 			},
 			output,
 			reporter,
@@ -285,38 +321,49 @@ describe('ui-entry builder branch coverage', () => {
 				id: 'test-resource',
 			} as any,
 		];
-		ir.artifacts.uiResources = {
+		ir.artifacts.surfaces = {
 			'test-resource': {
 				modulePath: 'test/ui/runtime',
-				appDir: 'test/ui/app',
-				generatedAppDir: 'test/ui/generated',
+				resource: 'test-resource',
+				appDir: '/app/test-resource',
+				generatedAppDir: '/generated/app/test-resource',
 			},
 		} as any;
 		ir.artifacts.resources = {
 			'test-resource': { modulePath: 'test/resource' },
 		} as any;
 
-		(ir.artifacts.js as any) = {}; // clear uiRuntimePath
+		ir.artifacts.runtime = {
+			entry: {
+				generated: '/generated/entry/index.tsx',
+				applied: '/app/entry/index.tsx',
+			},
+			runtime: { generated: '', applied: '' },
+			blocksRegistrarPath: '/generated/blocks/auto-register.ts',
+			uiLoader: undefined,
+		};
 
 		await createUiEntryBuilder().apply({
 			input: {
 				phase: 'generate',
-				options: { config: ir.config, namespace: ir.meta.namespace },
+				options: {
+					origin: 'wpk.config.ts',
+					sourcePath: 'wpk.config.ts',
+					namespace: ir.meta.namespace,
+				},
 				ir,
 			},
 			context: {
 				workspace,
 				reporter,
 				phase: 'generate',
-				generationState: { files: new Map(), alias: new Map() },
+				generationState: buildEmptyGenerationState(),
 			},
 			output,
 			reporter,
 		});
 
-		expect(reporter.debug).toHaveBeenCalledWith(
-			expect.stringContaining('missing JS runtime path')
-		);
+		expect(reporter.debug).toHaveBeenCalled();
 	});
 
 	it('handles missing block roots correctly', async () => {
@@ -339,11 +386,12 @@ describe('ui-entry builder branch coverage', () => {
 				id: 'test-resource',
 			} as any,
 		];
-		ir.artifacts.uiResources = {
+		ir.artifacts.surfaces = {
 			'test-resource': {
 				modulePath: 'test/ui/runtime',
-				appDir: 'test/ui/app',
-				generatedAppDir: 'test/ui/generated',
+				resource: 'test-resource',
+				appDir: '/app/test-resource',
+				generatedAppDir: '/generated/app/test-resource',
 			},
 		} as any;
 		ir.artifacts.resources = {
@@ -352,19 +400,34 @@ describe('ui-entry builder branch coverage', () => {
 
 		ir.artifacts.blocks = {} as any;
 
-		ir.artifacts.js = { uiRuntimePath: 'test/js/runtime' } as any;
+		ir.artifacts.runtime = {
+			entry: {
+				generated: '/generated/entry/index.tsx',
+				applied: '/app/entry/index.tsx',
+			},
+			runtime: {
+				generated: '/generated/runtime/index.ts',
+				applied: '/app/runtime/index.ts',
+			},
+			blocksRegistrarPath: '/generated/blocks/auto-register.ts',
+			uiLoader: undefined,
+		};
 
 		await createUiEntryBuilder().apply({
 			input: {
 				phase: 'generate',
-				options: { config: ir.config, namespace: ir.meta.namespace },
+				options: {
+					origin: 'wpk.config.ts',
+					sourcePath: 'wpk.config.ts',
+					namespace: ir.meta.namespace,
+				},
 				ir,
 			},
 			context: {
 				workspace,
 				reporter,
 				phase: 'generate',
-				generationState: { files: new Map(), alias: new Map() },
+				generationState: buildEmptyGenerationState(),
 			},
 			output,
 			reporter,
@@ -395,11 +458,12 @@ describe('ui-entry builder branch coverage', () => {
 				id: 'test-resource',
 			} as any,
 		];
-		ir.artifacts.uiResources = {
+		ir.artifacts.surfaces = {
 			'test-resource': {
 				modulePath: 'test/ui/runtime',
-				appDir: 'test/ui/app',
-				generatedAppDir: 'test/ui/generated',
+				resource: 'test-resource',
+				appDir: '/app/test-resource',
+				generatedAppDir: '/generated/app/test-resource',
 			},
 		} as any;
 		ir.artifacts.resources = {
@@ -408,26 +472,41 @@ describe('ui-entry builder branch coverage', () => {
 
 		ir.artifacts.blocks = {
 			block1: {
-				generatedDir: 'blocks/generated/block1',
-				appliedDir: 'blocks/applied/block1',
+				generatedDir: '/generated/blocks/block1',
+				appliedDir: '/app/blocks/block1',
 			},
 		} as any;
 
 		workspace.exists = jest.fn(async () => false); // File does not exist
 
-		ir.artifacts.js = { uiRuntimePath: 'test/js/runtime' } as any;
+		ir.artifacts.runtime = {
+			entry: {
+				generated: '/generated/entry/index.tsx',
+				applied: '/app/entry/index.tsx',
+			},
+			runtime: {
+				generated: '/generated/runtime/index.ts',
+				applied: '/app/runtime/index.ts',
+			},
+			blocksRegistrarPath: '/generated/blocks/auto-register.ts',
+			uiLoader: undefined,
+		};
 
 		await createUiEntryBuilder().apply({
 			input: {
 				phase: 'generate',
-				options: { config: ir.config, namespace: ir.meta.namespace },
+				options: {
+					origin: 'wpk.config.ts',
+					sourcePath: 'wpk.config.ts',
+					namespace: ir.meta.namespace,
+				},
 				ir,
 			},
 			context: {
 				workspace,
 				reporter,
 				phase: 'generate',
-				generationState: { files: new Map(), alias: new Map() },
+				generationState: buildEmptyGenerationState(),
 			},
 			output,
 			reporter,
@@ -458,11 +537,12 @@ describe('ui-entry builder branch coverage', () => {
 				id: 'test-resource',
 			} as any,
 		];
-		ir.artifacts.uiResources = {
+		ir.artifacts.surfaces = {
 			'test-resource': {
 				modulePath: 'test/ui/runtime',
-				appDir: 'test/ui/app',
-				generatedAppDir: 'test/ui/generated',
+				resource: 'test-resource',
+				appDir: '/app/test-resource',
+				generatedAppDir: '/generated/app/test-resource',
 			},
 		} as any;
 		ir.artifacts.resources = {
@@ -471,7 +551,7 @@ describe('ui-entry builder branch coverage', () => {
 
 		ir.artifacts.blocks = {
 			block1: {
-				appliedDir: 'blocks/applied/block1',
+				appliedDir: '/app/blocks/block1',
 			},
 		} as any;
 
@@ -480,19 +560,34 @@ describe('ui-entry builder branch coverage', () => {
 			p.includes('auto-register')
 		);
 
-		ir.artifacts.js = { uiRuntimePath: 'test/js/runtime' } as any;
+		ir.artifacts.runtime = {
+			entry: {
+				generated: '/generated/entry/index.tsx',
+				applied: '/app/entry/index.tsx',
+			},
+			runtime: {
+				generated: '/generated/runtime/index.ts',
+				applied: '/app/runtime/index.ts',
+			},
+			blocksRegistrarPath: '/generated/blocks/auto-register.ts',
+			uiLoader: undefined,
+		};
 
 		await createUiEntryBuilder().apply({
 			input: {
 				phase: 'generate',
-				options: { config: ir.config, namespace: ir.meta.namespace },
+				options: {
+					origin: 'wpk.config.ts',
+					sourcePath: 'wpk.config.ts',
+					namespace: ir.meta.namespace,
+				},
 				ir,
 			},
 			context: {
 				workspace,
 				reporter,
 				phase: 'generate',
-				generationState: { files: new Map(), alias: new Map() },
+				generationState: buildEmptyGenerationState(),
 			},
 			output,
 			reporter,

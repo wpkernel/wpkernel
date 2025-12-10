@@ -34,7 +34,9 @@ describe('shared.blocks.paths helpers', () => {
 
 	it('maps generated block to surfaced path when it exists', async () => {
 		const layout = loadTestLayoutSync();
-		jest.spyOn(fs, 'stat').mockResolvedValue({} as any);
+		jest.spyOn(fs, 'stat').mockResolvedValue({
+			isFile: () => true,
+		} as any);
 		const workspace = makeWorkspaceMock({
 			root: '/repo',
 			resolve: (...p: string[]) => path.join('/repo', ...p),

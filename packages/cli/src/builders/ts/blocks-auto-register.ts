@@ -9,10 +9,6 @@ import type {
 } from '../../runtime/types';
 import type { IRBlock, IRv1, IRBlockPlan } from '../../ir/publicTypes';
 import {
-	deriveResourceBlocks,
-	type DerivedResourceBlock,
-} from '../shared.blocks.derived';
-import {
 	buildAutoRegisterModuleMetadata,
 	generateBlockImportPath,
 } from './registrar';
@@ -20,11 +16,9 @@ import { buildBlockRegistrarMetadata } from './metadata';
 import { loadTsMorph } from './runtime-loader';
 import { type RegistrationEntry, type StubFile } from './types';
 import { validateBlockManifest } from '../shared.blocks.validation';
-import { toWorkspaceRelative } from '../shared.blocks.paths';
+import { toWorkspaceRelative } from '../../workspace';
 
 const STUB_TRANSACTION_LABEL = 'builder.generate.ts.blocks.stubs';
-const DERIVED_TRANSACTION_LABEL =
-	'builder.generate.ts.blocks.derived-manifests';
 
 function toAbsolutePath(
 	workspace: PipelineContext['workspace'],
@@ -96,12 +90,12 @@ async function runJsBlocksGeneration(options: {
 		reporter,
 	});
 
-	if (prepared.blocks.length === 0) {
+	if (prepared.blocks.length === 0 || prepared.blockPlans.size === 0) {
 		reporter.debug('createJsBlocksBuilder: no JS-only blocks discovered.');
 		return null;
 	}
 
-	const registrarPath = ir.artifacts.js?.blocksRegistrarPath;
+	const registrarPath = ir.artifacts.runtime?.blocksRegistrarPath;
 	if (!registrarPath) {
 		reporter.debug(
 			'createJsBlocksBuilder: missing registrar path in artifacts.'
@@ -416,50 +410,6 @@ async function stageStubWrites(options: {
 	}
 }
 
-async function stageDerivedManifestWrites(options: {
-	readonly workspace: PipelineContext['workspace'];
-	readonly output: BuilderOutput;
-	readonly reporter: BuilderApplyOptions['reporter'];
-	readonly manifests: readonly DerivedResourceBlock[];
-}): Promise<void> {
-	if (options.manifests.length === 0) {
-		return;
-	}
-
-	const { workspace, output, reporter } = options;
-	workspace.begin(DERIVED_TRANSACTION_LABEL);
-	try {
-		for (const entry of options.manifests) {
-			const absolutePath = workspace.resolve(entry.block.manifestSource);
-			const contents = `${JSON.stringify(entry.manifest, null, 2)}\n`;
-			await workspace.write(absolutePath, contents, {
-				ensureDir: true,
-			});
-		}
-
-		const manifest = await workspace.commit(DERIVED_TRANSACTION_LABEL);
-		for (const file of manifest.writes) {
-			const contents = await workspace.readText(file);
-			if (!contents) {
-				continue;
-			}
-
-			output.queueWrite({
-				file: toWorkspaceRelative(workspace, file),
-				contents,
-			});
-		}
-
-		reporter.debug(
-			'createJsBlocksBuilder: emitted derived block manifests.',
-			{ files: manifest.writes }
-		);
-	} catch (error) {
-		await workspace.rollback(DERIVED_TRANSACTION_LABEL);
-		throw error;
-	}
-}
-
 async function readBlockManifest(
 	workspace: PipelineContext['workspace'],
 	manifestPath: string
@@ -492,49 +442,17 @@ async function prepareJsBlocks(options: {
 	readonly blockPlans: Map<string, IRBlockPlan>;
 }> {
 	const blockPlans = buildBlockPlans(options.ir);
-	const blocks = options.ir.blocks ?? [];
-	if (blocks.length === 0 || blockPlans.size === 0) {
-		return { blocks: [], blockPlans };
-	}
-
-	const existingBlocks = new Map<string, IRBlock>(
-		blocks.map((block): [string, IRBlock] => [block.key, block])
+	const blocks = (options.ir.blocks ?? []).filter(
+		(block) => !block.hasRender && blockPlans.has(block.id)
 	);
-	for (const block of blocks) {
-		if (!blockPlans.has(block.id)) {
-			blockPlans.set(
-				block.id,
-				buildInlineBlockPlan(block, options.workspace, options.ir)
-			);
-		}
-	}
-	const derivedBlocks = deriveResourceBlocks({
-		ir: options.ir,
-		existingBlocks,
-	});
-
-	await stageDerivedManifestWrites({
-		workspace: options.workspace,
-		output: options.output,
-		reporter: options.reporter,
-		manifests: derivedBlocks,
-	});
-
-	for (const entry of derivedBlocks) {
-		if (!blockPlans.has(entry.block.id)) {
-			blockPlans.set(
-				entry.block.id,
-				buildInlineBlockPlan(entry.block, options.workspace, options.ir)
-			);
-		}
+	if (blocks.length === 0) {
+		options.reporter.debug(
+			'createJsBlocksBuilder: missing block plans for JS blocks.'
+		);
+		return { blocks: [], blockPlans: new Map() };
 	}
 
-	const jsOnlyBlocks = mergeBlocks(
-		blocks,
-		derivedBlocks.map((entry) => entry.block)
-	).filter((block) => !block.hasRender);
-
-	return { blocks: jsOnlyBlocks, blockPlans };
+	return { blocks, blockPlans };
 }
 
 function buildBlockPlans(ir: IRv1): Map<string, IRBlockPlan> {
@@ -543,46 +461,6 @@ function buildBlockPlans(ir: IRv1): Map<string, IRBlockPlan> {
 		plans.set(blockId, plan);
 	}
 	return plans;
-}
-
-function buildInlineBlockPlan(
-	block: IRBlock,
-	workspace: PipelineContext['workspace'],
-	ir: IRv1
-): IRBlockPlan {
-	const appliedDir = toAbsolutePath(workspace, block.directory);
-	const manifestPath = toAbsolutePath(workspace, block.manifestSource);
-	const dirName = path.posix.basename(appliedDir);
-	const generatedRoot = ir.layout.resolve('blocks.generated');
-	const generatedDir = path.posix.join(generatedRoot, dirName);
-	return {
-		key: block.key,
-		appliedDir,
-		generatedDir,
-		jsonPath: manifestPath,
-		tsEntry: path.posix.join(appliedDir, 'index.tsx'),
-		tsView: path.posix.join(appliedDir, 'view.tsx'),
-		tsHelper: path.posix.join(appliedDir, 'view.ts'),
-		phpRenderPath: block.hasRender
-			? path.posix.join(appliedDir, 'render.php')
-			: undefined,
-		mode: block.hasRender ? 'ssr' : 'js',
-	};
-}
-
-function mergeBlocks(
-	original: readonly IRBlock[],
-	derived: readonly IRBlock[]
-): IRBlock[] {
-	const map = new Map(original.map((block) => [block.key, block]));
-
-	for (const block of derived) {
-		if (!map.has(block.key)) {
-			map.set(block.key, block);
-		}
-	}
-
-	return Array.from(map.values());
 }
 
 async function collectModuleStubs(options: {

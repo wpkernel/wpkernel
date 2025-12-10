@@ -8,9 +8,8 @@ import {
 	type BuilderHarnessContext,
 } from '@cli-tests/builders/builder-harness.test-support';
 import { buildEmptyGenerationState } from '../../apply/manifest';
-import { type IRv1 } from '../../ir';
 import { createPatcher } from '../patcher';
-import { makeIrMeta } from '@cli-tests/ir.test-support';
+import { makeIr } from '@cli-tests/ir.test-support';
 import { buildWorkspace } from '../../workspace';
 import { loadTestLayoutSync } from '@wpkernel/test-utils/layout.test-support';
 
@@ -18,47 +17,10 @@ type PatcherWorkspaceContext = BuilderHarnessContext<
 	ReturnType<typeof buildWorkspace>
 >;
 
-const makeConfig = (namespace: string) => ({
-	version: 1,
-	namespace,
-	schemas: {},
-	resources: {},
-});
-
 const withWorkspace = (
 	run: (context: PatcherWorkspaceContext) => Promise<void>
 ) =>
 	baseWithWorkspace(run, { createWorkspace: (root) => buildWorkspace(root) });
-
-function buildIr(
-	namespace: string,
-	layout: ReturnType<typeof loadTestLayoutSync> = loadTestLayoutSync()
-): IRv1 {
-	return {
-		meta: makeIrMeta(namespace, {
-			origin: 'wpk.config.ts',
-			sourcePath: 'wpk.config.ts',
-		}),
-		schemas: [],
-		resources: [],
-		capabilities: [],
-		capabilityMap: {
-			sourcePath: undefined,
-			definitions: [],
-			fallback: { capability: 'manage_options', appliesTo: 'resource' },
-			missing: [],
-			unused: [],
-			warnings: [],
-		},
-		blocks: [],
-		php: {
-			namespace,
-			autoload: 'inc/',
-			outputDir: layout.resolve('php.generated'),
-		},
-		layout,
-	} satisfies IRv1;
-}
 
 describe('patcher.apply', () => {
 	it('applies git merge patches and records manifest', async () => {
@@ -66,12 +28,6 @@ describe('patcher.apply', () => {
 			const reporter = buildReporter();
 			const output = buildOutput<BuilderOutput['actions'][number]>();
 			const layout = loadTestLayoutSync();
-			const config = {
-				version: 1,
-				namespace: 'Demo',
-				schemas: {},
-				resources: {},
-			};
 
 			const baseContents = [
 				'<?php',
@@ -136,12 +92,11 @@ describe('patcher.apply', () => {
 				ensureDir: true,
 			});
 
-			const ir = await buildIr('Demo');
+			const ir = makeIr();
 			const input = {
 				phase: 'apply' as const,
 				options: {
-					config,
-					namespace: config.namespace,
+					namespace: ir.meta.namespace,
 					origin: ir.meta.origin,
 					sourcePath: path.join(workspaceRoot, 'wpk.config.ts'),
 				},
@@ -263,13 +218,11 @@ describe('patcher.apply', () => {
 				incomingContents
 			);
 
-			const ir = await buildIr('Demo');
-			const config = makeConfig(ir.meta.namespace);
+			const ir = makeIr();
 			const input = {
 				phase: 'apply' as const,
 				options: {
-					config,
-					namespace: config.namespace,
+					namespace: ir.meta.namespace,
 					origin: ir.meta.origin,
 					sourcePath: path.join(workspaceRoot, 'wpk.config.ts'),
 				},
@@ -351,13 +304,11 @@ describe('patcher.apply', () => {
 				ensureDir: true,
 			});
 
-			const ir = await buildIr('Demo');
-			const config = makeConfig(ir.meta.namespace);
+			const ir = makeIr();
 			const input = {
 				phase: 'apply' as const,
 				options: {
-					config,
-					namespace: config.namespace,
+					namespace: ir.meta.namespace,
 					origin: ir.meta.origin,
 					sourcePath: path.join(workspaceRoot, 'wpk.config.ts'),
 				},
@@ -448,13 +399,11 @@ describe('patcher.apply', () => {
 				ensureDir: true,
 			});
 
-			const ir = await buildIr('Demo');
-			const config = makeConfig(ir.meta.namespace);
+			const ir = makeIr();
 			const input = {
 				phase: 'generate' as const,
 				options: {
-					config,
-					namespace: config.namespace,
+					namespace: ir.meta.namespace,
 					origin: ir.meta.origin,
 					sourcePath: path.join(workspaceRoot, 'wpk.config.ts'),
 				},
@@ -552,13 +501,11 @@ describe('patcher.apply', () => {
 				ensureDir: true,
 			});
 
-			const ir = await buildIr('Demo');
-			const config = makeConfig(ir.meta.namespace);
+			const ir = makeIr();
 			const input = {
 				phase: 'apply' as const,
 				options: {
-					config,
-					namespace: config.namespace,
+					namespace: ir.meta.namespace,
 					origin: ir.meta.origin,
 					sourcePath: path.join(workspaceRoot, 'wpk.config.ts'),
 				},
@@ -679,13 +626,11 @@ describe('patcher.apply', () => {
 				ensureDir: true,
 			});
 
-			const ir = await buildIr('Demo');
-			const config = makeConfig(ir.meta.namespace);
+			const ir = makeIr();
 			const input = {
 				phase: 'apply' as const,
 				options: {
-					config,
-					namespace: config.namespace,
+					namespace: ir.meta.namespace,
 					origin: ir.meta.origin,
 					sourcePath: path.join(workspaceRoot, 'wpk.config.ts'),
 				},
@@ -817,13 +762,11 @@ describe('patcher.apply', () => {
 				ensureDir: true,
 			});
 
-			const ir = await buildIr('Demo');
-			const config = makeConfig(ir.meta.namespace);
+			const ir = makeIr();
 			const input = {
 				phase: 'apply' as const,
 				options: {
-					config,
-					namespace: config.namespace,
+					namespace: ir.meta.namespace,
 					origin: ir.meta.origin,
 					sourcePath: path.join(workspaceRoot, 'wpk.config.ts'),
 				},

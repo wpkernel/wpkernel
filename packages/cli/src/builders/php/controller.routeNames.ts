@@ -1,4 +1,4 @@
-import { toPascalCase } from './utils';
+import { toPascalCase } from '../../utils';
 import type { IRRoute, IRv1 } from '../../ir/publicTypes';
 
 /**

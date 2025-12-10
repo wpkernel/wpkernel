@@ -9,18 +9,13 @@ import type { BuilderOutput } from '../../../runtime/types';
 import type { Workspace } from '../../../workspace/types';
 import { makePhpIrFixture } from '@cli-tests/builders/resources.test-support';
 import { makeWorkspaceMock } from '@cli-tests/workspace.test-support';
+import { buildEmptyGenerationState } from '../../../apply/manifest';
+import { makeHash } from '@cli-tests/builders/fixtures.test-support';
 import {
 	createPhpWpPostRoutesHelper,
 	getWpPostRouteHelperState,
 	readWpPostRouteBundle,
 } from '../controller.wpPostRoutes';
-
-const makeConfig = (namespace: string) => ({
-	version: 1,
-	namespace,
-	schemas: {},
-	resources: {},
-});
 
 describe('createPhpWpPostRoutesHelper', () => {
 	function buildReporter(): Reporter {
@@ -44,6 +39,8 @@ describe('createPhpWpPostRoutesHelper', () => {
 
 	function buildResource(storage?: IRResource['storage']): IRResource {
 		return {
+			id: 'book',
+			controllerClass: 'Demo\\BookController',
 			name: 'book',
 			schemaKey: 'book',
 			schemaProvenance: 'manual',
@@ -59,7 +56,7 @@ describe('createPhpWpPostRoutesHelper', () => {
 			storage,
 			queryParams: undefined,
 			ui: undefined,
-			hash: 'resource-hash',
+			hash: makeHash('resource-hash'),
 
 			warnings: [],
 		};
@@ -74,13 +71,13 @@ describe('createPhpWpPostRoutesHelper', () => {
 			workspace,
 			reporter,
 			phase: 'generate' as const,
+			generationState: buildEmptyGenerationState(),
 		};
 		const output: BuilderOutput = {
 			actions: [],
 			queueWrite: jest.fn(),
 		};
 		const ir = makePhpIrFixture({ resources: [resource] });
-		const config = makeConfig(ir.meta.namespace);
 
 		await createPhpWpPostRoutesHelper().apply(
 			{
@@ -89,8 +86,7 @@ describe('createPhpWpPostRoutesHelper', () => {
 				input: {
 					phase: 'generate' as const,
 					options: {
-						config,
-						namespace: config.namespace,
+						namespace: ir.meta.namespace,
 						origin: ir.meta.origin,
 						sourcePath: ir.meta.sourcePath,
 					},

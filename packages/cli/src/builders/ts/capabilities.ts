@@ -1,6 +1,4 @@
 import { createHelper } from '../../runtime';
-import { printCapabilityModule } from './capability';
-
 /**
  * Creates the TypeScript capability-module builder helper.
  *
@@ -12,35 +10,17 @@ export function createTsCapabilityBuilder() {
 	return createHelper({
 		key: 'ts-capability-builder',
 		kind: 'builder',
-		dependsOn: ['ir.capability-map.core'],
-		async apply({ input, output, reporter }) {
+		dependsOn: ['ir.capability-map.core', 'ir.artifacts.plan'],
+		async apply({ input, reporter }) {
 			if (!input.ir || !input.ir.capabilityMap.definitions.length) {
 				reporter.debug(
 					'Skipping TypeScript capability module generation (no capabilities defined).'
 				);
 				return;
 			}
-
-			const { source, declaration } = await printCapabilityModule(
-				input.ir
+			reporter.debug(
+				'Skipping TypeScript capability module generation (capabilities folded into runtime).'
 			);
-			const jsPlan = input.ir.artifacts.js?.capabilities;
-			if (!jsPlan) {
-				reporter.debug(
-					'Skipping TypeScript capability module generation (no JS artifact plan).'
-				);
-				return;
-			}
-			const modulePath = jsPlan.modulePath;
-			const dtsPath = jsPlan.declarationPath;
-			output.queueWrite({
-				file: modulePath,
-				contents: source,
-			});
-			output.queueWrite({
-				file: dtsPath,
-				contents: declaration,
-			});
 		},
 	});
 }

@@ -19,14 +19,8 @@ import { makePhpIrFixture } from '@cli-tests/builders/resources.test-support';
 import { buildEmptyGenerationState } from '../../../apply/manifest';
 import { makeWorkspaceMock } from '@cli-tests/workspace.test-support';
 import type { BuilderOutput } from '../../../runtime/types';
-import { createArtifactsFragment } from '../../../ir/fragments/artifacts';
-
-const makeConfig = (namespace: string) => ({
-	version: 1,
-	namespace,
-	schemas: {},
-	resources: {},
-});
+import { createArtifactsFragment } from '../../../ir/fragments/ir.artifacts.plan';
+import type { MutableIr } from '../../../ir/types';
 
 function buildReporter() {
 	return {
@@ -48,22 +42,21 @@ function buildWorkspace() {
 describe('PHP helpers integration (flat pipeline)', () => {
 	it('queues PHP programs with channel + helpers sequence', async () => {
 		const ir = makePhpIrFixture();
-		const config = makeConfig(ir.meta.namespace);
 		const reporter = buildReporter();
 		const workspace = buildWorkspace();
 		const context = {
 			workspace,
 			reporter,
-			phase: 'generate',
+			phase: 'generate' as const,
 			generationState: buildEmptyGenerationState(),
 		};
 		const input = {
 			phase: 'generate' as const,
 			options: {
-				config,
-				namespace: config.namespace,
+				namespace: ir.meta.namespace,
 				origin: ir.meta.origin,
 				sourcePath: ir.meta.sourcePath,
+				config: undefined as never,
 			},
 			ir,
 		};
@@ -76,19 +69,18 @@ describe('PHP helpers integration (flat pipeline)', () => {
 		await artifactsFragment.apply({
 			context,
 			input: {
-				phase: 'generate',
 				options: {
-					config,
-					namespace: config.namespace,
+					namespace: ir.meta.namespace,
 					origin: ir.meta.origin,
 					sourcePath: ir.meta.sourcePath,
+					config: undefined as never,
 				},
-				draft: ir,
+				draft: ir as unknown as MutableIr,
 			},
 			output: {
-				draft: ir,
+				draft: ir as unknown as MutableIr,
 				assign(partial) {
-					Object.assign(ir, partial);
+					Object.assign(ir as MutableIr, partial);
 				},
 			},
 			reporter,

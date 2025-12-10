@@ -1,4 +1,3 @@
-import { WPK_CONFIG_SOURCES } from '@wpkernel/core/contracts';
 import type {
 	ResourceIdentityConfig,
 	ResourceStorageConfig,
@@ -10,8 +9,8 @@ import type {
 	IRv1,
 	IRWarning,
 } from '../../src/ir/publicTypes';
-import { loadDefaultLayout } from '../layout.test-support.js';
 import { makeResource } from './fixtures.test-support.js';
+import { makeIr, makeIrMeta } from '../ir.test-support';
 
 type WpPostStorageConfig = Extract<ResourceStorageConfig, { mode: 'wp-post' }>;
 type WpTaxonomyStorageConfig = Extract<
@@ -324,7 +323,6 @@ export interface MakePhpIrFixtureOptions {
 }
 
 export function makePhpIrFixture(options: MakePhpIrFixtureOptions = {}): IRv1 {
-	const layout = loadDefaultLayout();
 	const namespace = options.namespace ?? 'demo-plugin';
 	const resources = options.resources ?? [
 		makeWpPostResource(),
@@ -333,13 +331,10 @@ export function makePhpIrFixture(options: MakePhpIrFixtureOptions = {}): IRv1 {
 		makeTransientResource(),
 	];
 
-	return {
-		meta: {
-			version: 1,
-			namespace,
+	return makeIr({
+		namespace,
+		meta: makeIrMeta(namespace, {
 			sanitizedNamespace: namespace,
-			origin: WPK_CONFIG_SOURCES.WPK_CONFIG_TS,
-			sourcePath: WPK_CONFIG_SOURCES.WPK_CONFIG_TS,
 			plugin: {
 				name: 'Demo Plugin',
 				description:
@@ -351,49 +346,7 @@ export function makePhpIrFixture(options: MakePhpIrFixtureOptions = {}): IRv1 {
 				author: 'WPKernel Contributors',
 				license: 'GPL-2.0-or-later',
 			},
-			features: [],
-			ids: {
-				algorithm: 'sha256',
-				resourcePrefix: 'res:',
-				schemaPrefix: 'sch:',
-				blockPrefix: 'blk:',
-				capabilityPrefix: 'cap:',
-			},
-			redactions: [],
-			limits: {
-				maxConfigKB: 0,
-				maxSchemaKB: 0,
-				policy: 'truncate',
-			},
-		},
-		schemas: [],
-		resources: [...resources],
-		capabilities: [],
-		capabilityMap: {
-			sourcePath: undefined,
-			definitions: [],
-			fallback: {
-				capability: 'manage_options',
-				appliesTo: 'resource',
-			},
-			missing: [],
-			unused: [],
-			warnings: [],
-		},
-		blocks: [],
-		php: {
-			namespace: 'Demo\\Plugin',
-			autoload: 'inc/',
-			outputDir: layout.resolve('php.generated'),
-		},
-		layout,
-		artifacts: {
-			pluginLoader: undefined,
-			controllers: Object.create(null),
-			resources: Object.create(null),
-			uiResources: Object.create(null),
-			blocks: Object.create(null),
-			schemas: Object.create(null),
-		},
-	} satisfies IRv1;
+		}),
+		resources,
+	});
 }

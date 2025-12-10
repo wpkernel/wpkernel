@@ -8,7 +8,7 @@ import {
 	getPhpBuilderChannel,
 } from '@wpkernel/wp-json-ast';
 import { buildUiConfig } from './pluginLoader.ui';
-import { toPascalCase } from './utils';
+import { toPascalCase } from '../../utils';
 import {
 	type ContentModel,
 	type PostTypesMap,
@@ -18,6 +18,7 @@ import {
 	type WpPostStorage,
 	type WpTaxonomyStorage,
 } from './types';
+import { type IRSurfacePlan } from '../../ir/publicTypes';
 /**
  * Creates a PHP builder helper for generating the main plugin loader file (`plugin.php`).
  *
@@ -67,6 +68,13 @@ export function createPhpPluginLoaderHelper(): BuilderHelper {
 	});
 }
 
+type UiConfig = ReturnType<typeof buildUiConfig>;
+
+export type GeneratePhaseInput = BuilderApplyOptions['input'] & {
+	phase: 'generate';
+	ir: NonNullable<BuilderApplyOptions['input']['ir']>;
+};
+
 async function generatePluginLoader(options: {
 	readonly ir: GeneratePhaseInput['ir'];
 	readonly phpPlan: NonNullable<GeneratePhaseInput['ir']['artifacts']['php']>;
@@ -74,13 +82,17 @@ async function generatePluginLoader(options: {
 	readonly reporter: BuilderApplyOptions['reporter'];
 }): Promise<void> {
 	const { ir, phpPlan, context, reporter } = options;
+
+	// Surfaces should already be planned at IR level; don’t reach into raw config.
+	const surfaces = Object.values(ir.artifacts.surfaces ?? {});
+	const uiConfig: UiConfig = buildUiConfig(ir);
+
 	const resourceClassNames = buildResourceClassNames(ir, phpPlan);
-	const uiConfig = buildUiConfig(ir);
 
 	await writeDebugUiFile({
 		workspace: context.workspace,
 		ir,
-		uiResources: ir.ui?.resources ?? [],
+		surfaces,
 		uiConfig,
 		phpPlan,
 	});
@@ -124,34 +136,6 @@ async function generatePluginLoader(options: {
 	});
 }
 
-export type GeneratePhaseInput = BuilderApplyOptions['input'] & {
-	phase: 'generate';
-	ir: NonNullable<BuilderApplyOptions['input']['ir']>;
-};
-
-function canGeneratePluginLoader(
-	input: BuilderApplyOptions['input']
-): input is GeneratePhaseInput {
-	return input.phase === 'generate' && Boolean(input.ir);
-}
-
-function buildResourceClassNames(
-	ir: GeneratePhaseInput['ir'],
-	phpPlan: NonNullable<GeneratePhaseInput['ir']['artifacts']['php']>
-): string[] {
-	return ir.resources.map((resource) => {
-		const planned = phpPlan.controllers[resource.id];
-		if (planned?.className) {
-			return planned.className;
-		}
-		if (resource.controllerClass) {
-			return resource.controllerClass;
-		}
-		const pascal = toPascalCase(resource.name);
-		return `${ir.php.namespace}\\Generated\\Rest\\${pascal}Controller`;
-	});
-}
-
 function buildLoaderConfig({
 	ir,
 	resourceClassNames,
@@ -160,7 +144,7 @@ function buildLoaderConfig({
 }: {
 	ir: GeneratePhaseInput['ir'];
 	resourceClassNames: string[];
-	uiConfig: ReturnType<typeof buildUiConfig>;
+	uiConfig: UiConfig;
 	phpPlan: NonNullable<GeneratePhaseInput['ir']['artifacts']['php']>;
 }): Parameters<typeof buildPluginLoaderProgram>[0] {
 	const base = {
@@ -184,6 +168,58 @@ function buildLoaderConfig({
 	return uiConfig
 		? { ...base, ui: uiConfig, contentModel }
 		: { ...base, contentModel };
+}
+
+async function writeDebugUiFile({
+	workspace,
+	ir,
+	surfaces,
+	uiConfig,
+	phpPlan,
+}: {
+	workspace: BuilderApplyOptions['context']['workspace'];
+	ir: GeneratePhaseInput['ir'];
+	surfaces: IRSurfacePlan[];
+	uiConfig: UiConfig;
+	phpPlan: NonNullable<GeneratePhaseInput['ir']['artifacts']['php']>;
+}): Promise<void> {
+	await workspace.write(
+		phpPlan.debugUiPath,
+		JSON.stringify(
+			{
+				namespace: ir.meta.namespace,
+				sanitizedNamespace: ir.meta.sanitizedNamespace,
+				surfaces,
+				uiConfig: uiConfig ?? null,
+			},
+			null,
+			2
+		),
+		{ ensureDir: true }
+	);
+}
+
+function canGeneratePluginLoader(
+	input: BuilderApplyOptions['input']
+): input is GeneratePhaseInput {
+	return input.phase === 'generate' && Boolean(input.ir);
+}
+
+function buildResourceClassNames(
+	ir: GeneratePhaseInput['ir'],
+	phpPlan: NonNullable<GeneratePhaseInput['ir']['artifacts']['php']>
+): string[] {
+	return ir.resources.map((resource) => {
+		const planned = phpPlan.controllers[resource.id];
+		if (planned?.className) {
+			return planned.className;
+		}
+		if (resource.controllerClass) {
+			return resource.controllerClass;
+		}
+		const pascal = toPascalCase(resource.name);
+		return `${ir.php.namespace}\\Generated\\Rest\\${pascal}Controller`;
+	});
 }
 
 function buildContentModelConfig(ir: GeneratePhaseInput['ir']): ContentModel {
@@ -507,35 +543,6 @@ function toLabel(value: string): string {
 		.filter(Boolean)
 		.map((segment) => segment.charAt(0).toUpperCase() + segment.slice(1))
 		.join(' ');
-}
-
-async function writeDebugUiFile({
-	workspace,
-	ir,
-	uiResources,
-	uiConfig,
-	phpPlan,
-}: {
-	workspace: BuilderApplyOptions['context']['workspace'];
-	ir: GeneratePhaseInput['ir'];
-	uiResources: NonNullable<GeneratePhaseInput['ir']['ui']>['resources'] | [];
-	uiConfig: ReturnType<typeof buildUiConfig>;
-	phpPlan: NonNullable<GeneratePhaseInput['ir']['artifacts']['php']>;
-}): Promise<void> {
-	await workspace.write(
-		phpPlan.debugUiPath,
-		JSON.stringify(
-			{
-				namespace: ir.meta.namespace,
-				sanitizedNamespace: ir.meta.sanitizedNamespace,
-				uiResources,
-				uiConfig: uiConfig ?? null,
-			},
-			null,
-			2
-		),
-		{ ensureDir: true }
-	);
 }
 
 async function pluginLoaderIsUserOwned({

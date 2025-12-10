@@ -1,10 +1,9 @@
 import { createHelper } from '../../runtime';
 import type { BuilderApplyOptions } from '../../runtime/types';
 import type { IRResource } from '../../ir/publicTypes';
-import { toPascalCase } from './metadata';
 import type { ResourcePostMetaDescriptor } from '@wpkernel/core/resource';
 import { IndentationText, Project, type InterfaceDeclaration } from 'ts-morph';
-import path from 'node:path';
+import { toPascalCase } from '../../utils';
 
 /**
  * Creates a builder helper for generating TypeScript type definitions from resource storage configuration.
@@ -35,60 +34,76 @@ export function createTsTypesBuilder() {
 }
 
 async function processResources(options: BuilderApplyOptions): Promise<void> {
+	const ir = options.input.ir;
+	if (!ir) {
+		return;
+	}
+
+	for (const resource of ir.resources ?? []) {
+		await processResource(options, resource);
+	}
+}
+
+async function processResource(
+	options: BuilderApplyOptions,
+	resource: IRResource
+): Promise<void> {
 	const { input, context, output, reporter } = options;
 	const ir = input.ir;
 	if (!ir) {
 		return;
 	}
 
-	for (const resource of ir.resources ?? []) {
-		const schemaPlan = ir.artifacts.schemas[resource.schemaKey ?? ''];
-		const resourcePlan = ir.artifacts.resources[resource.id];
-		if (!resourcePlan) {
-			reporter.debug(
-				'createTsTypesBuilder: missing resource plan; skipping.',
-				{ resource: resource.name }
-			);
-			continue;
-		}
+	const resourcePlan = ir.artifacts.resources[resource.id];
+	if (!resourcePlan) {
+		reporter.debug(
+			'createTsTypesBuilder: missing resource plan; skipping.',
+			{ resource: resource.name }
+		);
+		return;
+	}
 
-		if (!resourceHasSchema(resource, input.ir.schemas)) {
-			continue;
-		}
+	if (!resourceHasSchema(resource, input.ir.schemas)) {
+		return;
+	}
 
-		try {
-			const ts = generateResourceType(resource);
-			const outputPath =
-				schemaPlan?.typeDefPath ??
-				path.posix.join(
-					ir.layout.resolve('ui.generated'),
-					'types',
-					`${resource.name}.d.ts`
-				);
+	const schemaPlan = resource.schemaKey
+		? ir.artifacts.schemas[resource.schemaKey]
+		: undefined;
+	const outputPath = schemaPlan?.typeDefPath ?? resourcePlan.typeDefPath;
+	if (!outputPath) {
+		reporter.debug(
+			'createTsTypesBuilder: missing type output path; skipping.',
+			{ resource: resource.name }
+		);
+		return;
+	}
 
-			await context.workspace.write(outputPath, ts, {
-				ensureDir: true,
-			});
+	try {
+		const ts = generateResourceType(resource);
 
-			output.queueWrite({
-				file: outputPath,
-				contents: ts,
-			});
+		await context.workspace.write(outputPath, ts, {
+			ensureDir: true,
+		});
 
-			reporter.debug(
-				`createTsTypesBuilder: generated types for ${resource.name}`,
-				{
-					path: outputPath,
-				}
-			);
-		} catch (error) {
-			reporter.warn(
-				`createTsTypesBuilder: failed to generate types for ${resource.name}`,
-				{
-					error,
-				}
-			);
-		}
+		output.queueWrite({
+			file: outputPath,
+			contents: ts,
+		});
+
+		reporter.debug(
+			`createTsTypesBuilder: generated types for ${resource.name}`,
+			{
+				path: outputPath,
+			}
+		);
+	} catch (error) {
+		reporter.warn(
+			`createTsTypesBuilder: failed to generate types for ${resource.name}`,
+			{
+				error,
+			}
+		);
 	}
 }
 

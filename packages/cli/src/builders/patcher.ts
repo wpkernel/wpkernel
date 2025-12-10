@@ -167,7 +167,7 @@ export function createPatcher(): BuilderHelper {
 	return createHelper({
 		key: 'builder.apply.patch.core',
 		kind: 'builder',
-		dependsOn: ['builder.generate.apply.plan', 'ir.layout.core'],
+		dependsOn: ['builder.generate.apply.plan', 'ir.artifacts.plan'],
 		async apply({ context, input, output, reporter }: BuilderApplyOptions) {
 			const supportedPhase =
 				input.phase === 'generate' || input.phase === 'apply';
@@ -178,9 +178,14 @@ export function createPatcher(): BuilderHelper {
 				return;
 			}
 
-			const paths = resolvePatchPaths(
-				input.ir ? { layout: input.ir.layout } : {}
-			);
+			if (!input.ir?.artifacts?.plan) {
+				throw new WPKernelError('DeveloperError', {
+					message:
+						'Patch plan artifacts missing; cannot apply patches.',
+				});
+			}
+
+			const paths = resolvePatchPaths({ plan: input.ir.artifacts.plan });
 			const plan = await readPlan(context.workspace, paths.planPath);
 
 			if (!hasPlanInstructions(plan)) {

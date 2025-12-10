@@ -27,10 +27,11 @@ function buildMetadataHost(): ResourceMetadataHost {
 
 function buildResource(storage: IRResource['storage']): IRResource {
 	return {
-		id: '',
+		id: 'res:book',
 		name: 'book',
 		schemaKey: 'book',
 		schemaProvenance: 'manual',
+		controllerClass: 'Demo\\BookController',
 		routes: [],
 		cacheKeys: {
 			list: { segments: [], source: 'default' },

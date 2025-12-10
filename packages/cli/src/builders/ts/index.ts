@@ -19,8 +19,6 @@ export {
 	buildModuleSpecifier,
 } from './imports';
 export {
-	toPascalCase,
-	toCamelCase,
 	formatBlockVariableName,
 	buildBlockRegistrarMetadata,
 } from './metadata';
