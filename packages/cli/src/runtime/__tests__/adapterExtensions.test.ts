@@ -152,7 +152,7 @@ describe('buildAdapterExtensionsExtension', () => {
 		expect(args?.adapterContext.ir).toBe(ir);
 		expect(args?.outputDir).toBe(
 			options.options.workspace.resolve(
-				options.artifact.layout.resolve('js.generated')
+				options.artifact.artifacts.runtime.runtime.generated
 			)
 		);
 		expect(args?.configDirectory).toBe(

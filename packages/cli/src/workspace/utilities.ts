@@ -55,6 +55,30 @@ export interface ConfirmPromptOptions {
 	readonly output?: NodeJS.WritableStream;
 }
 
+export type WorkspaceLike = { readonly root: string } | string;
+
+/**
+ * Resolves a path inside the given workspace.
+ *
+ * - `workspace` may be a Workspace-like object with a `root` property
+ *   or a string root path.
+ * - Additional `segments` are joined and resolved relative to that root.
+ * - Returns an absolute, normalised path.
+ * @param          workspace
+ * @param {...any} segments
+ */
+export function resolveFromWorkspace(
+	workspace: WorkspaceLike,
+	...segments: string[]
+): string {
+	const root =
+		typeof workspace === 'string'
+			? path.resolve(workspace)
+			: path.resolve(workspace.root);
+
+	return path.resolve(root, ...segments);
+}
+
 async function statIfExists(target: string): Promise<Stats | null> {
 	try {
 		return await fs.lstat(target);
@@ -67,13 +91,45 @@ async function statIfExists(target: string): Promise<Stats | null> {
 	}
 }
 
-function toWorkspaceRelative(workspace: Workspace, absolute: string): string {
-	const relative = path.relative(workspace.root, absolute);
-	if (relative === '') {
+/**
+ * Converts a target path to a workspace-relative POSIX path when possible.
+ *
+ * - `workspace` may be a Workspace-like object with a `root` property
+ *   or a string root path.
+ * - `targetPath` may be absolute or relative; relative paths are resolved
+ *   against the workspace root.
+ * - If the resolved path is inside the workspace, a relative POSIX path
+ *   is returned ('.' for the root).
+ * - If the resolved path is outside the workspace, the absolute path is
+ *   returned, normalised to POSIX separators.
+ * @param workspace
+ * @param targetPath
+ */
+export function toWorkspaceRelative(
+	workspace: WorkspaceLike,
+	targetPath: string
+): string {
+	const root =
+		typeof workspace === 'string'
+			? path.resolve(workspace)
+			: path.resolve(workspace.root);
+
+	const absolute = path.isAbsolute(targetPath)
+		? path.resolve(targetPath)
+		: path.resolve(root, targetPath);
+
+	const relativePath = path.relative(root, absolute);
+
+	if (relativePath === '') {
 		return '.';
 	}
 
-	return relative.split(path.sep).join('/');
+	// Outside the workspace: keep it absolute but normalised
+	if (relativePath.startsWith('..') || path.isAbsolute(relativePath)) {
+		return absolute.split(path.sep).join(path.posix.sep);
+	}
+
+	return relativePath.split(path.sep).join(path.posix.sep);
 }
 
 function normaliseDirectory(directory: string, workspace: Workspace): string {
@@ -294,16 +350,6 @@ export async function promptConfirm({
 		rl.close();
 	}
 }
-
-/**
- * Converts an absolute path to a path relative to the workspace root.
- *
- * @category Workspace
- * @param    workspace - The workspace instance.
- * @param    absolute  - The absolute path to convert.
- * @returns The path relative to the workspace root, using POSIX separators.
- */
-export { toWorkspaceRelative };
 
 export const __testing = Object.freeze({
 	formatPrompt,

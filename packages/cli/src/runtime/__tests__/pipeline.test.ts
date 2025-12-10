@@ -16,6 +16,7 @@ import {
 } from '../../../tests/runtime/pipeline.fixtures.test-support';
 import { withPipelineHarness } from '../../../tests/runtime/pipeline.test-support';
 import { loadTestLayoutSync } from '../../../tests/layout.test-support';
+import { buildTestArtifactsPlan, makeIrMeta } from '@cli-tests/ir.test-support';
 
 const DUMMY_LAYOUT = {
 	resolve(id: string) {
@@ -49,27 +50,11 @@ function createMetaHelper({
 		apply({ output }: FragmentApplyOptions) {
 			onApply?.();
 			output.assign({
-				meta: {
-					version: 1,
-					namespace,
+				meta: makeIrMeta(namespace, {
 					sanitizedNamespace,
-					origin: 'typescript',
 					sourcePath: 'config.ts',
-					features: [],
-					ids: {
-						algorithm: 'sha256',
-						resourcePrefix: 'res:',
-						schemaPrefix: 'sch:',
-						blockPrefix: 'blk:',
-						capabilityPrefix: 'cap:',
-					},
-					redactions: [],
-					limits: {
-						maxConfigKB: 512,
-						maxSchemaKB: 512,
-						policy: 'error',
-					},
-				},
+					origin: 'typescript',
+				}),
 				php: {
 					namespace: sanitizedNamespace,
 					autoload: 'inc/',
@@ -192,6 +177,22 @@ describe('createPipeline', () => {
 						},
 					})
 				);
+				ctx.pipeline.ir.use(
+					createHelper({
+						key: 'ir.artifacts.test',
+						kind: 'fragment',
+						mode: 'override',
+						dependsOn: ['ir.layout.test'],
+						apply({ input, output }) {
+							// Provide a minimal artifacts plan so pipeline finalisation succeeds.
+							output.assign({
+								artifacts: buildTestArtifactsPlan(
+									input.draft.layout as any
+								),
+							});
+						},
+					})
+				);
 				await run(ctx);
 			},
 			{ config, ...(options ?? {}) }
@@ -246,6 +247,7 @@ describe('createPipeline', () => {
 			]);
 			expect(steps.map((step) => step.key)).toEqual([
 				'ir.layout.test',
+				'ir.artifacts.test',
 				'ir.meta.test',
 				'ir.collection.test',
 				'ir.capability-map.test',
@@ -547,27 +549,11 @@ describe('createPipeline', () => {
 					mode: 'override',
 					apply({ output }: FragmentApplyOptions) {
 						output.assign({
-							meta: {
-								version: 1,
-								namespace: 'priority',
+							meta: makeIrMeta('priority', {
 								sanitizedNamespace: 'Priority',
 								origin: 'typescript',
 								sourcePath: 'config.ts',
-								features: [],
-								ids: {
-									algorithm: 'sha256',
-									resourcePrefix: 'res:',
-									schemaPrefix: 'sch:',
-									blockPrefix: 'blk:',
-									capabilityPrefix: 'cap:',
-								},
-								redactions: [],
-								limits: {
-									maxConfigKB: 512,
-									maxSchemaKB: 512,
-									policy: 'error',
-								},
-							},
+							}),
 							php: {
 								namespace: 'Priority',
 								autoload: 'inc/',
@@ -705,13 +691,11 @@ describe('createPipeline', () => {
 					mode: 'override',
 					apply({ output }: FragmentApplyOptions) {
 						output.assign({
-							meta: {
-								version: 1,
-								namespace: 'commit',
+							meta: makeIrMeta('priority', {
 								sanitizedNamespace: 'commit',
 								origin: 'typescript',
 								sourcePath: 'config.ts',
-							},
+							}),
 							php: {
 								namespace: 'Commit',
 								autoload: 'inc/',
@@ -787,13 +771,11 @@ describe('createPipeline', () => {
 					mode: 'override',
 					apply({ output }: FragmentApplyOptions) {
 						output.assign({
-							meta: {
-								version: 1,
-								namespace: 'extension-failure',
+							meta: makeIrMeta('priority', {
 								sanitizedNamespace: 'ExtensionFailure',
 								origin: 'typescript',
 								sourcePath: 'config.ts',
-							},
+							}),
 							php: {
 								namespace: 'ExtensionFailure',
 								autoload: 'inc/',
@@ -871,13 +853,11 @@ describe('createPipeline', () => {
 					mode: 'override',
 					apply({ output }: FragmentApplyOptions) {
 						output.assign({
-							meta: {
-								version: 1,
-								namespace: 'rollback',
+							meta: makeIrMeta('priority', {
 								sanitizedNamespace: 'rollback',
 								origin: 'typescript',
 								sourcePath: 'config.ts',
-							},
+							}),
 							php: {
 								namespace: 'Rollback',
 								autoload: 'inc/',
@@ -955,13 +935,11 @@ describe('createPipeline', () => {
 					mode: 'override',
 					apply({ output }: FragmentApplyOptions) {
 						output.assign({
-							meta: {
-								version: 1,
-								namespace: 'rollback-missing',
+							meta: makeIrMeta('priority', {
 								sanitizedNamespace: 'RollbackMissing',
 								origin: 'typescript',
 								sourcePath: 'config.ts',
-							},
+							}),
 							php: {
 								namespace: 'RollbackMissing',
 								autoload: 'inc/',
@@ -1041,13 +1019,11 @@ describe('createPipeline', () => {
 					mode: 'override',
 					apply({ output }: FragmentApplyOptions) {
 						output.assign({
-							meta: {
-								version: 1,
-								namespace: 'rollback-warning',
-								sanitizedNamespace: 'RollbackWarning',
+							meta: makeIrMeta('priority', {
+								sanitizedNamespace: 'RollbackMissing',
 								origin: 'typescript',
 								sourcePath: 'config.ts',
-							},
+							}),
 							php: {
 								namespace: 'RollbackWarning',
 								autoload: 'inc/',

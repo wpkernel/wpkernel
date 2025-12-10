@@ -158,15 +158,7 @@ export async function withPipelineHarness(
 
 	await withWorkspace(
 		async (workspaceRoot) => {
-			const pipeline = createPipeline({
-				builderProvidedKeys: [
-					'builder.generate.php.controller.resources',
-					'builder.generate.php.capability',
-					'builder.generate.php.registration.persistence',
-					'builder.generate.php.plugin-loader',
-					'builder.generate.php.index',
-				],
-			});
+			const pipeline = createPipeline();
 			const workspace = buildWorkspace(workspaceRoot);
 			const reporter = reporterFactory();
 

@@ -11,9 +11,16 @@ import type {
 export type { WorkspaceOptions } from './integration/index.js';
 export { withWorkspace, createWorkspaceRunner } from './integration/index.js';
 
+type WorkspaceWriteOverride =
+	| WorkspaceContract['write']
+	| ((file: string, contents: string) => Promise<void>);
+
 export type WorkspaceMockOptions<
 	TWorkspace extends WorkspaceContract = WorkspaceContract,
-> = Partial<TWorkspace> & { readonly root?: string };
+> = Partial<TWorkspace> & {
+	readonly root?: string;
+	readonly write?: WorkspaceWriteOverride;
+};
 
 type WorkspaceContract = Workspace;
 

@@ -8,7 +8,7 @@ describe('utils/path', () => {
 	it('resolveFromWorkspace resolves relative to process.cwd()', () => {
 		const segs = ['packages', 'cli', 'README.md'];
 		const expected = path.resolve(process.cwd(), ...segs);
-		expect(resolveFromWorkspace(...segs)).toBe(expected);
+		expect(resolveFromWorkspace(process.cwd(), ...segs)).toBe(expected);
 	});
 
 	it('toWorkspaceRelative returns workspace-relative path for internal paths', () => {
@@ -18,7 +18,7 @@ describe('utils/path', () => {
 			'cli',
 			'README.md'
 		);
-		const rel = toWorkspaceRelative(fileInWorkspace);
+		const rel = toWorkspaceRelative(process.cwd(), fileInWorkspace);
 		// should be relative and not start with '..'
 		expect(rel).not.toMatch(/^\.\./);
 		expect(rel).toMatch(/packages\/cli\/README\.md$/);
@@ -32,7 +32,7 @@ describe('utils/path', () => {
 		await fs.writeFile(outsideFile, 'x', 'utf8');
 
 		try {
-			const res = toWorkspaceRelative(outsideFile);
+			const res = toWorkspaceRelative(process.cwd(), outsideFile);
 			expect(res).toBe(outsideFile);
 		} finally {
 			await fs.rm(tmpDir, { recursive: true, force: true });
@@ -40,7 +40,7 @@ describe('utils/path', () => {
 	});
 
 	it('toWorkspaceRelative returns "." when target is the workspace root', () => {
-		const res = toWorkspaceRelative(process.cwd());
+		const res = toWorkspaceRelative(process.cwd(), process.cwd());
 		expect(res).toBe('.');
 	});
 });

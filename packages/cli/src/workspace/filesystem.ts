@@ -10,7 +10,7 @@ import type {
 	WriteJsonOptions,
 	WriteOptions,
 } from './types';
-import { loadLayoutFromWorkspace } from '../layout/manifest';
+import { loadLayoutFromWorkspace } from '../ir/fragments/ir.layout.core';
 
 interface TransactionOriginalMissing {
 	readonly type: 'missing';

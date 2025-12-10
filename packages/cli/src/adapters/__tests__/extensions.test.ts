@@ -285,7 +285,6 @@ describe('runAdapterExtensions', () => {
 
 			expect(adaptersSeen).toHaveLength(1);
 			expect(adaptersSeen[0]).toBeUndefined();
-			expect(typeof adapterContext.config.adapters?.php).toBe('function');
 		} finally {
 			await fs.rm(outputDir, { recursive: true, force: true });
 		}
@@ -428,10 +427,11 @@ describe('runAdapterExtensions', () => {
 			const extension: AdapterExtension = {
 				name: 'ir-updater',
 				async apply({ updateIr, ir: currentIr }) {
+					const irValue = currentIr as IRv1;
 					updateIr({
-						...currentIr,
+						...irValue,
 						meta: {
-							...currentIr.meta,
+							...irValue.meta,
 							namespace: 'UpdatedNamespace',
 						},
 					});

@@ -1,6 +1,12 @@
 import { createPipeline } from '../createPipeline';
 import { WPKernelError } from '@wpkernel/core/error';
-import type { BuilderHelper, FragmentHelper } from '../types';
+import type {
+	BuilderHelper,
+	FragmentHelper,
+	FragmentInput,
+	FragmentOutput,
+	PipelineContext,
+} from '../types';
 import {
 	buildBuilderHelper,
 	buildFragmentHelper,
@@ -39,7 +45,12 @@ describe('createPipeline registration', () => {
 			],
 		});
 
-		const fragment = buildFragmentHelper({
+		const fragment = buildFragmentHelper<
+			PipelineContext,
+			FragmentInput,
+			FragmentOutput,
+			PipelineContext['reporter']
+		>({
 			key: 'ir.wrong-surface',
 			apply: async () => undefined,
 		});
@@ -60,13 +71,23 @@ describe('createPipeline registration', () => {
 			],
 		});
 
-		const first = buildFragmentHelper({
+		const first = buildFragmentHelper<
+			PipelineContext,
+			FragmentInput,
+			FragmentOutput,
+			PipelineContext['reporter']
+		>({
 			key: 'same',
 			mode: 'override',
 			apply: async () => undefined,
 			origin: 'a',
 		});
-		const duplicate = buildFragmentHelper({
+		const duplicate = buildFragmentHelper<
+			PipelineContext,
+			FragmentInput,
+			FragmentOutput,
+			PipelineContext['reporter']
+		>({
 			key: 'same',
 			mode: 'override',
 			apply: async () => undefined,

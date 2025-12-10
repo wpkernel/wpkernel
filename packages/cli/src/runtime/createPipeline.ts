@@ -3,7 +3,7 @@ import {
 	type CreatePipelineOptions,
 } from '@wpkernel/pipeline';
 import { WPKernelError } from '@wpkernel/core/error';
-import type { BuildIrOptions } from '../ir/publicTypes';
+import type { FragmentIrOptions } from '../ir/publicTypes';
 import {
 	buildIrDraft,
 	buildIrFragmentOutput,
@@ -37,13 +37,13 @@ function buildBuilderOutput(): BuilderOutput {
 
 function mapRunOptionsToBuildOptions(
 	options: PipelineRunOptions
-): BuildIrOptions {
+): FragmentIrOptions {
 	return {
 		config: options.config,
 		namespace: options.namespace,
 		origin: options.origin,
 		sourcePath: options.sourcePath,
-	} satisfies BuildIrOptions;
+	} satisfies FragmentIrOptions;
 }
 
 /**
@@ -58,7 +58,7 @@ function mapRunOptionsToBuildOptions(
  */
 type CliPipelineOptions = CreatePipelineOptions<
 	PipelineRunOptions,
-	BuildIrOptions,
+	FragmentIrOptions,
 	PipelineContext,
 	PipelineContext['reporter'],
 	MutableIr,
@@ -88,12 +88,12 @@ export function createPipeline(
 		'ir.ordering.core',
 		'ir.bundler.core',
 		'ir.artifacts.plan',
-		'ir.ui.resources',
+		'ir.ui.core',
 	];
 
 	return createCorePipeline<
 		PipelineRunOptions,
-		BuildIrOptions,
+		FragmentIrOptions,
 		PipelineContext,
 		PipelineContext['reporter'],
 		MutableIr,
