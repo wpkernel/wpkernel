@@ -1,12 +1,18 @@
 import { createWPKLibConfig } from '../../vite.config.base';
 import pkg from './package.json';
 
+const dataviewsExternal = [
+	/^@wordpress\/dataviews(\/.*)?$/,
+	/^@wordpress\/dataviews$/,
+];
+
 const external = [
 	...Object.keys(pkg.peerDependencies || {}),
-	'@wordpress/dataviews',
+	...dataviewsExternal,
 	'@wordpress/data',
 	'@wordpress/components',
 	'@wordpress/element',
+	'@wordpress/element/jsx-runtime',
 ];
 
 export default createWPKLibConfig(
@@ -17,5 +23,7 @@ export default createWPKLibConfig(
 	},
 	{
 		external,
+		// Keep console diagnostics in library builds while we debug DataViews wiring.
+		dropConsoleInProd: false,
 	}
 );

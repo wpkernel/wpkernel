@@ -44,6 +44,12 @@ export interface CreateDependencyGraphOptions<THelper> {
 	readonly onUnresolvedHelpers?: (options: {
 		readonly unresolved: RegisteredHelper<THelper>[];
 	}) => void;
+	/**
+	 * Optional set of helper keys that are considered “already satisfied”.
+	 * Useful when a pipeline run intentionally omits certain helpers (e.g. IR
+	 * fragments) but builders still declare them as dependencies.
+	 */
+	readonly providedKeys?: readonly string[];
 }
 
 /**
@@ -263,6 +269,79 @@ function sortByDependencies<THelper extends HelperDescriptor>(
 }
 
 /**
+ * Handles missing dependency issues by invoking callbacks and throwing errors.
+ *
+ * @param missing
+ * @param options
+ * @param createError
+ * @internal
+ */
+function handleMissingDependencies<THelper extends HelperDescriptor>(
+	missing: MissingDependencyIssue<THelper>[],
+	options: CreateDependencyGraphOptions<THelper> | undefined,
+	createError: (code: string, message: string) => Error
+): void {
+	if (missing.length === 0) {
+		return;
+	}
+
+	if (options?.onMissingDependency) {
+		for (const issue of missing) {
+			options.onMissingDependency(issue);
+		}
+	}
+
+	const missingByHelper = new Map<string, string[]>();
+	for (const issue of missing) {
+		const helperKey = issue.dependant.helper.key;
+		const deps = missingByHelper.get(helperKey) ?? [];
+		deps.push(issue.dependencyKey);
+		missingByHelper.set(helperKey, deps);
+	}
+
+	const descriptions = Array.from(missingByHelper.entries())
+		.map(
+			([helper, deps]) =>
+				`"${helper}" → [${deps.map((d) => `"${d}"`).join(', ')}]`
+		)
+		.join(', ');
+
+	throw createError(
+		'ValidationError',
+		`Helpers depend on unknown helpers: ${descriptions}.`
+	);
+}
+
+/**
+ * Handles unresolved helpers by invoking callbacks and throwing errors.
+ *
+ * @param unresolved
+ * @param options
+ * @param createError
+ * @internal
+ */
+function handleUnresolvedHelpers<THelper extends HelperDescriptor>(
+	unresolved: RegisteredHelper<THelper>[],
+	options: CreateDependencyGraphOptions<THelper> | undefined,
+	createError: (code: string, message: string) => Error
+): void {
+	if (unresolved.length === 0) {
+		return;
+	}
+
+	if (options?.onUnresolvedHelpers) {
+		options.onUnresolvedHelpers({ unresolved });
+	}
+
+	const unresolvedKeys = unresolved.map((entry) => entry.helper.key);
+
+	throw createError(
+		'ValidationError',
+		`Detected unresolved pipeline helpers: ${unresolvedKeys.join(', ')}.`
+	);
+}
+
+/**
  * Creates a dependency graph and returns the topological order.
  *
  * Validates that all dependencies exist and that there are no circular dependencies.
@@ -287,44 +366,16 @@ export function createDependencyGraph<THelper extends HelperDescriptor>(
 	const graph = createGraphState(entries);
 	const missing = registerHelperDependencies(entries, graph);
 
-	if (missing.length > 0) {
-		for (const issue of missing) {
-			options?.onMissingDependency?.(issue);
-		}
+	const provided = new Set(options?.providedKeys ?? []);
+	const actionableMissing = missing.filter(
+		(issue) => !provided.has(issue.dependencyKey)
+	);
 
-		// Aggregate all missing dependencies into a single error message
-		const missingByHelper = new Map<string, string[]>();
-		for (const issue of missing) {
-			const helperKey = issue.dependant.helper.key;
-			const deps = missingByHelper.get(helperKey) ?? [];
-			deps.push(issue.dependencyKey);
-			missingByHelper.set(helperKey, deps);
-		}
-
-		const descriptions = Array.from(missingByHelper.entries())
-			.map(
-				([helper, deps]) =>
-					`"${helper}" → [${deps.map((d) => `"${d}"`).join(', ')}]`
-			)
-			.join(', ');
-
-		throw createError(
-			'ValidationError',
-			`Helpers depend on unknown helpers: ${descriptions}.`
-		);
-	}
+	handleMissingDependencies(actionableMissing, options, createError);
 
 	const { ordered, unresolved } = sortByDependencies(entries, graph);
 
-	if (unresolved.length > 0) {
-		options?.onUnresolvedHelpers?.({ unresolved });
-		const unresolvedKeys = unresolved.map((entry) => entry.helper.key);
-
-		throw createError(
-			'ValidationError',
-			`Detected unresolved pipeline helpers: ${unresolvedKeys.join(', ')}.`
-		);
-	}
+	handleUnresolvedHelpers(unresolved, options, createError);
 
 	return { order: ordered, adjacency: graph.adjacency };
 }

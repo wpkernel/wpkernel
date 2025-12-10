@@ -5,8 +5,30 @@ import { createApplyPlanBuilder } from '../plan';
 import { buildWorkspace } from '../../workspace';
 import { buildEmptyGenerationState } from '../../apply/manifest';
 import { makeIr } from '@cli-tests/ir.test-support';
-import { loadTestLayout } from '@cli-tests/layout.test-support';
+import { loadTestLayout } from '@wpkernel/test-utils/layout.test-support';
 import { createReporterMock } from '@cli-tests/reporter';
+import type { BuilderWriteAction } from '../../runtime/types';
+
+function seedBlockArtifacts(
+	ir: ReturnType<typeof makeIr>,
+	layout: { resolve: (id: string) => string }
+) {
+	const generated = layout.resolve('blocks.generated');
+	const applied = layout.resolve('blocks.applied');
+	ir.artifacts.blocks = {
+		[`${ir.meta.namespace}-block`]: {
+			key: 'demo',
+			appliedDir: applied,
+			generatedDir: generated,
+			jsonPath: path.posix.join(generated, 'demo/block.json'),
+			tsEntry: path.posix.join(generated, 'demo/index.tsx'),
+			tsView: path.posix.join(generated, 'demo/view.tsx'),
+			tsHelper: path.posix.join(generated, 'demo/helper.ts'),
+			mode: 'js',
+			phpRenderPath: undefined,
+		},
+	};
+}
 
 async function withTempWorkspace(
 	populate: (root: string) => Promise<void>,
@@ -24,7 +46,7 @@ async function withTempWorkspace(
 async function runPlanBuilder(root: string, ir = makeIr()): Promise<void> {
 	const workspace = buildWorkspace(root);
 	const reporter = createReporterMock();
-	const actions: unknown[] = [];
+	const actions: BuilderWriteAction[] = [];
 	const helper = createApplyPlanBuilder();
 
 	await helper.apply({
@@ -37,7 +59,6 @@ async function runPlanBuilder(root: string, ir = makeIr()): Promise<void> {
 		input: {
 			phase: 'generate',
 			options: {
-				config: ir.config,
 				namespace: ir.meta.namespace,
 				origin: ir.meta.origin,
 				sourcePath: path.join(root, 'wpk.config.ts'),
@@ -137,9 +158,11 @@ describe('apply plan (layout-driven)', () => {
 				);
 			},
 			async (root) => {
-				await runPlanBuilder(root, makeIr());
-
 				const layout = await loadTestLayout({ cwd: root });
+				const ir = makeIr();
+				seedBlockArtifacts(ir, layout);
+				await runPlanBuilder(root, ir);
+
 				const planRaw = await buildWorkspace(root).readText(
 					path.posix.join(layout.resolve('plan.manifest'))
 				);
@@ -187,6 +210,7 @@ describe('apply plan (layout-driven)', () => {
 					},
 				});
 
+				seedBlockArtifacts(ir, ir.layout);
 				await runPlanBuilder(root, ir);
 
 				const planRaw = await buildWorkspace(root).readText(

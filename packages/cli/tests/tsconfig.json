@@ -5,9 +5,11 @@
 		"baseUrl": "../../../",
 		"rootDir": "../..",
 		"outDir": "../dist-test-support",
-		"noEmit": true
+		"noEmit": true,
+		"skipLibCheck": true
 	},
 	"files": ["../package.json"],
+	"exclude": [],
 	"include": ["./**/*.ts", "./**/*.tsx"],
 	"references": [{ "path": "../tsconfig.json" }]
 }

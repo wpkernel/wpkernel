@@ -1,9 +1,6 @@
 import { WPKernelError } from '@wpkernel/core/error';
 import type { Reporter } from '@wpkernel/core/reporter';
-import type {
-	ResourceConfig,
-	ResourceDataViewsScreenConfig,
-} from '@wpkernel/core/resource';
+import type { ResourceConfig } from '@wpkernel/core/resource';
 import { createReporterMock, type ReporterMock } from '@cli-tests/reporter';
 import {
 	validateWPKernelConfig,
@@ -12,57 +9,7 @@ import {
 	runResourceChecks,
 	formatValidationErrors,
 } from '../validate-wpk-config';
-
-interface TestResourceConfig {
-	name: string;
-	routes: {
-		list?: {
-			path: string;
-			method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
-			capability?: string;
-		};
-		get?: {
-			path: string;
-			method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
-			capability?: string;
-		};
-		create?: {
-			path: string;
-			method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
-			capability?: string;
-		};
-		update?: {
-			path: string;
-			method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
-			capability?: string;
-		};
-		remove?: {
-			path: string;
-			method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
-			capability?: string;
-		};
-	};
-	identity?:
-		| { type: 'number'; param?: 'id' }
-		| { type: 'string'; param?: 'id' | 'slug' | 'uuid' };
-	storage?: Record<string, unknown>;
-	ui?: unknown;
-}
-
-interface TestConfig {
-	version?: 1 | 2;
-	namespace: string;
-	schemas: Record<
-		string,
-		{
-			path: string;
-			generated: { types: string };
-			description?: string;
-		}
-	>;
-	resources: Record<string, TestResourceConfig>;
-	adapters?: { php?: unknown };
-}
+import type { WPKernelConfigV1 } from '../types';
 
 function createMockReporter(): {
 	reporter: Reporter;
@@ -74,16 +21,14 @@ function createMockReporter(): {
 }
 
 describe('validateWPKernelConfig', () => {
-	const baseSchema = {
+	const baseSchema: WPKernelConfigV1['schemas'] = {
 		default: {
 			path: 'schemas/default.json',
-			generated: {
-				types: 'types/default.d.ts',
-			},
+			description: 'Default schema',
 		},
 	} as const;
 
-	function createValidConfig(): TestConfig {
+	function createValidConfig(): WPKernelConfigV1 {
 		return {
 			version: 1,
 			namespace: 'valid-namespace',
@@ -99,7 +44,7 @@ describe('validateWPKernelConfig', () => {
 					},
 				},
 			},
-		};
+		} as WPKernelConfigV1;
 	}
 
 	it('returns sanitized namespace when required', () => {
@@ -124,89 +69,6 @@ describe('validateWPKernelConfig', () => {
 		);
 	});
 
-	it('accepts DataViews UI metadata on resources', () => {
-		const { reporter } = createMockReporter();
-		const config = createValidConfig();
-		config.resources.thing!.ui = {
-			admin: {
-				view: 'dataviews',
-				dataviews: {
-					fields: [{ id: 'title', label: 'Title' }],
-					defaultView: {
-						type: 'table',
-						fields: ['title'],
-					},
-					search: true,
-					searchLabel: 'Search things',
-					perPageSizes: [10, 25],
-					defaultLayouts: {
-						table: { columns: ['title'] },
-					},
-					preferencesKey: 'ui/things',
-					views: [
-						{
-							id: 'all',
-							label: 'All things',
-							view: {
-								type: 'table',
-								fields: ['title'],
-							},
-							isDefault: true,
-							description: 'All items including drafts.',
-						},
-					],
-					screen: {
-						component: 'ThingAdminScreen',
-						route: '/admin/things',
-						menu: {
-							slug: 'thing-admin',
-							title: 'Things',
-							capability: 'manage_options',
-						},
-					},
-				},
-			},
-		};
-
-		const result = validateWPKernelConfig(config, {
-			reporter,
-			origin: 'wpk.config.ts',
-			sourcePath: '/tmp/wpk.config.ts',
-		});
-
-		const resource = result.config.resources.thing!;
-		expect(resource.ui?.admin?.view).toBe('dataviews');
-		expect(resource.ui?.admin?.dataviews?.fields).toEqual([
-			{ id: 'title', label: 'Title' },
-		]);
-		expect(resource.ui?.admin?.dataviews?.search).toBe(true);
-		expect(resource.ui?.admin?.dataviews?.searchLabel).toBe(
-			'Search things'
-		);
-		expect(resource.ui?.admin?.dataviews?.perPageSizes).toEqual([10, 25]);
-		expect(resource.ui?.admin?.dataviews?.defaultLayouts).toEqual({
-			table: { columns: ['title'] },
-		});
-		expect(resource.ui?.admin?.dataviews?.preferencesKey).toBe('ui/things');
-		const adminUi = resource.ui?.admin;
-		const dataviews = adminUi?.dataviews;
-		expect(dataviews?.views).toEqual([
-			expect.objectContaining({
-				id: 'all',
-				label: 'All things',
-				isDefault: true,
-			}),
-		]);
-		expect(dataviews).toBeDefined();
-		const screen = dataviews?.screen as
-			| ResourceDataViewsScreenConfig
-			| undefined;
-		if (!screen?.menu) {
-			throw new Error('Expected dataviews menu to be defined.');
-		}
-		expect(screen.menu.slug).toBe('thing-admin');
-	});
-
 	it('rejects cacheKeys declarations', () => {
 		const { reporter } = createMockReporter();
 		const config = createValidConfig();
@@ -221,7 +83,7 @@ describe('validateWPKernelConfig', () => {
 				},
 				cacheKeys: {} as ResourceConfig['cacheKeys'],
 			},
-		} as unknown as TestConfig['resources'];
+		};
 
 		expect(() =>
 			validateWPKernelConfig(config, {
@@ -248,7 +110,7 @@ describe('validateWPKernelConfig', () => {
 					getId: () => 'invalid',
 				},
 			},
-		} as unknown as TestConfig['resources'];
+		};
 
 		expect(() =>
 			validateWPKernelConfig(config, {
@@ -273,7 +135,7 @@ describe('validateWPKernelConfig', () => {
 				},
 				schema: (() => ({})) as unknown as ResourceConfig['schema'],
 			},
-		} as unknown as TestConfig['resources'];
+		};
 
 		expect(() =>
 			validateWPKernelConfig(config, {
@@ -298,7 +160,7 @@ describe('validateWPKernelConfig', () => {
 				},
 				reporter: (() => ({})) as unknown as ResourceConfig['reporter'],
 			},
-		} as unknown as TestConfig['resources'];
+		};
 
 		expect(() =>
 			validateWPKernelConfig(config, {
@@ -309,7 +171,7 @@ describe('validateWPKernelConfig', () => {
 		).toThrow(WPKernelError);
 	});
 
-	it('rejects DataView mapQuery declarations', () => {
+	it('allows DataView mapQuery declarations', () => {
 		const { reporter } = createMockReporter();
 		const config = createValidConfig();
 		config.resources = {
@@ -331,7 +193,7 @@ describe('validateWPKernelConfig', () => {
 					},
 				},
 			},
-		} as unknown as TestConfig['resources'];
+		};
 
 		expect(() =>
 			validateWPKernelConfig(config, {
@@ -339,10 +201,10 @@ describe('validateWPKernelConfig', () => {
 				origin: 'wpk.config.ts',
 				sourcePath: '/tmp/wpk.config.ts',
 			})
-		).toThrow(WPKernelError);
+		).not.toThrow();
 	});
 
-	it('rejects DataView getItemId declarations', () => {
+	it('allows DataView getItemId declarations', () => {
 		const { reporter } = createMockReporter();
 		const config = createValidConfig();
 		config.resources = {
@@ -364,7 +226,7 @@ describe('validateWPKernelConfig', () => {
 					},
 				},
 			},
-		} as unknown as TestConfig['resources'];
+		};
 
 		expect(() =>
 			validateWPKernelConfig(config, {
@@ -372,7 +234,7 @@ describe('validateWPKernelConfig', () => {
 				origin: 'wpk.config.ts',
 				sourcePath: '/tmp/wpk.config.ts',
 			})
-		).toThrow(WPKernelError);
+		).not.toThrow();
 	});
 
 	it('throws when namespace cannot be sanitized', () => {
@@ -392,10 +254,16 @@ describe('validateWPKernelConfig', () => {
 
 	it('defaults version to 1 with warning when omitted', () => {
 		const { reporter, child } = createMockReporter();
-		const config = createValidConfig();
-		delete config.version;
 
-		const result = validateWPKernelConfig(config, {
+		// Treat as raw loader output, not as a typed config.
+		const rawConfig = createValidConfig() as unknown as {
+			version?: number;
+			[key: string]: unknown;
+		};
+
+		delete rawConfig.version;
+
+		const result = validateWPKernelConfig(rawConfig, {
 			reporter,
 			origin: 'wpk.config.js',
 			sourcePath: '/tmp/wpk.config.js',
@@ -410,11 +278,16 @@ describe('validateWPKernelConfig', () => {
 
 	it('throws when version is unsupported', () => {
 		const { reporter, child } = createMockReporter();
-		const config = createValidConfig();
-		config.version = 2;
+
+		const rawConfig = createValidConfig() as unknown as {
+			version?: number;
+			[key: string]: unknown;
+		};
+
+		rawConfig.version = 2;
 
 		expect(() =>
-			validateWPKernelConfig(config, {
+			validateWPKernelConfig(rawConfig, {
 				reporter,
 				origin: 'wpk.config.js',
 				sourcePath: '/tmp/wpk.config.js',
@@ -489,12 +362,32 @@ describe('validateWPKernelConfig', () => {
 			expect.objectContaining({ resourceName: 'thing' })
 		);
 	});
+
 	it('throws when adapters.php is not a function', () => {
 		const { reporter, child } = createMockReporter();
-		const config = createValidConfig();
-		config.adapters = {
-			php: 'not-a-function',
-		};
+
+		const rawConfig = {
+			...createValidConfig(),
+			adapters: {
+				// Intentionally invalid: runtime validator should reject this.
+				php: 'not-a-function',
+			},
+		} as unknown;
+
+		expect(() =>
+			validateWPKernelConfig(rawConfig, {
+				reporter,
+				origin: 'wpk.config.js',
+				sourcePath: '/tmp/wpk.config.js',
+			})
+		).toThrow(WPKernelError);
+		expect(child.error).toHaveBeenCalled();
+	});
+
+	it('accepts blocks.mode "ssr"', () => {
+		const { reporter } = createMockReporter();
+		const config: any = createValidConfig();
+		config.resources.thing.blocks = { mode: 'ssr' };
 
 		expect(() =>
 			validateWPKernelConfig(config, {
@@ -502,8 +395,7 @@ describe('validateWPKernelConfig', () => {
 				origin: 'wpk.config.js',
 				sourcePath: '/tmp/wpk.config.js',
 			})
-		).toThrow(WPKernelError);
-		expect(child.error).toHaveBeenCalled();
+		).not.toThrow();
 	});
 });
 
@@ -626,7 +518,7 @@ describe('validateWPKernelConfig helpers', () => {
 
 		expect(child.warn).toHaveBeenCalledTimes(2);
 		expect(child.warn).toHaveBeenCalledWith(
-			expect.stringContaining('write method but has no capability'),
+			expect.stringContaining('uses a write method but has no'),
 			expect.objectContaining({
 				resourceName: 'thing',
 				routeKey: 'create',
@@ -634,7 +526,7 @@ describe('validateWPKernelConfig helpers', () => {
 			})
 		);
 		expect(child.warn).toHaveBeenCalledWith(
-			expect.stringContaining('write method but has no capability'),
+			expect.stringContaining('uses a write method but has no'),
 			expect.objectContaining({
 				resourceName: 'thing',
 				routeKey: 'update',

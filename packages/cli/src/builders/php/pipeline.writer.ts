@@ -1,4 +1,6 @@
+import { createHelper } from '../../runtime';
 import type {
+	BuilderApplyOptions,
 	BuilderHelper,
 	BuilderInput,
 	BuilderOutput,
@@ -6,6 +8,7 @@ import type {
 } from '../../runtime/types';
 import type { CreatePhpProgramWriterHelperOptions } from '@wpkernel/php-json-ast';
 import { createWpProgramWriterHelper as createCoreProgramWriterHelper } from '@wpkernel/wp-json-ast';
+import { getPhpBuilderConfigState } from './pipeline.builder';
 
 /**
  * Creates a PHP builder helper for writing PHP program files to the filesystem.
@@ -21,11 +24,31 @@ import { createWpProgramWriterHelper as createCoreProgramWriterHelper } from '@w
 export function createWpProgramWriterHelper(
 	options: CreatePhpProgramWriterHelperOptions = {}
 ): BuilderHelper {
-	return createCoreProgramWriterHelper<
-		PipelineContext,
-		BuilderInput,
-		BuilderOutput
-	>(options);
+	return createHelper({
+		key: options.key ?? 'builder.generate.php.writer',
+		kind: 'builder',
+		dependsOn: [
+			'builder.generate.php.channel.bootstrap',
+			'builder.generate.php.config',
+		],
+		async apply(applyOptions: BuilderApplyOptions) {
+			const mergedOptions = {
+				emitAst: false,
+				...options,
+			} as CreatePhpProgramWriterHelperOptions;
+			const config = getPhpBuilderConfigState(applyOptions.context);
+			const helper = createCoreProgramWriterHelper<
+				PipelineContext,
+				BuilderInput,
+				BuilderOutput
+			>({
+				...mergedOptions,
+				driver: mergedOptions.driver ?? config.driver,
+			});
+
+			await helper.apply(applyOptions);
+		},
+	});
 }
 
 /**

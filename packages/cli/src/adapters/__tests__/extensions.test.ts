@@ -258,13 +258,14 @@ describe('runAdapterExtensions', () => {
 		try {
 			const ir = createIr();
 			const adapterContext = createAdapterContext(reporter, ir);
-			const adaptersSeen: Array<IRv1['config']['adapters'] | undefined> =
-				[];
+			const adaptersSeen: Array<unknown> = [];
 
 			const extension: AdapterExtension = {
 				name: 'inspect',
 				async apply({ ir: clonedIr }) {
-					adaptersSeen.push(clonedIr.config.adapters);
+					adaptersSeen.push(
+						(clonedIr as Record<string, unknown>).config
+					);
 				},
 			};
 
@@ -283,8 +284,7 @@ describe('runAdapterExtensions', () => {
 			});
 
 			expect(adaptersSeen).toHaveLength(1);
-			expect(adaptersSeen[0]).toEqual({ extensions: [] });
-			expect(typeof adapterContext.config.adapters?.php).toBe('function');
+			expect(adaptersSeen[0]).toBeUndefined();
 		} finally {
 			await fs.rm(outputDir, { recursive: true, force: true });
 		}
@@ -427,10 +427,11 @@ describe('runAdapterExtensions', () => {
 			const extension: AdapterExtension = {
 				name: 'ir-updater',
 				async apply({ updateIr, ir: currentIr }) {
+					const irValue = currentIr as IRv1;
 					updateIr({
-						...currentIr,
+						...irValue,
 						meta: {
-							...currentIr.meta,
+							...irValue.meta,
 							namespace: 'UpdatedNamespace',
 						},
 					});
@@ -508,15 +509,12 @@ describe('runAdapterExtensions', () => {
 });
 
 function createIr(): IRv1 {
-	const config = createConfig();
-
 	return makeIr({
 		namespace: 'Demo\\Namespace',
 		meta: makeIrMeta('Demo\\Namespace', {
 			sourcePath: '/workspace/wpk.config.ts',
 			origin: 'file',
 		}),
-		config,
 		php: {
 			namespace: 'Demo\\Namespace',
 			autoload: 'inc/',
@@ -533,7 +531,7 @@ function createIr(): IRv1 {
 
 function createAdapterContext(reporter: Reporter, ir: IRv1): AdapterContext {
 	return {
-		config: ir.config,
+		config: createConfig(),
 		namespace: 'Demo\\Namespace',
 		reporter,
 		ir,

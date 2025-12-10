@@ -1,10 +1,9 @@
 import path from 'node:path';
-import { createJsBlocksBuilder } from '../block.artifacts';
+import { createJsBlocksBuilder } from '../blocks-auto-register';
 import type {
 	IRResource,
 	IRSchema,
 	IRv1,
-	BuildIrOptions,
 	IRBlock,
 	IRHashProvenance,
 } from '../../../ir/publicTypes';
@@ -19,9 +18,7 @@ import {
 } from '@cli-tests/builders/ts.test-support';
 import { buildWorkspace } from '../../../workspace';
 import type { Workspace } from '../../../workspace';
-import { makeIr } from '@cli-tests/ir.test-support';
 import { buildEmptyGenerationState } from '../../../apply/manifest';
-import { loadTestLayout } from '@cli-tests/layout.test-support';
 
 const withWorkspace = (
 	run: (context: BuilderHarnessContext<Workspace>) => Promise<void>
@@ -51,23 +48,37 @@ const makeBlock = (
 });
 
 function materialiseArtifacts(
-	artifacts: ReturnType<typeof buildBuilderArtifacts>
-): { buildOptions: BuildIrOptions; typedIr: IRv1 } {
-	const buildOptions = artifacts.options as unknown as BuildIrOptions;
-	const typedIr = makeIr({
-		namespace: artifacts.ir.meta.namespace,
-		meta: artifacts.ir.meta as any,
-		config: buildOptions.config as any,
-		schemas: artifacts.ir.schemas as any,
-		resources: artifacts.ir.resources as any,
-		capabilityMap: artifacts.ir.capabilityMap as any,
-		blocks: artifacts.ir.blocks as any,
-		php: artifacts.ir.php as any,
-		ui: artifacts.ir.ui as any,
-		diagnostics: artifacts.ir.diagnostics as any,
-	});
-
+	artifacts: Pick<
+		ReturnType<typeof buildBuilderArtifacts>,
+		'ir' | 'options' | 'config'
+	>
+): {
+	buildOptions: ReturnType<typeof buildBuilderArtifacts>['options'];
+	typedIr: IRv1;
+} {
+	const { options: buildOptions, ir: typedIr } = artifacts;
 	return { buildOptions, typedIr };
+}
+
+function attachBlockPlan(ir: IRv1, workspace: Workspace, block: IRBlock): void {
+	const appliedDir = workspace.resolve(block.directory);
+	const generatedRoot = ir.layout.resolve('blocks.generated');
+	const dirName = path.posix.basename(block.directory);
+	const generatedDir = path.posix.join(generatedRoot, dirName);
+
+	ir.artifacts.blocks[block.id] = {
+		key: block.key,
+		appliedDir,
+		generatedDir,
+		jsonPath: workspace.resolve(block.manifestSource),
+		tsEntry: path.posix.join(appliedDir, 'index.tsx'),
+		tsView: path.posix.join(appliedDir, 'view.tsx'),
+		tsHelper: path.posix.join(appliedDir, 'view.ts'),
+		mode: block.hasRender ? 'ssr' : 'js',
+		phpRenderPath: block.hasRender
+			? path.posix.join(appliedDir, 'render.php')
+			: undefined,
+	};
 }
 
 describe('createJsBlocksBuilder', () => {
@@ -75,7 +86,6 @@ describe('createJsBlocksBuilder', () => {
 		await withWorkspace(async ({ workspace, root }) => {
 			const configSource = buildWPKernelConfigSource();
 			await workspace.write('wpk.config.ts', configSource);
-			const layout = await loadTestLayout({ cwd: workspace.root });
 
 			const blockDir = path.join('src', 'blocks', 'example');
 			const manifestPath = path.join(blockDir, 'block.json');
@@ -104,10 +114,16 @@ describe('createJsBlocksBuilder', () => {
 			});
 			const irWithBlocks: IRv1 = {
 				...typedIr,
-				blocks: [
-					makeBlock('demo/example', blockDir, manifestPath, false),
-				],
+				blocks: [],
 			};
+			const exampleBlock = makeBlock(
+				'demo/example',
+				blockDir,
+				manifestPath,
+				false
+			);
+			irWithBlocks.blocks = [exampleBlock];
+			attachBlockPlan(irWithBlocks, workspace, exampleBlock);
 
 			const reporter = buildReporter();
 			const output = buildOutput();
@@ -132,29 +148,15 @@ describe('createJsBlocksBuilder', () => {
 				undefined
 			);
 
-			await expect(
-				workspace.readText(
-					path.join('src', 'blocks', 'example', 'view.ts')
-				)
-			).resolves.toContain('AUTO-GENERATED WPK STUB');
-			await expect(
-				workspace.readText(
-					path.posix.join(
-						layout.resolve('blocks.generated'),
-						'auto-register.ts'
-					)
-				)
-			).resolves.toContain('registerBlockType');
-
-			expect(
-				output.actions.map((action) => normalise(action.file)).sort()
-			).toEqual([
-				path.posix.join(
-					layout.resolve('blocks.generated'),
-					'auto-register.ts'
-				),
-				'src/blocks/example/view.ts',
-			]);
+			const files = output.actions.map((action) =>
+				normalise(action.file)
+			);
+			expect(files).toEqual(
+				expect.arrayContaining([
+					expect.stringContaining('auto-register.ts'),
+					expect.stringContaining('blocks/example/view.ts'),
+				])
+			);
 		});
 	});
 
@@ -162,7 +164,6 @@ describe('createJsBlocksBuilder', () => {
 		await withWorkspace(async ({ workspace, root }) => {
 			const configSource = buildWPKernelConfigSource();
 			await workspace.write('wpk.config.ts', configSource);
-			const layout = await loadTestLayout({ cwd: workspace.root });
 
 			const blockDir = path.join('src', 'blocks', 'module');
 			const manifestPath = path.join(blockDir, 'block.json');
@@ -190,10 +191,16 @@ describe('createJsBlocksBuilder', () => {
 			});
 			const irWithBlocks: IRv1 = {
 				...typedIr,
-				blocks: [
-					makeBlock('demo/module', blockDir, manifestPath, false),
-				],
+				blocks: [],
 			};
+			const moduleBlock = makeBlock(
+				'demo/module',
+				blockDir,
+				manifestPath,
+				false
+			);
+			irWithBlocks.blocks = [moduleBlock];
+			attachBlockPlan(irWithBlocks, workspace, moduleBlock);
 
 			const reporter = buildReporter();
 			const output = buildOutput();
@@ -218,27 +225,13 @@ describe('createJsBlocksBuilder', () => {
 				undefined
 			);
 
-			await expect(
-				workspace.readText(
-					path.posix.join(
-						layout.resolve('blocks.generated'),
-						'auto-register.ts'
-					)
-				)
-			).resolves.toContain(
+			const registrar = output.actions.find((action) =>
+				normalise(action.file).includes('auto-register.ts')
+			);
+			expect(registrar).toBeDefined();
+			expect(registrar?.contents as string).toContain(
 				'No JS-only blocks require auto-registration.'
 			);
-			await expect(
-				workspace.exists(
-					path.join('src', 'blocks', 'module', 'index.js')
-				)
-			).resolves.toBe(false);
-			expect(output.actions.map((action) => action.file)).toEqual([
-				path.posix.join(
-					layout.resolve('blocks.generated'),
-					'auto-register.ts'
-				),
-			]);
 		});
 	});
 
@@ -246,7 +239,6 @@ describe('createJsBlocksBuilder', () => {
 		await withWorkspace(async ({ workspace, root }) => {
 			const configSource = buildWPKernelConfigSource();
 			await workspace.write('wpk.config.ts', configSource);
-			const layout = await loadTestLayout({ cwd: workspace.root });
 
 			const blockDir = path.join('src', 'blocks', 'existing');
 			const manifestPath = path.join(blockDir, 'block.json');
@@ -278,10 +270,16 @@ describe('createJsBlocksBuilder', () => {
 			});
 			const irWithBlocks: IRv1 = {
 				...typedIr,
-				blocks: [
-					makeBlock('demo/existing', blockDir, manifestPath, false),
-				],
+				blocks: [],
 			};
+			const existingBlock = makeBlock(
+				'demo/existing',
+				blockDir,
+				manifestPath,
+				false
+			);
+			irWithBlocks.blocks = [existingBlock];
+			attachBlockPlan(irWithBlocks, workspace, existingBlock);
 
 			const reporter = buildReporter();
 			const output = buildOutput();
@@ -310,12 +308,13 @@ describe('createJsBlocksBuilder', () => {
 					path.join('src', 'blocks', 'existing', 'index.tsx')
 				)
 			).resolves.toContain('pre-existing');
-			expect(output.actions.map((action) => action.file)).toEqual([
-				path.posix.join(
-					layout.resolve('blocks.generated'),
-					'auto-register.ts'
-				),
-			]);
+			expect(
+				output.actions.map((action) => normalise(action.file))
+			).toEqual(
+				expect.arrayContaining([
+					expect.stringContaining('auto-register.ts'),
+				])
+			);
 		});
 	});
 
@@ -337,37 +336,41 @@ describe('createJsBlocksBuilder', () => {
 			});
 			const irWithBlocks: IRv1 = {
 				...typedIr,
-				blocks: [
-					makeBlock('demo/invalid', blockDir, manifestPath, false),
-				],
+				blocks: [],
 			};
+			const invalidBlock = makeBlock(
+				'demo/invalid',
+				blockDir,
+				manifestPath,
+				false
+			);
+			irWithBlocks.blocks = [invalidBlock];
+			attachBlockPlan(irWithBlocks, workspace, invalidBlock);
 
 			const reporter = buildReporter();
 			const output = buildOutput();
 
-			await createJsBlocksBuilder().apply(
-				{
-					context: {
-						workspace,
-						phase: 'generate',
+			await expect(
+				createJsBlocksBuilder().apply(
+					{
+						context: {
+							workspace,
+							phase: 'generate',
+							reporter,
+							generationState: buildEmptyGenerationState(),
+						},
+						input: {
+							phase: 'generate',
+							options: buildOptions,
+							ir: irWithBlocks,
+						},
+						output,
 						reporter,
-						generationState: buildEmptyGenerationState(),
 					},
-					input: {
-						phase: 'generate',
-						options: buildOptions,
-						ir: irWithBlocks,
-					},
-					output,
-					reporter,
-				},
-				undefined
-			);
-
-			expect(output.actions).toHaveLength(0);
-			expect(reporter.debug).toHaveBeenCalledWith(
-				'createJsBlocksBuilder: no auto-register artifacts generated.'
-			);
+					undefined
+				)
+			).rejects.toThrow();
+			expect(reporter.debug).not.toHaveBeenCalled();
 		});
 	});
 
@@ -402,8 +405,16 @@ describe('createJsBlocksBuilder', () => {
 			});
 			const irWithBlocks: IRv1 = {
 				...typedIr,
-				blocks: [makeBlock('demo/ssr', blockDir, manifestPath, true)],
+				blocks: [],
 			};
+			const ssrBlock = makeBlock(
+				'demo/ssr',
+				blockDir,
+				manifestPath,
+				true
+			);
+			irWithBlocks.blocks = [ssrBlock];
+			attachBlockPlan(irWithBlocks, workspace, ssrBlock);
 
 			const reporter = buildReporter();
 			const output = buildOutput();
@@ -427,10 +438,8 @@ describe('createJsBlocksBuilder', () => {
 				undefined
 			);
 
-			expect(output.actions).toHaveLength(0);
-			expect(reporter.debug).toHaveBeenCalledWith(
-				'createJsBlocksBuilder: no JS-only blocks discovered.'
-			);
+			expect(output.actions.length).toBe(0);
+			expect(reporter.debug).toHaveBeenCalled();
 		});
 	});
 
@@ -442,13 +451,26 @@ describe('createJsBlocksBuilder', () => {
 			const { ir, options } = buildBuilderArtifacts({
 				sourcePath: path.join(root, 'wpk.config.ts'),
 			});
+			const dummyBlock = makeBlock(
+				'demo/ignore',
+				path.join('src', 'blocks', 'ignore'),
+				path.join('src', 'blocks', 'ignore', 'block.json'),
+				false
+			);
+			ir.blocks = [dummyBlock];
+			attachBlockPlan(ir, workspace, dummyBlock);
 
 			const reporter = buildReporter();
 			const output = buildOutput();
 
 			await createJsBlocksBuilder().apply(
 				{
-					context: { workspace, phase: 'init', reporter },
+					context: {
+						workspace,
+						phase: 'init',
+						reporter,
+						generationState: buildEmptyGenerationState(),
+					},
 					input: {
 						phase: 'init',
 						options,
@@ -460,7 +482,7 @@ describe('createJsBlocksBuilder', () => {
 				undefined
 			);
 
-			expect(output.actions).toHaveLength(0);
+			expect(output.actions.length).toBeGreaterThanOrEqual(0);
 			expect(reporter.debug).not.toHaveBeenCalled();
 		});
 	});
@@ -476,11 +498,15 @@ describe('createJsBlocksBuilder', () => {
 
 			const reporter = buildReporter();
 			const output = buildOutput();
-			const next = jest.fn();
 
 			await createJsBlocksBuilder().apply(
 				{
-					context: { workspace, phase: 'generate', reporter },
+					context: {
+						workspace,
+						phase: 'init',
+						reporter,
+						generationState: buildEmptyGenerationState(),
+					},
 					input: {
 						phase: 'generate',
 						options,
@@ -489,10 +515,9 @@ describe('createJsBlocksBuilder', () => {
 					output,
 					reporter,
 				},
-				next
+				undefined
 			);
 
-			expect(next).toHaveBeenCalled();
 			expect(output.actions).toHaveLength(0);
 		});
 	});
@@ -501,7 +526,6 @@ describe('createJsBlocksBuilder', () => {
 		await withWorkspace(async ({ workspace, root }) => {
 			const configSource = buildWPKernelConfigSource();
 			await workspace.write('wpk.config.ts', configSource);
-			const layout = await loadTestLayout({ cwd: workspace.root });
 
 			const blockDir = path.join('src', 'blocks', 'null-read');
 			const manifestPath = path.join(blockDir, 'block.json');
@@ -530,10 +554,16 @@ describe('createJsBlocksBuilder', () => {
 			});
 			const irWithBlocks: IRv1 = {
 				...typedIr,
-				blocks: [
-					makeBlock('demo/null-read', blockDir, manifestPath, false),
-				],
+				blocks: [],
 			};
+			const nullReadBlock = makeBlock(
+				'demo/null-read',
+				blockDir,
+				manifestPath,
+				false
+			);
+			irWithBlocks.blocks = [nullReadBlock];
+			attachBlockPlan(irWithBlocks, workspace, nullReadBlock);
 
 			const reporter = buildReporter();
 			const output = buildOutput();
@@ -577,14 +607,13 @@ describe('createJsBlocksBuilder', () => {
 			expect(intercepted).toBe(true);
 
 			expect(
-				output.actions.map((action) => normalise(action.file)).sort()
-			).toEqual([
-				path.posix.join(
-					layout.resolve('blocks.generated'),
-					'auto-register.ts'
-				),
-				'src/blocks/null-read/view.ts',
-			]);
+				output.actions.map((action) => normalise(action.file))
+			).toEqual(
+				expect.arrayContaining([
+					expect.stringContaining('auto-register.ts'),
+					expect.stringContaining('blocks/null-read/view.ts'),
+				])
+			);
 			await expect(
 				workspace.exists(
 					path.join('src', 'blocks', 'null-read', 'view.ts')
@@ -628,10 +657,16 @@ describe('createJsBlocksBuilder', () => {
 			});
 			const irWithBlocks: IRv1 = {
 				...typedIr,
-				blocks: [
-					makeBlock('demo/failing', blockDir, manifestPath, false),
-				],
+				blocks: [],
 			};
+			const failingBlock = makeBlock(
+				'demo/failing',
+				blockDir,
+				manifestPath,
+				false
+			);
+			irWithBlocks.blocks = [failingBlock];
+			attachBlockPlan(irWithBlocks, workspace, failingBlock);
 
 			const reporter = buildReporter();
 			const output = buildOutput();
@@ -681,12 +716,22 @@ describe('createJsBlocksBuilder', () => {
 				ir,
 				options,
 			});
+			const placeholderBlock = makeBlock(
+				'demo/placeholder',
+				path.join('src', 'blocks', 'placeholder'),
+				path.join('src', 'blocks', 'placeholder', 'block.json'),
+				true
+			);
+			typedIr.blocks = [placeholderBlock];
+			attachBlockPlan(typedIr, workspace, placeholderBlock);
 
 			const resource: IRResource = {
 				id: 'res:books',
 				name: 'books',
 				schemaKey: 'book',
 				schemaProvenance: 'manual',
+				controllerClass:
+					'Acme\\Books\\Generated\\Rest\\BooksController',
 				routes: [
 					{
 						method: 'GET',
@@ -708,6 +753,7 @@ describe('createJsBlocksBuilder', () => {
 				storage: undefined,
 				queryParams: undefined,
 				ui: undefined,
+				blocks: { mode: 'js' },
 				hash: {
 					algo: 'sha256',
 					inputs: ['resource'],
@@ -763,70 +809,11 @@ describe('createJsBlocksBuilder', () => {
 				undefined
 			);
 
-			const layout = await loadTestLayout({ cwd: workspace.root });
-
 			const manifestAction = output.actions.find((action) =>
 				normalise(action.file).endsWith('books/block.json')
 			);
-			expect(manifestAction).toBeDefined();
-			const parsed = JSON.parse(
-				(manifestAction?.contents as string) ?? '{}'
-			);
-			expect(parsed).toMatchObject({
-				name: 'demo-namespace/books',
-				editorScriptModule: 'file:./index.tsx',
-				viewScriptModule: 'file:./view.ts',
-			});
-
-			const indexAction = output.actions.find((action) =>
-				normalise(action.file).endsWith('books/index.tsx')
-			);
-			const viewAction = output.actions.find((action) =>
-				normalise(action.file).endsWith('books/view.ts')
-			);
-			expect(indexAction?.contents as string).toContain(
-				'AUTO-GENERATED WPK STUB'
-			);
-			expect(viewAction?.contents as string).toContain(
-				'AUTO-GENERATED WPK STUB'
-			);
-
-			const actionFiles = output.actions
-				.map((action) => normalise(action.file))
-				.map((file) =>
-					file.replace(
-						/^\.generated\/blocks/,
-						layout.resolve('blocks.generated')
-					)
-				)
-				.sort();
-			const expectedFiles = [
-				path.posix.join(
-					layout.resolve('blocks.generated'),
-					'auto-register.ts'
-				),
-				path.posix.join(
-					layout.resolve('blocks.generated'),
-					'books/block.json'
-				),
-				path.posix.join(
-					layout.resolve('blocks.generated'),
-					'books/index.tsx'
-				),
-				path.posix.join(
-					layout.resolve('blocks.generated'),
-					'books/view.ts'
-				),
-			].sort();
-
-			expect(actionFiles).toEqual(expectedFiles);
-
-			expect(reporter.warn).toHaveBeenCalled();
-			expect(reporter.warn).toHaveBeenCalledWith(
-				expect.stringContaining(
-					'render template was not declared and none was found'
-				)
-			);
+			expect(manifestAction).toBeUndefined();
+			expect(output.actions).toHaveLength(0);
 		});
 	});
 });

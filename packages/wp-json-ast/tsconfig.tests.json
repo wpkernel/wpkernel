@@ -3,14 +3,22 @@
 	"extends": "../../tsconfig.tests.json",
 	"compilerOptions": {
 		"rootDir": ".",
-		"outDir": "./dist-tests"
+		"outDir": "./dist-tests",
+		"types": ["node", "jest"],
+		"baseUrl": "../..",
+		"paths": {
+			"@wpkernel/test-utils/*": ["packages/test-utils/dist/*"],
+			"@wpkernel/test-utils": ["packages/test-utils/dist/index.d.ts"]
+		}
 	},
 	"include": [
 		"src/**/*.test.ts",
 		"src/**/*.test.tsx",
 		"src/**/__tests__/**/*.ts",
 		"src/**/__tests__/**/*.tsx",
-		"tests/**/*"
+		"tests/**/*",
+		"../../types/**/*.d.ts",
+		"../test-utils/dist/**/*.d.ts"
 	],
 	"exclude": [
 		"node_modules",

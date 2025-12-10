@@ -10,27 +10,38 @@ export function serialiseAst(ast: unknown): string {
 	return `${JSON.stringify(ast, null, 2)}\n`;
 }
 
+export interface PersistProgramArtifactsOptions {
+	readonly emitAst?: boolean;
+}
+
 export async function persistProgramArtifacts(
 	context: PipelineContext,
 	output: BuilderOutput,
 	filePath: string,
 	code: string,
-	ast: PhpProgram
+	ast: PhpProgram,
+	options: PersistProgramArtifactsOptions = {}
 ): Promise<void> {
-	const astPath = `${filePath}.ast.json`;
-	const serialisedAst = serialiseAst(ast);
+	const emitAst = options.emitAst ?? true;
 
 	await context.workspace.write(filePath, code, {
-		ensureDir: true,
-	});
-
-	await context.workspace.write(astPath, serialisedAst, {
 		ensureDir: true,
 	});
 
 	output.queueWrite({
 		file: filePath,
 		contents: code,
+	});
+
+	if (!emitAst) {
+		return;
+	}
+
+	const astPath = `${filePath}.ast.json`;
+	const serialisedAst = serialiseAst(ast);
+
+	await context.workspace.write(astPath, serialisedAst, {
+		ensureDir: true,
 	});
 
 	output.queueWrite({
@@ -43,8 +54,13 @@ export async function persistCodemodDiagnostics(
 	context: PipelineContext,
 	output: BuilderOutput,
 	filePath: string,
-	codemod: PhpProgramCodemodResult
+	codemod: PhpProgramCodemodResult,
+	options: PersistProgramArtifactsOptions = {}
 ): Promise<void> {
+	if (!(options.emitAst ?? true)) {
+		return;
+	}
+
 	const basePath = `${filePath}.codemod`;
 	const beforePath = `${basePath}.before.ast.json`;
 	const afterPath = `${basePath}.after.ast.json`;

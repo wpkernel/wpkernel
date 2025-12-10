@@ -1,4 +1,4 @@
-import { defineCapabilityMap } from '../capability-map';
+import { defineCapabilityMap } from '../ir/types';
 
 describe('defineCapabilityMap', () => {
 	it('returns provided map without modification', () => {

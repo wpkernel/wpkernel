@@ -19,6 +19,7 @@ import {
 } from './utils';
 import { buildPluginLoaderProgram } from '@wpkernel/wp-json-ast';
 import { buildPhpPrettyPrinter } from '@wpkernel/php-json-ast/php-driver';
+import { loadLayoutFromWorkspace } from '../../ir/fragments/ir.layout.core';
 
 const WPK_CONFIG_FILENAME = WPK_CONFIG_SOURCES.WPK_CONFIG_TS;
 const SRC_INDEX_PATH = path.join('src', 'index.ts');
@@ -263,6 +264,17 @@ async function renderPluginLoader({
 		});
 	}
 
+	const layout = await loadLayoutFromWorkspace({
+		workspace,
+		strict: true,
+	});
+	if (!layout) {
+		throw new WPKernelError('DeveloperError', {
+			message:
+				'layout.manifest.json not found while scaffolding plugin.php.',
+		});
+	}
+
 	const plugin = buildPluginMeta({
 		sanitizedNamespace,
 	});
@@ -272,6 +284,7 @@ async function renderPluginLoader({
 		sanitizedNamespace,
 		plugin,
 		resourceClassNames: [],
+		phpGeneratedPath: layout.resolve('php.generated'),
 	});
 
 	const printer = buildPhpPrettyPrinter({ workspace });

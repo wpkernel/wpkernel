@@ -38,8 +38,8 @@ const FAST =
 const searchConfig = FAST
 	? undefined
 	: {
-			provider: 'local' as const,
-		};
+		provider: 'local' as const,
+	};
 
 const baseBuildOptions = {
 	target: 'esnext' as const,
@@ -48,6 +48,7 @@ const baseBuildOptions = {
 		polyfill: false as const,
 	},
 };
+
 
 export default withMermaid(
 	defineConfig({
@@ -79,11 +80,11 @@ export default withMermaid(
 		// Fast path for pre-commit; set to true for PROD if you can live without SPA nav
 		mpa: FAST, // <-- set to (FAST || PROD) if you want minimal JS in production too		// Big win: limit Shiki languages (reduces client+server bundle a lot)
 		markdown: {
-			html: false,
+			html: true,
 			theme: { light: 'github-light', dark: 'github-dark' },
 			config(md) {
 				md.use(tabsMarkdownPlugin);
-				md.use(escapeAngleBracketsPlugin);
+				// md.use(escapeAngleBracketsPlugin);
 			},
 		},
 
@@ -100,39 +101,39 @@ export default withMermaid(
 
 			build: FAST
 				? {
-						...baseBuildOptions,
-						minify: false,
-						cssMinify: false,
-						reportCompressedSize: false,
-						sourcemap: false,
-					}
+					...baseBuildOptions,
+					minify: false,
+					cssMinify: false,
+					reportCompressedSize: false,
+					sourcemap: false,
+				}
 				: {
-						...baseBuildOptions,
-						reportCompressedSize: false,
-						// split the usual suspects so main stays slim
-						rollupOptions: {
-							output: {
-								manualChunks(id) {
-									if (id.includes('mermaid'))
-										return 'mermaid';
-									if (id.includes('shiki')) return 'shiki';
-									if (
-										id.includes('fuse') ||
-										id.includes('mini-search')
-									)
-										return 'search';
-									if (
-										id.includes('/@vitepress/') ||
-										id.includes('/vitepress/')
-									)
-										return 'vp';
-									if (id.includes('/vue/')) return 'vue';
-								},
+					...baseBuildOptions,
+					reportCompressedSize: false,
+					// split the usual suspects so main stays slim
+					rollupOptions: {
+						output: {
+							manualChunks(id) {
+								if (id.includes('mermaid'))
+									return 'mermaid';
+								if (id.includes('shiki')) return 'shiki';
+								if (
+									id.includes('fuse') ||
+									id.includes('mini-search')
+								)
+									return 'search';
+								if (
+									id.includes('/@vitepress/') ||
+									id.includes('/vitepress/')
+								)
+									return 'vp';
+								if (id.includes('/vue/')) return 'vue';
 							},
 						},
-						// warning threshold only (we're splitting sensibly above)
-						chunkSizeWarningLimit: 2000,
 					},
+					// warning threshold only (we're splitting sensibly above)
+					chunkSizeWarningLimit: 2000,
+				},
 
 			resolve: { dedupe: ['vue'] },
 			optimizeDeps: {

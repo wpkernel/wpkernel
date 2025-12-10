@@ -11,7 +11,7 @@ import type {
 	ReadinessPlan,
 	ReadinessRegistry,
 } from '../../dx';
-import { loadTestLayoutSync } from '@cli-tests/layout.test-support';
+import { loadTestLayoutSync } from '@wpkernel/test-utils/layout.test-support';
 
 const withWorkspace = buildWorkspaceRunner({ prefix: TMP_PREFIX });
 
@@ -92,7 +92,8 @@ describe('ApplyCommand manifest handling', () => {
 			});
 			const buildWorkspace = jest.fn().mockReturnValue({
 				readText,
-				resolve: jest.fn(),
+				read: readText,
+				resolve: jest.fn((value: string) => value),
 				dryRun,
 			});
 			const createPatcher = jest.fn().mockReturnValue({
@@ -120,9 +121,7 @@ describe('ApplyCommand manifest handling', () => {
 
 			expect(buildWorkspace).toHaveBeenCalledWith(workspace);
 			expect(createPatcher).toHaveBeenCalled();
-			expect(readText).toHaveBeenCalledWith(
-				ApplyModule.PATCH_MANIFEST_PATH
-			);
+			expect(readText).toHaveBeenCalledWith('layout.manifest.json');
 			expect(exitCode).toBe(WPK_EXIT_CODES.UNEXPECTED_ERROR);
 			expect(command.summary).toBeNull();
 			expect(command.records).toEqual([]);

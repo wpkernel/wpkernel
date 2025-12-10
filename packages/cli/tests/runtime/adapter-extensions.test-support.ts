@@ -1,6 +1,6 @@
 import path from 'node:path';
 import type { WPKernelConfigV1 } from '../../src/config/types';
-import type { IRv1 } from '../../src/ir/publicTypes';
+import { buildTestArtifactsPlan, makeIr } from '@cli-tests/ir.test-support';
 import type {
 	PipelineExtensionHook,
 	PipelineExtensionHookOptions,
@@ -22,6 +22,7 @@ export function buildAdapterExtensionOptions(
 		schemas: {},
 	} as WPKernelConfigV1;
 
+	const layout = loadTestLayoutSync();
 	const workspace = makeWorkspaceMock({
 		root: '/tmp/workspace',
 		resolve: jest
@@ -41,16 +42,16 @@ export function buildAdapterExtensionOptions(
 	});
 	const reporter = createReporterMock();
 
-	const artifact = {
+	const artifact = makeIr({
 		meta: {
 			sanitizedNamespace: 'TestNamespace',
 			namespace: 'test',
 			origin: 'typescript',
 			sourcePath: '/tmp/workspace/wpk.config.ts',
-			version: 1,
 		},
-		layout: loadTestLayoutSync(),
-	} as unknown as IRv1;
+		layout,
+		artifacts: buildTestArtifactsPlan(layout),
+	});
 
 	const generationState = buildEmptyGenerationState();
 

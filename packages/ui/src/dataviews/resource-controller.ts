@@ -149,9 +149,10 @@ export function createResourceDataViewController<TItem, TQuery>(
 
 	const resolvedResourceName = resourceName;
 
-	const preferencesKey =
-		options.preferencesKey ??
-		defaultPreferencesKey(options.namespace, resolvedResourceName);
+	const preferencesKey = defaultPreferencesKey(
+		options.namespace,
+		resolvedResourceName
+	);
 
 	const reporter = runtime.getResourceReporter(resolvedResourceName);
 	const queryMapping = ensureQueryMapping(options, options.queryMapping);
@@ -198,17 +199,15 @@ export function createResourceDataViewController<TItem, TQuery>(
 		});
 	}
 
-	function emitRegistered(key: string): void {
+	function emitRegistered(): void {
 		runtime.events.registered({
 			resource: resolvedResourceName,
-			preferencesKey: key,
 		});
 	}
 
-	function emitUnregistered(key: string): void {
+	function emitUnregistered(): void {
 		runtime.events.unregistered({
 			resource: resolvedResourceName,
-			preferencesKey: key,
 		});
 	}
 
@@ -259,7 +258,6 @@ export function createResourceDataViewController<TItem, TQuery>(
 		queryMapping,
 		runtime,
 		namespace: options.namespace,
-		preferencesKey,
 		invalidate: options.invalidate,
 		get capabilities() {
 			const source = options.capabilities;
@@ -276,8 +274,8 @@ export function createResourceDataViewController<TItem, TQuery>(
 		loadStoredView,
 		saveView,
 		emitViewChange,
-		emitRegistered,
-		emitUnregistered,
+		emitRegistered: () => emitRegistered(),
+		emitUnregistered: () => emitUnregistered(),
 		emitAction,
 		emitPermissionDenied,
 		emitFetchFailed,

@@ -29,19 +29,19 @@ describe('dx readiness configure', () => {
 		const registry: ReadinessRegistry = buildDefaultReadinessRegistry({
 			helperFactories: [
 				({ register, createHelper }) => {
-					const helper: ReadinessHelper = createHelper({
+					const helper = createHelper<unknown>({
 						key: 'custom-helper',
 						metadata: {
 							label: 'Custom helper',
 							scopes: ['generate'],
 						},
 						async detect() {
-							return { status: 'ready', state: null };
+							return { status: 'ready', state: {} };
 						},
 						async confirm() {
-							return { status: 'ready', state: null };
+							return { status: 'ready', state: {} };
 						},
-					});
+					}) as ReadinessHelper<unknown>;
 
 					register(helper);
 				},

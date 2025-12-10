@@ -4,25 +4,34 @@ import type {
 	WPKernelUIAttach,
 	UIIntegrationOptions,
 } from '@wpkernel/core/data';
-import {
-	getRegisteredResources,
-	type ResourceDefinedEvent,
-} from '@wpkernel/core/events';
+import { getRegisteredResources } from '@wpkernel/core/events';
 import type { ResourceObject } from '@wpkernel/core/resource';
 import { attachResourceHooks } from '../hooks/resource-hooks';
-import {
-	createWPKernelDataViewsRuntime,
-	normalizeDataViewsOptions,
+import type {
+	NormalizedDataViewsRuntimeOptions,
+	WPKernelDataViewsRuntime,
 } from './dataviews/runtime';
-import { createResourceDataViewController } from '../dataviews/resource-controller';
-import {
-	normalizeResourceDataViewMetadata,
-	DATA_VIEWS_METADATA_INVALID,
-} from './dataviews/metadata';
+import type { ResourceDataViewConfig } from '../dataviews/types';
+import { DataViewsConfigurationError } from './dataviews/errors';
 
 type RuntimeCapability = NonNullable<
 	WPKernelUIRuntime['capabilities']
 >['capability'];
+
+// Allow dynamic import types for lazy-loading dataviews without tripping lint.
+
+type DataViewsRuntimeModule = typeof import('./dataviews/runtime');
+
+type DataViewsControllerModule =
+	typeof import('../dataviews/resource-controller');
+
+type DataViewsMetadataModule = typeof import('./dataviews/metadata');
+
+type DataViewsModules = {
+	runtime: DataViewsRuntimeModule;
+	controller: DataViewsControllerModule;
+	metadata: DataViewsMetadataModule;
+};
 
 function resolveCapabilityRuntime(): WPKernelUIRuntime['capabilities'] {
 	const runtime = (
@@ -35,85 +44,8 @@ function resolveCapabilityRuntime(): WPKernelUIRuntime['capabilities'] {
 		return undefined;
 	}
 
-	return { capability: runtime.capability };
-}
-
-function registerResourceDataView<TItem, TQuery>(
-	runtime: WPKernelUIRuntime,
-	resource: ResourceObject<TItem, TQuery>
-): void {
-	const dataviews = runtime.dataviews;
-
-	if (!dataviews || dataviews.options.autoRegisterResources === false) {
-		return;
-	}
-
-	const { metadata, issues } = normalizeResourceDataViewMetadata(resource);
-
-	if (issues.length > 0) {
-		dataviews
-			.getResourceReporter(resource.name)
-			.error?.('Invalid DataViews metadata', {
-				code: DATA_VIEWS_METADATA_INVALID,
-				resource: resource.name,
-				issues,
-			});
-		return;
-	}
-
-	if (!metadata) {
-		return;
-	}
-
-	try {
-		const controller = createResourceDataViewController<TItem, TQuery>({
-			resource,
-			config: metadata.config,
-			runtime: dataviews,
-			namespace: runtime.namespace,
-			invalidate: runtime.invalidate,
-			capabilities: () => runtime.capabilities,
-			preferencesKey: metadata.preferencesKey,
-			fetchList: resource.fetchList,
-			prefetchList: resource.prefetchList,
-		});
-
-		dataviews.controllers.set(resource.name, controller);
-		dataviews.registry.set(resource.name, {
-			resource: resource.name,
-			preferencesKey: controller.preferencesKey,
-			metadata: metadata.config as unknown as Record<string, unknown>,
-		});
-
-		dataviews.events.registered({
-			resource: resource.name,
-			preferencesKey: controller.preferencesKey,
-		});
-
-		dataviews.reporter.debug?.('Auto-registered DataViews controller', {
-			resource: resource.name,
-			preferencesKey: controller.preferencesKey,
-		});
-	} catch (error) {
-		dataviews.reporter.error?.(
-			'Failed to auto-register DataViews controller',
-			{
-				resource: resource.name,
-				error,
-			}
-		);
-	}
-}
-
-function attachExistingResources(
-	runtime: WPKernelUIRuntime,
-	resources: ResourceDefinedEvent[]
-): void {
-	resources.forEach((event) => {
-		const resource = event.resource as ResourceObject<unknown, unknown>;
-		attachResourceHooks(resource, runtime);
-		registerResourceDataView(runtime, resource);
-	});
+	// Return the stored runtime object directly to keep a stable reference.
+	return runtime as WPKernelUIRuntime['capabilities'];
 }
 
 /**
@@ -129,6 +61,12 @@ export const attachUIBindings: WPKernelUIAttach = (
 	wpk: WPKInstance,
 	options?: UIIntegrationOptions
 ): WPKernelUIRuntime => {
+	const pendingResourceDefinitions = new Map<
+		string,
+		ResourceObject<unknown, unknown>
+	>();
+	let dataViewsModules: DataViewsModules | undefined;
+
 	const runtime: WPKernelUIRuntime = {
 		wpk,
 		namespace: wpk.getNamespace(),
@@ -145,23 +83,269 @@ export const attachUIBindings: WPKernelUIAttach = (
 		options,
 	};
 
-	const dataviewsOptions = normalizeDataViewsOptions(options?.dataviews);
+	getRegisteredResources().forEach(({ resource }) => {
+		const definedResource = resource as ResourceObject<unknown, unknown>;
+		attachResourceHooks(definedResource, runtime);
 
-	if (dataviewsOptions.enable) {
-		runtime.dataviews = createWPKernelDataViewsRuntime(
-			wpk,
-			runtime,
-			dataviewsOptions
-		);
-	}
-
-	attachExistingResources(runtime, getRegisteredResources());
+		if (runtime.dataviews) {
+			registerResourceWithDataViews(runtime, definedResource, {
+				controller: dataViewsModules?.controller,
+				metadata: dataViewsModules?.metadata,
+			});
+		} else {
+			pendingResourceDefinitions.set(
+				definedResource.name,
+				definedResource
+			);
+		}
+	});
 
 	runtime.events.on('resource:defined', ({ resource }) => {
 		const definedResource = resource as ResourceObject<unknown, unknown>;
 		attachResourceHooks(definedResource, runtime);
-		registerResourceDataView(runtime, definedResource);
+
+		// If dataviews aren’t ready yet, keep track and register later.
+		if (!runtime.dataviews) {
+			pendingResourceDefinitions.set(
+				definedResource.name,
+				definedResource
+			);
+			return;
+		}
+
+		registerResourceWithDataViews(runtime, definedResource, {
+			controller: dataViewsModules?.controller,
+			metadata: dataViewsModules?.metadata,
+		});
 	});
+
+	const dataviewsOptions = normalizeDataViewsOptions(options?.dataviews);
+
+	if (dataviewsOptions.enable) {
+		void bootstrapDataViews(runtime, wpk, dataviewsOptions, (modules) => {
+			dataViewsModules = modules;
+
+			// Register any resources that arrived before dataviews were ready.
+			pendingResourceDefinitions.forEach((resource) => {
+				registerResourceWithDataViews(runtime, resource, {
+					controller: modules.controller,
+					metadata: modules.metadata,
+				});
+			});
+			pendingResourceDefinitions.clear();
+		});
+	}
 
 	return runtime;
 };
+
+function normalizeDataViewsOptions(
+	rawOptions?: UIIntegrationOptions['dataviews']
+): NormalizedDataViewsRuntimeOptions {
+	if (
+		!rawOptions ||
+		typeof rawOptions !== 'object' ||
+		Array.isArray(rawOptions)
+	) {
+		return {
+			enable: true,
+			autoRegisterResources: true,
+		};
+	}
+
+	const normalized: NormalizedDataViewsRuntimeOptions = {
+		enable: rawOptions.enable !== false,
+		autoRegisterResources: rawOptions.autoRegisterResources !== false,
+	};
+
+	if (
+		Object.prototype.hasOwnProperty.call(rawOptions, 'preferences') &&
+		rawOptions.preferences !== undefined &&
+		rawOptions.preferences !== null
+	) {
+		const prefs = rawOptions.preferences as {
+			get?: unknown;
+			set?: unknown;
+		};
+		if (
+			typeof prefs.get !== 'function' ||
+			typeof prefs.set !== 'function'
+		) {
+			throw new DataViewsConfigurationError(
+				'DataViews preferences adapter must implement get() and set() methods.'
+			);
+		}
+		normalized.preferences =
+			rawOptions.preferences as NormalizedDataViewsRuntimeOptions['preferences'];
+	}
+
+	return normalized;
+}
+
+function registerResourceWithDataViews<TItem, TQuery>(
+	runtime: WPKernelUIRuntime,
+	resource: ResourceObject<TItem, TQuery>,
+	deps?: {
+		controller?: DataViewsControllerModule;
+		metadata?: DataViewsMetadataModule;
+	}
+): void {
+	const dataviews = runtime.dataviews;
+	if (!dataviews || dataviews.options.autoRegisterResources === false) {
+		return;
+	}
+
+	const metadataModule = deps?.metadata;
+	const controllerModule = deps?.controller;
+	if (!metadataModule || !controllerModule) {
+		return;
+	}
+
+	const metadata = validateResourceMetadata(
+		resource,
+		dataviews,
+		metadataModule
+	);
+	if (!metadata) {
+		return;
+	}
+
+	try {
+		registerControllerWithRuntime(
+			runtime,
+			dataviews,
+			resource,
+			metadata,
+			controllerModule
+		);
+	} catch (error) {
+		dataviews.reporter.error?.(
+			'Failed to auto-register DataViews controller',
+			{
+				resource: resource.name,
+				error,
+			}
+		);
+	}
+}
+
+async function loadDataViewsModules(): Promise<DataViewsModules> {
+	const [runtime, controller, metadata] = await Promise.all([
+		import('./dataviews/runtime'),
+		import('../dataviews/resource-controller'),
+		import('./dataviews/metadata'),
+	]);
+
+	return {
+		runtime,
+		controller,
+		metadata,
+	};
+}
+
+async function bootstrapDataViews(
+	runtime: WPKernelUIRuntime,
+	wpk: WPKInstance,
+	options: NormalizedDataViewsRuntimeOptions,
+	onReady?: (modules: DataViewsModules) => void
+): Promise<void> {
+	const modules = await loadDataViewsModules();
+	const { createWPKernelDataViewsRuntime } = modules.runtime;
+
+	const dataviewsRuntime: WPKernelDataViewsRuntime =
+		createWPKernelDataViewsRuntime(wpk, runtime, options);
+
+	runtime.dataviews = dataviewsRuntime;
+
+	// Register existing resources now that dataviews is available
+	getRegisteredResources().forEach(({ resource }) => {
+		registerResourceWithDataViews(
+			runtime,
+			resource as ResourceObject<unknown, unknown>,
+			{ controller: modules.controller, metadata: modules.metadata }
+		);
+	});
+
+	if (onReady) {
+		onReady(modules);
+	}
+
+	// Subsequent resources will be handled by the main resource:defined listener.
+	runtime.events.on('resource:defined', ({ resource }) => {
+		registerResourceWithDataViews(
+			runtime,
+			resource as ResourceObject<unknown, unknown>,
+			{ controller: modules.controller, metadata: modules.metadata }
+		);
+	});
+}
+
+function validateResourceMetadata<TItem, TQuery>(
+	resource: ResourceObject<TItem, TQuery>,
+	dataviews: WPKernelDataViewsRuntime,
+	metadataModule: DataViewsMetadataModule
+) {
+	const { normalizeResourceDataViewMetadata, DATA_VIEWS_METADATA_INVALID } =
+		metadataModule;
+	const { metadata, issues } = normalizeResourceDataViewMetadata(resource);
+
+	if (issues.length > 0) {
+		dataviews
+			.getResourceReporter(resource.name)
+			.error?.('Invalid DataViews metadata', {
+				code: DATA_VIEWS_METADATA_INVALID,
+				resource: resource.name,
+				issues,
+			});
+		return undefined;
+	}
+
+	if (!metadata) {
+		return undefined;
+	}
+
+	return {
+		config: metadata.config,
+	};
+}
+
+function registerControllerWithRuntime<TItem, TQuery>(
+	runtime: WPKernelUIRuntime,
+	dataviews: WPKernelDataViewsRuntime,
+	resource: ResourceObject<TItem, TQuery>,
+	metadata: {
+		config: ResourceDataViewConfig<TItem, TQuery>;
+	},
+	controllerModule: DataViewsControllerModule
+) {
+	const { createResourceDataViewController } = controllerModule;
+	const normalizedResource = resource as ResourceObject<TItem, TQuery> & {
+		fetchList?: ResourceObject<TItem, TQuery>['fetchList'];
+		prefetchList?: ResourceObject<TItem, TQuery>['prefetchList'];
+	};
+
+	const controller = createResourceDataViewController<TItem, TQuery>({
+		resource: normalizedResource,
+		config: metadata.config,
+		runtime: dataviews,
+		namespace: runtime.namespace,
+		invalidate: runtime.invalidate,
+		capabilities: () => runtime.capabilities,
+		fetchList: normalizedResource.fetchList,
+		prefetchList: normalizedResource.prefetchList,
+	});
+
+	dataviews.controllers.set(resource.name, controller);
+	dataviews.registry.set(resource.name, {
+		resource: resource.name,
+		metadata: metadata.config as unknown as Record<string, unknown>,
+	});
+
+	dataviews.events.registered({
+		resource: resource.name,
+	});
+
+	dataviews.reporter.debug?.('Auto-registered DataViews controller', {
+		resource: resource.name,
+	});
+}

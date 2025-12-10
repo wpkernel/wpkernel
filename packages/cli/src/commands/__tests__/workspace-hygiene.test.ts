@@ -6,7 +6,16 @@ import {
 	createCommandWorkspaceHarness,
 } from '@cli-tests/cli';
 import { makeWorkspaceMock } from '@cli-tests/workspace.test-support';
-import { loadTestLayoutSync } from '@cli-tests/layout.test-support';
+import { loadTestLayoutSync } from '@wpkernel/test-utils/layout.test-support';
+import { buildTestArtifactsPlan } from '@cli-tests/ir.test-support';
+import layoutManifest from '../../../../../layout.manifest.json' assert { type: 'json' };
+jest.mock('../../ir/fragments/ir.layout.core', () => {
+	const actual = jest.requireActual('../../ir/fragments/ir.layout.core');
+	return {
+		...actual,
+		loadLayoutFromWorkspace: jest.fn(async () => loadTestLayoutSync()),
+	};
+});
 
 describe('workspace hygiene readiness wiring', () => {
 	beforeEach(() => {
@@ -21,6 +30,9 @@ describe('workspace hygiene readiness wiring', () => {
 
 		const workspaceHarness = createCommandWorkspaceHarness({
 			root: path.join(process.cwd(), 'generate-workspace'),
+			files: {
+				'layout.manifest.json': JSON.stringify(layoutManifest),
+			},
 		});
 		const reporters = createCommandReporterHarness();
 		const reporter = reporters.create();
@@ -74,6 +86,7 @@ describe('workspace hygiene readiness wiring', () => {
 					autoload: 'inc',
 					outputDir: layout.resolve('php.generated'),
 				},
+				artifacts: buildTestArtifactsPlan(layout),
 				diagnostics: [],
 				layout,
 			},

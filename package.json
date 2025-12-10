@@ -37,8 +37,8 @@
 		"release:prepare-pr": "pnpm exec tsx scripts/release/prepare-pr.ts",
 		"format": "prettier --write '**/*.{json,md,yml,yaml}' && node scripts/normalize-punctuation.js",
 		"format:check": "prettier --check '**/*.{json,md,yml,yaml}'",
-		"typecheck": "pnpm --recursive --filter './packages/*' --filter './examples/*' run typecheck",
-		"typecheck:tests": "pnpm --recursive --filter './packages/*' --filter './examples/*' run typecheck:tests",
+		"typecheck": "pnpm --recursive --filter './packages/*' run typecheck",
+		"typecheck:tests": "pnpm --recursive --filter './packages/*' run typecheck:tests",
 		"monorepo:create": "pnpm exec tsx scripts/register-workspace.ts create",
 		"monorepo:update": "pnpm exec tsx scripts/register-workspace.ts update",
 		"monorepo:remove": "pnpm exec tsx scripts/register-workspace.ts remove",
@@ -165,14 +165,14 @@
 		"vue3-tabs-component": "^1.3.7"
 	},
 	"lint-staged": {
-		"*.{js,ts,tsx}": [
+		"packages/**/!(__fixtures__|.wpk)/**/?*.{js,ts,tsx,cjs,mjs}": [
 			"eslint --fix",
 			"prettier --write"
 		],
-		"*.{json,md,yml,yaml}": [
+		"packages/**/!(__fixtures__|.wpk)/**/*.{json,md,yml,yaml}": [
 			"prettier --write"
 		],
-		"*.md": [
+		"packages/**/!(__fixtures__|.wpk)/**/*.md": [
 			"node scripts/normalize-punctuation.js"
 		]
 	},

@@ -78,6 +78,11 @@
 			"import": "./dist/reporter.js",
 			"default": "./dist/reporter.js"
 		},
+		"./interactivity": {
+			"types": "./dist/interactivity/index.d.ts",
+			"import": "./dist/interactivity.js",
+			"default": "./dist/interactivity.js"
+		},
 		"./namespace": {
 			"types": "./dist/namespace/index.d.ts",
 			"import": "./dist/namespace.js",

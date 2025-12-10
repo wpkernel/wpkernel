@@ -10,6 +10,7 @@ import {
 	buildVariable,
 	PHP_METHOD_MODIFIER_PUBLIC,
 	type PhpStmtClassMethod,
+	type PhpStmt,
 } from '@wpkernel/php-json-ast';
 
 describe('buildRestControllerClass', () => {
@@ -35,7 +36,7 @@ describe('buildRestControllerClass', () => {
 					methodName: 'get_item',
 					metadata: {
 						method: 'GET',
-						path: '/jobs/(?P<id>\\d+)',
+						path: '/demo/v1/jobs/:id',
 						kind: 'get',
 					},
 					capability: 'job.read',
@@ -65,6 +66,7 @@ describe('buildRestControllerClass', () => {
 				'get_resource_name',
 				'get_schema_key',
 				'get_rest_args',
+				'register_routes',
 				'get_item',
 				'helper',
 			])
@@ -80,4 +82,54 @@ describe('buildRestControllerClass', () => {
 			])
 		);
 	});
+
+	it('documents register_routes and keeps permission_callback open for handler enforcement', () => {
+		const config: RestControllerClassConfig = {
+			className: 'DemoController',
+			resourceName: 'demo',
+			schemaKey: 'demo',
+			restArgsExpression: buildScalarString('args'),
+			identity: { type: 'number', param: 'id' },
+			routes: [
+				{
+					methodName: 'get_item',
+					metadata: {
+						method: 'GET',
+						path: '/demo/v1/things/:id',
+						kind: 'get',
+					},
+					statements: [],
+				},
+			],
+			capabilityClass: 'App\\Capability\\Capability',
+		};
+
+		const result = buildRestControllerClass(config);
+		const registerRoutes = result.classNode.stmts?.find(isRegisterRoutes);
+
+		const commentText =
+			(
+				registerRoutes?.attributes as
+					| { comments?: { text?: string }[] }
+					| undefined
+			)?.comments?.[0]?.text ?? '';
+		expect(commentText).toContain(
+			'Register REST routes for this controller.'
+		);
+		expect(commentText).toContain(
+			'Capability enforcement happens inside each handler via Capability::enforce,'
+		);
+		expect(commentText).toContain(
+			'so permission_callback is intentionally __return_true here.'
+		);
+	});
 });
+
+function isRegisterRoutes(
+	stmt: PhpStmt
+): stmt is PhpStmtClassMethod & { name: { name: string } } {
+	return (
+		stmt.nodeType === 'Stmt_ClassMethod' &&
+		(stmt as PhpStmtClassMethod).name?.name === 'register_routes'
+	);
+}

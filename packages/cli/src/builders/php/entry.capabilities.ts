@@ -1,9 +1,5 @@
 import { createHelper } from '../../runtime';
-import type {
-	BuilderApplyOptions,
-	BuilderHelper,
-	BuilderNext,
-} from '../../runtime/types';
+import type { BuilderApplyOptions, BuilderHelper } from '../../runtime/types';
 import {
 	buildCapabilityModule,
 	buildProgramTargetPlanner,
@@ -26,10 +22,19 @@ export function createPhpCapabilityHelper(): BuilderHelper {
 	return createHelper({
 		key: 'builder.generate.php.capability',
 		kind: 'builder',
-		async apply(options: BuilderApplyOptions, next?: BuilderNext) {
+		dependsOn: [
+			'builder.generate.php.channel.bootstrap',
+			'ir.artifacts.plan',
+		],
+		async apply(options: BuilderApplyOptions) {
 			const { input } = options;
 			if (input.phase !== 'generate' || !input.ir) {
-				await next?.();
+				return;
+			}
+			if (!input.ir.artifacts?.php) {
+				options.reporter.debug(
+					'createPhpCapabilityHelper: missing PHP artifacts plan; skipping.'
+				);
 				return;
 			}
 
@@ -54,8 +59,6 @@ export function createPhpCapabilityHelper(): BuilderHelper {
 			});
 
 			planner.queueFiles({ files: module.files });
-
-			await next?.();
 		},
 	});
 }

@@ -4,7 +4,7 @@ import {
 	createResource,
 	createConfig,
 	renderResourceDataView,
-} from '../test-support/ResourceDataView.test-support';
+} from '../../../tests/ResourceDataView.test-support';
 import { act } from 'react';
 import { createRoot } from 'react-dom/client';
 import { ResourceDataView } from '../ResourceDataView';

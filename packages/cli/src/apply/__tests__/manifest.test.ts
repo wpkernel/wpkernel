@@ -4,7 +4,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import type { IRResource } from '../../ir/publicTypes';
-import type { SerializableResourceUIConfig } from '../../config/types';
 import { makeIr, makeIrMeta } from '@cli-tests/ir.test-support';
 import { createDefaultResource } from '@cli-tests/ir/resource-builder.mock';
 import { makeWorkspaceMock } from '@cli-tests/workspace.test-support';
@@ -13,15 +12,17 @@ import {
 	buildGenerationManifestFromIr,
 	diffGenerationState,
 	normaliseGenerationState,
+	resolveGenerationStatePath,
 	readGenerationState,
 	writeGenerationState,
 	type GenerationManifest,
 } from '../manifest';
-import { loadTestLayout } from '@cli-tests/layout.test-support';
+import { loadTestLayout } from '@wpkernel/test-utils/layout.test-support';
+import * as layoutManifest from '../../ir/fragments/ir.layout.core';
+import { createArtifactsFixture } from '../../ir/shared/test-helpers';
 
 describe('generation manifest helpers', () => {
 	let phpGeneratedRoot: string;
-	let uiGeneratedRoot: string;
 	let applyStatePath: string;
 	let layoutManifestText: string;
 	let testLayout: Awaited<ReturnType<typeof loadTestLayout>>;
@@ -40,7 +41,6 @@ describe('generation manifest helpers', () => {
 	beforeAll(async () => {
 		testLayout = await loadTestLayout();
 		phpGeneratedRoot = testLayout.resolve('php.generated');
-		uiGeneratedRoot = testLayout.resolve('ui.generated');
 		applyStatePath = testLayout.resolve('apply.state');
 		const manifestPath = path.resolve(
 			__dirname,
@@ -62,6 +62,26 @@ describe('generation manifest helpers', () => {
 		expect(workspace.readText).toHaveBeenCalledWith(applyStatePath);
 	});
 
+	it('throws when layout.manifest.json cannot be loaded', async () => {
+		const workspace = makeWorkspaceMock({
+			root: '/',
+			readText: jest.fn(async () => null),
+		});
+
+		const spy = jest
+			.spyOn(layoutManifest, 'loadLayoutFromWorkspace')
+			.mockResolvedValue(null as never);
+
+		await expect(
+			resolveGenerationStatePath(workspace)
+		).rejects.toMatchObject({
+			message:
+				'layout.manifest.json not found; cannot resolve apply state path.',
+		});
+
+		spy.mockRestore();
+	});
+
 	it('normalises manifest contents from disk', async () => {
 		const workspace = defaultWorkspace({
 			readText: jest.fn(async (file?: string) => {
@@ -77,10 +97,6 @@ describe('generation manifest helpers', () => {
 							artifacts: {
 								generated: [
 									`${phpGeneratedRoot}\\Rest\\BooksController.php`,
-									`./${path.posix.join(
-										phpGeneratedRoot,
-										'Rest/BooksController.php.ast.json'
-									)}`,
 									'',
 									42,
 								],
@@ -101,14 +117,9 @@ describe('generation manifest helpers', () => {
 					},
 					pluginLoader: {
 						file: './plugin.php',
-						ast: 'plugin.php.ast.json',
 					},
 					phpIndex: {
 						file: '.wpk/generate/php/index.php',
-						ast: './.wpk/generate/php/index.php.ast.json',
-					},
-					ui: {
-						handle: 'wp-demo-plugin-ui',
 					},
 				});
 			}),
@@ -127,10 +138,6 @@ describe('generation manifest helpers', () => {
 								phpGeneratedRoot,
 								'Rest/BooksController.php'
 							),
-							path.posix.join(
-								phpGeneratedRoot,
-								'Rest/BooksController.php.ast.json'
-							),
 						],
 						shims: ['inc/Rest/BooksController.php'],
 					},
@@ -138,14 +145,9 @@ describe('generation manifest helpers', () => {
 			},
 			pluginLoader: {
 				file: 'plugin.php',
-				ast: 'plugin.php.ast.json',
 			},
 			phpIndex: {
 				file: path.posix.join(phpGeneratedRoot, 'index.php'),
-				ast: path.posix.join(phpGeneratedRoot, 'index.php.ast.json'),
-			},
-			ui: {
-				handle: 'wp-demo-plugin-ui',
 			},
 		});
 	});
@@ -153,6 +155,26 @@ describe('generation manifest helpers', () => {
 	it('returns an empty state when parsing invalid structures', () => {
 		const malformed = normaliseGenerationState({ version: 2 });
 		expect(malformed).toEqual(buildEmptyGenerationState());
+	});
+
+	it('normalises empty or malformed shapes to empty state', () => {
+		expect(normaliseGenerationState(null)).toEqual(
+			buildEmptyGenerationState()
+		);
+
+		const normalised = normaliseGenerationState({
+			version: 1,
+			resources: {
+				'': { hash: null },
+			},
+			pluginLoader: { file: '' },
+			phpIndex: { file: null },
+			runtime: { files: [42, ''] },
+			ui: { handle: ' ', files: [{ generated: '', applied: null }] },
+			blocks: { files: [{ generated: '', applied: '' }] },
+		});
+
+		expect(normalised).toEqual(buildEmptyGenerationState());
 	});
 
 	it('throws when the state file contains invalid JSON', async () => {
@@ -192,7 +214,7 @@ describe('generation manifest helpers', () => {
 			defaultView: { type: 'table', fields: ['title'] },
 			preferencesKey: 'books/admin',
 		};
-		const uiConfig: SerializableResourceUIConfig = {
+		const uiConfig = {
 			admin: {
 				dataviews: dataviewsConfig,
 			},
@@ -233,18 +255,6 @@ describe('generation manifest helpers', () => {
 						policy: 'truncate',
 					},
 				}),
-				config: {
-					resources: {
-						books: {
-							name: 'books',
-							schema: 'auto',
-							routes: {},
-							cacheKeys: undefined,
-							ui: uiConfig,
-						},
-					},
-					schemas: {},
-				},
 				schemas: [],
 				resources: [resource],
 				capabilities: [],
@@ -276,35 +286,16 @@ describe('generation manifest helpers', () => {
 						phpGeneratedRoot,
 						'Rest/BooksController.php'
 					),
-					path.posix.join(
-						phpGeneratedRoot,
-						'Rest/BooksController.php.ast.json'
-					),
-					path.posix.join(
-						uiGeneratedRoot,
-						'fixtures/dataviews/books.ts'
-					),
-					path.posix.join(
-						uiGeneratedRoot,
-						'fixtures/interactivity/books.ts'
-					),
-					path.posix.join(
-						uiGeneratedRoot,
-						'registry/dataviews/books.ts'
-					),
 				]),
 				shims: ['inc/Rest/BooksController.php'],
 			},
 		});
 		expect(manifest.pluginLoader).toEqual({
 			file: path.posix.join(phpGeneratedRoot, 'plugin.php'),
-			ast: path.posix.join(phpGeneratedRoot, 'plugin.php.ast.json'),
 		});
 		expect(manifest.phpIndex).toEqual({
 			file: path.posix.join(phpGeneratedRoot, 'index.php'),
-			ast: path.posix.join(phpGeneratedRoot, 'index.php.ast.json'),
 		});
-		expect(manifest.ui).toEqual({ handle: 'wp-demo-plugin-ui' });
 	});
 
 	it('returns an empty manifest when IR is null', () => {
@@ -318,12 +309,7 @@ describe('generation manifest helpers', () => {
 				sourcePath: 'wpk.config.ts',
 				origin: 'typescript',
 			}),
-			config: {
-				version: 1,
-				namespace: 'DemoPlugin',
-				resources: {},
-				schemas: {},
-			},
+			artifacts: createArtifactsFixture(),
 			schemas: [],
 			resources: [
 				((): IRResource => {
@@ -367,6 +353,127 @@ describe('generation manifest helpers', () => {
 		});
 
 		expect(manifest.resources).toEqual({});
+	});
+
+	it('throws when the IR layout fragment is missing', () => {
+		expect(() =>
+			buildGenerationManifestFromIr({
+				meta: makeIrMeta('DemoPlugin', {
+					sourcePath: 'wpk.config.ts',
+					origin: 'typescript',
+				}),
+				artifacts: createArtifactsFixture(),
+				schemas: [],
+				resources: [],
+				capabilities: [],
+				capabilityMap: {
+					definitions: [],
+					fallback: {
+						capability: 'manage_demo',
+						appliesTo: 'resource',
+					},
+					missing: [],
+					unused: [],
+					warnings: [],
+				},
+				blocks: [],
+				php: {
+					namespace: 'DemoPlugin',
+					autoload: 'inc/',
+					outputDir: phpGeneratedRoot,
+				},
+				layout: undefined as unknown as typeof testLayout,
+				diagnostics: [],
+			})
+		).toThrow(
+			'IR layout fragment did not resolve layout before building generation manifest.'
+		);
+	});
+
+	it('builds UI and JS runtime state when capability map and admin screens exist', () => {
+		const resource = createDefaultResource();
+		const ir = makeIr({
+			namespace: 'demo-plugin',
+			meta: makeIrMeta('demo-plugin', {
+				sourcePath: 'wpk.config.ts',
+				origin: 'typescript',
+				namespace: 'DemoPlugin',
+				sanitizedNamespace: 'demo-plugin',
+			}),
+			artifacts: createArtifactsFixture(),
+			schemas: [],
+			resources: [
+				{
+					...resource,
+					id: 'res:books',
+					name: 'books',
+					schemaKey: 'books',
+					hash: { ...resource.hash, value: 'xyz' },
+					ui: {
+						admin: {
+							dataviews: {
+								fields: [{ id: 'title', label: 'Title' }],
+								defaultView: {
+									type: 'table',
+									fields: ['title'],
+								},
+								// preferencesKey intentionally dropped in IR/UI config
+							},
+						},
+					},
+				},
+			],
+			capabilities: [],
+			capabilityMap: {
+				definitions: [
+					{
+						id: 'cap:manage',
+					},
+				],
+				fallback: { capability: 'manage_demo', appliesTo: 'resource' },
+				missing: [],
+				unused: [],
+				warnings: [],
+			},
+			blocks: [],
+			php: {
+				namespace: 'DemoPlugin',
+				autoload: 'inc/',
+				outputDir: phpGeneratedRoot,
+			},
+			ui: {
+				resources: [
+					{
+						resource: 'books',
+					},
+				],
+			},
+			layout: testLayout,
+			diagnostics: [],
+		});
+
+		type UiFile = { generated: string; applied?: string | null };
+		type UiState = { handle: string; files: readonly UiFile[] };
+		type RuntimeState = { files: readonly string[] };
+
+		type GenerationManifestWithUi = GenerationManifest & {
+			ui?: UiState;
+			runtime?: RuntimeState;
+		};
+
+		const manifest = buildGenerationManifestFromIr(
+			ir
+		) as GenerationManifestWithUi;
+
+		// Runtime state
+		expect(manifest.runtime?.files).toBeUndefined();
+
+		// Resource-specific artifacts
+		const booksEntry = manifest.resources.books;
+		expect(booksEntry).toBeDefined();
+
+		const generatedArtifacts = booksEntry!.artifacts.generated;
+		expect(generatedArtifacts.length).toBeGreaterThan(0);
 	});
 
 	it('diffs manifests to capture removed resources', () => {
@@ -464,10 +571,6 @@ describe('generation manifest helpers', () => {
 								phpGeneratedRoot,
 								'Rest/BooksController.php'
 							),
-							path.posix.join(
-								phpGeneratedRoot,
-								'Rest/BooksController.php.ast.json'
-							),
 						],
 						shims: ['inc/Rest/BooksController.php'],
 					},
@@ -486,10 +589,6 @@ describe('generation manifest helpers', () => {
 								serverRoot,
 								'Rest/BooksController.php'
 							),
-							path.posix.join(
-								serverRoot,
-								'Rest/BooksController.php.ast.json'
-							),
 						],
 						shims: ['inc/Rest/BooksController.php'],
 					},
@@ -505,10 +604,6 @@ describe('generation manifest helpers', () => {
 					path.posix.join(
 						phpGeneratedRoot,
 						'Rest/BooksController.php'
-					),
-					path.posix.join(
-						phpGeneratedRoot,
-						'Rest/BooksController.php.ast.json'
 					),
 				],
 				shims: [],

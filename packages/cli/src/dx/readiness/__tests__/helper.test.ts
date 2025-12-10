@@ -6,15 +6,11 @@ describe('createReadinessHelper', () => {
 			createReadinessHelper({
 				key: 'missing-label',
 				metadata: {} as never,
-				create() {
-					return {
-						async detect() {
-							return { status: 'ready' as const };
-						},
-						async confirm() {
-							return { status: 'ready' as const };
-						},
-					};
+				async detect() {
+					return { status: 'ready' as const, state: {} };
+				},
+				async confirm() {
+					return { status: 'ready' as const, state: {} };
 				},
 			})
 		).toThrow(/must specify metadata\.label/i);
@@ -28,15 +24,11 @@ describe('createReadinessHelper', () => {
 				tags: [' alpha ', 'beta', 'alpha', ' '],
 				scopes: [' init ', '', 'init', 'create '],
 			},
-			create() {
-				return {
-					async detect() {
-						return { status: 'ready' as const };
-					},
-					async confirm() {
-						return { status: 'ready' as const };
-					},
-				};
+			async detect() {
+				return { status: 'ready' as const, state: {} };
+			},
+			async confirm() {
+				return { status: 'ready' as const, state: {} };
 			},
 		});
 
@@ -55,15 +47,11 @@ describe('createReadinessHelper', () => {
 				tags: ['   ', '\n'],
 				scopes: ['  '],
 			},
-			create() {
-				return {
-					async detect() {
-						return { status: 'ready' as const };
-					},
-					async confirm() {
-						return { status: 'ready' as const };
-					},
-				};
+			async detect() {
+				return { status: 'ready' as const, state: {} };
+			},
+			async confirm() {
+				return { status: 'ready' as const, state: {} };
 			},
 		});
 

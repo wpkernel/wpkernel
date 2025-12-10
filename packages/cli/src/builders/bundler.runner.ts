@@ -1,3 +1,4 @@
+import path from 'node:path';
 import { resolveBundlerPaths } from './bundler.paths';
 import type {
 	BuilderApplyOptions,
@@ -6,7 +7,7 @@ import type {
 	BuilderInput,
 } from '../runtime/types';
 import type { Workspace } from '../workspace/types';
-import type { IRResource, IRv1 } from '../ir/publicTypes';
+import type { IRResource } from '../ir/publicTypes';
 import { buildRollupDriverArtifacts } from './bundler.artifacts';
 import {
 	ensureBundlerDependencies,
@@ -15,7 +16,6 @@ import {
 import {
 	BUNDLER_TRANSACTION_LABEL,
 	VITE_CONFIG_FILENAME,
-	DEFAULT_ENTRY_POINT,
 } from './bundler.constants';
 import { buildViteConfigSource } from './bundler.vite';
 import type { PackageJsonLike, RollupDriverArtifacts } from './types';
@@ -26,64 +26,56 @@ import {
 import { BundlerError } from './errors/BundlerError';
 
 export function hasBundlerDataViews(input: BuilderInput): boolean {
+	return (input.ir?.resources ?? []).some((resource: IRResource) => {
+		const adminUi = resource.ui?.admin;
+		return Boolean(adminUi?.dataviews) || adminUi?.view === 'dataviews';
+	});
+}
+
+function hasUiResources(input: BuilderInput): boolean {
 	return (input.ir?.resources ?? []).some((resource: IRResource) =>
-		Boolean(resource.ui?.admin?.dataviews)
+		Boolean(resource.ui?.admin)
 	);
 }
 
 export async function applyBundlerGeneration(
 	applyOptions: BuilderApplyOptions
 ): Promise<void> {
-	const { context, output, reporter, input } = applyOptions;
+	const { context, output, reporter } = applyOptions;
 
-	if (input.phase !== 'generate') {
-		reporter.debug(
-			'createBundler: skipping phase without bundler support.',
-			{
-				phase: input.phase,
-			}
-		);
-		return;
-	}
-
-	if (!hasBundlerDataViews(input)) {
-		reporter.debug(
-			'createBundler: no UI resources detected; skipping bundler artifacts.'
-		);
+	const bundlerContext = await prepareBundlerContext(applyOptions);
+	if (!bundlerContext) {
 		return;
 	}
 
 	context.workspace.begin(BUNDLER_TRANSACTION_LABEL);
 
 	try {
-		const pkg = await readPackageJson(context.workspace);
-		const sanitizedNamespace = resolveBundlerNamespace(input);
-		const version = resolveBundlerVersion(input, pkg);
-		const entryPoint = resolveUiEntryPoint(input.ir);
 		const dependencyResult = await ensureBundlerDependencies({
 			workspaceRoot: context.workspace.root,
-			pkg,
+			pkg: bundlerContext.pkg,
 			hasUiResources: true,
-			namespace: input.options.config.namespace,
-			version,
+			namespace: bundlerContext.namespace,
+			version: bundlerContext.version,
 		});
 
 		const scriptResult = ensureBundlerScripts(dependencyResult.pkg);
 		const artifacts = buildRollupDriverArtifacts(scriptResult.pkg, {
-			aliasRoot: context.workspace.resolve('src'),
-			sanitizedNamespace,
-			hasUi: true,
-			entryPoint,
-			version,
+			aliasRoot: bundlerContext.aliasRoot,
+			shimDir: bundlerContext.shimsDir,
+			sanitizedNamespace: bundlerContext.sanitizedNamespace,
+			hasUi: bundlerContext.hasUi,
+			hasDataViews: bundlerContext.hasDataViews,
+			entryPoint: bundlerContext.entryPoint,
+			version: bundlerContext.version,
 		});
-		const paths = resolveBundlerPaths(input.ir);
 
 		await persistBundlerArtifacts({
 			context,
 			output,
 			reporter,
 			artifacts,
-			paths,
+			paths: bundlerContext.paths,
 			packageResult: {
 				pkg: scriptResult.pkg,
 				changed: dependencyResult.changed || scriptResult.changed,
@@ -97,6 +89,77 @@ export async function applyBundlerGeneration(
 			stage: 'bundler.apply',
 		});
 	}
+}
+
+interface PreparedBundlerContext {
+	readonly pkg: PackageJsonLike | null;
+	readonly sanitizedNamespace: string;
+	readonly version: string;
+	readonly entryPoint: string;
+	readonly paths: ReturnType<typeof resolveBundlerPaths>;
+	readonly aliasRoot: string;
+	readonly hasDataViews: boolean;
+	readonly hasUi: boolean;
+	readonly shimsDir: string;
+	readonly namespace: string;
+}
+
+async function prepareBundlerContext(
+	applyOptions: BuilderApplyOptions
+): Promise<PreparedBundlerContext | null> {
+	const { input, reporter, context } = applyOptions;
+
+	if (input.phase !== 'generate') {
+		reporter.debug(
+			'createBundler: skipping phase without bundler support.',
+			{
+				phase: input.phase,
+			}
+		);
+		return null;
+	}
+
+	if (!hasUiResources(input)) {
+		reporter.debug(
+			'createBundler: no UI resources detected; skipping bundler artifacts.'
+		);
+		return null;
+	}
+
+	if (!input.ir?.artifacts.bundler) {
+		reporter.debug(
+			'createBundler: missing bundler artifacts; skipping bundler generation.'
+		);
+		return null;
+	}
+
+	const paths = resolveBundlerPaths(input.ir);
+	const pkg = await readPackageJson(context.workspace);
+	const sanitizedNamespace = resolveBundlerNamespace(input);
+	const version = resolveBundlerVersion(input, pkg);
+	const entryPoint = paths.entryPoint;
+	if (!entryPoint) {
+		reporter.debug(
+			'createBundler: missing runtime entry artifact; skipping bundler generation.'
+		);
+		return null;
+	}
+	const aliasRoot = context.workspace.resolve(paths.aliasRoot);
+	const shimsDir = context.workspace.resolve(paths.shimsDir);
+	const namespace = input.ir?.meta?.namespace ?? input.options.namespace;
+
+	return {
+		pkg,
+		sanitizedNamespace,
+		version,
+		entryPoint,
+		paths,
+		aliasRoot,
+		hasDataViews: hasBundlerDataViews(input),
+		hasUi: hasUiResources(input),
+		shimsDir,
+		namespace,
+	};
 }
 
 async function readPackageJson(
@@ -143,6 +206,101 @@ interface PersistBundlerArtifactsArgs {
 	};
 }
 
+async function writeBundlerShims(
+	workspace: Workspace,
+	shimsDir: string
+): Promise<void> {
+	const files: Array<{ name: string; contents: string }> = [
+		{
+			name: 'wp-react.ts',
+			contents: [
+				"import * as Element from '@wordpress/element';",
+				'',
+				"export * from '@wordpress/element';",
+				'',
+				'export const Fragment = Element.Fragment;',
+				'export default Element;',
+				'',
+				'export function jsx(type: unknown, props: Record<string, unknown> | null, key?: string) {',
+				'  return Element.createElement(type as any, { ...(props ?? {}), key });',
+				'}',
+				'',
+				'export const jsxs = jsx;',
+				'export const jsxDEV = jsx;',
+				'',
+				'export { createElement } from "@wordpress/element";',
+			].join('\n'),
+		},
+		{
+			name: 'wp-element-jsx-runtime.ts',
+			contents: [
+				"import { createElement, Fragment } from '@wordpress/element';",
+				'',
+				'export { Fragment };',
+				'',
+				'export function jsx(type: unknown, props: Record<string, unknown> | null, key?: string) {',
+				'  return createElement(type as any, { ...(props ?? {}), key });',
+				'}',
+				'',
+				'export const jsxs = jsx;',
+				'export const jsxDEV = jsx;',
+			].join('\n'),
+		},
+		{
+			name: 'wp-element-client.ts',
+			contents: [
+				"import * as Element from '@wordpress/element';",
+				'',
+				'function getReactDom(): any {',
+				'  return (Element as any).ReactDOM ?? (Element as any);',
+				'}',
+				'',
+				'export function createRoot(container: Element | HTMLElement | null) {',
+				'  const reactDom = getReactDom();',
+				'  const factory = reactDom?.createRoot;',
+				'',
+				'  if (typeof factory === "function") {',
+				'    return factory(container);',
+				'  }',
+				'',
+				'  const legacyRender = reactDom?.render ?? reactDom?.ReactDOM?.render;',
+				'  const legacyUnmount =',
+				'    reactDom?.unmountComponentAtNode ?? reactDom?.ReactDOM?.unmountComponentAtNode;',
+				'',
+				'  return {',
+				'    render(element: unknown) {',
+				'      if (typeof legacyRender === "function" && container) {',
+				'        legacyRender(element as any, container);',
+				'      }',
+				'    },',
+				'    unmount() {',
+				'      if (typeof legacyUnmount === "function" && container) {',
+				'        legacyUnmount(container);',
+				'      }',
+				'    },',
+				'  };',
+				'}',
+				'',
+				'export function hydrateRoot(...args: any[]) {',
+				'  const reactDom = getReactDom();',
+				'  const hydrate = reactDom?.hydrateRoot;',
+				'  if (typeof hydrate === "function") {',
+				'    return hydrate(...args);',
+				'  }',
+				"  throw new Error('hydrateRoot is not available in @wordpress/element runtime');",
+				'}',
+				'',
+				'export default { createRoot, hydrateRoot };',
+			].join('\n'),
+		},
+	];
+
+	for (const file of files) {
+		const target = path.posix.join(shimsDir, file.name);
+		await workspace.write(target, file.contents, { ensureDir: true });
+	}
+}
+
 async function persistBundlerArtifacts(
 	args: PersistBundlerArtifactsArgs
 ): Promise<void> {
@@ -168,6 +326,10 @@ async function persistBundlerArtifacts(
 	await context.workspace.write(VITE_CONFIG_FILENAME, viteConfigSource, {
 		ensureDir: true,
 	});
+	await writeBundlerShims(
+		context.workspace,
+		context.workspace.resolve(paths.shimsDir)
+	);
 
 	const manifest = await context.workspace.commit(BUNDLER_TRANSACTION_LABEL);
 	await queueManifestWrites(context, output, manifest.writes);
@@ -175,17 +337,4 @@ async function persistBundlerArtifacts(
 	reporter.debug('Bundler configuration generated.', {
 		files: manifest.writes,
 	});
-}
-
-function resolveUiEntryPoint(ir: IRv1 | null | undefined): string {
-	if (!ir?.layout) {
-		return DEFAULT_ENTRY_POINT;
-	}
-
-	try {
-		const uiGenerated = ir.layout.resolve('ui.generated');
-		return `${uiGenerated}/index.tsx`;
-	} catch {
-		return DEFAULT_ENTRY_POINT;
-	}
 }

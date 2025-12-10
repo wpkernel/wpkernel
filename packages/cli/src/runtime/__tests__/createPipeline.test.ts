@@ -1,6 +1,12 @@
 import { createPipeline } from '../createPipeline';
 import { WPKernelError } from '@wpkernel/core/error';
-import type { BuilderHelper, FragmentHelper } from '../types';
+import type {
+	BuilderHelper,
+	FragmentHelper,
+	FragmentInput,
+	FragmentOutput,
+	PipelineContext,
+} from '../types';
 import {
 	buildBuilderHelper,
 	buildFragmentHelper,
@@ -8,7 +14,15 @@ import {
 
 describe('createPipeline registration', () => {
 	it('throws when registering a fragment with wrong kind', () => {
-		const pipeline = createPipeline();
+		const pipeline = createPipeline({
+			builderProvidedKeys: [
+				'builder.generate.php.controller.resources',
+				'builder.generate.php.capability',
+				'builder.generate.php.registration.persistence',
+				'builder.generate.php.plugin-loader',
+				'builder.generate.php.index',
+			],
+		});
 
 		const builder = buildBuilderHelper({
 			key: 'builder.wrong-surface',
@@ -21,9 +35,22 @@ describe('createPipeline registration', () => {
 	});
 
 	it('throws when registering a builder with wrong kind', () => {
-		const pipeline = createPipeline();
+		const pipeline = createPipeline({
+			builderProvidedKeys: [
+				'builder.generate.php.controller.resources',
+				'builder.generate.php.capability',
+				'builder.generate.php.registration.persistence',
+				'builder.generate.php.plugin-loader',
+				'builder.generate.php.index',
+			],
+		});
 
-		const fragment = buildFragmentHelper({
+		const fragment = buildFragmentHelper<
+			PipelineContext,
+			FragmentInput,
+			FragmentOutput,
+			PipelineContext['reporter']
+		>({
 			key: 'ir.wrong-surface',
 			apply: async () => undefined,
 		});
@@ -34,15 +61,33 @@ describe('createPipeline registration', () => {
 	});
 
 	it('throws on multiple overrides for same fragment key', () => {
-		const pipeline = createPipeline();
+		const pipeline = createPipeline({
+			builderProvidedKeys: [
+				'builder.generate.php.controller.resources',
+				'builder.generate.php.capability',
+				'builder.generate.php.registration.persistence',
+				'builder.generate.php.plugin-loader',
+				'builder.generate.php.index',
+			],
+		});
 
-		const first = buildFragmentHelper({
+		const first = buildFragmentHelper<
+			PipelineContext,
+			FragmentInput,
+			FragmentOutput,
+			PipelineContext['reporter']
+		>({
 			key: 'same',
 			mode: 'override',
 			apply: async () => undefined,
 			origin: 'a',
 		});
-		const duplicate = buildFragmentHelper({
+		const duplicate = buildFragmentHelper<
+			PipelineContext,
+			FragmentInput,
+			FragmentOutput,
+			PipelineContext['reporter']
+		>({
 			key: 'same',
 			mode: 'override',
 			apply: async () => undefined,

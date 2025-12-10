@@ -156,9 +156,9 @@ export async function runAdapterExtensions(
 				});
 				pendingFiles.push(scheduled);
 			},
-			updateIr(candidate: IRv1) {
+			updateIr(candidate) {
 				hasUpdatedIr = true;
-				updatedIr = cloneIr(candidate);
+				updatedIr = cloneIr(candidate as IRv1);
 			},
 		};
 

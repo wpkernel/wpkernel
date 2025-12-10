@@ -1,8 +1,8 @@
 import path from 'node:path';
 import { loadWPKernelConfig } from '../../config';
 import { buildWorkspace } from '../../workspace';
-import { loadLayoutFromWorkspace } from '../../layout/manifest';
 import { WPKernelError } from '@wpkernel/core/error';
+import { loadLayoutFromWorkspace } from '../../ir/fragments/ir.layout.core';
 
 export interface StartLayoutPaths {
 	readonly phpGenerated: string;

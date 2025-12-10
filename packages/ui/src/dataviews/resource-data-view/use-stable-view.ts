@@ -75,7 +75,7 @@ export function useStableView(
 
 	useEffect(() => {
 		let active = true;
-		controller.emitRegistered(controller.preferencesKey);
+		controller.emitRegistered();
 		controller
 			.loadStoredView()
 			.then((stored) => {
@@ -96,7 +96,7 @@ export function useStableView(
 
 		return () => {
 			active = false;
-			controller.emitUnregistered(controller.preferencesKey);
+			controller.emitUnregistered();
 		};
 	}, [controller]);
 

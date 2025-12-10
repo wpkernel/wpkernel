@@ -14,7 +14,7 @@ import type {
 	PipelineContext as PhpPipelineContext,
 	PipelinePhase,
 } from '@wpkernel/php-json-ast';
-import type { BuildIrOptions, IRv1 } from '../ir/publicTypes';
+import type { FragmentIrOptions, IRv1 } from '../ir/publicTypes';
 import type { MutableIr } from '../ir/types';
 import type { Workspace } from '../workspace/types';
 import type { GenerationManifest } from '../apply/manifest';
@@ -45,7 +45,7 @@ export interface PipelineRunOptions {
 	/** The current phase of the pipeline execution. */
 	readonly phase: PipelinePhase;
 	/** The configuration object for the WPKernel project. */
-	readonly config: BuildIrOptions['config'];
+	readonly config: FragmentIrOptions['config'];
 	/** The namespace of the project. */
 	readonly namespace: string;
 	/** The origin of the configuration (e.g., 'project', 'workspace'). */
@@ -58,6 +58,17 @@ export interface PipelineRunOptions {
 	readonly reporter: Reporter;
 	/** The state of the code generation process. */
 	readonly generationState: GenerationManifest;
+}
+
+/**
+ * Minimal options required by builder helpers.
+ *
+ * @category Runtime
+ */
+export interface BuilderOptions {
+	readonly namespace: string;
+	readonly origin: string;
+	readonly sourcePath: string;
 }
 
 /**
@@ -178,7 +189,7 @@ export type FragmentHelper = Helper<
  */
 export interface FragmentInput {
 	/** Options for building the IR. */
-	readonly options: BuildIrOptions;
+	readonly options: FragmentIrOptions;
 	/** The mutable Intermediate Representation draft. */
 	readonly draft: MutableIr;
 }
@@ -204,8 +215,8 @@ export interface FragmentOutput {
  * @category Runtime
  */
 export interface BuilderInput extends Omit<BaseBuilderInput, 'options' | 'ir'> {
-	/** Options for building the IR. */
-	readonly options: BuildIrOptions;
+	/** Options for builder execution (no raw config). */
+	readonly options: BuilderOptions;
 	/** The finalized Intermediate Representation (IR). */
 	readonly ir: IRv1 | null;
 }
@@ -282,7 +293,7 @@ export type Pipeline = CorePipeline<
 	PipelineRunResult,
 	PipelineContext,
 	PipelineContext['reporter'],
-	BuildIrOptions,
+	FragmentIrOptions,
 	IRv1,
 	FragmentInput,
 	FragmentOutput,

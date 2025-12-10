@@ -3,7 +3,7 @@ import type {
 	Reporter,
 	createReporter as buildReporter,
 } from '@wpkernel/core/reporter';
-import type { FileWriterSummary } from '../../utils';
+import type { FileWriterSummary } from '../../utils/file-writer';
 import type { renderSummary } from '../run-generate/summary';
 import type { validateGeneratedImports } from '../run-generate/validation';
 import type { GenerationSummary } from '../run-generate/types';

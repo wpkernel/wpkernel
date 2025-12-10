@@ -14,7 +14,6 @@ export interface DataViewMetadataIssue {
 
 export interface ResourceDataViewMetadata<TItem, TQuery> {
 	readonly config: ResourceDataViewConfig<TItem, TQuery>;
-	readonly preferencesKey?: string;
 }
 
 export interface MetadataNormalizationResult<TItem, TQuery> {

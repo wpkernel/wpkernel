@@ -7,7 +7,7 @@ import { buildWorkspace } from '../../workspace';
 import type { Workspace } from '../../workspace';
 import type { IRBlock, IRHashProvenance } from '../../ir/publicTypes';
 import { collectBlockManifests } from '../shared.blocks.manifest';
-import { loadTestLayout } from '@cli-tests/layout.test-support';
+import { loadTestLayout } from '@wpkernel/test-utils/layout.test-support';
 
 const makeBlockHash = (label: string): IRHashProvenance => ({
 	algo: 'sha256',

@@ -7,21 +7,22 @@ import {
 	prepareStorage,
 	inferPostType,
 	sortWarnings,
-} from '../shared/resource-builder';
-import type { IRResource } from '../types';
+} from '../fragments/ir.resources.core';
+import type { IRResource } from '../publicTypes';
+import type { ResourceConfig } from '@wpkernel/core/resource';
 
 describe('resource builder helpers', () => {
 	it('normalises query params by sorting keys', () => {
 		expect(normaliseQueryParams(undefined)).toBeUndefined();
 
 		const result = normaliseQueryParams({
-			b: ['two'],
-			a: ['one'],
+			b: { type: 'enum', enum: ['two'] },
+			a: { type: 'enum', enum: ['one'] },
 		});
 
 		expect(result).toEqual({
-			a: ['one'],
-			b: ['two'],
+			a: { type: 'enum', enum: ['one'] },
+			b: { type: 'enum', enum: ['two'] },
 		});
 	});
 
@@ -204,7 +205,11 @@ describe('resource builder helpers', () => {
 			storage: { mode: 'wp-post' } as never,
 			sanitizedNamespace: 'Namespace Value',
 		});
-		expect(inferredPost.storage?.postType).toBe(
+		const inferredPostStorage = inferredPost.storage as Extract<
+			ResourceConfig['storage'],
+			{ mode: 'wp-post' }
+		>;
+		expect(inferredPostStorage.postType).toBe(
 			'namespace_value_thing'.slice(0, 20)
 		);
 	});

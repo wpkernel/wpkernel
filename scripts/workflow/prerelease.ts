@@ -213,6 +213,11 @@ function removeStateFile(repoRoot: string): void {
 	}
 }
 
+function tagExists(repoRoot: string, version: string): boolean {
+	const tagName = `v${version}`;
+	return runCapture('git', ['tag', '-l', tagName], repoRoot) === tagName;
+}
+
 function runDocsBuild(repoRoot: string): void {
 	run('pnpm', ['docs:build'], repoRoot);
 }
@@ -364,7 +369,14 @@ function resolveTargetVersion(
 
 	const stateVersion = readStateVersion(repoRoot);
 	if (stateVersion) {
-		return stateVersion;
+		if (tagExists(repoRoot, stateVersion)) {
+			console.log(
+				`State file ${STATE_FILE} contains already-released v${stateVersion}; recomputing target.`
+			);
+			removeStateFile(repoRoot);
+		} else {
+			return stateVersion;
+		}
 	}
 
 	const next = computeNextVersion(

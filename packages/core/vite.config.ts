@@ -24,6 +24,7 @@ export default createWPKLibConfig(
 		events: 'src/events/index.ts',
 		capability: 'src/capability/index.ts',
 		reporter: 'src/reporter/index.ts',
+		interactivity: 'src/interactivity/index.ts',
 		namespace: 'src/namespace/index.ts',
 		contracts: 'src/contracts/index.ts',
 		pipeline: 'src/pipeline/index.ts',

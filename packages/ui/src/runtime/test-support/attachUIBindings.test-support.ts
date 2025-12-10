@@ -170,8 +170,13 @@ export function createResourceWithDataView(
 		...dataviewOverrides,
 	} as ResourceDataViewConfig<unknown, { search?: string }>;
 
-	(resource as unknown as { ui?: { admin?: { dataviews?: unknown } } }).ui = {
+	(
+		resource as unknown as {
+			ui?: { admin?: { view?: string; dataviews?: unknown } };
+		}
+	).ui = {
 		admin: {
+			view: 'dataview',
 			dataviews,
 		},
 	};

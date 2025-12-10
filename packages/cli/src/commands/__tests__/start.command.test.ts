@@ -507,18 +507,22 @@ describe('buildStartCommand', () => {
 		spawnViteProcess.mockImplementationOnce((_manager) => {
 			const child = new FakeChildProcess();
 			let sigintHandled = false;
-			child.kill.mockImplementation((signal?: NodeJS.Signals) => {
-				if (signal === 'SIGINT') {
-					sigintHandled = true;
-					return true;
+			child.kill.mockImplementation(
+				(signal?: NodeJS.Signals | number) => {
+					if (signal === 'SIGINT') {
+						sigintHandled = true;
+						return true;
+					}
+					if (signal === 'SIGTERM' && sigintHandled) {
+						child.killed = true;
+						queueMicrotask(() =>
+							child.emit('exit', 0, signal ?? null)
+						);
+						return true;
+					}
+					return false;
 				}
-				if (signal === 'SIGTERM' && sigintHandled) {
-					child.killed = true;
-					queueMicrotask(() => child.emit('exit', 0, signal ?? null));
-					return true;
-				}
-				return false;
-			});
+			);
 			return child;
 		});
 

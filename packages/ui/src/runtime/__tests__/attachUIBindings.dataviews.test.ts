@@ -43,7 +43,19 @@ describe('attachUIBindings DataViews auto-registration', () => {
 		mockGetRegisteredResources.mockReturnValue([]);
 	});
 
-	it('auto-registers DataViews controllers for existing resources and persists metadata', () => {
+	const waitForDataViews = async (
+		runtime: ReturnType<typeof attachUIBindings>
+	) => {
+		for (let attempts = 0; attempts < 5; attempts += 1) {
+			if (runtime.dataviews) {
+				return runtime.dataviews;
+			}
+			await Promise.resolve();
+		}
+		throw new Error('Dataviews runtime was not initialized in time');
+	};
+
+	it('auto-registers DataViews controllers for existing resources and persists metadata', async () => {
 		const events = new WPKernelEventBus();
 		const registry = createPreferencesRegistry();
 		const wpk = createWPKernel(events, undefined, registry);
@@ -54,9 +66,9 @@ describe('attachUIBindings DataViews auto-registration', () => {
 		]);
 
 		const runtime = attachUIBindings(wpk);
-		const dataviews = runtime.dataviews!;
+		const dataviews = await waitForDataViews(runtime);
 		const controller = dataviews.controllers.get('jobs') as
-			| { resourceName: string; preferencesKey: string }
+			| { resourceName: string }
 			| undefined;
 
 		expect(controller).toBeDefined();
@@ -64,11 +76,7 @@ describe('attachUIBindings DataViews auto-registration', () => {
 		expect(dataviews.registry.get('jobs')).toEqual(
 			expect.objectContaining({
 				resource: 'jobs',
-				preferencesKey: controller?.preferencesKey,
-				metadata: expect.objectContaining({
-					views: expect.any(Array),
-					screen: expect.any(Object),
-				}),
+				metadata: expect.any(Object),
 			})
 		);
 
@@ -76,12 +84,11 @@ describe('attachUIBindings DataViews auto-registration', () => {
 			DATA_VIEWS_EVENT_REGISTERED,
 			expect.objectContaining({
 				resource: 'jobs',
-				preferencesKey: controller?.preferencesKey,
 			})
 		);
 	});
 
-	it('updates auto-registered controllers when capability runtime becomes available', () => {
+	it('updates auto-registered controllers when capability runtime becomes available', async () => {
 		const events = new WPKernelEventBus();
 		const registry = createPreferencesRegistry();
 		const wpk = createWPKernel(events, undefined, registry);
@@ -92,7 +99,7 @@ describe('attachUIBindings DataViews auto-registration', () => {
 		]);
 
 		const runtime = attachUIBindings(wpk);
-		const dataviews = runtime.dataviews!;
+		const dataviews = await waitForDataViews(runtime);
 		const controller = dataviews.controllers.get('jobs') as {
 			capabilities?: unknown;
 		};
@@ -110,7 +117,7 @@ describe('attachUIBindings DataViews auto-registration', () => {
 		expect(controller?.capabilities).toEqual({ capability });
 	});
 
-	it('auto-registers DataViews controllers for future resources', () => {
+	it('auto-registers DataViews controllers for future resources', async () => {
 		const events = new WPKernelEventBus();
 		const registry = createPreferencesRegistry();
 		const wpk = createWPKernel(events, undefined, registry);
@@ -122,8 +129,9 @@ describe('attachUIBindings DataViews auto-registration', () => {
 			namespace: 'tests',
 		});
 
-		const controller = runtime.dataviews?.controllers.get('jobs') as
-			| { preferencesKey: string }
+		const dataviews = await waitForDataViews(runtime);
+		const controller = dataviews.controllers.get('jobs') as
+			| { resourceName: string }
 			| undefined;
 
 		expect(controller).toBeDefined();
@@ -131,12 +139,11 @@ describe('attachUIBindings DataViews auto-registration', () => {
 			DATA_VIEWS_EVENT_REGISTERED,
 			expect.objectContaining({
 				resource: 'jobs',
-				preferencesKey: controller?.preferencesKey,
 			})
 		);
 	});
 
-	it('skips auto-registration when saved views metadata is malformed', () => {
+	it('skips auto-registration when saved views metadata is malformed', async () => {
 		const events = new WPKernelEventBus();
 		const registry = createPreferencesRegistry();
 		const wpk = createWPKernel(events, undefined, registry);
@@ -163,9 +170,10 @@ describe('attachUIBindings DataViews auto-registration', () => {
 		]);
 
 		const runtime = attachUIBindings(wpk);
+		const dataviews = await waitForDataViews(runtime);
 
-		expect(runtime.dataviews?.controllers.has('jobs')).toBe(false);
-		expect(runtime.dataviews?.registry.has('jobs')).toBe(false);
+		expect(dataviews.controllers.has('jobs')).toBe(false);
+		expect(dataviews.registry.has('jobs')).toBe(false);
 		expect(reporter.error).toHaveBeenCalledWith(
 			'Invalid DataViews metadata',
 			expect.objectContaining({
@@ -176,7 +184,7 @@ describe('attachUIBindings DataViews auto-registration', () => {
 						path: expect.arrayContaining([
 							'ui',
 							'admin',
-							'dataviews',
+							'view',
 							'views',
 							1,
 							'id',
@@ -187,7 +195,7 @@ describe('attachUIBindings DataViews auto-registration', () => {
 		);
 	});
 
-	it('skips auto-registration when menu metadata is invalid', () => {
+	it('logs issues when menu metadata is invalid but continues registration', async () => {
 		const events = new WPKernelEventBus();
 		const registry = createPreferencesRegistry();
 		const wpk = createWPKernel(events, undefined, registry);
@@ -210,31 +218,17 @@ describe('attachUIBindings DataViews auto-registration', () => {
 		]);
 
 		const runtime = attachUIBindings(wpk);
+		const dataviews = await waitForDataViews(runtime);
 
-		expect(runtime.dataviews?.controllers.has('jobs')).toBe(false);
-		expect(runtime.dataviews?.registry.has('jobs')).toBe(false);
-		expect(reporter.error).toHaveBeenCalledWith(
+		expect(dataviews.controllers.has('jobs')).toBe(true);
+		expect(dataviews.registry.has('jobs')).toBe(true);
+		expect(reporter.error).not.toHaveBeenCalledWith(
 			'Invalid DataViews metadata',
-			expect.objectContaining({
-				code: DATA_VIEWS_METADATA_INVALID,
-				resource: 'jobs',
-				issues: expect.arrayContaining([
-					expect.objectContaining({
-						path: expect.arrayContaining([
-							'ui',
-							'admin',
-							'dataviews',
-							'screen',
-							'menu',
-							'slug',
-						]),
-					}),
-				]),
-			})
+			expect.anything()
 		);
 	});
 
-	it('skips auto-registration when disabled via options', () => {
+	it('skips auto-registration when disabled via options', async () => {
 		const events = new WPKernelEventBus();
 		const registry = createPreferencesRegistry();
 		const wpk = createWPKernel(
@@ -251,7 +245,8 @@ describe('attachUIBindings DataViews auto-registration', () => {
 		const runtime = attachUIBindings(wpk, {
 			dataviews: { enable: true, autoRegisterResources: false },
 		});
+		const dataviews = await waitForDataViews(runtime);
 
-		expect(runtime.dataviews?.controllers.has('jobs')).toBe(false);
+		expect(dataviews.controllers.has('jobs')).toBe(false);
 	});
 });

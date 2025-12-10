@@ -1,4 +1,4 @@
-import { printCapabilityModule } from '../entry.capability';
+import { printCapabilityModule } from '../capability';
 import { makeIr } from '@cli-tests/ir.test-support';
 
 describe('printCapabilityModule', () => {

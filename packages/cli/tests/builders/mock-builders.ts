@@ -17,6 +17,9 @@ export function buildBuildersMock() {
 		createBundler: jest.fn(() =>
 			createStubBuilder('builder.generate.stub.bundler')
 		),
+		createPlanBuilder: jest.fn(() =>
+			createStubBuilder('builder.generate.stub.plan')
+		),
 		createUiEntryBuilder: jest.fn(() =>
 			createStubBuilder('builder.generate.stub.ui-entry')
 		),
@@ -26,20 +29,32 @@ export function buildBuildersMock() {
 		createPatcher: jest.fn(() =>
 			createStubBuilder('builder.generate.stub.patcher')
 		),
-		createPhpBuilder: jest.fn(() =>
-			createStubBuilder('builder.generate.stub.php')
-		),
 		createJsBlocksBuilder: jest.fn(() =>
 			createStubBuilder('builder.generate.stub.blocks')
 		),
-		createTsBuilder: jest.fn(() =>
-			createStubBuilder('builder.generate.stub.ts')
+		createTsTypesBuilder: jest.fn(() =>
+			createStubBuilder('builder.generate.stub.ts-types')
+		),
+		createTsResourcesBuilder: jest.fn(() =>
+			createStubBuilder('builder.generate.stub.ts-resources')
+		),
+		createAdminScreenBuilder: jest.fn(() =>
+			createStubBuilder('builder.generate.stub.ts-adminScreen')
+		),
+		createAppConfigBuilder: jest.fn(() =>
+			createStubBuilder('builder.generate.stub.ts-appConfig')
+		),
+		createAppFormBuilder: jest.fn(() =>
+			createStubBuilder('builder.generate.stub.ts-appForm')
 		),
 		createTsCapabilityBuilder: jest.fn(() =>
 			createStubBuilder('builder.generate.stub.ts-capability')
 		),
 		createTsIndexBuilder: jest.fn(() =>
 			createStubBuilder('builder.generate.stub.ts-index')
+		),
+		createTsConfigBuilder: jest.fn(() =>
+			createStubBuilder('builder.generate.stub.tsconfig')
 		),
 		createPhpDriverInstaller: actualBuilders.createPhpDriverInstaller,
 	};

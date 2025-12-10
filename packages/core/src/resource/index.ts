@@ -107,8 +107,5 @@ export type {
 	ResourceListStatus,
 	ResourceUIConfig,
 	ResourceAdminUIConfig,
-	ResourceDataViewsUIConfig,
-	ResourceDataViewsScreenConfig,
 	ResourceDataViewsMenuConfig,
-	ResourceDataViewsSavedViewConfig,
 } from './types';

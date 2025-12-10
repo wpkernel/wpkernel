@@ -1,28 +1,33 @@
-import fs from 'node:fs/promises';
 import path from 'path';
 import type { IRv1 } from '../ir/publicTypes';
 import type { Workspace } from '../workspace';
+import { pathExists } from '../utils';
+import { toWorkspaceRelative as toWorkspaceRelativeFromWorkspace } from '../workspace';
 
 export interface BlockPathRoots {
 	readonly generated: string;
 	readonly surfaced: string;
 }
 
-export function resolveBlockRoots(ir: IRv1): BlockPathRoots {
-	const layout = ir.layout;
+export function resolveBlockRoots(ir: IRv1): BlockPathRoots | null {
+	const blockPlans = Object.values(ir.artifacts?.blocks ?? {});
+	if (blockPlans.length === 0) {
+		return null;
+	}
+	const first = blockPlans[0]!;
 	return {
-		generated: layout.resolve('blocks.generated'),
-		surfaced: layout.resolve('blocks.applied'),
+		generated: first.generatedDir,
+		surfaced: first.appliedDir,
 	};
 }
 
 export async function resolveBlockPath(
 	workspace: Workspace,
 	relativePath: string,
-	roots: BlockPathRoots
+	roots: BlockPathRoots | null
 ): Promise<{ relative: string; absolute: string }> {
 	const normalised = relativePath.split('\\').join('/');
-	if (!normalised.startsWith(roots.generated)) {
+	if (!roots || !normalised.startsWith(roots.generated)) {
 		return {
 			relative: normalised,
 			absolute: workspace.resolve(normalised),
@@ -49,27 +54,9 @@ export async function resolveBlockPath(
 	};
 }
 
-async function pathExists(absolute: string): Promise<boolean> {
-	try {
-		await fs.stat(absolute);
-		return true;
-	} catch (error) {
-		if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
-			return false;
-		}
-
-		throw error;
-	}
-}
-
 export function toWorkspaceRelative(
 	workspace: Workspace,
-	absolute: string
+	targetPath: string
 ): string {
-	const relative = path.relative(workspace.root, absolute);
-	if (relative === '') {
-		return '.';
-	}
-
-	return relative.split(path.sep).join('/');
+	return toWorkspaceRelativeFromWorkspace(workspace, targetPath);
 }

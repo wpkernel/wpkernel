@@ -30,8 +30,10 @@ export async function withWorkspace<TWorkspace extends Workspace = Workspace>(
 	options: WorkspaceFactoryOptions<TWorkspace> = {}
 ): Promise<void> {
 	const root = await fs.mkdtemp(path.join(os.tmpdir(), 'builder-harness-'));
+	const previousCwd = process.cwd();
 	try {
 		await ensureLayoutManifest(root);
+		process.chdir(root);
 		const workspace = (await (options.createWorkspace
 			? options.createWorkspace(root)
 			: makeWorkspaceMock({
@@ -39,6 +41,7 @@ export async function withWorkspace<TWorkspace extends Workspace = Workspace>(
 				} as WorkspaceMockOptions<TWorkspace>))) as Awaited<TWorkspace>;
 		await run({ workspace, root });
 	} finally {
+		process.chdir(previousCwd);
 		await fs.rm(root, { recursive: true, force: true });
 	}
 }

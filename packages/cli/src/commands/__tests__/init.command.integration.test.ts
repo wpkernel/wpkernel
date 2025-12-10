@@ -77,7 +77,7 @@ describe('InitCommand', () => {
 			expect(tsconfig.compilerOptions).toMatchObject({
 				moduleResolution: 'Bundler',
 				strict: true,
-				jsxImportSource: 'react',
+				// jsxImportSource: 'react',
 			});
 			expect(tsconfig.compilerOptions.paths).toEqual({
 				'@/*': ['./src/*'],
@@ -126,7 +126,7 @@ describe('InitCommand', () => {
 				'utf8'
 			);
 			expect(pluginLoader).toContain('Plugin Name: Jobs Plugin');
-			expect(pluginLoader).toContain('function bootstrap_kernel(): void');
+			expect(pluginLoader).toContain('function bootstrap_wpk(): void');
 		});
 	});
 

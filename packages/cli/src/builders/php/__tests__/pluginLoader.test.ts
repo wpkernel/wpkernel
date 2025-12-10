@@ -11,13 +11,16 @@ import {
 	createBuilderOutput,
 	createMinimalIr,
 	createPipelineContext,
+	seedArtifacts,
 } from '../test-support/php-builder.test-support';
 import { makeWorkspaceMock } from '@cli-tests/workspace.test-support';
 import {
 	makeResource,
 	makeRoute,
 } from '@cli-tests/builders/fixtures.test-support';
-import { loadTestLayoutSync } from '@cli-tests/layout.test-support';
+import { loadTestLayoutSync } from '@wpkernel/test-utils/layout.test-support';
+
+const layout = loadTestLayoutSync();
 
 describe('createPhpPluginLoaderHelper', () => {
 	it('skips when no IR is available', async () => {
@@ -26,7 +29,6 @@ describe('createPhpPluginLoaderHelper', () => {
 		resetPhpAstChannel(context);
 
 		const helper = createPhpPluginLoaderHelper();
-		const next = jest.fn();
 
 		await helper.apply(
 			{
@@ -35,10 +37,9 @@ describe('createPhpPluginLoaderHelper', () => {
 				output: createBuilderOutput(),
 				reporter: context.reporter,
 			},
-			next
+			undefined
 		);
 
-		expect(next).toHaveBeenCalledTimes(1);
 		expect(getPhpBuilderChannel(context).pending()).toHaveLength(0);
 	});
 
@@ -69,6 +70,7 @@ describe('createPhpPluginLoaderHelper', () => {
 				}),
 			],
 		});
+		await seedArtifacts(ir, context.reporter);
 
 		await helper.apply(
 			{
@@ -85,14 +87,76 @@ describe('createPhpPluginLoaderHelper', () => {
 			.find((candidate) => candidate.metadata.kind === 'plugin-loader');
 
 		expect(entry).toBeDefined();
-		expect(entry?.file).toBe(
-			context.workspace.resolve(
-				path.posix.join(ir.php.outputDir, 'plugin.php')
-			)
-		);
+		expect(path.posix.basename(entry?.file ?? '')).toBe('plugin.php');
 		expect(entry?.docblock).toEqual([]);
 		expect(entry?.metadata).toEqual({ kind: 'plugin-loader' });
 		expect(entry?.program).toMatchSnapshot('plugin-loader-program');
+	});
+
+	it('derives content model registration from wp-post storage', async () => {
+		const context = createPipelineContext();
+		resetPhpBuilderChannel(context);
+		resetPhpAstChannel(context);
+
+		const helper = createPhpPluginLoaderHelper();
+		const ir = createMinimalIr({
+			meta: {
+				sanitizedNamespace: 'acme-demo',
+				origin: 'wpk.config.ts',
+				namespace: 'acme-demo',
+			},
+			resources: [
+				makeResource({
+					name: 'job',
+					storage: {
+						mode: 'wp-post',
+						postType: 'acme_job',
+						statuses: ['closed'],
+						supports: ['title', 'editor'],
+						taxonomies: {
+							acme_job_department: {
+								taxonomy: 'acme_job_department',
+								hierarchical: false,
+								register: true,
+							},
+						},
+					},
+					ui: {
+						admin: {
+							view: 'dataviews',
+							dataviews: {
+								screen: {
+									menu: { slug: 'acme-jobs', title: 'Jobs' },
+								},
+								fields: [],
+								defaultView: { layout: 'table', columns: [] },
+							},
+						},
+					},
+					routes: [makeRoute({ path: '/kernel/v1/jobs' })],
+				}),
+			],
+		});
+		await seedArtifacts(ir, context.reporter);
+
+		await helper.apply(
+			{
+				context,
+				input: createBuilderInput({ ir }),
+				output: createBuilderOutput(),
+				reporter: context.reporter,
+			},
+			undefined
+		);
+
+		const entry = getPhpBuilderChannel(context)
+			.pending()
+			.find((candidate) => candidate.metadata.kind === 'plugin-loader');
+
+		expect(entry).toBeDefined();
+		expect(entry?.program).toMatchSnapshot(
+			'plugin-loader-program-with-content-model'
+		);
 	});
 
 	it('emits UI asset registration when dataview metadata exists', async () => {
@@ -114,15 +178,42 @@ describe('createPhpPluginLoaderHelper', () => {
 				}),
 			],
 		});
+		ir.artifacts.surfaces = {
+			'res:books': {
+				resource: 'books',
+				appDir: layout.resolve('app.applied'),
+				generatedAppDir: layout.resolve('app.generated'),
+				pagePath: path.join(
+					layout.resolve('app.applied'),
+					'books/page.tsx'
+				),
+				formPath: path.join(
+					layout.resolve('app.applied'),
+					'books/form.tsx'
+				),
+				configPath: path.join(
+					layout.resolve('app.applied'),
+					'books/config.tsx'
+				),
+				menu: { slug: 'books', title: 'Books' },
+			},
+		};
 		ir.ui = {
 			resources: [
 				{
 					resource: 'books',
-					preferencesKey: 'books/admin',
 					menu: { slug: 'books', title: 'Books' },
 				},
 			],
+			loader: {
+				handle: 'wp-demo-plugin-ui',
+				assetPath: 'build/index.asset.json',
+				scriptPath: 'build/index.js',
+				localizationObject: 'wpKernelUISettings',
+				namespace: 'demo-plugin',
+			},
 		};
+		await seedArtifacts(ir, context.reporter);
 
 		await helper.apply(
 			{
@@ -165,6 +256,7 @@ describe('createPhpPluginLoaderHelper', () => {
 				}),
 			],
 		});
+		await seedArtifacts(ir, context.reporter);
 
 		await helper.apply(
 			{
@@ -181,11 +273,7 @@ describe('createPhpPluginLoaderHelper', () => {
 			.find((candidate) => candidate.metadata.kind === 'plugin-loader');
 
 		expect(entry).toBeDefined();
-		expect(entry?.file).toBe(
-			context.workspace.resolve(
-				path.posix.join(ir.php.outputDir, 'plugin.php')
-			)
-		);
+		expect(path.posix.basename(entry?.file ?? '')).toBe('plugin.php');
 		expect(entry?.program).toMatchSnapshot(
 			'plugin-loader-program-custom-namespace'
 		);
@@ -202,7 +290,7 @@ describe('createPhpPluginLoaderHelper', () => {
 
 		const helper = createPhpPluginLoaderHelper();
 		const ir = createMinimalIr();
-		const next = jest.fn();
+		await seedArtifacts(ir, context.reporter);
 
 		await helper.apply(
 			{
@@ -211,14 +299,15 @@ describe('createPhpPluginLoaderHelper', () => {
 				output: createBuilderOutput(),
 				reporter: context.reporter,
 			},
-			next
+			undefined
 		);
 
-		expect(readText).toHaveBeenCalledWith('plugin.php');
+		expect(readText).toHaveBeenCalledWith(
+			ir.artifacts?.php?.pluginLoaderPath
+		);
 		expect(context.reporter.info).toHaveBeenCalledWith(
 			'createPhpPluginLoaderHelper: skipping generation because plugin.php exists and appears user-owned.'
 		);
-		expect(next).toHaveBeenCalledTimes(1);
 		expect(getPhpBuilderChannel(context).pending()).toHaveLength(0);
 	});
 
@@ -233,6 +322,7 @@ describe('createPhpPluginLoaderHelper', () => {
 
 		const helper = createPhpPluginLoaderHelper();
 		const ir = createMinimalIr();
+		await seedArtifacts(ir, context.reporter);
 
 		await helper.apply(
 			{
@@ -244,7 +334,9 @@ describe('createPhpPluginLoaderHelper', () => {
 			undefined
 		);
 
-		expect(readText).toHaveBeenCalledWith('plugin.php');
+		expect(readText).toHaveBeenCalledWith(
+			ir.artifacts?.php?.pluginLoaderPath
+		);
 		const entry = getPhpBuilderChannel(context)
 			.pending()
 			.find((candidate) => candidate.metadata.kind === 'plugin-loader');

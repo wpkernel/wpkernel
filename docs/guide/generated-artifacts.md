@@ -69,11 +69,11 @@ function register_wpkernel_routes(): void
 	}
 }
 /** Attach wpk hooks required for REST registration. */
-function bootstrap_kernel(): void
+function bootstrap_wpk(): void
 {
 	add_action('rest_api_init', __NAMESPACE__ . '\register_wpkernel_routes');
 }
-bootstrap_kernel();
+bootstrap_wpk();
 // WPK:END AUTO
 ```
 

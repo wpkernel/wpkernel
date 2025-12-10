@@ -1,9 +1,5 @@
 import { createHelper } from '../../runtime';
-import type {
-	BuilderApplyOptions,
-	BuilderHelper,
-	BuilderNext,
-} from '../../runtime/types';
+import type { BuilderApplyOptions, BuilderHelper } from '../../runtime/types';
 import {
 	buildPersistenceRegistryModule,
 	buildProgramTargetPlanner,
@@ -27,10 +23,19 @@ export function createPhpPersistenceRegistryHelper(): BuilderHelper {
 	return createHelper({
 		key: 'builder.generate.php.registration.persistence',
 		kind: 'builder',
-		async apply(options: BuilderApplyOptions, next?: BuilderNext) {
+		dependsOn: [
+			'builder.generate.php.channel.bootstrap',
+			'ir.artifacts.plan',
+		],
+		async apply(options: BuilderApplyOptions) {
 			const { input } = options;
 			if (input.phase !== 'generate' || !input.ir) {
-				await next?.();
+				return;
+			}
+			if (!input.ir.artifacts?.php) {
+				options.reporter.debug(
+					'createPhpPersistenceRegistryHelper: missing PHP artifacts plan; skipping.'
+				);
 				return;
 			}
 
@@ -50,8 +55,6 @@ export function createPhpPersistenceRegistryHelper(): BuilderHelper {
 			});
 
 			planner.queueFiles({ files: module.files });
-
-			await next?.();
 		},
 	});
 }

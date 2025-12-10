@@ -33,7 +33,11 @@ import { runWithProgress, formatDuration } from '../utils/progress';
  *
  * @category Commands
  */
-export { APPLY_LOG_PATH, PATCH_MANIFEST_PATH } from './apply/constants';
+export {
+	APPLY_LOG_FALLBACK_PATH,
+	PATCH_MANIFEST_PATH,
+	resolveApplyLogPath,
+} from './apply/constants';
 export { createBackups } from './apply/backups';
 export { appendApplyLog } from './apply/logging';
 export { buildBuilderOutput, readManifest, formatManifest } from './apply/io';

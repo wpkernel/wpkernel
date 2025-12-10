@@ -2,6 +2,7 @@ import { WPKernelError } from '@wpkernel/core/error';
 import { createHelper, type Helper } from '@wpkernel/pipeline';
 import type { Reporter } from '@wpkernel/core/reporter';
 import type { DriverWorkspace } from './types';
+import type { BuilderInput, BuilderOutput } from './programBuilder';
 
 const VENDOR_AUTOLOAD = 'vendor/autoload.php';
 const COMPOSER_MANIFEST = 'composer.json';
@@ -12,8 +13,8 @@ export interface DriverContext {
 
 export type DriverHelper = Helper<
 	DriverContext,
-	unknown,
-	unknown,
+	BuilderInput,
+	BuilderOutput,
 	Reporter,
 	'builder'
 >;
@@ -21,7 +22,13 @@ export type DriverHelper = Helper<
 type DriverApplyOptions = Parameters<DriverHelper['apply']>[0];
 
 export function createPhpDriverInstaller(): DriverHelper {
-	return createHelper<DriverContext, unknown, unknown, Reporter, 'builder'>({
+	return createHelper<
+		DriverContext,
+		BuilderInput,
+		BuilderOutput,
+		Reporter,
+		'builder'
+	>({
 		key: 'builder.generate.php.driver',
 		kind: 'builder',
 		async apply({ context, reporter }: DriverApplyOptions) {

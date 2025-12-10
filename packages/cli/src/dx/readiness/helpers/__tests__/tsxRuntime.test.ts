@@ -1,11 +1,15 @@
 import { EnvironmentalError } from '@wpkernel/core/error';
-import { createTsxRuntimeReadinessHelper } from '../tsxRuntime';
-import type { DxContext } from '../../context';
+import {
+	createTsxRuntimeReadinessHelper,
+	type TsxRuntimeDependencies,
+} from '../tsxRuntime';
+import type { DxContext } from '../../../context';
 import {
 	createReadinessTestContext,
 	createRecordingReporter,
 } from '@cli-tests/readiness.test-support';
 import { makeWorkspaceMock } from '@cli-tests/workspace.test-support';
+import { makePromiseWithChild } from '@cli-tests/dx/quickstart.test-support';
 
 function createModuleNotFound(
 	specifier: string,
@@ -20,13 +24,23 @@ function createModuleNotFound(
 
 const buildWorkspace = () => makeWorkspaceMock({ root: '/tmp/project' });
 
+function makeExecMock(): jest.MockedFunction<TsxRuntimeDependencies['exec']> {
+	const mock = jest.fn(
+		(..._args: Parameters<TsxRuntimeDependencies['exec']>) =>
+			makePromiseWithChild({ stdout: '', stderr: '' })
+	);
+	return mock as unknown as jest.MockedFunction<
+		TsxRuntimeDependencies['exec']
+	>;
+}
+
 describe('createTsxRuntimeReadinessHelper', () => {
 	it('detects existing tsx runtime', async () => {
 		const helper = createTsxRuntimeReadinessHelper({
 			resolve: jest
 				.fn()
 				.mockReturnValue('/tmp/node_modules/tsx/esm/api.js'),
-			exec: jest.fn(),
+			exec: makeExecMock(),
 		});
 		const detection = await helper.detect(
 			createReadinessTestContext({ workspace: null })
@@ -47,7 +61,7 @@ describe('createTsxRuntimeReadinessHelper', () => {
 				throw createModuleNotFound('tsx/esm/api');
 			})
 			.mockReturnValue('/tmp/node_modules/tsx/esm/api.js');
-		const exec = jest.fn().mockResolvedValue({ stdout: '', stderr: '' });
+		const exec = makeExecMock();
 		const workspace = buildWorkspace();
 		const helper = createTsxRuntimeReadinessHelper({ resolve, exec });
 
@@ -101,7 +115,7 @@ describe('createTsxRuntimeReadinessHelper', () => {
 		});
 		const helper = createTsxRuntimeReadinessHelper({
 			resolve,
-			exec: jest.fn(),
+			exec: makeExecMock(),
 		});
 
 		const detection = await helper.detect(
@@ -123,7 +137,7 @@ describe('createTsxRuntimeReadinessHelper', () => {
 		const context: DxContext = { ...baseContext, reporter };
 		const helper = createTsxRuntimeReadinessHelper({
 			resolve,
-			exec: jest.fn(),
+			exec: makeExecMock(),
 		});
 
 		const detection = await helper.detect(context);
@@ -187,6 +201,7 @@ describe('createTsxRuntimeReadinessHelper', () => {
 				cwd: '/tmp/empty',
 				projectRoot: '',
 				workspaceRoot: null,
+				allowDirty: false,
 			},
 		};
 		const helper = createTsxRuntimeReadinessHelper({

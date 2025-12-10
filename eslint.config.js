@@ -18,7 +18,7 @@ import globals from 'globals';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import noManualTestGlobals from './eslint-rules/no-manual-test-globals.js';
-import noConsoleInKernel from './eslint-rules/no-console-in-wpkernel.js';
+import noConsoleInWPK from './eslint-rules/no-console-in-wpkernel.js';
 import noHardcodedNamespaceStrings from './eslint-rules/no-hardcoded-namespace-strings.js';
 import configConsistency from './eslint-rules/config-consistency.js';
 import cacheKeysValid from './eslint-rules/cache-keys-valid.js';
@@ -34,10 +34,10 @@ const workspacePackageDirs = fs
 	.filter((entry) => entry.isDirectory())
 	.map((entry) => path.join(packagesDir, entry.name));
 
-const kernelPlugin = {
+const wpkPlugin = {
 	rules: {
 		'no-manual-test-globals': noManualTestGlobals,
-		'no-console-in-kernel': noConsoleInKernel,
+		'no-console-in-wpk': noConsoleInWPK,
 		'no-hardcoded-namespace-strings': noHardcodedNamespaceStrings,
 		'config-consistency': configConsistency,
 		'cache-keys-valid': cacheKeysValid,
@@ -68,6 +68,7 @@ export default [
 			'**/information/**',
 			'coverage/**',
 			'.changeset/**',
+			'.cache/**',
 			'**/*.php', // PHP files handled by PHPCS
 		],
 	},
@@ -103,14 +104,14 @@ export default [
 		},
 
 		plugins: {
-			'@wpkernel': kernelPlugin,
+			'@wpkernel': wpkPlugin,
 			import: importPlugin,
 			unicorn,
 			sonarjs,
 			'early-return': earlyReturn,
 		},
 
-		// Custom rules forWPKernel
+		// Custom rules for WPKernel
 		rules: {
 			'jsdoc/check-param-names': 'off',
 			'jsdoc/check-tag-names': 'off',
@@ -167,7 +168,7 @@ export default [
 				},
 			],
 
-			'@wpkernel/no-console-in-kernel': 'error',
+			'@wpkernel/no-console-in-wpk': 'error',
 			'@wpkernel/no-hardcoded-namespace-strings': 'error',
 			'@wpkernel/config-consistency': 'error',
 			'@wpkernel/cache-keys-valid': 'error',
@@ -177,14 +178,10 @@ export default [
 		},
 	}, // WordPress Script Modules - runtime-resolved imports
 	{
-		files: ['examples/*/src/**/*.js', 'examples/*/src/**/*.jsx'],
+		files: ['examples/**/*.{js,jsx,ts,tsx}'],
 		rules: {
-			'import/no-unresolved': [
-				'error',
-				{
-					ignore: ['^@wordpress/'],
-				},
-			],
+			'@wpkernel/no-console-in-kernel': 'off',
+			'import/no-unresolved': ['error', { ignore: ['^@wordpress/'] }],
 		},
 	},
 
@@ -307,6 +304,13 @@ export default [
 					],
 				},
 			],
+		},
+	},
+
+	{
+		files: ['packages/ui/src/runtime/attachUIBindings.ts'],
+		rules: {
+			'@typescript-eslint/consistent-type-imports': 'off',
 		},
 	},
 

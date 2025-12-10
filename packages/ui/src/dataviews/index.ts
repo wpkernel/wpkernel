@@ -12,6 +12,26 @@ export {
 	subscribeToDataViewsEvent,
 	useDataViewsEvent,
 } from './hooks/dataViewsEvents';
+export {
+	textField,
+	numberField,
+	selectField,
+	statusField,
+	buildFormConfigFromFields,
+	createFieldBuilder,
+} from './fields';
+export { usePersistentDataViewState } from './state/persistent-view';
+export { usePersistentDataFormState } from './state/persistent-form';
+export { useCapability, useCapabilityGuard } from './capability';
+export { DataViewsDebugPanel } from './debug/DataViewsDebugPanel';
+export { DataFormDebugPanel } from './debug/DataFormDebugPanel';
+export { useDataFormHelper } from './form-helper';
+export {
+	useResourceAdminController,
+	type ResourceAdminController,
+	type ResourceAdminControllerOptions,
+	type AdminMode,
+} from './admin-controller';
 export type {
 	ResourceDataViewController,
 	ResourceDataViewControllerOptions,
@@ -19,13 +39,13 @@ export type {
 	ResourceDataViewActionConfig,
 	ResourceDataViewSavedView,
 	ResourceDataViewMenuConfig,
-	ResourceDataViewScreenConfig,
 	DataViewsRuntimeContext,
 	DataViewsStandaloneRuntime,
 	DataViewsControllerRuntime,
 	DataViewsRuntimeOptions,
 	WPKUICapabilityRuntimeSource,
 	QueryMapping,
+	ResourceDataViewScreenConfig,
 } from './types';
 export type {
 	CreateDataViewInteractionOptions,

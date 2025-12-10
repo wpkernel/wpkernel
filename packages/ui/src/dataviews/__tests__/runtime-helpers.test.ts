@@ -81,10 +81,9 @@ describe('dataviews runtime helpers', () => {
 		const reporter = createReporter();
 		const emit = jest.fn();
 		const events = createStandaloneEventEmitter(reporter, emit);
-		events.registered({ resource: 'jobs', preferencesKey: 'ns/jobs' });
+		events.registered({ resource: 'jobs' });
 		expect(emit).toHaveBeenCalledWith('ui:dataviews:registered', {
 			resource: 'jobs',
-			preferencesKey: 'ns/jobs',
 		});
 		expect(reporter.debug).toHaveBeenCalled();
 

@@ -5,6 +5,8 @@ export default createWPKJestConfig({
 	packageDir: import.meta.url,
 	moduleNameMapper: {
 		'^@wordpress/element/jsx-runtime$': 'react/jsx-runtime',
+		'^@wordpress/dataviews/wp$':
+			'<rootDir>/packages/ui/tests/mocks/dataviews-wp.ts',
 	},
 	collectCoverageFrom: [
 		'<rootDir>/packages/ui/src/**/*.{ts,tsx}',

@@ -1,13 +1,27 @@
 import path from 'node:path';
 import { WPKernelError } from '@wpkernel/core/error';
 import type { WPKernelConfigV1 } from '../../config/types';
-import { buildIr } from '../buildIr';
+import { createIr } from '../createIr';
+import { createPipeline } from '../../runtime/createPipeline';
 import {
 	FIXTURE_CONFIG_PATH,
 	FIXTURE_ROOT,
 	createBaseConfig,
 	withTempSchema,
 } from '../shared/test-helpers';
+import { type IRv1 } from '..';
+
+async function buildIr(options: {
+	readonly config: WPKernelConfigV1;
+	readonly sourcePath: string;
+	readonly origin: string;
+	readonly namespace: string;
+}): Promise<IRv1> {
+	return createIr({
+		...options,
+		pipeline: createPipeline(),
+	});
+}
 
 describe('buildIr - validation', () => {
 	it('throws when duplicate routes are detected', async () => {
@@ -78,12 +92,12 @@ describe('buildIr - validation', () => {
 		});
 
 		expect(ir.resources).toHaveLength(2);
-		expect(ir.resources[0].routes[0]).toMatchObject({
+		expect(ir.resources[0]?.routes[0]).toMatchObject({
 			method: 'GET',
 			path: 'https://api.example.com/items',
 			transport: 'remote',
 		});
-		expect(ir.resources[1].routes[0]).toMatchObject({
+		expect(ir.resources[1]?.routes[0]).toMatchObject({
 			method: 'GET',
 			path: 'https://api.example.com/items',
 			transport: 'remote',
@@ -255,7 +269,7 @@ describe('buildIr - validation', () => {
 			namespace: config.namespace,
 		});
 
-		expect(ir.schemas[0]?.sourcePath).toBe(schemaPath);
+		expect(ir.schemas[0]?.sourcePath).toBe('schemas/todo.schema.json');
 	});
 
 	it('rejects empty route definitions', async () => {

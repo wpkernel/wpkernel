@@ -1,3 +1,4 @@
+// packages/cli/src/ir/fragments/__tests__/ui.test.ts
 import { createUiFragment } from '../ui';
 
 describe('createUiFragment', () => {
@@ -39,6 +40,7 @@ describe('createUiFragment', () => {
 				Object.assign(draft, partial);
 			},
 		} as any;
+
 		return {
 			context: {} as any,
 			input: {
@@ -58,11 +60,10 @@ describe('createUiFragment', () => {
 					name: 'jobs',
 					ui: {
 						admin: {
-							dataviews: {
-								preferencesKey: 'jobs/admin',
-								screen: {
-									menu: { slug: 'jobs', title: 'Jobs' },
-								},
+							view: 'dataview',
+							menu: {
+								slug: 'jobs',
+								title: 'Jobs',
 							},
 						},
 					},
@@ -76,8 +77,10 @@ describe('createUiFragment', () => {
 			resources: [
 				{
 					resource: 'jobs',
-					preferencesKey: 'jobs/admin',
-					menu: { slug: 'jobs', title: 'Jobs' },
+					menu: {
+						slug: 'jobs',
+						title: 'Jobs',
+					},
 				},
 			],
 			loader: {
@@ -98,10 +101,10 @@ describe('createUiFragment', () => {
 					name: 'applications',
 					ui: {
 						admin: {
-							dataviews: {
-								screen: {
-									menu: { slug: '', title: '' },
-								},
+							view: 'dataview',
+							menu: {
+								slug: '',
+								title: '',
 							},
 						},
 					},
@@ -115,7 +118,6 @@ describe('createUiFragment', () => {
 			resources: [
 				{
 					resource: 'applications',
-					preferencesKey: 'demo/dataviews/applications',
 				},
 			],
 			loader: {

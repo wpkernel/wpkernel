@@ -24,7 +24,7 @@ import type { IRv1, IRResource } from '../ir';
 import type { BuildShimOptions, PlanInstruction } from './types';
 import path from 'path';
 import type { BuilderApplyOptions } from '../runtime/types';
-import { toPascalCase } from './php/utils';
+import { toPascalCase } from '../utils';
 import { resolvePlanPaths } from './plan.paths';
 
 export function buildShimProgram(options: BuildShimOptions) {

@@ -5,7 +5,8 @@ import type {
 	ResourceStorageConfig,
 	ResourceUIConfig,
 } from '@wpkernel/core/resource';
-import type { WPKernelConfigV1 } from '../config/types';
+import type { ResourceBlocksMode, WPKernelConfigV1 } from '../config/types';
+import { type Pipeline } from '../runtime/types';
 
 /**
  * Defines the provenance of a schema, indicating how it was generated or provided.
@@ -197,7 +198,7 @@ export interface IRResource {
  * @category IR
  */
 export interface IRResourceBlocksConfig {
-	mode: 'js' | 'ssr';
+	mode: ResourceBlocksMode;
 }
 
 /**
@@ -220,7 +221,6 @@ export interface IRUiMenuConfig {
  */
 export interface IRUiResourceDescriptor {
 	readonly resource: string;
-	readonly preferencesKey: string;
 	readonly menu?: IRUiMenuConfig;
 }
 
@@ -443,6 +443,156 @@ export interface IRLayout {
 }
 
 /**
+ * Describes an artifact produced by the build, including planned file paths.
+ *
+ * @category IR
+ */
+export interface IRArtifactFilePlan {
+	id?: string;
+	absolutePath: string;
+	relativePath?: string;
+	importSpecifier?: string;
+}
+
+/**
+ * Describes planned controller artifact locations.
+ *
+ * @category IR
+ */
+export interface IRControllerPlan {
+	appliedPath: string;
+	generatedPath: string;
+	className: string;
+	namespace: string;
+}
+
+/**
+ * Describes planned TypeScript resource artifact locations.
+ *
+ * @category IR
+ */
+export interface IRResourceTsPlan {
+	modulePath: string;
+	typeDefPath: string;
+	typeSource: 'schema' | 'inferred';
+	schemaKey?: string;
+}
+
+/**
+ * Describes planned UI resource artifact locations.
+ *
+ * @category IR
+ */
+export interface IRSurfacePlan {
+	appDir: string;
+	generatedAppDir: string;
+	pagePath: string;
+	formPath: string;
+	configPath: string;
+	resource: string;
+	menu?: IRUiMenuConfig;
+}
+
+/**
+ * Describes planned block artifact locations.
+ *
+ * @category IR
+ */
+export interface IRBlockPlan {
+	key: string;
+	appliedDir: string;
+	generatedDir: string;
+	jsonPath: string;
+	tsEntry: string;
+	tsView: string;
+	tsHelper: string;
+	phpRenderPath?: string;
+	mode: ResourceBlocksMode;
+}
+
+/**
+ * Describes planned schema/type artifact locations.
+ *
+ * @category IR
+ */
+export interface IRSchemaPlan {
+	typeDefPath: string;
+}
+
+/**
+ * Aggregated artifact plan available to builders.
+ *
+ * All top-level plans (`pluginLoader`, `runtime`, `php`, `bundler`, etc.) are always present
+ * once the IR is assembled. Optionality now lives inside leaf plans (e.g. `uiLoader`, `phpRenderPath`)
+ * rather than at the top level.
+ *
+ * @category IR
+ */
+export interface IRArtifactsPlan {
+	pluginLoader: IRArtifactFilePlan;
+	controllers: Record<string, IRControllerPlan>;
+	resources: Record<string, IRResourceTsPlan>;
+	surfaces: Record<string, IRSurfacePlan>;
+	blocks: Record<string, IRBlockPlan>;
+	schemas: Record<string, IRSchemaPlan>;
+	runtime: IRRuntimeArtifactsPlan;
+	php: IRPhpArtifactsPlan;
+	bundler: IRBundlerArtifactsPlan;
+	plan: IRPlanArtifacts;
+}
+
+export interface IRRuntimeArtifactsPlan {
+	entry: { generated: string; applied: string };
+	runtime: { generated: string; applied: string };
+	blocksRegistrarPath: string;
+	uiLoader?: IRUiLoader;
+}
+
+export interface IRBundlerArtifactsPlan {
+	configPath: string;
+	assetsPath: string;
+	shimsDir: string;
+	aliasRoot: string;
+	entryPoint: string;
+}
+
+export interface IRPlanArtifacts {
+	planManifestPath: string;
+	planBaseDir: string;
+	planIncomingDir: string;
+	patchManifestPath: string;
+}
+
+export interface IRPhpArtifactsPlan {
+	pluginLoaderPath: string;
+	autoload: IRPhpAutoloadPlan;
+	blocksManifestPath: string;
+	blocksRegistrarPath: string;
+	blocks: Record<string, IRPhpBlockPlan>;
+	controllers: Record<string, IRPhpControllerPlan>;
+	debugUiPath: string;
+}
+
+export type IRPhpAutoloadPlan =
+	| { strategy: 'composer'; autoloadPath: string }
+	| { strategy: 'require_once' }
+	| { strategy: 'none' };
+
+export interface IRPhpBlockPlan {
+	manifestPath: string;
+	registrarPath: string;
+	renderPath?: string;
+	mode: IRBlockPlan['mode'];
+}
+
+export interface IRPhpControllerPlan {
+	className: string;
+	namespace: string;
+	appliedPath: string;
+	generatedPath: string;
+}
+
+/**
  * Summary of reference issues used by CI or tooling.
  *
  * @category IR
@@ -524,8 +674,6 @@ export interface IRv1 {
 		/** WordPress plugin metadata derived from config. */
 		plugin: IRPluginMeta;
 	};
-	/** The original WPKernel configuration. */
-	config: WPKernelConfigV1;
 	/** An array of schema IRs. */
 	schemas: IRSchema[];
 	/** An array of resource IRs. */
@@ -544,6 +692,8 @@ export interface IRv1 {
 	layout: IRLayout;
 	/** Optional: UI metadata derived from resources. */
 	ui?: IRUiSurface;
+	/** Planned artifact paths for builders. */
+	artifacts: IRArtifactsPlan;
 	/** Optional: An array of diagnostic messages. */
 	diagnostics?: IRDiagnostic[];
 	/** Optional: Adapter change audit trail. */
@@ -557,8 +707,12 @@ export interface IRv1 {
  *
  * @category IR
  */
-export interface BuildIrOptions {
-	/** The WPKernel configuration. */
+export interface FragmentIrOptions {
+	/**
+	 * Normalised configuration surface available to IR builders.
+	 *
+	 * Builders must not depend on raw WPKernelConfigV1 to avoid leaking config shape changes.
+	 */
 	config: WPKernelConfigV1;
 	/** The source path of the configuration file. */
 	sourcePath: string;
@@ -566,4 +720,6 @@ export interface BuildIrOptions {
 	origin: string;
 	/** The namespace of the project. */
 	namespace: string;
+	/** Optional: Pipeline to use for building the IR. */
+	pipeline?: Pipeline;
 }

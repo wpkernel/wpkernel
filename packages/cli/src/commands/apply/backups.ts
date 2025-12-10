@@ -1,18 +1,23 @@
-import { APPLY_LOG_PATH } from './constants';
+import { resolveApplyLogPath } from './constants';
 import type { CreateBackupsOptions } from './types';
 
-function shouldBackupFile(pathname: string): boolean {
+function shouldBackupFile(pathname: string, applyLogPath: string): boolean {
 	if (!pathname || pathname === '.') {
 		return false;
 	}
 
 	const normalised = pathname.split('\\').join('/');
 
-	if (normalised === APPLY_LOG_PATH) {
+	if (normalised === applyLogPath) {
 		return false;
 	}
 
 	if (normalised.startsWith('.tmp/')) {
+		return false;
+	}
+
+	// eslint-disable-next-line @wpkernel/no-hardcoded-layout-paths
+	if (normalised.startsWith('.wpk/tmp/')) {
 		return false;
 	}
 
@@ -28,8 +33,15 @@ export async function createBackups({
 	manifest,
 	reporter,
 }: CreateBackupsOptions): Promise<void> {
+	const applyLogPath = (await resolveApplyLogPath(workspace))
+		.split('\\')
+		.join('/')
+		.toLowerCase();
+
 	const candidates = new Set(
-		[...manifest.writes, ...manifest.deletes].filter(shouldBackupFile)
+		[...manifest.writes, ...manifest.deletes].filter((file) =>
+			shouldBackupFile(file, applyLogPath)
+		)
 	);
 
 	if (candidates.size === 0) {

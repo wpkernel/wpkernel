@@ -9,6 +9,10 @@ import {
 	prepareWpPostResponse,
 	syncWpPostMeta,
 	syncWpPostTaxonomies,
+	buildGetPostTypeHelper,
+	buildGetStatusesHelper,
+	buildNormaliseStatusHelper,
+	buildResolvePostHelper,
 	type MutationHelperOptions,
 	type MutationHelperResource,
 } from '../mutation';
@@ -120,6 +124,10 @@ function buildHelperMethods(
 	options: MutationHelperOptions
 ): readonly PhpStmtClassMethod[] {
 	return [
+		buildGetPostTypeHelper(options),
+		buildGetStatusesHelper(options),
+		buildNormaliseStatusHelper(options),
+		buildResolvePostHelper(options),
 		syncWpPostMeta(options),
 		syncWpPostTaxonomies(options),
 		prepareWpPostResponse(options),

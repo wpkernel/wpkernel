@@ -46,8 +46,12 @@ describe('buildWpPostRouteBundle', () => {
 			channelTag: 'resource.wpPost.mutation',
 		});
 
-		expect(bundle.helperMethods).toHaveLength(3);
+		expect(bundle.helperMethods).toHaveLength(7);
 		expect(bundle.helperMethods.map((method) => method.name.name)).toEqual([
+			'getBookPostType',
+			'getBookStatuses',
+			'normaliseBookStatus',
+			'resolveBookPost',
 			'syncBookMeta',
 			'syncBookTaxonomies',
 			'prepareBookResponse',

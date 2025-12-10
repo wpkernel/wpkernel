@@ -2,7 +2,6 @@ import type { ResourceConfig } from '@wpkernel/core/resource';
 import type { Reporter } from '@wpkernel/core/reporter';
 import type { MaybePromise } from '@wpkernel/pipeline';
 import type { SourceFile, Project } from 'ts-morph';
-import type { WPKernelConfigV1 } from '../config';
 import type { IRResource, IRv1 } from '../ir';
 import type { Workspace } from '../workspace';
 import type { BuilderOutput } from '../runtime';
@@ -19,6 +18,13 @@ export interface TsBuilderEmitOptions {
 	readonly filePath: string;
 	/** The `ts-morph` SourceFile object to emit. */
 	readonly sourceFile: SourceFile;
+}
+/**
+ * Result returned by `emit`, including the formatted contents.
+ */
+export interface TsBuilderEmitResult {
+	readonly filePath: string;
+	readonly contents: string;
 }
 /**
  * Defines lifecycle hooks for the TypeScript builder.
@@ -70,8 +76,6 @@ export interface TsBuilderCreatorContext {
 	readonly workspace: Workspace;
 	/** The resource descriptor for which artifacts are being created. */
 	readonly descriptor: ResourceDescriptor;
-	/** The full WPKernel configuration. */
-	readonly config: WPKernelConfigV1;
 	/** The source path of the configuration file. */
 	readonly sourcePath: string;
 	/** The Intermediate Representation (IR) of the project. */
@@ -79,13 +83,17 @@ export interface TsBuilderCreatorContext {
 	/** Resolved layout paths required for TS generation. */
 	readonly paths: {
 		readonly blocksGenerated: string;
-		readonly uiGenerated: string;
-		readonly jsGenerated: string;
+		readonly blocksApplied: string;
+		readonly runtimeApplied: string;
+		readonly surfacesApplied: string;
+		readonly runtimeGenerated: string;
 	};
 	/** The reporter instance for logging. */
 	readonly reporter: Reporter;
 	/** A function to emit a generated TypeScript file. */
-	readonly emit: (options: TsBuilderEmitOptions) => Promise<void>;
+	readonly emit: (
+		options: TsBuilderEmitOptions
+	) => Promise<TsBuilderEmitResult>;
 }
 /**
  * Defines a creator function for generating TypeScript artifacts.
@@ -156,7 +164,7 @@ export interface BuildTsFormatterOptions {
 }
 type ResourceUiConfig = NonNullable<ResourceConfig['ui']>;
 type ResourceAdminConfig = NonNullable<ResourceUiConfig['admin']>;
-export type AdminDataViews = NonNullable<ResourceAdminConfig['dataviews']>;
+export type AdminDataViews = ResourceAdminConfig['dataviews'];
 /**
  * Describes a resource with its associated configuration and dataviews.
  *
@@ -169,9 +177,11 @@ export interface ResourceDescriptor {
 	/** The name of the resource. */
 	readonly name: string;
 	/** The configuration object for the resource. */
-	readonly config: ResourceConfig;
+	readonly resource: IRResource;
 	/** The admin dataviews configuration for the resource. */
-	readonly dataviews: AdminDataViews;
+	readonly dataviews?: AdminDataViews;
+	/** Selected admin view implementation (e.g., 'dataviews'). */
+	readonly adminView?: string;
 }
 export type PlanInstruction =
 	| {
@@ -299,7 +309,7 @@ export interface RollupDriverConfig {
 	readonly driver: 'rollup';
 	readonly input: Record<string, string>;
 	readonly outputDir: string;
-	readonly format: 'esm';
+	readonly format: 'esm' | 'iife';
 	readonly external: readonly string[];
 	readonly globals: Record<string, string>;
 	readonly alias: readonly {

@@ -11,27 +11,41 @@
 					}
 				},
 				"blocks": "blocks.generated",
-				"js": "js.generated",
-				"ui": "ui.generated"
+				"src": {
+					"$id": "src.generated",
+					"app": "app.generated",
+					"types": "types.generated",
+					"entry": "entry.generated",
+					"runtime": "runtime.generated"
+				}
 			},
 			"apply": {
 				"base": "plan.base",
 				"incoming": "plan.incoming",
 				"plan.json": "plan.manifest",
+				"log.json": "apply.log",
 				"patch-manifest.json": "patch.manifest",
 				"state.json": "apply.state"
 			},
-			"tmp": "tmp",
+			"tmp": {
+				"$id": "workspace.tmp"
+			},
 			"bundler": {
 				"config.json": "bundler.config",
 				"assets": {
 					"index.asset.json": "bundler.assets"
-				}
+				},
+				"shims": "bundler.shims"
 			},
 			"debug-ui.json": "debug.ui"
 		},
 		"src": {
-			"blocks": "blocks.applied"
+			"$id": "src.applied",
+			"app": "app.applied",
+			"blocks": "blocks.applied",
+			"types": "types.applied",
+			"entry": "entry.applied",
+			"runtime": "runtime.applied"
 		},
 		"inc": {
 			"Rest": "controllers.applied"

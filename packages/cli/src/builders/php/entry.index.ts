@@ -1,9 +1,5 @@
 import { createHelper } from '../../runtime';
-import type {
-	BuilderApplyOptions,
-	BuilderHelper,
-	BuilderNext,
-} from '../../runtime/types';
+import type { BuilderApplyOptions, BuilderHelper } from '../../runtime/types';
 import {
 	buildGeneratedModuleProgram,
 	buildIndexProgram,
@@ -12,7 +8,7 @@ import {
 	type ModuleIndexEntry,
 } from '@wpkernel/wp-json-ast';
 import type { IRv1 } from '../../ir/publicTypes';
-import { toPascalCase } from './utils';
+import { toPascalCase } from '../../utils';
 import { getPhpBuilderChannel } from '@wpkernel/php-json-ast';
 
 /**
@@ -29,10 +25,26 @@ export function createPhpIndexFileHelper(): BuilderHelper {
 	return createHelper({
 		key: 'builder.generate.php.index',
 		kind: 'builder',
-		async apply(options: BuilderApplyOptions, next?: BuilderNext) {
+		dependsOn: [
+			'builder.generate.php.channel.bootstrap',
+			'builder.generate.php.plugin-loader',
+			'builder.generate.php.controller.resources',
+			'builder.generate.php.capability',
+			'builder.generate.php.registration.persistence',
+			'ir.resources.core',
+			'ir.capability-map.core',
+			'ir.layout.core',
+			'ir.artifacts.plan',
+		],
+		async apply(options: BuilderApplyOptions) {
 			const { input } = options;
 			if (input.phase !== 'generate' || !input.ir) {
-				await next?.();
+				return;
+			}
+			if (!input.ir.artifacts?.php) {
+				options.reporter.debug(
+					'createPhpIndexFileHelper: missing PHP artifacts plan; skipping.'
+				);
 				return;
 			}
 
@@ -70,7 +82,6 @@ export function createPhpIndexFileHelper(): BuilderHelper {
 			options.reporter.debug(
 				'createPhpIndexFileHelper: queued PHP index file.'
 			);
-			await next?.();
 		},
 	});
 }

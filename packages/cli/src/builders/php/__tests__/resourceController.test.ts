@@ -7,21 +7,26 @@ import {
 	type ResolvedIdentity,
 } from '@wpkernel/wp-json-ast';
 import type { IRv1 } from '../../../ir/publicTypes';
-import type { BuilderOutput } from '../../../runtime/types';
 import type { Workspace } from '../../../workspace/types';
-import { buildEmptyGenerationState } from '../../../apply/manifest';
 import { makeWorkspaceMock } from '@cli-tests/workspace.test-support';
 import {
 	createBuilderInput,
 	createBuilderOutput,
 	createMinimalIr,
 	createPipelineContext,
+	seedArtifacts,
 } from '../test-support/php-builder.test-support';
+import { makeIr } from '@cli-tests/ir.test-support';
 import * as phpPrinter from '@wpkernel/php-json-ast/php-driver';
 import type {
 	PhpProgram,
 	PhpStmtNamespace,
 	PhpStmtUse,
+	PhpStmtClass,
+	PhpStmtClassMethod,
+	PhpStmtReturn,
+	PhpExprArray,
+	PhpScalarString,
 } from '@wpkernel/php-json-ast';
 import {
 	makeWpPostResource,
@@ -37,6 +42,7 @@ import {
 	createPhpWpTaxonomyStorageHelper,
 	createPhpWpPostRoutesHelper,
 	createPhpResourceControllerHelper,
+	createPhpBuilderConfigHelper,
 	createWpProgramWriterHelper,
 	getPhpBuilderChannel,
 } from '../index';
@@ -62,11 +68,77 @@ function buildWorkspace(): Workspace {
 	});
 }
 
+async function buildApplyOptionsWithArtifacts(
+	ir: IRv1,
+	overrides?: { workspace?: Workspace; reporter?: Reporter }
+) {
+	const reporter = overrides?.reporter ?? buildReporter();
+	if (!ir.resources.length) {
+		ir.resources = [makeWpPostResource()];
+	}
+	ir.resources = ir.resources.map((resource, index) => ({
+		...resource,
+		id: resource.id ?? resource.name ?? `res-${index}`,
+	}));
+	await seedArtifacts(ir, reporter);
+	if (!ir.artifacts?.php) {
+		ir.artifacts ??= {} as IRv1['artifacts'];
+		const generatedRoot = ir.layout.resolve('php.generated');
+		const appliedRoot =
+			ir.layout.resolve('controllers.applied') ?? generatedRoot;
+		const controllers = Object.fromEntries(
+			ir.resources.map((resource, index) => [
+				resource.id ?? `res-${index}`,
+				{
+					className: `${resource.name}Controller`,
+					namespace: `${ir.php.namespace}\\Rest`,
+					appliedPath: path.posix.join(
+						appliedRoot,
+						`${resource.name}Controller.php`
+					),
+					generatedPath: path.posix.join(
+						generatedRoot,
+						`${resource.name}Controller.php`
+					),
+				},
+			])
+		);
+		ir.artifacts.php = {
+			pluginLoaderPath: path.posix.join(generatedRoot, 'plugin.php'),
+			autoload: {
+				strategy: 'composer',
+				autoloadPath: path.posix.join(
+					generatedRoot,
+					'vendor',
+					'autoload.php'
+				),
+			},
+			blocksManifestPath: path.posix.join(
+				generatedRoot,
+				'blocks-manifest.php'
+			),
+			blocksRegistrarPath: path.posix.join(
+				generatedRoot,
+				'Blocks',
+				'Register.php'
+			),
+			blocks: {},
+			controllers,
+			debugUiPath: path.posix.join(generatedRoot, 'debug-ui.php'),
+		};
+	}
+	return buildApplyOptions(ir, overrides);
+}
+
 async function runResourceControllerPipeline(
 	applyOptions: Parameters<
 		ReturnType<typeof createPhpResourceControllerHelper>['apply']
 	>[0]
 ): Promise<void> {
+	if (applyOptions.input.ir && !applyOptions.input.ir.artifacts?.php) {
+		await seedArtifacts(applyOptions.input.ir, applyOptions.reporter);
+	}
+	await createPhpBuilderConfigHelper().apply(applyOptions, undefined);
 	await createPhpChannelHelper().apply(applyOptions, undefined);
 	await createPhpTransientStorageHelper().apply(applyOptions, undefined);
 	await createPhpWpOptionStorageHelper().apply(applyOptions, undefined);
@@ -93,93 +165,79 @@ function getRoute(
 	return route;
 }
 
-function hasUseImport(
-	program: PhpProgram,
-	expectedParts: readonly string[]
-): boolean {
+function getClassMethods(program: PhpProgram): PhpStmtClassMethod[] {
 	const namespaceNode = findNamespace(program);
-	if (!namespaceNode) {
-		return false;
+	const classNode = namespaceNode?.stmts.find(
+		(stmt): stmt is PhpStmtClass => stmt.nodeType === 'Stmt_Class'
+	);
+	if (!classNode) {
+		return [];
+	}
+	return (
+		classNode.stmts?.filter(
+			(stmt): stmt is PhpStmtClassMethod =>
+				stmt.nodeType === 'Stmt_ClassMethod'
+		) ?? []
+	);
+}
+
+function findReturnScalar(
+	methods: PhpStmtClassMethod[],
+	name: string
+): string | undefined {
+	const method = methods.find((candidate) => candidate.name?.name === name);
+	if (!method) {
+		return undefined;
+	}
+	const returnStmt = (method.stmts ?? []).find(
+		(stmt): stmt is PhpStmtReturn => stmt.nodeType === 'Stmt_Return'
+	);
+	const expr = returnStmt?.expr;
+	if (expr && expr.nodeType === 'Scalar_String') {
+		const scalar = expr as PhpScalarString;
+		return typeof scalar.value === 'string' ? scalar.value : undefined;
+	}
+	return undefined;
+}
+
+function findReturnArray(
+	methods: PhpStmtClassMethod[],
+	name: string
+): string[] {
+	function extractScalarString(
+		value: PhpExprArray['items'][number]['value']
+	): string | undefined {
+		if (
+			value &&
+			value.nodeType === 'Scalar_String' &&
+			'value' in value &&
+			typeof (value as PhpScalarString).value === 'string'
+		) {
+			return (value as PhpScalarString).value;
+		}
+		return undefined;
 	}
 
-	return namespaceNode.stmts
-		.filter(
-			(statement): statement is PhpStmtUse =>
-				statement.nodeType === 'Stmt_Use'
-		)
-		.some((useStatement) =>
-			useStatement.uses.some(
-				(use) =>
-					use.name.parts.length === expectedParts.length &&
-					use.name.parts.every(
-						(part, index) => part === expectedParts[index]
-					)
-			)
-		);
+	const method = methods.find((candidate) => candidate.name?.name === name);
+	if (!method) {
+		return [];
+	}
+	const returnStmt = (method.stmts ?? []).find(
+		(stmt): stmt is PhpStmtReturn => stmt.nodeType === 'Stmt_Return'
+	);
+	const expr = returnStmt?.expr;
+	if (!expr || expr.nodeType !== 'Expr_Array') {
+		return [];
+	}
+	return ((expr as PhpExprArray).items ?? [])
+		.map((item) => (item ? extractScalarString(item.value) : undefined))
+		.filter((value): value is string => typeof value === 'string');
 }
 
 describe('createPhpResourceControllerHelper', () => {
-	function buildIr(): IRv1 {
-		return {
-			meta: {
-				version: 1,
-				namespace: 'demo',
-				sanitizedNamespace: 'Demo',
-				origin: 'typescript',
-				sourcePath: 'wpk.config.ts',
-				features: ['capabilityMap', 'phpAutoload'],
-				ids: {
-					algorithm: 'sha256',
-					resourcePrefix: 'res:',
-					schemaPrefix: 'sch:',
-					blockPrefix: 'blk:',
-					capabilityPrefix: 'cap:',
-				},
-				redactions: ['config.env', 'adapters.secrets'],
-				limits: {
-					maxConfigKB: 256,
-					maxSchemaKB: 1024,
-					policy: 'truncate',
-				},
-			},
-			config: {
-				version: 1,
-				namespace: 'demo',
-				schemas: {},
-				resources: {},
-			},
-			schemas: [],
-			resources: [makeWpPostResource(), makeWpTaxonomyResource()],
-			capabilities: [],
-			capabilityMap: {
-				sourcePath: undefined,
-				definitions: [],
-				fallback: {
-					capability: 'manage_options',
-					appliesTo: 'resource',
-				},
-				missing: [],
-				unused: [],
-				warnings: [],
-			},
-			blocks: [],
-			php: {
-				namespace: 'Demo',
-				autoload: 'inc/',
-				outputDir: 'inc/generated',
-			},
-			layout: {
-				resolve(id: string) {
-					return id;
-				},
-				all: {} satisfies IRv1['layout']['all'],
-			},
-		} satisfies IRv1;
-	}
-
 	it('queues resource controllers with resolved identity and route kinds', async () => {
-		const ir = buildIr();
-		const applyOptions = buildApplyOptions(ir);
+		const ir = makeIr();
+		const applyOptions = await buildApplyOptionsWithArtifacts(ir);
 		const { reporter } = applyOptions;
 
 		await runResourceControllerPipeline(applyOptions);
@@ -269,12 +327,54 @@ describe('createPhpResourceControllerHelper', () => {
 		);
 	});
 
+	it('emits wp-post helpers derived from storage config', async () => {
+		const ir = makeIr();
+		const applyOptions = await buildApplyOptionsWithArtifacts(ir);
+		await runResourceControllerPipeline(applyOptions);
+
+		const channel = getPhpBuilderChannel(applyOptions.context);
+		const entry = channel
+			.pending()
+			.find(
+				(candidate) =>
+					candidate.metadata?.kind === 'resource-controller' &&
+					candidate.metadata.name === 'books'
+			);
+
+		expect(entry).toBeDefined();
+		if (!entry || entry.metadata.kind !== 'resource-controller') {
+			throw new Error('Expected resource controller entry.');
+		}
+
+		const methods = getClassMethods(entry.program);
+		const methodNames = methods.map((method) => method.name?.name);
+
+		expect(methodNames).toEqual(
+			expect.arrayContaining([
+				'getBooksPostType',
+				'getBooksStatuses',
+				'normaliseBooksStatus',
+				'resolveBooksPost',
+				'syncBooksMeta',
+				'syncBooksTaxonomies',
+				'prepareBooksResponse',
+			])
+		);
+
+		expect(findReturnScalar(methods, 'getBooksPostType')).toBe('book');
+		expect(findReturnArray(methods, 'getBooksStatuses')).toEqual([
+			'draft',
+			'publish',
+		]);
+	});
+
 	it('imports the generated capability namespace for protected routes', async () => {
 		const ir = createMinimalIr({
+			namespace: 'Demo\\Plugin',
 			resources: [makeCapabilityProtectedResource()],
 			php: { namespace: 'Demo\\Plugin' },
 		});
-		const applyOptions = buildApplyOptions(ir);
+		const applyOptions = await buildApplyOptionsWithArtifacts(ir);
 		const { context } = applyOptions;
 
 		await runResourceControllerPipeline(applyOptions);
@@ -316,48 +416,71 @@ describe('createPhpResourceControllerHelper', () => {
 			tags: { 'resource.wpPost.mutation': 'create' },
 		});
 
-		expect(
-			hasUseImport(entry.program, [
-				'Demo',
-				'Plugin',
-				'Generated',
-				'Capability',
-				'Capability',
-			])
-		).toBe(true);
+		const namespaceNode = findNamespace(entry.program);
+		const imports =
+			namespaceNode?.stmts
+				.filter(
+					(stmt): stmt is PhpStmtUse => stmt.nodeType === 'Stmt_Use'
+				)
+				.flatMap((useStmt) =>
+					useStmt.uses.map((useItem) => useItem.name.parts.join('\\'))
+				) ?? [];
+
+		expect(imports).toContain(
+			'Demo\\Plugin\\Generated\\Capability\\Capability'
+		);
+	});
+
+	it('enforces capabilities inside handlers while permission_callback stays open', async () => {
+		const ir = createMinimalIr({
+			namespace: 'Demo\\Plugin',
+			resources: [makeCapabilityProtectedResource()],
+			php: { namespace: 'Demo\\Plugin' },
+		});
+		const applyOptions = await buildApplyOptionsWithArtifacts(ir);
+		const { context } = applyOptions;
+
+		await runResourceControllerPipeline(applyOptions);
+
+		const channel = getPhpBuilderChannel(context);
+		const entry = channel
+			.pending()
+			.find(
+				(candidate) =>
+					candidate.metadata.kind === 'resource-controller' &&
+					candidate.metadata.name === 'books'
+			);
+
+		expect(entry).toBeDefined();
+		if (!entry || entry.metadata.kind !== 'resource-controller') {
+			throw new Error('Expected resource controller entry.');
+		}
+
+		const printer = phpPrinter.buildPhpPrettyPrinter({
+			workspace: context.workspace,
+		});
+		const { code } = await printer.prettyPrint({
+			filePath: context.workspace.resolve('Rest/BooksController.php'),
+			program: entry.program,
+		});
+
+		expect(code).toContain("'permission_callback' => '__return_true'");
+		expect(code).toContain('Capability::enforce');
 	});
 
 	it('queues taxonomy controllers with pagination helpers and term shaping', async () => {
 		const reporter = buildReporter();
 		const workspace = buildWorkspace();
-		const context = {
+
+		const ir = makeIr({
+			resources: [makeWpTaxonomyResource()],
+		});
+
+		const applyOptions = await buildApplyOptionsWithArtifacts(ir, {
 			workspace,
 			reporter,
-			phase: 'generate' as const,
-			generationState: buildEmptyGenerationState(),
-		};
-		const output: BuilderOutput = {
-			actions: [],
-			queueWrite: jest.fn(),
-		};
-
-		const ir = buildIr();
-
-		const applyOptions = {
-			context,
-			input: {
-				phase: 'generate' as const,
-				options: {
-					config: ir.config,
-					namespace: ir.meta.namespace,
-					origin: ir.meta.origin,
-					sourcePath: ir.meta.sourcePath,
-				},
-				ir,
-			},
-			output,
-			reporter,
-		};
+		});
+		const { context } = applyOptions;
 
 		await runResourceControllerPipeline(applyOptions);
 
@@ -398,7 +521,7 @@ describe('createPhpResourceControllerHelper', () => {
 
 	it('queues wp-option controllers with autoload helpers', async () => {
 		const ir = createMinimalIr({ resources: [makeWpOptionResource()] });
-		const applyOptions = buildApplyOptions(ir);
+		const applyOptions = await buildApplyOptionsWithArtifacts(ir);
 		const { context, output } = applyOptions;
 
 		await runResourceControllerPipeline(applyOptions);
@@ -463,10 +586,6 @@ describe('createPhpResourceControllerHelper', () => {
 				file: optionEntry.file,
 				contents: expect.stringContaining('// demo-option controller'),
 			});
-			expect(output.queueWrite).toHaveBeenCalledWith({
-				file: `${optionEntry.file}.ast.json`,
-				contents: expect.stringContaining('Stmt_ClassMethod'),
-			});
 		} finally {
 			prettyPrinterSpy.mockRestore();
 		}
@@ -474,7 +593,7 @@ describe('createPhpResourceControllerHelper', () => {
 
 	it('queues transient controllers with TTL helpers and cache metadata', async () => {
 		const ir = createMinimalIr({ resources: [makeTransientResource()] });
-		const applyOptions = buildApplyOptions(ir);
+		const applyOptions = await buildApplyOptionsWithArtifacts(ir);
 		const { context, output } = applyOptions;
 
 		await runResourceControllerPipeline(applyOptions);
@@ -534,12 +653,6 @@ describe('createPhpResourceControllerHelper', () => {
 			expect(output.queueWrite).toHaveBeenCalledWith({
 				file: transientEntry.file,
 				contents: expect.stringContaining('// job-cache controller'),
-			});
-			expect(output.queueWrite).toHaveBeenCalledWith({
-				file: `${transientEntry.file}.ast.json`,
-				contents: expect.stringContaining(
-					'normaliseJobCacheExpiration'
-				),
 			});
 		} finally {
 			prettyPrinterSpy.mockRestore();
@@ -731,7 +844,6 @@ function buildApplyOptions(
 		input: createBuilderInput({
 			ir,
 			options: {
-				config: ir.config,
 				namespace: ir.meta.namespace,
 				origin: ir.meta.origin,
 				sourcePath: ir.meta.sourcePath,

@@ -1,0 +1,733 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`wp-post status helpers builds post resolution helpers for numeric and slug identities: resolve-post-numeric 1`] = `
+{
+  "attrGroups": [],
+  "attributes": {},
+  "byRef": false,
+  "flags": 2,
+  "name": {
+    "attributes": {},
+    "name": "resolveJobPost",
+    "nodeType": "Identifier",
+  },
+  "nodeType": "Stmt_ClassMethod",
+  "params": [
+    {
+      "attrGroups": [],
+      "attributes": {},
+      "byRef": false,
+      "default": null,
+      "flags": 0,
+      "hooks": [],
+      "nodeType": "Param",
+      "type": null,
+      "var": {
+        "attributes": {},
+        "name": "id",
+        "nodeType": "Expr_Variable",
+      },
+      "variadic": false,
+    },
+  ],
+  "returnType": null,
+  "stmts": [
+    {
+      "attributes": {},
+      "expr": {
+        "attributes": {},
+        "expr": {
+          "attributes": {},
+          "cond": {
+            "args": [
+              {
+                "attributes": {},
+                "byRef": false,
+                "name": null,
+                "nodeType": "Arg",
+                "unpack": false,
+                "value": {
+                  "attributes": {},
+                  "name": "id",
+                  "nodeType": "Expr_Variable",
+                },
+              },
+            ],
+            "attributes": {},
+            "name": {
+              "attributes": {},
+              "nodeType": "Name",
+              "parts": [
+                "is_numeric",
+              ],
+            },
+            "nodeType": "Expr_FuncCall",
+          },
+          "else": {
+            "attributes": {},
+            "nodeType": "Scalar_Int",
+            "value": 0,
+          },
+          "if": {
+            "attributes": {},
+            "expr": {
+              "attributes": {},
+              "name": "id",
+              "nodeType": "Expr_Variable",
+            },
+            "nodeType": "Expr_Cast_Int",
+          },
+          "nodeType": "Expr_Ternary",
+        },
+        "nodeType": "Expr_Assign",
+        "var": {
+          "attributes": {},
+          "name": "post_id",
+          "nodeType": "Expr_Variable",
+        },
+      },
+      "nodeType": "Stmt_Expression",
+    },
+    {
+      "attributes": {},
+      "cond": {
+        "attributes": {},
+        "left": {
+          "attributes": {},
+          "name": "post_id",
+          "nodeType": "Expr_Variable",
+        },
+        "nodeType": "Expr_BinaryOp_SmallerOrEqual",
+        "right": {
+          "attributes": {},
+          "nodeType": "Scalar_Int",
+          "value": 0,
+        },
+      },
+      "else": null,
+      "elseifs": [],
+      "nodeType": "Stmt_If",
+      "stmts": [
+        {
+          "attributes": {},
+          "expr": {
+            "attributes": {},
+            "name": {
+              "attributes": {},
+              "nodeType": "Name",
+              "parts": [
+                "null",
+              ],
+            },
+            "nodeType": "Expr_ConstFetch",
+          },
+          "nodeType": "Stmt_Return",
+        },
+      ],
+    },
+    {
+      "attributes": {},
+      "expr": {
+        "attributes": {},
+        "expr": {
+          "args": [
+            {
+              "attributes": {},
+              "byRef": false,
+              "name": null,
+              "nodeType": "Arg",
+              "unpack": false,
+              "value": {
+                "attributes": {},
+                "name": "post_id",
+                "nodeType": "Expr_Variable",
+              },
+            },
+          ],
+          "attributes": {},
+          "name": {
+            "attributes": {},
+            "nodeType": "Name",
+            "parts": [
+              "get_post",
+            ],
+          },
+          "nodeType": "Expr_FuncCall",
+        },
+        "nodeType": "Expr_Assign",
+        "var": {
+          "attributes": {},
+          "name": "post",
+          "nodeType": "Expr_Variable",
+        },
+      },
+      "nodeType": "Stmt_Expression",
+    },
+    {
+      "attributes": {},
+      "cond": {
+        "attributes": {},
+        "expr": {
+          "attributes": {},
+          "class": {
+            "attributes": {},
+            "nodeType": "Name",
+            "parts": [
+              "WP_Post",
+            ],
+          },
+          "expr": {
+            "attributes": {},
+            "name": "post",
+            "nodeType": "Expr_Variable",
+          },
+          "nodeType": "Expr_Instanceof",
+        },
+        "nodeType": "Expr_BooleanNot",
+      },
+      "else": null,
+      "elseifs": [],
+      "nodeType": "Stmt_If",
+      "stmts": [
+        {
+          "attributes": {},
+          "expr": {
+            "attributes": {},
+            "name": {
+              "attributes": {},
+              "nodeType": "Name",
+              "parts": [
+                "null",
+              ],
+            },
+            "nodeType": "Expr_ConstFetch",
+          },
+          "nodeType": "Stmt_Return",
+        },
+      ],
+    },
+    {
+      "attributes": {},
+      "cond": {
+        "attributes": {},
+        "left": {
+          "attributes": {},
+          "name": {
+            "attributes": {},
+            "name": "post_type",
+            "nodeType": "Identifier",
+          },
+          "nodeType": "Expr_PropertyFetch",
+          "var": {
+            "attributes": {},
+            "name": "post",
+            "nodeType": "Expr_Variable",
+          },
+        },
+        "nodeType": "Expr_BinaryOp_NotIdentical",
+        "right": {
+          "args": [],
+          "attributes": {},
+          "name": {
+            "attributes": {},
+            "name": "getJobPostType",
+            "nodeType": "Identifier",
+          },
+          "nodeType": "Expr_MethodCall",
+          "var": {
+            "attributes": {},
+            "name": "this",
+            "nodeType": "Expr_Variable",
+          },
+        },
+      },
+      "else": null,
+      "elseifs": [],
+      "nodeType": "Stmt_If",
+      "stmts": [
+        {
+          "attributes": {},
+          "expr": {
+            "attributes": {},
+            "name": {
+              "attributes": {},
+              "nodeType": "Name",
+              "parts": [
+                "null",
+              ],
+            },
+            "nodeType": "Expr_ConstFetch",
+          },
+          "nodeType": "Stmt_Return",
+        },
+      ],
+    },
+    {
+      "attributes": {},
+      "expr": {
+        "attributes": {},
+        "name": "post",
+        "nodeType": "Expr_Variable",
+      },
+      "nodeType": "Stmt_Return",
+    },
+  ],
+}
+`;
+
+exports[`wp-post status helpers builds post resolution helpers for numeric and slug identities: resolve-post-slug 1`] = `
+{
+  "attrGroups": [],
+  "attributes": {},
+  "byRef": false,
+  "flags": 2,
+  "name": {
+    "attributes": {},
+    "name": "resolveJobPost",
+    "nodeType": "Identifier",
+  },
+  "nodeType": "Stmt_ClassMethod",
+  "params": [
+    {
+      "attrGroups": [],
+      "attributes": {},
+      "byRef": false,
+      "default": null,
+      "flags": 0,
+      "hooks": [],
+      "nodeType": "Param",
+      "type": null,
+      "var": {
+        "attributes": {},
+        "name": "uuid",
+        "nodeType": "Expr_Variable",
+      },
+      "variadic": false,
+    },
+  ],
+  "returnType": null,
+  "stmts": [
+    {
+      "attributes": {},
+      "expr": {
+        "attributes": {},
+        "expr": {
+          "args": [],
+          "attributes": {},
+          "name": {
+            "attributes": {},
+            "name": "getJobPostType",
+            "nodeType": "Identifier",
+          },
+          "nodeType": "Expr_MethodCall",
+          "var": {
+            "attributes": {},
+            "name": "this",
+            "nodeType": "Expr_Variable",
+          },
+        },
+        "nodeType": "Expr_Assign",
+        "var": {
+          "attributes": {},
+          "name": "post_type",
+          "nodeType": "Expr_Variable",
+        },
+      },
+      "nodeType": "Stmt_Expression",
+    },
+    {
+      "attributes": {},
+      "expr": {
+        "attributes": {},
+        "expr": {
+          "attributes": {},
+          "cond": {
+            "args": [
+              {
+                "attributes": {},
+                "byRef": false,
+                "name": null,
+                "nodeType": "Arg",
+                "unpack": false,
+                "value": {
+                  "attributes": {},
+                  "name": "uuid",
+                  "nodeType": "Expr_Variable",
+                },
+              },
+            ],
+            "attributes": {},
+            "name": {
+              "attributes": {},
+              "nodeType": "Name",
+              "parts": [
+                "is_string",
+              ],
+            },
+            "nodeType": "Expr_FuncCall",
+          },
+          "else": {
+            "attributes": {},
+            "nodeType": "Scalar_String",
+            "value": "",
+          },
+          "if": {
+            "args": [
+              {
+                "attributes": {},
+                "byRef": false,
+                "name": null,
+                "nodeType": "Arg",
+                "unpack": false,
+                "value": {
+                  "attributes": {},
+                  "name": "uuid",
+                  "nodeType": "Expr_Variable",
+                },
+              },
+            ],
+            "attributes": {},
+            "name": {
+              "attributes": {},
+              "nodeType": "Name",
+              "parts": [
+                "trim",
+              ],
+            },
+            "nodeType": "Expr_FuncCall",
+          },
+          "nodeType": "Expr_Ternary",
+        },
+        "nodeType": "Expr_Assign",
+        "var": {
+          "attributes": {},
+          "name": "slug",
+          "nodeType": "Expr_Variable",
+        },
+      },
+      "nodeType": "Stmt_Expression",
+    },
+    {
+      "attributes": {},
+      "cond": {
+        "attributes": {},
+        "left": {
+          "attributes": {},
+          "name": "slug",
+          "nodeType": "Expr_Variable",
+        },
+        "nodeType": "Expr_BinaryOp_Identical",
+        "right": {
+          "attributes": {},
+          "nodeType": "Scalar_String",
+          "value": "",
+        },
+      },
+      "else": null,
+      "elseifs": [],
+      "nodeType": "Stmt_If",
+      "stmts": [
+        {
+          "attributes": {},
+          "expr": {
+            "attributes": {},
+            "name": {
+              "attributes": {},
+              "nodeType": "Name",
+              "parts": [
+                "null",
+              ],
+            },
+            "nodeType": "Expr_ConstFetch",
+          },
+          "nodeType": "Stmt_Return",
+        },
+      ],
+    },
+    {
+      "attributes": {},
+      "expr": {
+        "attributes": {},
+        "expr": {
+          "args": [
+            {
+              "attributes": {},
+              "byRef": false,
+              "name": null,
+              "nodeType": "Arg",
+              "unpack": false,
+              "value": {
+                "attributes": {},
+                "items": [
+                  {
+                    "attributes": {},
+                    "byRef": false,
+                    "key": {
+                      "attributes": {},
+                      "nodeType": "Scalar_String",
+                      "value": "post_type",
+                    },
+                    "nodeType": "ArrayItem",
+                    "unpack": false,
+                    "value": {
+                      "attributes": {},
+                      "name": "post_type",
+                      "nodeType": "Expr_Variable",
+                    },
+                  },
+                  {
+                    "attributes": {},
+                    "byRef": false,
+                    "key": {
+                      "attributes": {},
+                      "nodeType": "Scalar_String",
+                      "value": "posts_per_page",
+                    },
+                    "nodeType": "ArrayItem",
+                    "unpack": false,
+                    "value": {
+                      "attributes": {},
+                      "nodeType": "Scalar_Int",
+                      "value": 1,
+                    },
+                  },
+                  {
+                    "attributes": {},
+                    "byRef": false,
+                    "key": {
+                      "attributes": {},
+                      "nodeType": "Scalar_String",
+                      "value": "fields",
+                    },
+                    "nodeType": "ArrayItem",
+                    "unpack": false,
+                    "value": {
+                      "attributes": {},
+                      "nodeType": "Scalar_String",
+                      "value": "all",
+                    },
+                  },
+                  {
+                    "attributes": {},
+                    "byRef": false,
+                    "key": {
+                      "attributes": {},
+                      "nodeType": "Scalar_String",
+                      "value": "meta_key",
+                    },
+                    "nodeType": "ArrayItem",
+                    "unpack": false,
+                    "value": {
+                      "attributes": {},
+                      "nodeType": "Scalar_String",
+                      "value": "uuid",
+                    },
+                  },
+                  {
+                    "attributes": {},
+                    "byRef": false,
+                    "key": {
+                      "attributes": {},
+                      "nodeType": "Scalar_String",
+                      "value": "meta_value",
+                    },
+                    "nodeType": "ArrayItem",
+                    "unpack": false,
+                    "value": {
+                      "attributes": {},
+                      "name": "slug",
+                      "nodeType": "Expr_Variable",
+                    },
+                  },
+                ],
+                "nodeType": "Expr_Array",
+              },
+            },
+          ],
+          "attributes": {},
+          "name": {
+            "attributes": {},
+            "nodeType": "Name",
+            "parts": [
+              "get_posts",
+            ],
+          },
+          "nodeType": "Expr_FuncCall",
+        },
+        "nodeType": "Expr_Assign",
+        "var": {
+          "attributes": {},
+          "name": "posts",
+          "nodeType": "Expr_Variable",
+        },
+      },
+      "nodeType": "Stmt_Expression",
+    },
+    {
+      "attributes": {},
+      "cond": {
+        "attributes": {},
+        "expr": {
+          "args": [
+            {
+              "attributes": {},
+              "byRef": false,
+              "name": null,
+              "nodeType": "Arg",
+              "unpack": false,
+              "value": {
+                "attributes": {},
+                "name": "posts",
+                "nodeType": "Expr_Variable",
+              },
+            },
+          ],
+          "attributes": {},
+          "name": {
+            "attributes": {},
+            "nodeType": "Name",
+            "parts": [
+              "empty",
+            ],
+          },
+          "nodeType": "Expr_FuncCall",
+        },
+        "nodeType": "Expr_BooleanNot",
+      },
+      "else": null,
+      "elseifs": [],
+      "nodeType": "Stmt_If",
+      "stmts": [
+        {
+          "attributes": {},
+          "expr": {
+            "attributes": {},
+            "dim": {
+              "attributes": {},
+              "nodeType": "Scalar_Int",
+              "value": 0,
+            },
+            "nodeType": "Expr_ArrayDimFetch",
+            "var": {
+              "attributes": {},
+              "name": "posts",
+              "nodeType": "Expr_Variable",
+            },
+          },
+          "nodeType": "Stmt_Return",
+        },
+      ],
+    },
+    {
+      "attributes": {},
+      "expr": {
+        "attributes": {},
+        "expr": {
+          "args": [
+            {
+              "attributes": {},
+              "byRef": false,
+              "name": null,
+              "nodeType": "Arg",
+              "unpack": false,
+              "value": {
+                "attributes": {},
+                "name": "slug",
+                "nodeType": "Expr_Variable",
+              },
+            },
+            {
+              "attributes": {},
+              "byRef": false,
+              "name": null,
+              "nodeType": "Arg",
+              "unpack": false,
+              "value": {
+                "attributes": {},
+                "nodeType": "Scalar_String",
+                "value": "OBJECT",
+              },
+            },
+            {
+              "attributes": {},
+              "byRef": false,
+              "name": null,
+              "nodeType": "Arg",
+              "unpack": false,
+              "value": {
+                "attributes": {},
+                "name": "post_type",
+                "nodeType": "Expr_Variable",
+              },
+            },
+          ],
+          "attributes": {},
+          "name": {
+            "attributes": {},
+            "nodeType": "Name",
+            "parts": [
+              "get_page_by_path",
+            ],
+          },
+          "nodeType": "Expr_FuncCall",
+        },
+        "nodeType": "Expr_Assign",
+        "var": {
+          "attributes": {},
+          "name": "post",
+          "nodeType": "Expr_Variable",
+        },
+      },
+      "nodeType": "Stmt_Expression",
+    },
+    {
+      "attributes": {},
+      "cond": {
+        "attributes": {},
+        "class": {
+          "attributes": {},
+          "nodeType": "Name",
+          "parts": [
+            "WP_Post",
+          ],
+        },
+        "expr": {
+          "attributes": {},
+          "name": "post",
+          "nodeType": "Expr_Variable",
+        },
+        "nodeType": "Expr_Instanceof",
+      },
+      "else": null,
+      "elseifs": [],
+      "nodeType": "Stmt_If",
+      "stmts": [
+        {
+          "attributes": {},
+          "expr": {
+            "attributes": {},
+            "name": "post",
+            "nodeType": "Expr_Variable",
+          },
+          "nodeType": "Stmt_Return",
+        },
+      ],
+    },
+    {
+      "attributes": {},
+      "expr": {
+        "attributes": {},
+        "name": {
+          "attributes": {},
+          "nodeType": "Name",
+          "parts": [
+            "null",
+          ],
+        },
+        "nodeType": "Expr_ConstFetch",
+      },
+      "nodeType": "Stmt_Return",
+    },
+  ],
+}
+`;

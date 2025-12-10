@@ -51,7 +51,8 @@ export async function validateGeneratedImports({
 	}
 
 	const scriptEntries = summary.entries.filter(
-		(entry) => entry.status !== 'skipped' && isScriptFile(entry.path)
+		(entry: GenerationSummary['entries'][number]) =>
+			entry.status !== 'skipped' && isScriptFile(entry.path)
 	);
 
 	if (scriptEntries.length === 0) {
@@ -69,7 +70,7 @@ export async function validateGeneratedImports({
 
 	const rootNames = Array.from(
 		new Set(
-			scriptEntries.map((entry) =>
+			scriptEntries.map((entry: GenerationSummary['entries'][number]) =>
 				toAbsolutePath(projectRoot, entry.path)
 			)
 		)

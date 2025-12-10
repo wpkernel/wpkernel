@@ -134,6 +134,10 @@ describe('init utils', () => {
 		const accessMock = fsMock.access as jest.MockedFunction<
 			typeof fsMock.access
 		>;
+		for (const entry of accessible) {
+			// Seed the mock fs so pathExists (stat) resolves these entries.
+			fsMock.files.set(path.resolve(entry), Buffer.from('ok'));
+		}
 		accessMock.mockImplementation(async (target) => {
 			const resolved = target.toString();
 			if (accessible.has(resolved)) {

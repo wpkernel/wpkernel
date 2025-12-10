@@ -49,10 +49,6 @@ describe('createApplyPlanBuilder pretty printer wiring', () => {
 				const ir = makeIr({
 					namespace: meta.namespace,
 					meta,
-					config: {
-						resources: {},
-						schemas: {},
-					},
 				});
 
 				await helper.apply(
@@ -66,7 +62,6 @@ describe('createApplyPlanBuilder pretty printer wiring', () => {
 						input: {
 							phase: 'generate',
 							options: {
-								config: ir.config,
 								namespace: ir.meta.namespace,
 								origin: ir.meta.origin,
 								sourcePath: meta.sourcePath,

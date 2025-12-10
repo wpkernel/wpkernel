@@ -1,7 +1,7 @@
 import crypto from 'node:crypto';
 import path from 'node:path';
 import { promises as fs } from 'node:fs';
-import { toWorkspaceRelative } from './path';
+import { toWorkspaceRelative } from '../workspace';
 
 /**
  * Outcome recorded for a file write attempt.
@@ -55,7 +55,7 @@ export class FileWriter {
 		const newHash = hashContents(finalContents);
 
 		const existing = await readExistingHash(absolutePath);
-		const relativePath = toWorkspaceRelative(absolutePath);
+		const relativePath = toWorkspaceRelative(process.cwd(), absolutePath);
 
 		if (this.dryRun) {
 			const status: FileWriteStatus =

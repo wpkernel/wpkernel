@@ -219,7 +219,7 @@ Extends `@wordpress/eslint-plugin`:
 }
 ```
 
-Kernel packages ship custom rules. Notably, `@kernel/no-console-in-kernel` forbids `console.*` calls inside
+Kernel packages ship custom rules. Notably, `@wpkernel/no-console-in-wpk` forbids `console.*` calls inside
 `packages/core/src`-use the reporter module instead.
 
 ### Prettier

@@ -1,12 +1,13 @@
 import { serialiseError } from './errors';
-import { APPLY_LOG_PATH } from './constants';
+import { resolveApplyLogPath } from './constants';
 import type { ApplyLogEntry, FailureLogOptions } from './types';
 
 export async function appendApplyLog(
 	workspace: FailureLogOptions['workspace'],
 	entry: ApplyLogEntry
 ): Promise<void> {
-	const previous = await workspace.readText(APPLY_LOG_PATH);
+	const applyLogPath = await resolveApplyLogPath(workspace);
+	const previous = await workspace.readText(applyLogPath);
 	const serialised = JSON.stringify(entry);
 	const trimmedPrevious = previous?.replace(/\s+$/, '') ?? '';
 	const nextContents =
@@ -14,7 +15,7 @@ export async function appendApplyLog(
 			? `${trimmedPrevious}\n${serialised}\n`
 			: `${serialised}\n`;
 
-	await workspace.write(APPLY_LOG_PATH, nextContents, { ensureDir: true });
+	await workspace.write(applyLogPath, nextContents, { ensureDir: true });
 }
 
 export async function handleFailureLog({

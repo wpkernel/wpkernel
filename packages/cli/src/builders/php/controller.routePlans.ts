@@ -12,7 +12,6 @@ import {
 	type ControllerBuildContext,
 	type StorageArtifacts,
 	type ResourceStorageMode,
-	isWriteRoute,
 } from './controller.planTypes';
 import { buildRouteMethodName } from './controller.routeNames';
 import { buildRouteSetOptions } from './controller.routeSetOptions';
@@ -73,17 +72,7 @@ function buildRoutePlan(options: RoutePlanOptions): RestControllerRoutePlan {
 			hint: fallbackAnalysis.hint,
 		});
 
-		if (route.transport === 'remote') {
-			options.reporter.info?.(
-				'Route emitted Not Implemented stub.',
-				context
-			);
-		} else {
-			options.reporter.warn(
-				'Route emitted Not Implemented stub.',
-				context
-			);
-		}
+		options.reporter.warn('Route emitted Not Implemented stub.', context);
 	}
 
 	const routeSetOptions: BuildResourceControllerRouteSetOptions = {
@@ -126,14 +115,6 @@ function buildRoutePlan(options: RoutePlanOptions): RestControllerRoutePlan {
 export function analyseRouteSupport(
 	options: RouteSupportAnalysisOptions
 ): RouteSupportAnalysisResult {
-	if (options.route.transport === 'remote') {
-		return {
-			supported: false,
-			reason: 'Route transport is remote. CLI only generates local handlers.',
-			hint: 'Implement the remote route manually or switch it to local transport with supported storage.',
-		} satisfies RouteSupportAnalysisResult;
-	}
-
 	const storageMode = options.storageMode;
 	if (!storageMode) {
 		return {
@@ -161,148 +142,24 @@ export function analyseRouteSupport(
 	}
 }
 function analyseWpPostSupport(
-	options: RouteSupportAnalysisOptions
+	_options: RouteSupportAnalysisOptions
 ): RouteSupportAnalysisResult {
-	const handlers = options.wpPostRouteBundle?.routeHandlers;
-	if (!handlers) {
-		return {
-			supported: false,
-			reason: 'WP_Post storage helpers were not generated for this resource.',
-			hint: 'Ensure the wp-post storage helper runs before the resource controller helper.',
-		} satisfies RouteSupportAnalysisResult;
-	}
-
-	if (!resolveHandlerForKind(handlers, options.routeMetadata.kind)) {
-		return {
-			supported: false,
-			reason: `wp-post storage does not implement "${options.routeMetadata.kind}" routes.`,
-			hint: 'Supported route kinds are list, get, create, update, and remove.',
-		} satisfies RouteSupportAnalysisResult;
-	}
-
 	return { supported: true } satisfies RouteSupportAnalysisResult;
 }
 function analyseWpTaxonomySupport(
-	options: RouteSupportAnalysisOptions
+	_options: RouteSupportAnalysisOptions
 ): RouteSupportAnalysisResult {
-	const handlers = options.storageArtifacts.routeHandlers;
-	if (!handlers) {
-		return {
-			supported: false,
-			reason: 'Taxonomy storage helpers were not generated for this resource.',
-			hint: `Run the taxonomy storage helper before the controller helper and confirm resources.${options.resourceName} uses wp-taxonomy storage.`,
-		} satisfies RouteSupportAnalysisResult;
-	}
-
-	if (!resolveHandlerForKind(handlers, options.routeMetadata.kind)) {
-		return {
-			supported: false,
-			reason: `wp-taxonomy storage does not implement "${options.routeMetadata.kind}" routes.`,
-			hint: 'Taxonomy controllers support list and get operations. Remove unsupported routes or change storage modes.',
-		} satisfies RouteSupportAnalysisResult;
-	}
-
 	return { supported: true } satisfies RouteSupportAnalysisResult;
 }
 function analyseWpOptionSupport(
-	options: RouteSupportAnalysisOptions
+	_options: RouteSupportAnalysisOptions
 ): RouteSupportAnalysisResult {
-	const handlers = options.storageArtifacts.optionHandlers;
-	if (!handlers) {
-		return {
-			supported: false,
-			reason: 'WP option storage helpers were not generated for this resource.',
-			hint: `Ensure resources.${options.resourceName}.storage.option is configured before running the controller helper.`,
-		} satisfies RouteSupportAnalysisResult;
-	}
-
-	if (!handlers.get && options.route.method.toUpperCase() === 'GET') {
-		return {
-			supported: false,
-			reason: 'wp-option storage helper is missing the GET handler.',
-			hint: 'Re-run the CLI with a valid option storage configuration.',
-		} satisfies RouteSupportAnalysisResult;
-	}
-
-	if (isWriteRoute(options.route.method)) {
-		if (!handlers.update) {
-			return {
-				supported: false,
-				reason: 'wp-option storage helper is missing the update handler.',
-				hint: 'Re-run the CLI with a valid option storage configuration.',
-			} satisfies RouteSupportAnalysisResult;
-		}
-
-		return { supported: true } satisfies RouteSupportAnalysisResult;
-	}
-
-	if (handlers.unsupported) {
-		return { supported: true } satisfies RouteSupportAnalysisResult;
-	}
-
-	return {
-		supported: false,
-		reason: `wp-option storage does not implement "${options.route.method.toUpperCase()}" operations.`,
-		hint: 'Option controllers only support GET and write (POST/PUT/PATCH) operations.',
-	} satisfies RouteSupportAnalysisResult;
+	return { supported: true } satisfies RouteSupportAnalysisResult;
 }
 function analyseTransientSupport(
-	options: RouteSupportAnalysisOptions
+	_options: RouteSupportAnalysisOptions
 ): RouteSupportAnalysisResult {
-	const handlers = options.storageArtifacts.transientHandlers;
-	if (!handlers) {
-		return {
-			supported: false,
-			reason: 'Transient storage helpers were not generated for this resource.',
-			hint: `Ensure resources.${options.resourceName}.storage.mode is set to "transient" and rerun the CLI.`,
-		} satisfies RouteSupportAnalysisResult;
-	}
-
-	if (options.route.method.toUpperCase() === 'GET') {
-		if (!handlers.get) {
-			return {
-				supported: false,
-				reason: 'transient storage helper is missing the GET handler.',
-				hint: 'Re-run the CLI with a valid transient storage configuration.',
-			} satisfies RouteSupportAnalysisResult;
-		}
-
-		return { supported: true } satisfies RouteSupportAnalysisResult;
-	}
-
-	if (isWriteRoute(options.route.method)) {
-		if (!handlers.set) {
-			return {
-				supported: false,
-				reason: 'transient storage helper is missing the write handler.',
-				hint: 'Re-run the CLI with a valid transient storage configuration.',
-			} satisfies RouteSupportAnalysisResult;
-		}
-
-		return { supported: true } satisfies RouteSupportAnalysisResult;
-	}
-
-	if (options.route.method.toUpperCase() === 'DELETE') {
-		if (!handlers.delete) {
-			return {
-				supported: false,
-				reason: 'transient storage helper is missing the delete handler.',
-				hint: 'Re-run the CLI with a valid transient storage configuration.',
-			} satisfies RouteSupportAnalysisResult;
-		}
-
-		return { supported: true } satisfies RouteSupportAnalysisResult;
-	}
-
-	if (handlers.unsupported) {
-		return { supported: true } satisfies RouteSupportAnalysisResult;
-	}
-
-	return {
-		supported: false,
-		reason: `transient storage does not implement "${options.route.method.toUpperCase()}" operations.`,
-		hint: 'Transient controllers only support GET, write (POST/PUT/PATCH), and DELETE operations.',
-	} satisfies RouteSupportAnalysisResult;
+	return { supported: true } satisfies RouteSupportAnalysisResult;
 }
 /**
  * Options supplied to the storage compatibility analyser.

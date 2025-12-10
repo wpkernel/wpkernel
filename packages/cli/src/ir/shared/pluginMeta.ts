@@ -25,7 +25,7 @@ export function buildPluginMeta({
 }): IRPluginMeta {
 	const name = resolvePluginName(sanitizedNamespace, configMeta);
 	const description = resolvePluginDescription(name, configMeta);
-	const meta = createBasePluginMeta({
+	const meta = buildBasePluginMeta({
 		name,
 		description,
 		sanitizedNamespace,
@@ -56,7 +56,7 @@ function resolvePluginDescription(
 	);
 }
 
-function createBasePluginMeta({
+function buildBasePluginMeta({
 	name,
 	description,
 	sanitizedNamespace,

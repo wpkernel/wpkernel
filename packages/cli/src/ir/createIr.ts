@@ -1,34 +1,52 @@
 import path from 'node:path';
 import type { Reporter } from '@wpkernel/core/reporter';
 import { createNoopReporter as buildNoopReporter } from '@wpkernel/core/reporter';
-import type { BuildIrOptions, IRv1 } from './publicTypes';
+import type { FragmentIrOptions, IRv1 } from './publicTypes';
 import { createPipeline } from '../runtime';
 import type { PipelinePhase, Pipeline } from '../runtime';
 import type { Workspace } from '../workspace';
 import { buildWorkspace } from '../workspace';
-import { createMetaFragment } from './fragments/meta';
-import { createLayoutFragment } from './fragments/layout';
-import { createSchemasFragment } from './fragments/schemas';
-import { createResourcesFragment } from './fragments/resources';
-import { createBundlerFragment } from './fragments/bundler';
+import { createMetaFragment } from './fragments/ir.meta.core';
+import { createLayoutFragment } from './fragments/ir.layout.core';
+import { createSchemasFragment } from './fragments/ir.schemas.core';
+import { createResourcesFragment } from './fragments/ir.resources.core';
+import { createBundlerFragment } from './fragments/ir.bundler.core';
 import { createUiFragment } from './fragments/ui';
-import { createCapabilitiesFragment } from './fragments/capabilities';
-import { createCapabilityMapFragment } from './fragments/capability-map';
-import { createBlocksFragment } from './fragments/blocks';
-import { createDiagnosticsFragment } from './fragments/diagnostics';
-import { createOrderingFragment } from './fragments/ordering';
+import { createCapabilitiesFragment } from './fragments/ir.capabilities.core';
+import { createCapabilityMapFragment } from './fragments/ir.capability-map.core';
+import { createBlocksFragment } from './fragments/ir.blocks.core';
+import { createDiagnosticsFragment } from './fragments/ir.diagnostics.core';
+import { createOrderingFragment } from './fragments/ir.ordering.core';
 import { createValidationFragment } from './fragments/validation';
+import { createArtifactsFragment } from './fragments/ir.artifacts.plan';
 import {
-	createApplyPlanBuilder,
+	createPlanBuilder,
 	createBundler,
 	createJsBlocksBuilder,
-	createPatcher,
-	createPhpBuilder,
+	createPhpBuilderConfigHelper,
+	createPhpBaseControllerHelper,
+	createPhpCapabilityHelper,
+	createPhpChannelHelper,
+	createPhpCodemodIngestionHelper,
 	createPhpDriverInstaller,
+	createPhpIndexFileHelper,
+	createPhpPersistenceRegistryHelper,
+	createPhpPluginLoaderHelper,
+	createPhpResourceControllerHelper,
+	createPhpTransientStorageHelper,
+	createPhpWpOptionStorageHelper,
+	createPhpWpPostRoutesHelper,
+	createPhpWpTaxonomyStorageHelper,
 	createTsCapabilityBuilder,
 	createTsIndexBuilder,
-	createTsBuilder,
+	createTsTypesBuilder,
+	createTsResourcesBuilder,
 	createUiEntryBuilder,
+	createTsConfigBuilder,
+	createAdminScreenBuilder,
+	createAppConfigBuilder,
+	createAppFormBuilder,
+	createWpProgramWriterHelper,
 } from '../builders';
 import { buildAdapterExtensionsExtension } from '../runtime/adapterExtensions';
 import { buildEmptyGenerationState } from '../apply/manifest';
@@ -72,6 +90,7 @@ function registerCoreFragments(pipeline: Pipeline): void {
 	pipeline.ir.use(createBlocksFragment());
 	pipeline.ir.use(createOrderingFragment());
 	pipeline.ir.use(createValidationFragment());
+	pipeline.ir.use(createArtifactsFragment());
 }
 
 /**
@@ -85,35 +104,46 @@ function registerCoreFragments(pipeline: Pipeline): void {
  */
 function registerCoreBuilders(pipeline: Pipeline): void {
 	pipeline.builders.use(createJsBlocksBuilder());
-	pipeline.builders.use(createTsBuilder());
+	pipeline.builders.use(createTsTypesBuilder());
+	pipeline.builders.use(createTsResourcesBuilder());
+	pipeline.builders.use(createAdminScreenBuilder());
+	pipeline.builders.use(createAppConfigBuilder());
+	pipeline.builders.use(createAppFormBuilder());
 	pipeline.builders.use(createUiEntryBuilder());
+	pipeline.builders.use(createTsConfigBuilder());
 	pipeline.builders.use(createBundler());
 	pipeline.builders.use(createPhpDriverInstaller());
-	pipeline.builders.use(createPhpBuilder());
-	pipeline.builders.use(createApplyPlanBuilder());
+	pipeline.builders.use(createPhpChannelHelper());
+	pipeline.builders.use(createPhpBuilderConfigHelper());
+	pipeline.builders.use(createPhpBaseControllerHelper());
+	pipeline.builders.use(createPhpTransientStorageHelper());
+	pipeline.builders.use(createPhpWpOptionStorageHelper());
+	pipeline.builders.use(createPhpWpTaxonomyStorageHelper());
+	pipeline.builders.use(createPhpWpPostRoutesHelper());
+	pipeline.builders.use(createPhpResourceControllerHelper());
+	pipeline.builders.use(createPhpCapabilityHelper());
+	pipeline.builders.use(createPhpPersistenceRegistryHelper());
+	pipeline.builders.use(createPhpPluginLoaderHelper());
+	pipeline.builders.use(createPhpIndexFileHelper());
+	pipeline.builders.use(createPhpCodemodIngestionHelper({ files: [] }));
+	pipeline.builders.use(createWpProgramWriterHelper());
 	pipeline.builders.use(createTsCapabilityBuilder());
 	pipeline.builders.use(createTsIndexBuilder());
-	pipeline.builders.use(createPatcher());
+	pipeline.builders.use(createPlanBuilder());
 }
 
-/**
- * Creates an Intermediate Representation (IR) from the given build options.
- *
- * This function sets up a pipeline with core fragments and builders, then runs
- * the pipeline to generate the IR based on the provided configuration.
- *
- * @category IR
- * @param    options     - Options for building the IR, including configuration and source paths.
- * @param    environment - Optional environment settings for the IR creation process.
- * @returns A promise that resolves to the generated `IRv1` object.
- */
-export async function createIr(
-	options: BuildIrOptions,
-	environment: CreateIrEnvironment = {}
+async function runIrPipeline(
+	options: FragmentIrOptions,
+	environment: CreateIrEnvironment,
+	mode: 'fragments-only' | 'with-builders'
 ): Promise<IRv1> {
 	const pipeline = environment.pipeline ?? createPipeline();
+
 	registerCoreFragments(pipeline);
-	registerCoreBuilders(pipeline);
+	if (mode === 'with-builders') {
+		registerCoreBuilders(pipeline);
+	}
+
 	pipeline.extensions.use(buildAdapterExtensionsExtension());
 
 	const workspace =
@@ -134,6 +164,45 @@ export async function createIr(
 	});
 
 	return ir;
+}
+
+/**
+ * Builds the Intermediate Representation (IR) by running only the core IR fragments.
+ *
+ * This variant does not register or execute any builders. It is intended for
+ * scenarios where you want a deterministic IR to assert against (e.g. tests
+ * or analysis tooling) without generating any artefacts on disk.
+ *
+ * @category IR
+ * @param    options     - Options for building the IR, including configuration and source paths.
+ * @param    environment - Optional environment settings for the IR creation process.
+ * @returns A promise that resolves to the generated `IRv1` object.
+ */
+export function createIr(
+	options: FragmentIrOptions,
+	environment: CreateIrEnvironment = {}
+): Promise<IRv1> {
+	return runIrPipeline(options, environment, 'fragments-only');
+}
+
+/**
+ * Runs the full generation pipeline (IR + builders) from the given build options.
+ *
+ * This function sets up a pipeline with core IR fragments and all core builders,
+ * then executes it to both construct the IR and generate artefacts (PHP, TS, UI
+ * entries, bundles, etc.) as a side-effect. It represents the high-level
+ * "generate everything" entry point used by the CLI.
+ *
+ * @category IR
+ * @param    options     - Options for building the IR, including configuration and source paths.
+ * @param    environment - Optional environment settings for the IR creation process.
+ * @returns A promise that resolves to the generated `IRv1` object.
+ */
+export async function createIrWithBuilders(
+	options: FragmentIrOptions,
+	environment: CreateIrEnvironment = {}
+): Promise<IRv1> {
+	return runIrPipeline(options, environment, 'with-builders');
 }
 
 export { registerCoreFragments, registerCoreBuilders };

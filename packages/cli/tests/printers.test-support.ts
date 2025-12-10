@@ -31,18 +31,15 @@ export interface MakeWPKernelConfigFixtureOptions {
 	readonly schemas?: WPKernelConfigV1['schemas'];
 	readonly resources?: WPKernelConfigV1['resources'];
 	readonly adapters?: WPKernelConfigV1['adapters'];
+	readonly directories?: WPKernelConfigV1['directories'];
 }
 
 export function makeWPKernelConfigFixture(
 	options: MakeWPKernelConfigFixtureOptions = {}
 ): WPKernelConfigV1 {
-	const typesRoot = testLayout.resolve('php.generated');
 	const defaultSchemas: WPKernelConfigV1['schemas'] = {
 		job: {
 			path: './contracts/job.schema.json',
-			generated: {
-				types: `./${typesRoot}/../types/job.d.ts`,
-			},
 		},
 	};
 	const defaultResources: WPKernelConfigV1['resources'] = {};
@@ -52,6 +49,7 @@ export function makeWPKernelConfigFixture(
 		schemas,
 		resources,
 		adapters,
+		directories,
 	} = options;
 
 	return {
@@ -60,6 +58,7 @@ export function makeWPKernelConfigFixture(
 		schemas: schemas ?? defaultSchemas,
 		resources: resources ?? defaultResources,
 		...(adapters ? { adapters } : {}),
+		...(directories ? { directories } : {}),
 	} satisfies WPKernelConfigV1;
 }
 

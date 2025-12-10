@@ -1,16 +1,11 @@
-import { WPK_CONFIG_SOURCES } from '@wpkernel/core/contracts';
+import path from 'node:path';
+import type { ResourceConfig } from '@wpkernel/core/resource';
 import type {
-	ResourceConfig,
-	ResourceDataViewsScreenConfig,
-	ResourceDataViewsUIConfig,
-} from '@wpkernel/core/resource';
-import type {
-	BuildIrOptions,
+	IRArtifactsPlan,
 	IRHashProvenance,
 	IRResource,
 	IRv1,
 } from '../../src/ir/publicTypes';
-import type { WPKernelConfigV1 } from '../../src/config/types';
 export { withWorkspace } from './builder-harness.test-support.js';
 export {
 	buildReporter,
@@ -18,7 +13,6 @@ export {
 	normalise,
 	prefixRelative,
 } from './builder-harness.test-support.js';
-
 export type {
 	BuilderHarnessContext,
 	WorkspaceFactoryOptions,
@@ -28,6 +22,10 @@ import {
 	buildControllerClassName,
 	buildPluginMetaFixture,
 } from '../ir/meta.test-support.js';
+import { type WPKernelConfigV1 } from '../../src/config';
+import { toPascalCase } from '../../src/utils';
+import { buildTestArtifactsPlan, makeIr } from '../ir.test-support';
+import { makeResource, makeRoute } from './fixtures.test-support.js';
 
 const makeHash = (value: string): IRHashProvenance => ({
 	algo: 'sha256',
@@ -40,7 +38,7 @@ export interface WPKernelConfigSourceOptions {
 	readonly resourceKey?: string;
 	readonly resourceName?: string;
 	readonly dataviews?: {
-		readonly screen?: Partial<ResourceDataViewsScreenConfig>;
+		readonly view?: string;
 	} | null;
 }
 
@@ -55,65 +53,12 @@ export function buildWPKernelConfigSource(
 	} = options;
 
 	const includeDataViews = dataviews !== null;
-	const camelResourceKey = toCamelCase(resourceKey);
-	const identifier = `${camelResourceKey}DataViewsConfig`;
-
-	const screenBlock = includeDataViews
-		? buildScreenBlock(dataviews?.screen ?? {})
-		: undefined;
-
-	const dataViewsDeclaration = includeDataViews
-		? `const ${identifier}: ResourceDataViewConfig<unknown, unknown> = {
-        fields: [
-                { id: 'title', label: 'Title' },
-                { id: 'status', label: 'Status' },
-        ],
-        defaultView: {
-                type: 'table',
-                fields: ['title', 'status'],
-        },
-        mapQuery: (viewState: Record<string, unknown>) => {
-                const search = toTrimmedString(viewState.search);
-                return search ? { q: search } : {};
-        },
-        search: true,
-        searchLabel: 'Search jobs',
-        perPageSizes: [10, 25, 50],
-        defaultLayouts: {
-                table: { columns: ['title', 'status'] },
-        },
-        views: [
-                {
-                        id: 'all',
-                        label: 'All jobs',
-                        view: { type: 'table', fields: ['title', 'status'] },
-                        isDefault: true,
-                },
-                {
-                        id: 'draft',
-                        label: 'Draft jobs',
-                        view: {
-                                type: 'table',
-                                fields: ['title', 'status'],
-                                filters: { status: ['draft'] },
-                        },
-                        description: 'Jobs awaiting publication.',
-                },
-        ],
-        preferencesKey: 'jobs/admin',
-        screen: ${screenBlock ?? '{}'},
-};
-
-`
-		: '';
-
 	const dataviewsAssignment = includeDataViews
-		? `                        ui: { admin: { dataviews: ${identifier} } },
+		? `                        ui: { admin: { view: 'dataviews' } },
 `
 		: '';
 
-	return `import type { ResourceDataViewConfig } from '@wpkernel/ui/dataviews';
-
+	return `
 const toTrimmedString = (value: unknown): string | undefined => {
         if (typeof value !== 'string') {
                 return undefined;
@@ -123,7 +68,7 @@ const toTrimmedString = (value: unknown): string | undefined => {
         return trimmed.length > 0 ? trimmed : undefined;
 };
 
-${dataViewsDeclaration}export const wpkConfig = {
+export const wpkConfig = {
         version: 1,
         namespace: '${namespace}',
         schemas: {},
@@ -139,93 +84,35 @@ ${dataviewsAssignment}                },
 `;
 }
 
-export interface DataViewsConfigOverrides
-	extends Partial<Omit<ResourceDataViewsUIConfig, 'screen'>> {
-	readonly screen?: Partial<ResourceDataViewsScreenConfig> | null;
+export interface DataViewsConfigOverrides {
+	readonly view?: string | null;
 }
 
 export function buildDataViewsConfig(
 	overrides: DataViewsConfigOverrides = {}
-): ResourceDataViewsUIConfig {
-	const { screen: screenOverrides, ...rest } = overrides;
-
-	const baseScreen: ResourceDataViewsScreenConfig = {
-		component: 'JobsAdminScreen',
-		route: '/admin/jobs',
-		menu: {
-			slug: 'jobs-admin',
-			title: 'Jobs',
-			capability: 'manage_options',
-			parent: 'admin.php',
-			position: 25,
-		},
-	};
-
-	const screenConfig =
-		screenOverrides === null
-			? undefined
-			: {
-					...baseScreen,
-					...(screenOverrides ?? {}),
-				};
-
-	const base: ResourceDataViewsUIConfig = {
-		fields: [
-			{ id: 'title', label: 'Title' },
-			{ id: 'status', label: 'Status' },
-		],
-		defaultView: { type: 'table', fields: ['title', 'status'] },
-		mapQuery: (viewState: Record<string, unknown>) => {
-			const search = (viewState as { search?: string }).search ?? '';
-			return search.trim().length > 0 ? { q: search.trim() } : {};
-		},
-		search: true,
-		searchLabel: 'Search jobs',
-		perPageSizes: [10, 25, 50],
-		defaultLayouts: {
-			table: { columns: ['title', 'status'] },
-		},
-		views: [
-			{
-				id: 'all',
-				label: 'All jobs',
-				view: { type: 'table', fields: ['title', 'status'] },
-				isDefault: true,
-			},
-			{
-				id: 'draft',
-				label: 'Draft jobs',
-				view: {
-					type: 'table',
-					fields: ['title', 'status'],
-					filters: { status: ['draft'] },
-				},
-				description: 'Jobs awaiting publication.',
-			},
-		],
-		preferencesKey: 'jobs/admin',
-		...(screenConfig ? { screen: screenConfig } : {}),
-	} satisfies ResourceDataViewsUIConfig;
-
-	return {
-		...base,
-		...rest,
-		...(screenConfig ? { screen: screenConfig } : {}),
-	} satisfies ResourceDataViewsUIConfig;
+): { view?: string } {
+	if (overrides.view === null) {
+		return {};
+	}
+	return { view: overrides.view ?? 'dataview' };
 }
 
 export interface BuilderArtifactOptions {
 	readonly namespace?: string;
 	readonly resourceKey?: string;
 	readonly resourceName?: string;
-	readonly dataviews?: ResourceDataViewsUIConfig | null;
+	readonly dataviews?: { view?: string } | null;
 	readonly sourcePath: string;
 }
 
 export interface BuilderArtifacts {
-	readonly config: WPKernelConfigV1;
+	readonly config?: WPKernelConfigV1;
 	readonly ir: IRv1;
-	readonly options: BuildIrOptions;
+	readonly options: {
+		readonly namespace: string;
+		readonly origin: string;
+		readonly sourcePath: string;
+	};
 }
 
 export function buildBuilderArtifacts(
@@ -245,11 +132,7 @@ export function buildBuilderArtifacts(
 		schema: 'auto',
 		routes: {},
 		cacheKeys: {},
-		...(dataviews
-			? {
-					ui: { admin: { dataviews } },
-				}
-			: {}),
+		...(dataviews ? { ui: { admin: { view: 'dataview' } } } : {}),
 	} as ResourceConfig;
 
 	const config: WPKernelConfigV1 = {
@@ -259,144 +142,141 @@ export function buildBuilderArtifacts(
 		resources: {
 			[resourceKey]: resourceConfig,
 		},
-	} as WPKernelConfigV1;
+	};
 
-	const irResource: IRResource = {
+	const sanitizedNamespace = toPascalCase(namespace);
+	const pluginMeta = buildPluginMetaFixture({ namespace });
+	const irResource: IRResource = makeResource({
 		id: `${resourceKey}:resource`,
 		name: resourceName,
 		controllerClass: buildControllerClassName(namespace, resourceName),
 		schemaKey: resourceKey,
-		schemaProvenance: 'manual',
-		routes: [],
+		routes: [
+			makeRoute({
+				path: `/${namespace}/v1/${resourceName}`,
+				hash: {
+					algo: 'sha256',
+					inputs: ['method', 'path'],
+					value: `${resourceName}-list`,
+				},
+			}),
+		],
 		cacheKeys: {
 			list: { segments: [resourceKey, 'list'], source: 'config' },
 			get: { segments: [resourceKey, 'get'], source: 'config' },
+			create: { segments: [resourceKey, 'create'], source: 'config' },
+			update: { segments: [resourceKey, 'update'], source: 'config' },
+			remove: { segments: [resourceKey, 'remove'], source: 'config' },
 		},
 		hash: makeHash('demo-hash'),
-		warnings: [],
-	} as IRResource;
+		ui:
+			resourceConfig.ui?.admin?.view === 'dataviews'
+				? {
+						admin: { view: 'dataviews' },
+					}
+				: resourceConfig.ui,
+	}) as IRResource;
 
-	const sanitizedNamespace = toPascalCase(namespace);
-	const pluginMeta = buildPluginMetaFixture({ namespace });
-
-	const ir: IRv1 = {
+	const ir: IRv1 = makeIr({
+		namespace,
+		layout,
 		meta: {
-			version: 1,
-			namespace,
 			origin: 'typescript',
-			sourcePath: WPK_CONFIG_SOURCES.WPK_CONFIG_TS,
+			sourcePath,
 			sanitizedNamespace,
 			plugin: pluginMeta,
 			features: [],
-			ids: {
-				algorithm: 'sha256',
-				resourcePrefix: 'res:',
-				schemaPrefix: 'sch:',
-				blockPrefix: 'blk:',
-				capabilityPrefix: 'cap:',
-			},
-			redactions: [],
-			limits: {
-				maxConfigKB: 0,
-				maxSchemaKB: 0,
-				policy: 'truncate',
-			},
 		},
-		config,
-		schemas: [],
 		resources: [irResource],
-		capabilities: [],
-		capabilityMap: {
-			sourcePath: undefined,
-			definitions: [],
-			fallback: {
-				capability: 'manage_options',
-				appliesTo: 'resource',
-			},
-			missing: [],
-			unused: [],
-			warnings: [],
-		},
-		blocks: [],
 		php: {
 			namespace: sanitizedNamespace,
 			autoload: 'inc/',
 			outputDir: layout.resolve('php.generated'),
 		},
-		layout,
-	} as IRv1;
+		artifacts: buildArtifactsPlan({
+			resourceId: irResource.id,
+			resourceName,
+			resourceKey,
+			layout,
+		}),
+		ui:
+			resourceConfig.ui?.admin?.view === 'dataviews'
+				? {
+						loader: undefined,
+						resources: [
+							{
+								resource: resourceKey,
+								menu: {
+									slug: resourceName,
+									title: resourceName,
+								},
+							},
+						],
+					}
+				: { resources: [] },
+	});
 
-	const buildOptions: BuildIrOptions = {
-		config,
+	const buildOptions = {
 		namespace,
 		origin: 'typescript',
 		sourcePath,
-	} as BuildIrOptions;
-
-	return { config, ir, options: buildOptions } satisfies BuilderArtifacts;
-}
-
-function buildScreenBlock(
-	overrides: Partial<ResourceDataViewsScreenConfig>
-): string {
-	const screen: ResourceDataViewsScreenConfig = {
-		component: 'JobsAdminScreen',
-		route: '/admin/jobs',
-		...overrides,
 	};
 
-	const lines: string[] = [`component: '${screen.component}',`];
-	if (screen.route) {
-		lines.push(`route: '${screen.route}',`);
-	}
-	if (screen.resourceImport) {
-		lines.push(`resourceImport: '${screen.resourceImport}',`);
-	}
-	if (screen.resourceSymbol) {
-		lines.push(`resourceSymbol: '${screen.resourceSymbol}',`);
-	}
-	if (screen.wpkernelImport) {
-		lines.push(`wpkernelImport: '${screen.wpkernelImport}',`);
-	}
-	if (screen.wpkernelSymbol) {
-		lines.push(`wpkernelSymbol: '${screen.wpkernelSymbol}',`);
-	}
-	if (screen.menu) {
-		const menuLines: string[] = [];
-		for (const [key, value] of Object.entries(screen.menu)) {
-			if (typeof value === 'string') {
-				menuLines.push(`${key}: '${value}',`);
-				continue;
-			}
-
-			menuLines.push(`${key}: ${JSON.stringify(value)},`);
-		}
-
-		lines.push(`menu: {
-                ${menuLines.join('\n                ')}
-        },`);
-	}
-
-	return `{
-        ${lines.join('\n        ')}
-}`;
+	return { ir, options: buildOptions, config } satisfies BuilderArtifacts;
 }
 
-function toPascalCase(value: string): string {
-	return value
-		.split(/[^a-zA-Z0-9]+/u)
-		.filter(Boolean)
-		.map(
-			(segment) =>
-				segment.charAt(0).toUpperCase() + segment.slice(1).toLowerCase()
-		)
-		.join('');
-}
+function buildArtifactsPlan(options: {
+	layout: IRv1['layout'];
+	resourceId: string;
+	resourceName: string;
+	resourceKey: string;
+}): IRArtifactsPlan {
+	const base = buildTestArtifactsPlan(options.layout);
+	const appApplied = options.layout.resolve('app.applied');
+	const appGenerated = options.layout.resolve('app.generated');
+	const typesGenerated = options.layout.resolve('types.generated');
 
-function toCamelCase(value: string): string {
-	const pascal = toPascalCase(value);
-	if (pascal.length === 0) {
-		return pascal;
-	}
-	return pascal.charAt(0).toLowerCase() + pascal.slice(1);
+	return {
+		...base,
+		resources: {
+			[options.resourceId]: {
+				modulePath: path.posix.join(
+					appGenerated,
+					options.resourceName,
+					'resource.ts'
+				),
+				typeDefPath: path.posix.join(
+					typesGenerated,
+					`${options.resourceName}.d.ts`
+				),
+				typeSource: 'inferred',
+				schemaKey: options.resourceKey,
+			},
+		},
+		surfaces: {
+			[options.resourceId]: {
+				resource: options.resourceName,
+				appDir: path.posix.join(appApplied, options.resourceName),
+				generatedAppDir: path.posix.join(
+					appGenerated,
+					options.resourceName
+				),
+				pagePath: path.posix.join(
+					appApplied,
+					options.resourceName,
+					'page.tsx'
+				),
+				formPath: path.posix.join(
+					appApplied,
+					options.resourceName,
+					'form.tsx'
+				),
+				configPath: path.posix.join(
+					appApplied,
+					options.resourceName,
+					'config.tsx'
+				),
+			},
+		},
+	};
 }

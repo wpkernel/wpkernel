@@ -69,7 +69,7 @@ describe('createDataViewsRuntime', () => {
 		expect(isDataViewsRuntime(runtime)).toBe(true);
 		expect(mockedCreatePreferencesRuntime).toHaveBeenCalledTimes(1);
 
-		const payload = { resource: 'jobs', preferencesKey: 'tests/jobs' };
+		const payload = { resource: 'jobs' };
 		runtime.dataviews.events.registered(payload);
 
 		expect(emit).toHaveBeenCalledWith(DATA_VIEWS_EVENT_REGISTERED, payload);

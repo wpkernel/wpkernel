@@ -3,7 +3,7 @@ import fs from 'node:fs/promises';
 import { WPK_EXIT_CODES } from '@wpkernel/core/contracts';
 import { assignCommandContext } from '@cli-tests/cli';
 import { createWorkspaceRunner as buildWorkspaceRunner } from '@cli-tests/workspace.test-support';
-import { loadTestLayout } from '@cli-tests/layout.test-support';
+import { loadTestLayout } from '@wpkernel/test-utils/layout.test-support';
 import * as ApplyModule from '../apply';
 import {
 	TMP_PREFIX,

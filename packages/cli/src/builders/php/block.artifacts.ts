@@ -1,9 +1,8 @@
 import path from 'node:path';
-import { createHelper } from '../../runtime';
+import { createHelper, requireIr } from '../../runtime';
 import type {
 	BuilderApplyOptions,
 	BuilderHelper,
-	BuilderNext,
 	BuilderOutput,
 } from '../../runtime/types';
 import type { IRBlock, IRv1 } from '../../ir/publicTypes';
@@ -12,8 +11,6 @@ import {
 	type BlockManifestEntry,
 	type ProcessedBlockManifest,
 } from '../shared.blocks.manifest';
-import { resolveBlockRoots } from '../shared.blocks.paths';
-import { deriveResourceBlocks } from '../shared.blocks.derived';
 import {
 	buildBlockModule,
 	buildProgramTargetPlanner,
@@ -34,19 +31,6 @@ type BlockModuleQueuedFile = ReturnType<
 >['files'][number];
 type PlannerWorkspace = ProgramTargetPlannerOptions['workspace'];
 
-function resolveBlockManifestPath(ir: IRv1): string {
-	const candidate =
-		ir.layout?.resolve('blocks.manifest') ??
-		path.posix.join(ir.php.outputDir, 'build/blocks-manifest.php');
-
-	const relative = path.posix.relative(ir.php.outputDir, candidate);
-	if (relative.startsWith('..') || relative === '') {
-		return 'build/blocks-manifest.php';
-	}
-
-	return relative;
-}
-
 /**
  * Creates a PHP builder helper for generating WordPress blocks.
  *
@@ -60,108 +44,131 @@ export function createPhpBlocksHelper(): BuilderHelper {
 	return createHelper({
 		key: 'builder.generate.php.blocks',
 		kind: 'builder',
-		async apply(options: BuilderApplyOptions, next?: BuilderNext) {
+		dependsOn: [
+			'builder.generate.php.channel.bootstrap',
+			'ir.blocks.core',
+			'ir.layout.core',
+			'ir.meta.core',
+			'ir.artifacts.plan',
+		],
+		async apply(options: BuilderApplyOptions) {
 			const { input, context, output, reporter } = options;
-			if (input.phase !== 'generate' || !input.ir) {
-				await next?.();
+			if (input.phase !== 'generate') {
 				return;
 			}
 
-			const ir = input.ir;
-			const existingBlocks = new Map(
-				ir.blocks.map((block): [string, IRBlock] => [block.key, block])
-			);
-			const derivedBlocks = deriveResourceBlocks({
+			const { ir } = requireIr(input, [
+				'blocks',
+				'layout',
+				'php',
+				'meta',
+			]);
+			const phpPlan = ir.artifacts?.php;
+			if (!phpPlan) {
+				reporter.debug(
+					'createPhpBlocksHelper: missing PHP artifacts plan; skipping.'
+				);
+				return;
+			}
+
+			await generatePhpBlocks({
 				ir,
-				existingBlocks,
-			});
-			const derivedSsrBlocks = derivedBlocks
-				.filter((entry) => entry.kind === 'ssr')
-				.map((entry) => entry.block);
-			const blocks = [...ir.blocks, ...derivedSsrBlocks].filter(
-				(block) => block.hasRender
-			);
-			if (blocks.length === 0) {
-				reporter.debug(
-					'createPhpBlocksHelper: no SSR blocks discovered.'
-				);
-				await next?.();
-				return;
-			}
-
-			const processedMap = await collectBlockManifests({
-				workspace: context.workspace,
-				blocks,
-				roots: resolveBlockRoots(input.ir),
-			});
-
-			const processedBlocks = blocks
-				.map((block) => processedMap.get(block.key))
-				.filter((entry): entry is ProcessedBlockManifest =>
-					Boolean(entry)
-				);
-
-			const { manifestEntries, renderStubs } = collatePhpBlockArtifacts({
-				processedBlocks,
-				reporter,
-			});
-
-			if (Object.keys(manifestEntries).length === 0) {
-				reporter.debug(
-					'createPhpBlocksHelper: no manifest entries produced.'
-				);
-				await next?.();
-				return;
-			}
-
-			const blockNamespace = `${ir.php.namespace}\\Blocks`;
-			const blockModule = buildBlockModule({
-				origin: ir.meta.origin,
-				namespace: blockNamespace,
-				manifest: {
-					fileName: resolveBlockManifestPath(ir),
-					entries: manifestEntries,
-				},
-				registrarFileName: 'Blocks/Register.php',
-				renderStubs,
-			});
-
-			reportManifestValidationErrors({
-				files: blockModule.files,
-				reporter,
-			});
-
-			const planner = buildProgramTargetPlanner({
-				workspace: context.workspace,
-				outputDir: ir.php.outputDir,
-				channel: getPhpBuilderChannel(context),
-				docblockPrefix: DEFAULT_DOC_HEADER,
-				strategy: {
-					resolveFilePath: ({ workspace, outputDir, file }) =>
-						resolveBlockFilePath({
-							workspace,
-							outputDir,
-							file: file as BlockModuleQueuedFile,
-						}),
-				},
-			});
-
-			await stageRenderStubs({
-				stubs: blockModule.renderStubs,
-				workspace: context.workspace,
+				context,
 				output,
 				reporter,
+				phpPlan,
 			});
-
-			planner.queueFiles({ files: blockModule.files });
-
-			reporter.debug(
-				'createPhpBlocksHelper: queued SSR block manifest and registrar.'
-			);
-
-			await next?.();
 		},
 	});
+}
+
+async function generatePhpBlocks(options: {
+	readonly ir: IRv1;
+	readonly context: BuilderApplyOptions['context'];
+	readonly output: BuilderOutput;
+	readonly reporter: BuilderApplyOptions['reporter'];
+	readonly phpPlan: NonNullable<IRv1['artifacts']['php']>;
+}): Promise<void> {
+	const { ir, phpPlan, context, output, reporter } = options;
+	const blocks = collectPlannedSsrBlocks(ir.blocks, phpPlan);
+	if (blocks.length === 0) {
+		reporter.debug(
+			'createPhpBlocksHelper: no SSR blocks planned; skipping.'
+		);
+		return;
+	}
+
+	const processedMap = await collectBlockManifests({
+		workspace: context.workspace,
+		blocks,
+		roots: resolvePlannedBlockRoots(phpPlan),
+	});
+
+	const processedBlocks = blocks
+		.map((block) => processedMap.get(block.key))
+		.filter((entry): entry is ProcessedBlockManifest => Boolean(entry));
+
+	const { manifestEntries, renderStubs } = collatePhpBlockArtifacts({
+		processedBlocks,
+		reporter,
+		suppressWarnings: true,
+	});
+
+	if (Object.keys(manifestEntries).length === 0) {
+		reporter.debug('createPhpBlocksHelper: no manifest entries produced.');
+		return;
+	}
+
+	const blockNamespace = `${ir.php.namespace}\\Blocks`;
+	const blockModule = buildBlockModule({
+		origin: ir.meta.origin,
+		namespace: blockNamespace,
+		manifest: {
+			fileName: relativeToOutputDir(
+				ir.php.outputDir,
+				phpPlan.blocksManifestPath
+			),
+			entries: manifestEntries,
+		},
+		registrarFileName: relativeToOutputDir(
+			ir.php.outputDir,
+			phpPlan.blocksRegistrarPath
+		),
+		renderStubs,
+	});
+
+	reportManifestValidationErrors({
+		files: blockModule.files,
+		reporter,
+	});
+
+	const planner = buildProgramTargetPlanner({
+		workspace: context.workspace,
+		outputDir: ir.php.outputDir,
+		channel: getPhpBuilderChannel(context),
+		docblockPrefix: DEFAULT_DOC_HEADER,
+		strategy: {
+			resolveFilePath: ({ workspace, outputDir, file }) =>
+				resolveBlockFilePath({
+					workspace,
+					outputDir,
+					file: file as BlockModuleQueuedFile,
+				}),
+		},
+	});
+
+	await stageRenderStubs({
+		stubs: blockModule.renderStubs,
+		workspace: context.workspace,
+		output,
+		reporter,
+	});
+
+	planner.queueFiles({ files: blockModule.files });
+
+	reporter.debug(
+		'createPhpBlocksHelper: queued SSR block manifest and registrar.'
+	);
 }
 
 function resolveBlockFilePath({
@@ -210,6 +217,33 @@ function reportManifestValidationErrors({
 	}
 }
 
+function collectPlannedSsrBlocks(
+	blocks: readonly IRBlock[],
+	plan: NonNullable<IRv1['artifacts']['php']>
+): IRBlock[] {
+	const ids = new Set(
+		Object.entries(plan.blocks)
+			.filter(([, entry]) => entry.mode === 'ssr')
+			.map(([id]) => id)
+	);
+	return blocks.filter((block) => ids.has(block.id));
+}
+
+function resolvePlannedBlockRoots(
+	plan: NonNullable<IRv1['artifacts']['php']>
+): {
+	generated: string;
+	surfaced: string;
+} {
+	const generatedRoot = path.posix.dirname(plan.blocksManifestPath);
+	return { generated: generatedRoot, surfaced: generatedRoot };
+}
+
+function relativeToOutputDir(outputDir: string, target: string): string {
+	const relative = path.posix.relative(outputDir, target);
+	return relative.startsWith('..') || relative === '' ? target : relative;
+}
+
 /**
  * Collates block manifest entries and PHP render stubs from processed blocks.
  *
@@ -217,22 +251,26 @@ function reportManifestValidationErrors({
  * warnings encountered during block processing. Used to prepare artifacts for
  * PHP plugin generation.
  *
- * @param    options                 - Processed blocks and reporter for warnings
- * @param    options.processedBlocks - Array of processed block definitions
- * @param    options.reporter        - Reporter instance for warnings
+ * @param    options                  - Processed blocks and reporter for warnings
+ * @param    options.processedBlocks  - Array of processed block definitions
+ * @param    options.reporter         - Reporter instance for warnings
+ * @param    options.suppressWarnings
  * @returns Collated artifacts with manifest entries and render stubs
  * @category AST Builders
  */
 export function collatePhpBlockArtifacts({
 	processedBlocks,
 	reporter,
+	suppressWarnings = false,
 }: CollatePhpBlockArtifactsOptions): CollatedPhpBlockArtifacts {
 	const manifestEntries: Record<string, BlockManifestEntry> = {};
 	const renderStubs: NonNullable<ProcessedBlockManifest['renderStub']>[] = [];
 
 	for (const processed of processedBlocks) {
-		for (const warning of processed.warnings) {
-			reporter.warn(warning);
+		if (!suppressWarnings) {
+			for (const warning of processed.warnings) {
+				reporter.warn(warning);
+			}
 		}
 
 		if (processed.manifestEntry) {

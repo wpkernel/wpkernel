@@ -1,6 +1,9 @@
-import { createPipeline as createCorePipeline } from '@wpkernel/pipeline';
+import {
+	createPipeline as createCorePipeline,
+	type CreatePipelineOptions,
+} from '@wpkernel/pipeline';
 import { WPKernelError } from '@wpkernel/core/error';
-import type { BuildIrOptions } from '../ir/publicTypes';
+import type { FragmentIrOptions } from '../ir/publicTypes';
 import {
 	buildIrDraft,
 	buildIrFragmentOutput,
@@ -34,13 +37,13 @@ function buildBuilderOutput(): BuilderOutput {
 
 function mapRunOptionsToBuildOptions(
 	options: PipelineRunOptions
-): BuildIrOptions {
+): FragmentIrOptions {
 	return {
 		config: options.config,
 		namespace: options.namespace,
 		origin: options.origin,
 		sourcePath: options.sourcePath,
-	} satisfies BuildIrOptions;
+	} satisfies FragmentIrOptions;
 }
 
 /**
@@ -53,10 +56,44 @@ function mapRunOptionsToBuildOptions(
  * @category Runtime
  * @returns A `Pipeline` instance configured for CLI operations.
  */
-export function createPipeline(): Pipeline {
+type CliPipelineOptions = CreatePipelineOptions<
+	PipelineRunOptions,
+	FragmentIrOptions,
+	PipelineContext,
+	PipelineContext['reporter'],
+	MutableIr,
+	PipelineRunResult['ir'],
+	PipelineDiagnostic,
+	PipelineRunResult,
+	FragmentInput,
+	FragmentOutput,
+	BuilderInput,
+	BuilderOutput,
+	FragmentHelper['kind'],
+	BuilderHelper['kind'],
+	FragmentHelper,
+	BuilderHelper
+>;
+
+export function createPipeline(
+	overrides: Partial<CliPipelineOptions> = {}
+): Pipeline {
+	const defaultBuilderProvidedKeys: readonly string[] = [
+		'ir.resources.core',
+		'ir.capability-map.core',
+		'ir.blocks.core',
+		'ir.layout.core',
+		'ir.meta.core',
+		'ir.schemas.core',
+		'ir.ordering.core',
+		'ir.bundler.core',
+		'ir.artifacts.plan',
+		'ir.ui.core',
+	];
+
 	return createCorePipeline<
 		PipelineRunOptions,
-		BuildIrOptions,
+		FragmentIrOptions,
 		PipelineContext,
 		PipelineContext['reporter'],
 		MutableIr,
@@ -72,6 +109,9 @@ export function createPipeline(): Pipeline {
 		FragmentHelper,
 		BuilderHelper
 	>({
+		...overrides,
+		builderProvidedKeys:
+			overrides.builderProvidedKeys ?? defaultBuilderProvidedKeys,
 		createError(code, message) {
 			// Map pipeline error codes to WPKernel ErrorCode
 			const errorCode = code as

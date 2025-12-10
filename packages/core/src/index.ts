@@ -117,8 +117,6 @@ export type {
 	ResourceObject,
 	ResourceUIConfig,
 	ResourceAdminUIConfig,
-	ResourceDataViewsUIConfig,
-	ResourceDataViewsScreenConfig,
 	ResourceDataViewsMenuConfig,
 	ResourceState,
 	ResourceActions,

@@ -35,7 +35,9 @@ export function usePermissionState<TItem, TQuery>(
 	controller: ResourceDataViewController<TItem, TQuery>,
 	reporter: Reporter
 ): PermissionState {
-	const capability = controller.config.screen?.menu?.capability;
+	const capability =
+		controller.config.capability ??
+		controller.config.screen?.menu?.capability;
 	const capabilityRuntime = controller.capabilities?.capability;
 	const capabilityResolver = capabilityRuntime?.can;
 	const [state, setState] = useState<PermissionState>(() =>
@@ -54,14 +56,15 @@ export function usePermissionState<TItem, TQuery>(
 		);
 
 		if (!can) {
+			// Fall back to allow when no capability runtime is wired so DataViews can still render/fetch.
 			reporter.warn?.(
-				'Capability runtime missing for DataViews menu access',
+				'Capability runtime missing for DataViews menu access; allowing by default',
 				{
 					capability,
 					resource: controller.resourceName,
 				}
 			);
-			setState({ status: 'unknown', capability });
+			setState({ status: 'allowed', capability });
 			return;
 		}
 

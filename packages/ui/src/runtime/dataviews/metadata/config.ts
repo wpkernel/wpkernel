@@ -1,7 +1,6 @@
 import type {
 	ResourceDataViewConfig,
 	ResourceDataViewSavedView,
-	ResourceDataViewScreenConfig,
 } from '../../../dataviews/types';
 import type { DataViewMetadataIssue, MetadataPath } from './types';
 import {
@@ -15,7 +14,6 @@ import { normalizeFields } from './fields';
 import { normalizeView, normalizeSavedViews } from './views';
 import { normalizeActions } from './actions';
 import { normalizePerPageSizes, normalizeDefaultLayouts } from './pagination';
-import { normalizeScreen } from './screen';
 
 export function buildConfig<TItem, TQuery>(
 	metadata: Record<string, unknown>,
@@ -30,27 +28,77 @@ export function buildConfig<TItem, TQuery>(
 		...path,
 		'defaultView',
 	]);
-	const mapQuery = metadata.mapQuery;
+	const mapQuery = validateMapQuery<TItem, TQuery>({
+		raw: metadata.mapQuery,
+		issues,
+		path,
+	});
 
-	if (typeof mapQuery !== 'function') {
-		reportIssue(
-			issues,
-			[...path, 'mapQuery'],
-			'mapQuery must be a function.',
-			mapQuery
-		);
-	}
-
-	if (!fields || !defaultView || typeof mapQuery !== 'function') {
+	if (!fields || !defaultView || !mapQuery) {
 		return undefined;
 	}
 
 	const config: ResourceDataViewConfig<TItem, TQuery> = {
 		fields,
 		defaultView,
-		mapQuery: mapQuery as ResourceDataViewConfig<TItem, TQuery>['mapQuery'],
+		mapQuery,
 	};
 
+	if (
+		!applyOptionalAssignments<TItem, TQuery>({
+			metadata,
+			issues,
+			path,
+			config,
+		})
+	) {
+		return undefined;
+	}
+
+	applyEmptyConfig<TItem, TQuery>({ metadata, config });
+	ensureDefaultLayoutsForActiveView<TItem, TQuery>({ config });
+
+	return config;
+}
+
+type MapQueryFn<TItem, TQuery> = ResourceDataViewConfig<
+	TItem,
+	TQuery
+>['mapQuery'];
+
+function validateMapQuery<TItem, TQuery>({
+	raw,
+	issues,
+	path,
+}: {
+	raw: unknown;
+	issues: DataViewMetadataIssue[];
+	path: MetadataPath;
+}): MapQueryFn<TItem, TQuery> | undefined {
+	if (typeof raw !== 'function') {
+		reportIssue(
+			issues,
+			[...path, 'mapQuery'],
+			'mapQuery must be a function.',
+			raw
+		);
+		return undefined;
+	}
+
+	return raw as MapQueryFn<TItem, TQuery>;
+}
+
+function applyOptionalAssignments<TItem, TQuery>({
+	metadata,
+	issues,
+	path,
+	config,
+}: {
+	metadata: Record<string, unknown>;
+	issues: DataViewMetadataIssue[];
+	path: MetadataPath;
+	config: ResourceDataViewConfig<TItem, TQuery>;
+}): boolean {
 	const optionalAssignments: Array<{
 		key: string;
 		normalize: (
@@ -133,28 +181,57 @@ export function buildConfig<TItem, TQuery>(
 				config.views = views as ResourceDataViewSavedView[];
 			},
 		},
-		{
-			key: 'screen',
-			normalize: (value, fieldPath) =>
-				normalizeScreen(value, issues, fieldPath),
-			assign: (screen) => {
-				config.screen = screen as ResourceDataViewScreenConfig;
-			},
-		},
 	];
 
 	for (const { key, normalize, assign } of optionalAssignments) {
 		if (!applyOptional(metadata, key, path, normalize, assign)) {
-			return undefined;
+			return false;
 		}
 	}
 
-	if ('empty' in metadata) {
-		config.empty = metadata.empty as ResourceDataViewConfig<
-			TItem,
-			TQuery
-		>['empty'];
+	return true;
+}
+
+function applyEmptyConfig<TItem, TQuery>({
+	metadata,
+	config,
+}: {
+	metadata: Record<string, unknown>;
+	config: ResourceDataViewConfig<TItem, TQuery>;
+}): void {
+	if (!Object.prototype.hasOwnProperty.call(metadata, 'empty')) {
+		return;
 	}
 
-	return config;
+	config.empty = metadata.empty as ResourceDataViewConfig<
+		TItem,
+		TQuery
+	>['empty'];
+}
+
+function ensureDefaultLayoutsForActiveView<TItem, TQuery>({
+	config,
+}: {
+	config: ResourceDataViewConfig<TItem, TQuery>;
+}): void {
+	const defaultLayouts: Record<string, unknown> = {
+		...(config.defaultLayouts as Record<string, unknown> | undefined),
+	};
+
+	const defaultView = config.defaultView as {
+		type?: string;
+		layout?: Record<string, unknown>;
+	};
+	const defaultViewType = defaultView.type;
+
+	if (defaultViewType && !defaultLayouts[defaultViewType]) {
+		const layout = defaultView.layout;
+		defaultLayouts[defaultViewType] = layout ? { ...layout } : {};
+	}
+
+	if (Object.keys(defaultLayouts).length === 0) {
+		return;
+	}
+
+	config.defaultLayouts = defaultLayouts;
 }

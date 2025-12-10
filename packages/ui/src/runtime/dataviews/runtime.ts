@@ -18,7 +18,6 @@ import { DataViewsConfigurationError } from './errors';
 
 export interface DataViewRegistryEntry {
 	resource: string;
-	preferencesKey: string;
 	metadata?: Record<string, unknown>;
 }
 

@@ -9,6 +9,8 @@ import type { BuilderOutput } from '../../../runtime/types';
 import type { Workspace } from '../../../workspace/types';
 import { makePhpIrFixture } from '@cli-tests/builders/resources.test-support';
 import { makeWorkspaceMock } from '@cli-tests/workspace.test-support';
+import { buildEmptyGenerationState } from '../../../apply/manifest';
+import { makeHash } from '@cli-tests/builders/fixtures.test-support';
 import {
 	createPhpWpPostRoutesHelper,
 	getWpPostRouteHelperState,
@@ -37,6 +39,8 @@ describe('createPhpWpPostRoutesHelper', () => {
 
 	function buildResource(storage?: IRResource['storage']): IRResource {
 		return {
+			id: 'book',
+			controllerClass: 'Demo\\BookController',
 			name: 'book',
 			schemaKey: 'book',
 			schemaProvenance: 'manual',
@@ -52,7 +56,7 @@ describe('createPhpWpPostRoutesHelper', () => {
 			storage,
 			queryParams: undefined,
 			ui: undefined,
-			hash: 'resource-hash',
+			hash: makeHash('resource-hash'),
 
 			warnings: [],
 		};
@@ -67,6 +71,7 @@ describe('createPhpWpPostRoutesHelper', () => {
 			workspace,
 			reporter,
 			phase: 'generate' as const,
+			generationState: buildEmptyGenerationState(),
 		};
 		const output: BuilderOutput = {
 			actions: [],
@@ -81,7 +86,6 @@ describe('createPhpWpPostRoutesHelper', () => {
 				input: {
 					phase: 'generate' as const,
 					options: {
-						config: ir.config,
 						namespace: ir.meta.namespace,
 						origin: ir.meta.origin,
 						sourcePath: ir.meta.sourcePath,

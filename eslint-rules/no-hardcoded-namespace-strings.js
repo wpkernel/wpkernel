@@ -30,6 +30,8 @@ const CONTRACTS_FILE = path.join(
 	'index.ts'
 );
 
+const ALLOWED_FILES = [path.join('examples', 'showcase', 'wpk.config.ts')];
+
 // Patterns that indicate hardcoded namespace strings
 const NAMESPACE_PATTERNS = {
 	// Event names (public API)
@@ -99,7 +101,8 @@ function isDocumentationFile(filename) {
 function shouldIgnoreFile(filename) {
 	if (
 		filename.includes(CONSTANTS_FILE) ||
-		filename.includes(CONTRACTS_FILE)
+		filename.includes(CONTRACTS_FILE) ||
+		ALLOWED_FILES.some((allowed) => filename.includes(allowed))
 	) {
 		return true;
 	}

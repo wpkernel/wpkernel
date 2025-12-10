@@ -11,7 +11,7 @@ import { normalizeView, normalizeSavedViews } from '../views';
 import {
 	createAction,
 	createConfig,
-} from '../../../../dataviews/test-support/ResourceDataView.test-support';
+} from '../../../../../tests/ResourceDataView.test-support';
 
 function makeIssues(): DataViewMetadataIssue[] {
 	return [];
@@ -151,7 +151,7 @@ describe('metadata helpers', () => {
 				table: { layout: 'grid' },
 			});
 			expect(config.views?.[0]?.id).toBe('all');
-			expect(config.screen?.component).toBe('screen');
+			expect(config.screen).toBeUndefined();
 			expect(config.empty).toBe('Empty state');
 			expect(issues).toHaveLength(0);
 		});
@@ -167,6 +167,20 @@ describe('metadata helpers', () => {
 				buildConfig(metadata, issues, ['dataviews'])
 			).toBeUndefined();
 			expect(issues.length).toBeGreaterThan(0);
+		});
+
+		it('adds a defaultLayouts entry for the active view type when missing', () => {
+			const issues = makeIssues();
+			const metadata: Record<string, unknown> = {
+				...createConfig({}),
+			};
+
+			const config = buildConfig(metadata, issues, [
+				'dataviews',
+			]) as NonNullable<ReturnType<typeof buildConfig>>;
+
+			expect(config.defaultLayouts?.table).toEqual({});
+			expect(issues).toHaveLength(0);
 		});
 	});
 

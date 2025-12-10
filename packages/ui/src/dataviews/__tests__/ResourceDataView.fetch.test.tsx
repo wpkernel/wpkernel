@@ -8,7 +8,7 @@ import {
 	createWPKernelRuntime,
 	type ResourceDataViewTestProps,
 	type RuntimeWithDataViews,
-} from '../test-support/ResourceDataView.test-support';
+} from '../../../tests/ResourceDataView.test-support';
 import { WPKernelError } from '@wpkernel/core/error';
 import { listLoadFailedMessage } from '../resource-data-view/i18n';
 import type {
@@ -97,7 +97,6 @@ function createRawPerPageController(
 		queryMapping,
 		runtime: runtime.dataviews,
 		namespace: runtime.namespace,
-		preferencesKey: 'tests::items',
 		invalidate: runtime.invalidate,
 		capabilities: undefined,
 		fetchList: undefined,
@@ -143,7 +142,7 @@ describe('ResourceDataView fetch integration', () => {
 		expect(renderResult.getByRole('alert').textContent).toContain(
 			'Network'
 		);
-		expect(DataViewsMock).not.toHaveBeenCalled();
+		expect(DataViewsMock).toHaveBeenCalled();
 	});
 
 	it('renders fetchList results when resource has no list hook', async () => {

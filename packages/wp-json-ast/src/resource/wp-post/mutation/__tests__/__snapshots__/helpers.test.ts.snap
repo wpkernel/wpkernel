@@ -5,7 +5,7 @@ exports[`wp-post mutation helpers prepares mutation responses with supports, met
   "attrGroups": [],
   "attributes": {},
   "byRef": false,
-  "flags": 4,
+  "flags": 0,
   "name": {
     "attributes": {},
     "name": "prepareBookResponse",
@@ -373,62 +373,6 @@ exports[`wp-post mutation helpers prepares mutation responses with supports, met
         "attributes": {},
         "expr": {
           "attributes": {},
-          "cond": {
-            "args": [
-              {
-                "attributes": {},
-                "byRef": false,
-                "name": null,
-                "nodeType": "Arg",
-                "unpack": false,
-                "value": {
-                  "attributes": {},
-                  "name": "ratingMeta",
-                  "nodeType": "Expr_Variable",
-                },
-              },
-            ],
-            "attributes": {},
-            "name": {
-              "attributes": {},
-              "nodeType": "Name",
-              "parts": [
-                "is_numeric",
-              ],
-            },
-            "nodeType": "Expr_FuncCall",
-          },
-          "else": {
-            "attributes": {},
-            "nodeType": "Scalar_Int",
-            "value": 0,
-          },
-          "if": {
-            "attributes": {},
-            "expr": {
-              "attributes": {},
-              "name": "ratingMeta",
-              "nodeType": "Expr_Variable",
-            },
-            "nodeType": "Expr_Cast_Int",
-          },
-          "nodeType": "Expr_Ternary",
-        },
-        "nodeType": "Expr_Assign",
-        "var": {
-          "attributes": {},
-          "name": "ratingMeta",
-          "nodeType": "Expr_Variable",
-        },
-      },
-      "nodeType": "Stmt_Expression",
-    },
-    {
-      "attributes": {},
-      "expr": {
-        "attributes": {},
-        "expr": {
-          "attributes": {},
           "name": "ratingMeta",
           "nodeType": "Expr_Variable",
         },
@@ -517,62 +461,6 @@ exports[`wp-post mutation helpers prepares mutation responses with supports, met
             ],
           },
           "nodeType": "Expr_FuncCall",
-        },
-        "nodeType": "Expr_Assign",
-        "var": {
-          "attributes": {},
-          "name": "popularityMeta",
-          "nodeType": "Expr_Variable",
-        },
-      },
-      "nodeType": "Stmt_Expression",
-    },
-    {
-      "attributes": {},
-      "expr": {
-        "attributes": {},
-        "expr": {
-          "attributes": {},
-          "cond": {
-            "args": [
-              {
-                "attributes": {},
-                "byRef": false,
-                "name": null,
-                "nodeType": "Arg",
-                "unpack": false,
-                "value": {
-                  "attributes": {},
-                  "name": "popularityMeta",
-                  "nodeType": "Expr_Variable",
-                },
-              },
-            ],
-            "attributes": {},
-            "name": {
-              "attributes": {},
-              "nodeType": "Name",
-              "parts": [
-                "is_numeric",
-              ],
-            },
-            "nodeType": "Expr_FuncCall",
-          },
-          "else": {
-            "attributes": {},
-            "nodeType": "Scalar_Float",
-            "value": 0,
-          },
-          "if": {
-            "attributes": {},
-            "expr": {
-              "attributes": {},
-              "name": "popularityMeta",
-              "nodeType": "Expr_Variable",
-            },
-            "nodeType": "Expr_Cast_Double",
-          },
-          "nodeType": "Expr_Ternary",
         },
         "nodeType": "Expr_Assign",
         "var": {
@@ -692,44 +580,6 @@ exports[`wp-post mutation helpers prepares mutation responses with supports, met
       "expr": {
         "attributes": {},
         "expr": {
-          "args": [
-            {
-              "attributes": {},
-              "byRef": false,
-              "name": null,
-              "nodeType": "Arg",
-              "unpack": false,
-              "value": {
-                "attributes": {},
-                "name": "featuredMeta",
-                "nodeType": "Expr_Variable",
-              },
-            },
-          ],
-          "attributes": {},
-          "name": {
-            "attributes": {},
-            "nodeType": "Name",
-            "parts": [
-              "rest_sanitize_boolean",
-            ],
-          },
-          "nodeType": "Expr_FuncCall",
-        },
-        "nodeType": "Expr_Assign",
-        "var": {
-          "attributes": {},
-          "name": "featuredMeta",
-          "nodeType": "Expr_Variable",
-        },
-      },
-      "nodeType": "Stmt_Expression",
-    },
-    {
-      "attributes": {},
-      "expr": {
-        "attributes": {},
-        "expr": {
           "attributes": {},
           "name": "featuredMeta",
           "nodeType": "Expr_Variable",
@@ -816,48 +666,6 @@ exports[`wp-post mutation helpers prepares mutation responses with supports, met
             "nodeType": "Name",
             "parts": [
               "get_post_meta",
-            ],
-          },
-          "nodeType": "Expr_FuncCall",
-        },
-        "nodeType": "Expr_Assign",
-        "var": {
-          "attributes": {},
-          "name": "tagsMeta",
-          "nodeType": "Expr_Variable",
-        },
-      },
-      "nodeType": "Stmt_Expression",
-    },
-    {
-      "attributes": {},
-      "expr": {
-        "attributes": {},
-        "expr": {
-          "args": [
-            {
-              "attributes": {},
-              "byRef": false,
-              "name": null,
-              "nodeType": "Arg",
-              "unpack": false,
-              "value": {
-                "attributes": {},
-                "expr": {
-                  "attributes": {},
-                  "name": "tagsMeta",
-                  "nodeType": "Expr_Variable",
-                },
-                "nodeType": "Expr_Cast_Array",
-              },
-            },
-          ],
-          "attributes": {},
-          "name": {
-            "attributes": {},
-            "nodeType": "Name",
-            "parts": [
-              "array_values",
             ],
           },
           "nodeType": "Expr_FuncCall",
@@ -981,62 +789,6 @@ exports[`wp-post mutation helpers prepares mutation responses with supports, met
         "attributes": {},
         "expr": {
           "attributes": {},
-          "cond": {
-            "args": [
-              {
-                "attributes": {},
-                "byRef": false,
-                "name": null,
-                "nodeType": "Arg",
-                "unpack": false,
-                "value": {
-                  "attributes": {},
-                  "name": "authorMeta",
-                  "nodeType": "Expr_Variable",
-                },
-              },
-            ],
-            "attributes": {},
-            "name": {
-              "attributes": {},
-              "nodeType": "Name",
-              "parts": [
-                "is_string",
-              ],
-            },
-            "nodeType": "Expr_FuncCall",
-          },
-          "else": {
-            "attributes": {},
-            "expr": {
-              "attributes": {},
-              "name": "authorMeta",
-              "nodeType": "Expr_Variable",
-            },
-            "nodeType": "Expr_Cast_String",
-          },
-          "if": {
-            "attributes": {},
-            "name": "authorMeta",
-            "nodeType": "Expr_Variable",
-          },
-          "nodeType": "Expr_Ternary",
-        },
-        "nodeType": "Expr_Assign",
-        "var": {
-          "attributes": {},
-          "name": "authorMeta",
-          "nodeType": "Expr_Variable",
-        },
-      },
-      "nodeType": "Stmt_Expression",
-    },
-    {
-      "attributes": {},
-      "expr": {
-        "attributes": {},
-        "expr": {
-          "attributes": {},
           "name": "authorMeta",
           "nodeType": "Expr_Variable",
         },
@@ -1125,58 +877,6 @@ exports[`wp-post mutation helpers prepares mutation responses with supports, met
             ],
           },
           "nodeType": "Expr_FuncCall",
-        },
-        "nodeType": "Expr_Assign",
-        "var": {
-          "attributes": {},
-          "name": "metadataMeta",
-          "nodeType": "Expr_Variable",
-        },
-      },
-      "nodeType": "Stmt_Expression",
-    },
-    {
-      "attributes": {},
-      "expr": {
-        "attributes": {},
-        "expr": {
-          "attributes": {},
-          "cond": {
-            "args": [
-              {
-                "attributes": {},
-                "byRef": false,
-                "name": null,
-                "nodeType": "Arg",
-                "unpack": false,
-                "value": {
-                  "attributes": {},
-                  "name": "metadataMeta",
-                  "nodeType": "Expr_Variable",
-                },
-              },
-            ],
-            "attributes": {},
-            "name": {
-              "attributes": {},
-              "nodeType": "Name",
-              "parts": [
-                "is_array",
-              ],
-            },
-            "nodeType": "Expr_FuncCall",
-          },
-          "else": {
-            "attributes": {},
-            "items": [],
-            "nodeType": "Expr_Array",
-          },
-          "if": {
-            "attributes": {},
-            "name": "metadataMeta",
-            "nodeType": "Expr_Variable",
-          },
-          "nodeType": "Expr_Ternary",
         },
         "nodeType": "Expr_Assign",
         "var": {
@@ -1379,12 +1079,8 @@ exports[`wp-post mutation helpers prepares mutation responses with supports, met
               "unpack": false,
               "value": {
                 "attributes": {},
-                "expr": {
-                  "attributes": {},
-                  "name": "genresTerms",
-                  "nodeType": "Expr_Variable",
-                },
-                "nodeType": "Expr_Cast_Array",
+                "name": "genresTerms",
+                "nodeType": "Expr_Variable",
               },
             },
           ],
@@ -1564,7 +1260,7 @@ exports[`wp-post mutation helpers returns early when no taxonomies are configure
   "attrGroups": [],
   "attributes": {},
   "byRef": false,
-  "flags": 4,
+  "flags": 0,
   "name": {
     "attributes": {},
     "name": "syncBookTaxonomies",
@@ -1757,19 +1453,28 @@ exports[`wp-post mutation helpers sanitises meta payloads for all supported desc
                 "value": "rating",
               },
             },
+            {
+              "attributes": {},
+              "byRef": false,
+              "name": null,
+              "nodeType": "Arg",
+              "unpack": false,
+              "value": {
+                "attributes": {},
+                "name": "request",
+                "nodeType": "Expr_Variable",
+              },
+            },
           ],
           "attributes": {},
           "name": {
             "attributes": {},
-            "name": "get_param",
-            "nodeType": "Identifier",
+            "nodeType": "Name",
+            "parts": [
+              "rest_sanitize_value_from_request",
+            ],
           },
-          "nodeType": "Expr_MethodCall",
-          "var": {
-            "attributes": {},
-            "name": "request",
-            "nodeType": "Expr_Variable",
-          },
+          "nodeType": "Expr_FuncCall",
         },
         "nodeType": "Expr_Assign",
         "var": {
@@ -1935,19 +1640,28 @@ exports[`wp-post mutation helpers sanitises meta payloads for all supported desc
                 "value": "popularity",
               },
             },
+            {
+              "attributes": {},
+              "byRef": false,
+              "name": null,
+              "nodeType": "Arg",
+              "unpack": false,
+              "value": {
+                "attributes": {},
+                "name": "request",
+                "nodeType": "Expr_Variable",
+              },
+            },
           ],
           "attributes": {},
           "name": {
             "attributes": {},
-            "name": "get_param",
-            "nodeType": "Identifier",
+            "nodeType": "Name",
+            "parts": [
+              "rest_sanitize_value_from_request",
+            ],
           },
-          "nodeType": "Expr_MethodCall",
-          "var": {
-            "attributes": {},
-            "name": "request",
-            "nodeType": "Expr_Variable",
-          },
+          "nodeType": "Expr_FuncCall",
         },
         "nodeType": "Expr_Assign",
         "var": {
@@ -2113,19 +1827,28 @@ exports[`wp-post mutation helpers sanitises meta payloads for all supported desc
                 "value": "featured",
               },
             },
+            {
+              "attributes": {},
+              "byRef": false,
+              "name": null,
+              "nodeType": "Arg",
+              "unpack": false,
+              "value": {
+                "attributes": {},
+                "name": "request",
+                "nodeType": "Expr_Variable",
+              },
+            },
           ],
           "attributes": {},
           "name": {
             "attributes": {},
-            "name": "get_param",
-            "nodeType": "Identifier",
+            "nodeType": "Name",
+            "parts": [
+              "rest_sanitize_value_from_request",
+            ],
           },
-          "nodeType": "Expr_MethodCall",
-          "var": {
-            "attributes": {},
-            "name": "request",
-            "nodeType": "Expr_Variable",
-          },
+          "nodeType": "Expr_FuncCall",
         },
         "nodeType": "Expr_Assign",
         "var": {
@@ -2273,19 +1996,28 @@ exports[`wp-post mutation helpers sanitises meta payloads for all supported desc
                 "value": "tags",
               },
             },
+            {
+              "attributes": {},
+              "byRef": false,
+              "name": null,
+              "nodeType": "Arg",
+              "unpack": false,
+              "value": {
+                "attributes": {},
+                "name": "request",
+                "nodeType": "Expr_Variable",
+              },
+            },
           ],
           "attributes": {},
           "name": {
             "attributes": {},
-            "name": "get_param",
-            "nodeType": "Identifier",
+            "nodeType": "Name",
+            "parts": [
+              "rest_sanitize_value_from_request",
+            ],
           },
-          "nodeType": "Expr_MethodCall",
-          "var": {
-            "attributes": {},
-            "name": "request",
-            "nodeType": "Expr_Variable",
-          },
+          "nodeType": "Expr_FuncCall",
         },
         "nodeType": "Expr_Assign",
         "var": {
@@ -2500,19 +2232,28 @@ exports[`wp-post mutation helpers sanitises meta payloads for all supported desc
                 "value": "author",
               },
             },
+            {
+              "attributes": {},
+              "byRef": false,
+              "name": null,
+              "nodeType": "Arg",
+              "unpack": false,
+              "value": {
+                "attributes": {},
+                "name": "request",
+                "nodeType": "Expr_Variable",
+              },
+            },
           ],
           "attributes": {},
           "name": {
             "attributes": {},
-            "name": "get_param",
-            "nodeType": "Identifier",
+            "nodeType": "Name",
+            "parts": [
+              "rest_sanitize_value_from_request",
+            ],
           },
-          "nodeType": "Expr_MethodCall",
-          "var": {
-            "attributes": {},
-            "name": "request",
-            "nodeType": "Expr_Variable",
-          },
+          "nodeType": "Expr_FuncCall",
         },
         "nodeType": "Expr_Assign",
         "var": {
@@ -2741,19 +2482,28 @@ exports[`wp-post mutation helpers sanitises meta payloads for all supported desc
                 "value": "metadata",
               },
             },
+            {
+              "attributes": {},
+              "byRef": false,
+              "name": null,
+              "nodeType": "Arg",
+              "unpack": false,
+              "value": {
+                "attributes": {},
+                "name": "request",
+                "nodeType": "Expr_Variable",
+              },
+            },
           ],
           "attributes": {},
           "name": {
             "attributes": {},
-            "name": "get_param",
-            "nodeType": "Identifier",
+            "nodeType": "Name",
+            "parts": [
+              "rest_sanitize_value_from_request",
+            ],
           },
-          "nodeType": "Expr_MethodCall",
-          "var": {
-            "attributes": {},
-            "name": "request",
-            "nodeType": "Expr_Variable",
-          },
+          "nodeType": "Expr_FuncCall",
         },
         "nodeType": "Expr_Assign",
         "var": {
@@ -2906,7 +2656,7 @@ exports[`wp-post mutation helpers wraps taxonomy assignments with result checks:
   "attrGroups": [],
   "attributes": {},
   "byRef": false,
-  "flags": 4,
+  "flags": 0,
   "name": {
     "attributes": {},
     "name": "syncBookTaxonomies",
@@ -3001,19 +2751,28 @@ exports[`wp-post mutation helpers wraps taxonomy assignments with result checks:
                 "value": "genres",
               },
             },
+            {
+              "attributes": {},
+              "byRef": false,
+              "name": null,
+              "nodeType": "Arg",
+              "unpack": false,
+              "value": {
+                "attributes": {},
+                "name": "request",
+                "nodeType": "Expr_Variable",
+              },
+            },
           ],
           "attributes": {},
           "name": {
             "attributes": {},
-            "name": "get_param",
-            "nodeType": "Identifier",
+            "nodeType": "Name",
+            "parts": [
+              "rest_sanitize_value_from_request",
+            ],
           },
-          "nodeType": "Expr_MethodCall",
-          "var": {
-            "attributes": {},
-            "name": "request",
-            "nodeType": "Expr_Variable",
-          },
+          "nodeType": "Expr_FuncCall",
         },
         "nodeType": "Expr_Assign",
         "var": {
@@ -3152,12 +2911,8 @@ exports[`wp-post mutation helpers wraps taxonomy assignments with result checks:
                         "unpack": false,
                         "value": {
                           "attributes": {},
-                          "expr": {
-                            "attributes": {},
-                            "name": "genresTerms",
-                            "nodeType": "Expr_Variable",
-                          },
-                          "nodeType": "Expr_Cast_Array",
+                          "name": "genresTerms",
+                          "nodeType": "Expr_Variable",
                         },
                       },
                     ],

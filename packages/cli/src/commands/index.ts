@@ -3,7 +3,7 @@ export type {
 	GenerationManifest,
 	GenerationManifestResourceEntry,
 	GenerationManifestResourceArtifacts,
-	GenerationManifestFilePair,
+	GenerationManifestFile,
 } from '../apply/manifest';
 export { buildInitCommand } from './init';
 export { buildCreateCommand } from './create';

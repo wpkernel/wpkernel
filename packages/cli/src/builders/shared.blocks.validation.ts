@@ -1,7 +1,7 @@
 import path from 'path';
 import type { IRBlock } from '../ir';
-import type { Workspace } from '../workspace';
-import { toWorkspaceRelative } from './shared.blocks.paths';
+import { toWorkspaceRelative, type Workspace } from '../workspace';
+import { isNonEmptyString } from '../utils';
 
 export function validateBlockManifest(
 	manifest: Record<string, unknown>,
@@ -54,9 +54,7 @@ export function validateBlockManifest(
 
 	return warnings;
 }
-function isNonEmptyString(candidate: unknown): candidate is string {
-	return typeof candidate === 'string' && candidate.trim().length > 0;
-}
+
 function hasString(candidate: unknown): candidate is string {
 	return typeof candidate === 'string' && candidate.length > 0;
 }

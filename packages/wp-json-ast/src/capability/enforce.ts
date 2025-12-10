@@ -20,6 +20,7 @@ import {
 	buildStaticCall,
 	buildTernary,
 	buildVariable,
+	PHP_METHOD_MODIFIER_PRIVATE,
 	PHP_METHOD_MODIFIER_PUBLIC,
 	PHP_METHOD_MODIFIER_STATIC,
 	type PhpStmt,
@@ -83,6 +84,20 @@ export function buildEnforceMethod(): PhpStmtClassMethod {
 		)
 	);
 
+	const runtimeCapabilityAssign = buildExpressionStatement(
+		buildAssign(
+			buildVariable('runtime_capability'),
+			buildStaticCall(
+				buildName(['self']),
+				buildIdentifier('resolve_capability'),
+				[
+					buildArg(buildVariable('capability')),
+					buildArg(buildVariable('fallback')),
+				]
+			)
+		)
+	);
+
 	const scopeAssign = buildExpressionStatement(
 		buildAssign(
 			buildVariable('scope'),
@@ -111,7 +126,7 @@ export function buildEnforceMethod(): PhpStmtClassMethod {
 		buildAssign(
 			buildVariable('allowed'),
 			buildFuncCall(buildName(['current_user_can']), [
-				buildArg(buildVariable('capability')),
+				buildArg(buildVariable('runtime_capability')),
 			])
 		)
 	);
@@ -187,7 +202,7 @@ export function buildEnforceMethod(): PhpStmtClassMethod {
 		buildAssign(
 			buildVariable('allowed'),
 			buildFuncCall(buildName(['current_user_can']), [
-				buildArg(buildVariable('capability')),
+				buildArg(buildVariable('runtime_capability')),
 				buildArg(buildVariable('object_id')),
 			])
 		)
@@ -235,6 +250,7 @@ export function buildEnforceMethod(): PhpStmtClassMethod {
 		definitionAssign,
 		fallbackAssign,
 		capabilityAssign,
+		runtimeCapabilityAssign,
 		scopeAssign,
 		allowedDefaultAssign,
 		objectScopeBlock,
@@ -258,4 +274,93 @@ export function buildEnforceMethod(): PhpStmtClassMethod {
 		},
 		buildDocCommentAttributes(docblock)
 	);
+}
+
+export function buildResolveCapabilityMethod(): PhpStmtClassMethod {
+	const fallbackCapabilityAssign = buildExpressionStatement(
+		buildAssign(
+			buildVariable('fallback_capability'),
+			buildTernary(
+				buildBinaryOperation(
+					'BooleanAnd',
+					buildFuncCall(buildName(['isset']), [
+						buildArg(
+							buildArrayDimFetch(
+								buildVariable('fallback'),
+								buildScalarString('capability')
+							)
+						),
+					]),
+					buildFuncCall(buildName(['is_string']), [
+						buildArg(
+							buildArrayDimFetch(
+								buildVariable('fallback'),
+								buildScalarString('capability')
+							)
+						),
+					])
+				),
+				buildArrayDimFetch(
+					buildVariable('fallback'),
+					buildScalarString('capability')
+				),
+				buildScalarString('manage_options')
+			)
+		)
+	);
+
+	const sameGuard = buildIfStatement(
+		buildBinaryOperation(
+			'Identical',
+			buildVariable('capability'),
+			buildVariable('fallback_capability')
+		),
+		[buildReturn(buildVariable('capability'))]
+	);
+
+	const roleAssign = buildExpressionStatement(
+		buildAssign(
+			buildVariable('role'),
+			buildFuncCall(buildName(['get_role']), [
+				buildArg(buildScalarString('administrator')),
+			])
+		)
+	);
+
+	const roleGuard = buildIfStatement(
+		buildBinaryOperation(
+			'BooleanAnd',
+			buildVariable('role'),
+			buildMethodCall(buildVariable('role'), buildIdentifier('has_cap'), [
+				buildArg(buildVariable('capability')),
+			])
+		),
+		[buildReturn(buildVariable('capability'))]
+	);
+
+	const statements: PhpStmt[] = [
+		fallbackCapabilityAssign,
+		sameGuard,
+		buildIfStatement(
+			buildFuncCall(buildName(['function_exists']), [
+				buildArg(buildScalarString('get_role')),
+			]),
+			[roleAssign, roleGuard]
+		),
+		buildReturn(buildVariable('fallback_capability')),
+	];
+
+	return buildClassMethod(buildIdentifier('resolve_capability'), {
+		flags: PHP_METHOD_MODIFIER_PRIVATE + PHP_METHOD_MODIFIER_STATIC,
+		params: [
+			buildParam(buildVariable('capability'), {
+				type: buildIdentifier('string'),
+			}),
+			buildParam(buildVariable('fallback'), {
+				type: buildIdentifier('array'),
+			}),
+		],
+		returnType: buildIdentifier('string'),
+		stmts: statements,
+	});
 }

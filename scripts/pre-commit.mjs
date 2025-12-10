@@ -75,7 +75,10 @@ async function main() {
 
 		if (repoWide) {
 			// rule 3: repo-wide → everybody
-			filters = graph.workspaces.map((ws) => ws.name);
+			const nonExampleWorkspaces = graph.workspaces.filter(
+				(ws) => !ws.dir.replace(/\\/g, '/').includes('/examples/')
+			);
+			filters = nonExampleWorkspaces.map((ws) => ws.name);
 		} else {
 			// rule 1: use the graph to know what to typecheck
 			const { filters: f } = resolveAffectedFromFiles(nonDocs, graph);
@@ -119,12 +122,8 @@ async function main() {
 	/* 3) typechecks (src + tests) together, fail fast                         */
 	/* ---------------------------------------------------------------------- */
 	if (hasNonDocChanges) {
-		const srcArgs = repoWide
-			? ['typecheck']
-			: buildFilterArgs(filters, 'typecheck');
-		const testsArgs = repoWide
-			? ['typecheck:tests']
-			: buildFilterArgs(filters, 'typecheck:tests');
+		const srcArgs = buildFilterArgs(filters, 'typecheck');
+		const testsArgs = buildFilterArgs(filters, 'typecheck:tests');
 
 		tasks.push(
 			createConcurrentTask({

@@ -76,6 +76,10 @@ export const FRAMEWORK_PEERS = {
 		kind: 'internal',
 		peerRange: 'workspace:*',
 	},
+	'@wpkernel/pipeline': {
+		kind: 'internal',
+		peerRange: 'workspace:*',
+	},
 	'ts-morph': {
 		kind: 'tooling',
 		peerRange: '>=27.0.0',

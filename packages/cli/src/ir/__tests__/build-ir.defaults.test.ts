@@ -1,5 +1,5 @@
 import type { WPKernelConfigV1 } from '../../config/types';
-import { buildIr } from '../buildIr';
+import { createIr } from '../createIr';
 import {
 	FIXTURE_CONFIG_PATH,
 	canonicalHash,
@@ -26,7 +26,7 @@ describe('buildIr - defaults and inference', () => {
 			},
 		} as unknown as WPKernelConfigV1['resources'];
 
-		const ir = await buildIr({
+		const ir = await createIr({
 			config,
 			sourcePath: FIXTURE_CONFIG_PATH,
 			origin: 'wpk.config.ts',
@@ -76,7 +76,7 @@ describe('buildIr - defaults and inference', () => {
 			},
 		} as unknown as WPKernelConfigV1['resources'];
 
-		const ir = await buildIr({
+		const ir = await createIr({
 			config,
 			sourcePath: FIXTURE_CONFIG_PATH,
 			origin: 'wpk.config.ts',
@@ -86,9 +86,9 @@ describe('buildIr - defaults and inference', () => {
 		const [capability] = ir.capabilities.filter(
 			(candidate) => candidate.key === 'shared.capability'
 		);
-		expect(capability.references).toHaveLength(3);
+		expect(capability?.references).toHaveLength(3);
 		expect(
-			capability.references.map((reference) => reference.resource)
+			capability?.references.map((reference) => reference.resource)
 		).toEqual(['alpha', 'alpha', 'beta']);
 	});
 
@@ -115,7 +115,7 @@ describe('buildIr - defaults and inference', () => {
 			},
 		} as unknown as WPKernelConfigV1['resources'];
 
-		const ir = await buildIr({
+		const ir = await createIr({
 			config,
 			sourcePath: FIXTURE_CONFIG_PATH,
 			origin: 'wpk.config.ts',
@@ -153,7 +153,7 @@ describe('buildIr - defaults and inference', () => {
 			},
 		} as unknown as WPKernelConfigV1['resources'];
 
-		const ir = await buildIr({
+		const ir = await createIr({
 			config,
 			sourcePath: FIXTURE_CONFIG_PATH,
 			origin: 'wpk.config.ts',
@@ -161,8 +161,8 @@ describe('buildIr - defaults and inference', () => {
 		});
 
 		const [resource] = ir.resources;
-		expect(resource.routes[0]?.transport).toBe('remote');
-		expect(resource.warnings.map((warning) => warning.code)).toEqual([
+		expect(resource?.routes[0]?.transport).toBe('remote');
+		expect(resource?.warnings.map((warning) => warning.code)).toEqual([
 			'identity.inference.missing',
 			'route.remote.absolute',
 		]);
@@ -183,7 +183,7 @@ describe('buildIr - defaults and inference', () => {
 			},
 		} as unknown as WPKernelConfigV1['resources'];
 
-		const ir = await buildIr({
+		const ir = await createIr({
 			config,
 			sourcePath: FIXTURE_CONFIG_PATH,
 			origin: 'wpk.config.ts',
@@ -191,8 +191,8 @@ describe('buildIr - defaults and inference', () => {
 		});
 
 		const [resource] = ir.resources;
-		expect(resource.identity).toEqual({ type: 'string', param: 'slug' });
-		expect(resource.warnings.map((warning) => warning.code)).toContain(
+		expect(resource?.identity).toEqual({ type: 'string', param: 'slug' });
+		expect(resource?.warnings.map((warning) => warning.code)).toContain(
 			'identity.inference.applied'
 		);
 	});
@@ -212,7 +212,7 @@ describe('buildIr - defaults and inference', () => {
 			},
 		} as unknown as WPKernelConfigV1['resources'];
 
-		const ir = await buildIr({
+		const ir = await createIr({
 			config,
 			sourcePath: FIXTURE_CONFIG_PATH,
 			origin: 'wpk.config.ts',
@@ -220,8 +220,8 @@ describe('buildIr - defaults and inference', () => {
 		});
 
 		const [resource] = ir.resources;
-		expect(resource.identity).toBeUndefined();
-		expect(resource.warnings.map((warning) => warning.code)).toContain(
+		expect(resource?.identity).toBeUndefined();
+		expect(resource?.warnings.map((warning) => warning.code)).toContain(
 			'identity.inference.unsupported'
 		);
 	});
@@ -241,7 +241,7 @@ describe('buildIr - defaults and inference', () => {
 			},
 		} as unknown as WPKernelConfigV1['resources'];
 
-		const ir = await buildIr({
+		const ir = await createIr({
 			config,
 			sourcePath: FIXTURE_CONFIG_PATH,
 			origin: 'wpk.config.ts',
@@ -249,8 +249,8 @@ describe('buildIr - defaults and inference', () => {
 		});
 
 		const [schema] = ir.schemas;
-		expect(schema.key).toBe('auto:jobs');
-		expect(schema.hash.value).toBe(canonicalHash(schema.schema));
+		expect(schema?.key).toBe('auto:jobs');
+		expect(schema?.hash.value).toBe(canonicalHash(schema?.schema));
 	});
 
 	it('infers wp-post postType with truncation warnings and collision detection', async () => {
@@ -292,7 +292,7 @@ describe('buildIr - defaults and inference', () => {
 			},
 		} as unknown as WPKernelConfigV1['resources'];
 
-		const ir = await buildIr({
+		const ir = await createIr({
 			config,
 			sourcePath: FIXTURE_CONFIG_PATH,
 			origin: 'wpk.config.ts',
@@ -300,7 +300,9 @@ describe('buildIr - defaults and inference', () => {
 		});
 
 		const postTypes = ir.resources.map(
-			(resource) => resource.storage?.postType
+			(resource) =>
+				resource.storage?.mode === 'wp-post' &&
+				resource.storage.postType
 		);
 		expect(
 			postTypes.every((postType) => typeof postType === 'string')
@@ -308,7 +310,7 @@ describe('buildIr - defaults and inference', () => {
 		const uniquePostTypes = new Set(postTypes);
 		expect(uniquePostTypes.size).toBeLessThan(postTypes.length);
 		for (const postType of postTypes) {
-			expect((postType ?? '').length).toBeLessThanOrEqual(20);
+			expect((postType || '').length).toBeLessThanOrEqual(20);
 		}
 		const warningCodes = ir.resources.flatMap((resource) =>
 			resource.warnings.map((warning) => warning.code)
@@ -352,7 +354,7 @@ describe('buildIr - defaults and inference', () => {
 			},
 		} as unknown as WPKernelConfigV1['resources'];
 
-		const ir = await buildIr({
+		const ir = await createIr({
 			config,
 			sourcePath: FIXTURE_CONFIG_PATH,
 			origin: 'wpk.config.ts',

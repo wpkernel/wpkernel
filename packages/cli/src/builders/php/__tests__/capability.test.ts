@@ -12,6 +12,7 @@ import {
 	createMinimalIr,
 	createPipelineContext,
 	createReporter,
+	seedArtifacts,
 } from '../test-support/php-builder.test-support';
 import { makeCapabilityDefinition } from '@cli-tests/builders/fixtures.test-support';
 import { buildEmptyGenerationState } from '../../../apply/manifest';
@@ -25,7 +26,6 @@ describe('createPhpCapabilityHelper', () => {
 		resetPhpAstChannel(context);
 
 		const helper = createPhpCapabilityHelper();
-		const next = jest.fn();
 
 		await helper.apply(
 			{
@@ -34,10 +34,9 @@ describe('createPhpCapabilityHelper', () => {
 				output: createBuilderOutput(),
 				reporter: context.reporter,
 			},
-			next
+			undefined
 		);
 
-		expect(next).toHaveBeenCalledTimes(1);
 		expect(getPhpBuilderChannel(context).pending()).toHaveLength(0);
 	});
 
@@ -76,6 +75,7 @@ describe('createPhpCapabilityHelper', () => {
 				],
 			},
 		});
+		await seedArtifacts(ir, reporter);
 
 		const helper = createPhpCapabilityHelper();
 		await helper.apply(

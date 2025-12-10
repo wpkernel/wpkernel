@@ -5,6 +5,7 @@ import {
 } from '../controller.storageArtifacts';
 import type { ResourceStorageHelperState } from '../types';
 import type { IRResource } from '../../../ir';
+import type { PhpStmtClassMethod } from '@wpkernel/php-json-ast/nodes/stmt/types';
 
 jest.mock('@wpkernel/wp-json-ast', () => ({
 	buildResourceCacheKeysPlan: jest.fn().mockReturnValue('cache-plan'),
@@ -23,15 +24,28 @@ function createState(): ResourceStorageHelperState {
 }
 
 function createResource(overrides: Partial<IRResource> = {}): IRResource {
+	const storage =
+		overrides.storage?.mode === 'wp-taxonomy'
+			? {
+					mode: 'wp-taxonomy' as const,
+					taxonomy:
+						(overrides.storage as { taxonomy?: string } | undefined)
+							?.taxonomy ?? 'jobs',
+					hierarchical: overrides.storage?.hierarchical,
+				}
+			: overrides.storage;
 	return {
+		id: 'res:jobs',
 		name: 'jobs',
 		cacheKeys: {
-			list: { segments: ['jobs'] },
-			get: { segments: ['jobs', ':id'] },
-			create: { segments: ['jobs', 'create'] },
-			update: { segments: ['jobs', 'update'] },
-			remove: { segments: ['jobs', 'remove'] },
+			list: { segments: ['jobs'], source: 'default' },
+			get: { segments: ['jobs', ':id'], source: 'default' },
+			create: { segments: ['jobs', 'create'], source: 'default' },
+			update: { segments: ['jobs', 'update'], source: 'default' },
+			remove: { segments: ['jobs', 'remove'], source: 'default' },
 		},
+		controllerClass: 'Demo\\JobsController',
+		storage,
 		...overrides,
 	} as unknown as IRResource;
 }
@@ -40,28 +54,42 @@ describe('controller storage artifacts', () => {
 	it('returns taxonomy artifacts when state contains entries', () => {
 		const state = createState();
 		state.wpTaxonomy.set('jobs', {
-			helperMethods: ['taxonomyMethod'],
+			helperMethods: ['taxonomyMethod' as unknown as PhpStmtClassMethod],
 			helperSignatures: ['taxonomySignature'],
-			routeHandlers: ['taxonomyHandler'] as unknown as never,
+			routeHandlers: {
+				get: () => ['taxonomyHandler' as unknown as PhpStmtClassMethod],
+			},
 		});
 
 		const artifacts = buildStorageArtifacts({
-			resource: createResource({ storage: { mode: 'wp-taxonomy' } }),
+			resource: createResource({
+				storage: { mode: 'wp-taxonomy', taxonomy: 'jobs' },
+			}),
 			storageState: state,
 		});
 
-		expect(artifacts).toEqual({
-			helperMethods: ['taxonomyMethod'],
-			helperSignatures: ['taxonomySignature'],
-			routeHandlers: ['taxonomyHandler'],
-		});
+		const mockRouteContext = {
+			metadata: {} as any,
+			metadataHost: {} as any,
+		};
+
+		expect(artifacts.helperMethods).toEqual(['taxonomyMethod']);
+		expect(artifacts.helperSignatures).toEqual(['taxonomySignature']);
+		expect(typeof artifacts.routeHandlers?.get).toBe('function');
+		expect(artifacts.routeHandlers?.get?.(mockRouteContext)).toEqual([
+			'taxonomyHandler',
+		]);
 	});
 
 	it('returns transient artifacts and empty signatures when missing state', () => {
 		const state = createState();
 		state.transient.set('jobs', {
-			helperMethods: ['transientMethod'],
-			routeHandlers: ['transientHandler'] as unknown as never,
+			helperMethods: ['transientMethod' as unknown as PhpStmtClassMethod],
+			routeHandlers: {
+				get: () => [
+					'transientHandler' as unknown as PhpStmtClassMethod,
+				],
+			},
 		});
 
 		const artifacts = buildStorageArtifacts({
@@ -69,11 +97,17 @@ describe('controller storage artifacts', () => {
 			storageState: state,
 		});
 
-		expect(artifacts).toEqual({
-			helperMethods: ['transientMethod'],
-			helperSignatures: [],
-			transientHandlers: ['transientHandler'],
-		});
+		const mockRouteContext = {
+			metadata: {} as any,
+			metadataHost: {} as any,
+		};
+
+		expect(artifacts.helperMethods).toEqual(['transientMethod']);
+		expect(artifacts.helperSignatures).toEqual([]);
+		expect(typeof artifacts.transientHandlers?.get).toBe('function');
+		expect(artifacts.transientHandlers?.get?.(mockRouteContext)).toEqual([
+			'transientHandler',
+		]);
 	});
 
 	it('returns default artifacts when resource has no storage mode', () => {
@@ -105,8 +139,8 @@ describe('controller storage artifacts', () => {
 	it('builds cache key plan with optional segments removed when undefined', () => {
 		const resource = createResource({
 			cacheKeys: {
-				list: { segments: ['jobs'] },
-				get: { segments: ['jobs', ':id'] },
+				list: { segments: ['jobs'], source: 'default' },
+				get: { segments: ['jobs', ':id'], source: 'default' },
 				create: undefined,
 				update: undefined,
 				remove: undefined,

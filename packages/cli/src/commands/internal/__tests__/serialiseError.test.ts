@@ -23,6 +23,7 @@ describe('serialiseError', () => {
 		const result = serialiseError(nativeError);
 
 		expect(result).toMatchObject<SerializedError>({
+			name: 'WPKernelError',
 			code: 'UnknownError',
 			message: nativeError.message,
 		});
@@ -33,6 +34,7 @@ describe('serialiseError', () => {
 		const result = serialiseError({ some: 'value' });
 
 		expect(result).toMatchObject<SerializedError>({
+			name: 'WPKernelError',
 			code: 'UnknownError',
 			message: 'Unexpected error occurred.',
 		});

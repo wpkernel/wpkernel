@@ -28,15 +28,6 @@ export function normaliseForLog(filePath: string): string {
 	return relative.split(path.sep).join('/');
 }
 
-export function toWorkspaceRelativePath(absolute: string): string {
-	const relative = path.relative(process.cwd(), absolute);
-	if (relative === '') {
-		return '.';
-	}
-
-	return relative.split(path.sep).join('/');
-}
-
 export function prioritiseQueued(
 	current: Trigger | null,
 	incoming: Trigger

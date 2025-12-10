@@ -40,6 +40,14 @@ const REQUIRED_PACKAGES = [
 		distFile: 'packages/cli/dist/index.js',
 	},
 	{
+		name: '@wpkernel/core',
+		distFile: 'packages/core/dist/index.js',
+	},
+	{
+		name: '@wpkernel/pipeline',
+		distFile: 'packages/pipeline/dist/index.js',
+	},
+	{
 		name: '@wpkernel/create-wpk',
 		distFile: 'packages/create-wpk/dist/index.js',
 	},
@@ -91,10 +99,14 @@ async function main() {
 
 		logStep('Packing tarballs');
 		const cliTarball = await packWorkspace('@wpkernel/cli');
+		const coreTarball = await packWorkspace('@wpkernel/core');
+		const pipelineTarball = await packWorkspace('@wpkernel/pipeline');
 		const createTarball = await packWorkspace('@wpkernel/create-wpk');
 		const phpJsonAstTarball = await packWorkspace('@wpkernel/php-json-ast');
 		const wpJsonAstTarball = await packWorkspace('@wpkernel/wp-json-ast');
 		recordTarball('@wpkernel/cli', cliTarball);
+		recordTarball('@wpkernel/core', coreTarball);
+		recordTarball('@wpkernel/pipeline', pipelineTarball);
 		recordTarball('@wpkernel/create-wpk', createTarball);
 		recordTarball('@wpkernel/php-json-ast', phpJsonAstTarball);
 		recordTarball('@wpkernel/wp-json-ast', wpJsonAstTarball);
@@ -124,6 +136,8 @@ async function main() {
 			);
 			const dependencyTarballs = [
 				'@wpkernel/cli',
+				'@wpkernel/core',
+				'@wpkernel/pipeline',
 				'@wpkernel/php-json-ast',
 				'@wpkernel/wp-json-ast',
 			]

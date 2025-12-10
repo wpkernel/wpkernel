@@ -53,6 +53,10 @@ export default {
 		'^@cli-tests/(.*)$': '<rootDir>/packages/cli/tests/$1',
 		'^@wordpress/interactivity$':
 			'<rootDir>/tests/mocks/wp-interactivity.ts',
+		'^@wordpress/dataviews/wp$':
+			'<rootDir>/packages/ui/tests/mocks/dataviews-wp.ts',
+		'^@wpkernel/ui/dataviews(?:/(.*))?$':
+			'<rootDir>/tests/mocks/ui-dataviews.ts',
 	},
 
 	// Test file patterns
@@ -68,12 +72,13 @@ export default {
 		'/node_modules/',
 		'/dist/',
 		'/build/',
+		'/.cache/',
 		'/.wp-env/',
 		'/tests/test-globals.d.ts',
 		'.spec.ts$', // Exclude Playwright spec files
 	],
 
-	modulePathIgnorePatterns: ['packages/cli/dist'],
+	modulePathIgnorePatterns: ['packages/cli/dist', '/.cache/'],
 
 	// Disable watchman - use node's fs.watch instead
 	// Watchman can cause issues in monorepos and isn't needed for one-off test runs

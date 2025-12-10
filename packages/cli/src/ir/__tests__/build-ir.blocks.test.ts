@@ -1,8 +1,26 @@
 import path from 'node:path';
-import fs from 'node:fs/promises';
+import fs from 'node:fs';
 import type { WPKernelConfigV1 } from '../../config/types';
-import { buildIr } from '../buildIr';
+import { createIr } from '../createIr';
 import { createBaseConfig, withTempWorkspace } from '../shared/test-helpers';
+import { createPipeline } from '../../runtime/createPipeline';
+import { type IRv1 } from '..';
+
+async function buildIr(options: {
+	readonly config: WPKernelConfigV1;
+	readonly sourcePath: string;
+	readonly origin: string;
+	readonly namespace: string;
+	readonly pipeline?: ReturnType<typeof createPipeline>;
+}): Promise<IRv1> {
+	const { pipeline, ...rest } = options;
+
+	return createIr({
+		...rest,
+		// keep tests free to provide their own stricter/fragment pipeline
+		pipeline: pipeline ?? createPipeline(),
+	});
+}
 
 describe('buildIr - block discovery', () => {
 	it('discovers JS-only and SSR blocks while respecting ignore rules', async () => {
@@ -12,8 +30,8 @@ describe('buildIr - block discovery', () => {
 				const ssrBlock = path.join(root, 'src', 'blocks', 'ssr-block');
 				const ignoredBlock = path.join(root, '.generated', 'ignored');
 
-				await fs.mkdir(jsBlock, { recursive: true });
-				await fs.writeFile(
+				fs.mkdirSync(jsBlock, { recursive: true });
+				fs.writeFileSync(
 					path.join(jsBlock, 'block.json'),
 					JSON.stringify({
 						apiVersion: 3,
@@ -23,8 +41,8 @@ describe('buildIr - block discovery', () => {
 					'utf8'
 				);
 
-				await fs.mkdir(ssrBlock, { recursive: true });
-				await fs.writeFile(
+				fs.mkdirSync(ssrBlock, { recursive: true });
+				fs.writeFileSync(
 					path.join(ssrBlock, 'block.json'),
 					JSON.stringify({
 						apiVersion: 3,
@@ -34,13 +52,13 @@ describe('buildIr - block discovery', () => {
 					}),
 					'utf8'
 				);
-				await fs.writeFile(
+				fs.writeFileSync(
 					path.join(ssrBlock, 'render.php'),
 					'<?php // render'
 				);
 
-				await fs.mkdir(ignoredBlock, { recursive: true });
-				await fs.writeFile(
+				fs.mkdirSync(ignoredBlock, { recursive: true });
+				fs.writeFileSync(
 					path.join(ignoredBlock, 'block.json'),
 					JSON.stringify({
 						apiVersion: 3,
@@ -72,6 +90,24 @@ describe('buildIr - block discovery', () => {
 						sourcePath: path.join(root, 'wpk.config.ts'),
 						origin: 'wpk.config.ts',
 						namespace: config.namespace,
+						// Provide builder deps so the strict graph is satisfied in this fragment-only test
+						pipeline: createPipeline({
+							builderProvidedKeys: [
+								'builder.generate.php.controller.resources',
+								'builder.generate.php.capability',
+								'builder.generate.php.registration.persistence',
+								'builder.generate.php.plugin-loader',
+								'builder.generate.php.index',
+								'ir.resources.core',
+								'ir.capability-map.core',
+								'ir.blocks.core',
+								'ir.layout.core',
+								'ir.meta.core',
+								'ir.schemas.core',
+								'ir.ordering.core',
+								'ir.bundler.core',
+							],
+						}),
 					});
 
 					expect(ir.blocks).toEqual([
@@ -129,8 +165,8 @@ describe('buildIr - block discovery', () => {
 		await withTempWorkspace(
 			async (root) => {
 				const blockDir = path.join(root, 'src', 'blocks', 'broken');
-				await fs.mkdir(blockDir, { recursive: true });
-				await fs.writeFile(
+				fs.mkdirSync(blockDir, { recursive: true });
+				fs.writeFileSync(
 					path.join(blockDir, 'block.json'),
 					'{ invalid'
 				);
@@ -163,15 +199,15 @@ describe('buildIr - block discovery', () => {
 			async (root) => {
 				const blockA = path.join(root, 'src', 'blocks', 'a');
 				const blockB = path.join(root, 'src', 'blocks', 'b');
-				await fs.mkdir(blockA, { recursive: true });
-				await fs.mkdir(blockB, { recursive: true });
+				fs.mkdirSync(blockA, { recursive: true });
+				fs.mkdirSync(blockB, { recursive: true });
 				const manifest = JSON.stringify({
 					apiVersion: 3,
 					name: 'plugin/duplicate',
 					title: 'Duplicate',
 				});
-				await fs.writeFile(path.join(blockA, 'block.json'), manifest);
-				await fs.writeFile(path.join(blockB, 'block.json'), manifest);
+				fs.writeFileSync(path.join(blockA, 'block.json'), manifest);
+				fs.writeFileSync(path.join(blockB, 'block.json'), manifest);
 			},
 			async (root) => {
 				const originalCwd = process.cwd();
@@ -200,8 +236,8 @@ describe('buildIr - block discovery', () => {
 		await withTempWorkspace(
 			async (root) => {
 				const blockDir = path.join(root, 'src', 'blocks', 'noname');
-				await fs.mkdir(blockDir, { recursive: true });
-				await fs.writeFile(
+				fs.mkdirSync(blockDir, { recursive: true });
+				fs.writeFileSync(
 					path.join(blockDir, 'block.json'),
 					JSON.stringify({ apiVersion: 3, title: 'No Name' })
 				);
@@ -233,8 +269,8 @@ describe('buildIr - block discovery', () => {
 		await withTempWorkspace(
 			async (root) => {
 				const blockDir = path.join(root, 'src', 'blocks', 'array');
-				await fs.mkdir(blockDir, { recursive: true });
-				await fs.writeFile(
+				fs.mkdirSync(blockDir, { recursive: true });
+				fs.writeFileSync(
 					path.join(blockDir, 'block.json'),
 					JSON.stringify(['invalid'])
 				);

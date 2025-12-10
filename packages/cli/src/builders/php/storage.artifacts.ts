@@ -2,7 +2,6 @@ import { createHelper } from '../../runtime';
 import type {
 	BuilderApplyOptions,
 	BuilderHelper,
-	BuilderNext,
 	PipelineContext,
 } from '../../runtime/types';
 import {
@@ -14,7 +13,7 @@ import {
 	ensureWpTaxonomyStorage,
 	resolveIdentityConfig,
 } from '@wpkernel/wp-json-ast';
-import { makeErrorCodeFactory, toPascalCase } from './utils';
+import { makeErrorCodeFactory, toPascalCase } from '../../utils';
 import { ensureWpOptionStorage } from './storage.guards';
 import {
 	type PopulateArtifactsBaseOptions,
@@ -64,10 +63,19 @@ export function createPhpTransientStorageHelper(): BuilderHelper {
 	return createHelper({
 		key: 'builder.generate.php.controller.resources.storage.transient',
 		kind: 'builder',
-		async apply(options: BuilderApplyOptions, next?: BuilderNext) {
+		dependsOn: [
+			'builder.generate.php.channel.bootstrap',
+			'ir.artifacts.plan',
+		],
+		async apply(options: BuilderApplyOptions) {
 			const { input } = options;
 			if (input.phase !== 'generate' || !input.ir) {
-				await next?.();
+				return;
+			}
+			if (!input.ir.artifacts?.php) {
+				options.reporter.debug(
+					'createPhpTransientStorageHelper: missing PHP artifacts plan; skipping.'
+				);
 				return;
 			}
 
@@ -78,8 +86,6 @@ export function createPhpTransientStorageHelper(): BuilderHelper {
 				ir: input.ir,
 				state,
 			});
-
-			await next?.();
 		},
 	});
 }
@@ -98,10 +104,19 @@ export function createPhpWpOptionStorageHelper(): BuilderHelper {
 	return createHelper({
 		key: 'builder.generate.php.controller.resources.storage.wpOption',
 		kind: 'builder',
-		async apply(options: BuilderApplyOptions, next?: BuilderNext) {
+		dependsOn: [
+			'builder.generate.php.channel.bootstrap',
+			'ir.artifacts.plan',
+		],
+		async apply(options: BuilderApplyOptions) {
 			const { input } = options;
 			if (input.phase !== 'generate' || !input.ir) {
-				await next?.();
+				return;
+			}
+			if (!input.ir.artifacts?.php) {
+				options.reporter.debug(
+					'createPhpWpOptionStorageHelper: missing PHP artifacts plan; skipping.'
+				);
 				return;
 			}
 
@@ -112,8 +127,6 @@ export function createPhpWpOptionStorageHelper(): BuilderHelper {
 				ir: input.ir,
 				state,
 			});
-
-			await next?.();
 		},
 	});
 }
@@ -132,10 +145,19 @@ export function createPhpWpTaxonomyStorageHelper(): BuilderHelper {
 	return createHelper({
 		key: 'builder.generate.php.controller.resources.storage.wpTaxonomy',
 		kind: 'builder',
-		async apply(options: BuilderApplyOptions, next?: BuilderNext) {
+		dependsOn: [
+			'builder.generate.php.channel.bootstrap',
+			'ir.artifacts.plan',
+		],
+		async apply(options: BuilderApplyOptions) {
 			const { input } = options;
 			if (input.phase !== 'generate' || !input.ir) {
-				await next?.();
+				return;
+			}
+			if (!input.ir.artifacts?.php) {
+				options.reporter.debug(
+					'createPhpWpTaxonomyStorageHelper: missing PHP artifacts plan; skipping.'
+				);
 				return;
 			}
 
@@ -146,8 +168,6 @@ export function createPhpWpTaxonomyStorageHelper(): BuilderHelper {
 				ir: input.ir,
 				state,
 			});
-
-			await next?.();
 		},
 	});
 }

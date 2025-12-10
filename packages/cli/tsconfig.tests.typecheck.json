@@ -3,13 +3,13 @@
 	"extends": "../../tsconfig.tests.cli.json",
 	"compilerOptions": {
 		"rootDir": "../..",
-		"skipLibCheck": false,
+		"skipLibCheck": true,
 		"composite": false
 	},
+	"exclude": [],
 	"include": [
-		"src/**/*.test.ts",
 		"src/**/**/*.test.ts",
-		"src/**/*.test.tsx",
+		"src/**/**/*.test.tsx",
 		"src/**/*.spec.ts",
 		"src/**/*.spec.tsx",
 		"src/**/test-support/**/*.ts",

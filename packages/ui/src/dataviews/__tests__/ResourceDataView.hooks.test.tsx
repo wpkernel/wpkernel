@@ -16,7 +16,7 @@ import {
 	createResource,
 	createReporter,
 	flushDataViews,
-} from '../test-support/ResourceDataView.test-support';
+} from '../../../tests/ResourceDataView.test-support';
 
 type TestItem = { id: number };
 type TestQuery = { search?: string };
@@ -128,7 +128,6 @@ describe('useResolvedController', () => {
 			queryMapping: config.mapQuery,
 			runtime: context.dataviews,
 			namespace: context.namespace,
-			preferencesKey: 'jobs::tests',
 			invalidate: jest.fn(),
 			capabilities: undefined,
 			fetchList: undefined,
@@ -311,9 +310,6 @@ describe('useStableView', () => {
 		const latest = onChange.mock.calls.at(-1)?.[0]?.view;
 		expect(latest?.perPage).toBe(25);
 		expect(latest?.layout).toEqual({ columns: 3 });
-		expect(controller.emitRegistered).toHaveBeenCalledWith(
-			controller.preferencesKey
-		);
 	});
 
 	it('logs when stored view cannot be restored', async () => {

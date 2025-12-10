@@ -99,11 +99,6 @@ async function runExtensions({
 		return undefined;
 	}
 
-	const factories = runOptions.config.adapters?.extensions ?? [];
-	if (factories.length === 0) {
-		return undefined;
-	}
-
 	const adapterReporter = runOptions.reporter.child('adapter');
 	const adapterContext: AdapterContext = {
 		config: runOptions.config,
@@ -112,42 +107,36 @@ async function runExtensions({
 		ir: artifact,
 	};
 
-	const resolved = resolveAdapterExtensions(factories, adapterContext);
-	if (resolved instanceof Error) {
-		adapterReporter.error('Adapter extensions failed to initialise.', {
-			error: resolved.message,
-		});
-		throw new WPKernelError('DeveloperError', {
-			message: 'Adapter extensions failed to initialise.',
-			data: { message: resolved.message },
-		});
-	}
-
-	if (resolved.length === 0) {
+	const extensions = resolveExtensionsOrSkip({
+		factories: runOptions.config.adapters?.extensions ?? [],
+		adapterContext,
+		reporter: adapterReporter,
+	});
+	if (!extensions || extensions.length === 0) {
 		return undefined;
 	}
 
-	if (!artifact.layout) {
+	const generatedRoot = resolveGeneratedRoot(artifact);
+	if (!generatedRoot) {
 		throw new WPKernelError('DeveloperError', {
 			message:
-				'Adapter extensions require a non-null layout on the IR artifact.',
+				'Adapter extensions require runtime artifact paths to be present on the IR artifact.',
 			data: { namespace: artifact.meta?.namespace },
 		});
 	}
 
 	adapterReporter.info('Running adapter extensions.', {
-		count: resolved.length,
+		count: extensions.length,
 	});
 
 	const workspaceRoot = runOptions.workspace.root;
-	const generatedRoot = artifact.layout.resolve('js.generated');
 	const outputDir = runOptions.workspace.resolve(generatedRoot);
 	const configDirectory = path.dirname(runOptions.sourcePath);
 
 	const tsFormatter = buildTsFormatter();
 
 	const runResult = await runAdapterExtensions({
-		extensions: resolved,
+		extensions,
 		adapterContext,
 		ir: artifact,
 		outputDir,
@@ -168,7 +157,7 @@ async function runExtensions({
 	adapterContext.ir = runResult.ir;
 
 	adapterReporter.info('Adapter extensions completed successfully.', {
-		count: resolved.length,
+		count: extensions.length,
 	});
 
 	return {
@@ -190,4 +179,41 @@ export function buildAdapterExtensionsExtension(): PipelineExtension {
 			return runExtensions(options);
 		},
 	});
+}
+
+function resolveExtensionsOrSkip({
+	factories,
+	adapterContext,
+	reporter,
+}: {
+	readonly factories: AdapterExtensionFactory[];
+	readonly adapterContext: AdapterContext;
+	readonly reporter: PipelineExtensionHookOptions['options']['reporter'];
+}): AdapterExtension[] | null {
+	if (factories.length === 0) {
+		return null;
+	}
+
+	const resolved = resolveAdapterExtensions(factories, adapterContext);
+	if (resolved instanceof Error) {
+		reporter.error('Adapter extensions failed to initialise.', {
+			error: resolved.message,
+		});
+		throw new WPKernelError('DeveloperError', {
+			message: 'Adapter extensions failed to initialise.',
+			data: { message: resolved.message },
+		});
+	}
+
+	return resolved;
+}
+
+function resolveGeneratedRoot(
+	artifact: PipelineExtensionHookOptions['artifact']
+): string | null {
+	return (
+		artifact.artifacts?.runtime?.runtime.generated ??
+		artifact.layout?.resolve?.('js.generated') ??
+		null
+	);
 }

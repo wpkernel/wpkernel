@@ -1,3 +1,4 @@
+import path from 'node:path';
 import { WPKernelError } from '@wpkernel/core/error';
 import type { BuilderApplyOptions } from '../runtime/types';
 
@@ -5,8 +6,8 @@ export type PlanLayoutPaths = {
 	planManifest: string;
 	planBase: string;
 	planIncoming: string;
-	blocksGenerated: string;
-	blocksApplied: string;
+	runtimeGenerated: string;
+	runtimeApplied: string;
 	phpGenerated: string;
 	pluginLoader: string;
 	bundlerConfig: string;
@@ -16,30 +17,51 @@ export type PlanLayoutPaths = {
 export function resolvePlanPaths(
 	options: BuilderApplyOptions
 ): PlanLayoutPaths {
-	const ir = options.input.ir;
-	if (!ir) {
+	const artifacts = getPlanArtifacts(options.input.ir);
+	return buildPlanPaths(artifacts);
+}
+
+function getPlanArtifacts(
+	ir?: BuilderApplyOptions['input']['ir']
+): NonNullable<NonNullable<BuilderApplyOptions['input']['ir']>['artifacts']> {
+	if (!ir?.artifacts?.plan) {
 		throw new WPKernelError('DeveloperError', {
 			message: 'Plan paths cannot be resolved without an IR.',
 		});
 	}
 
-	const { layout } = ir;
-	if (!layout) {
-		throw new WPKernelError('DeveloperError', {
-			message:
-				'IR layout fragment did not provide layout; cannot resolve plan paths.',
-		});
-	}
+	return ir.artifacts;
+}
 
-	return {
-		planManifest: layout.resolve('plan.manifest'),
-		planBase: layout.resolve('plan.base'),
-		planIncoming: layout.resolve('plan.incoming'),
-		blocksGenerated: layout.resolve('blocks.generated'),
-		blocksApplied: layout.resolve('blocks.applied'),
-		phpGenerated: layout.resolve('php.generated'),
-		pluginLoader: layout.resolve('plugin.loader'),
-		bundlerConfig: layout.resolve('bundler.config'),
+function buildPlanPaths(
+	artifacts: NonNullable<
+		NonNullable<BuilderApplyOptions['input']['ir']>['artifacts']
+	>
+): PlanLayoutPaths {
+	const runtimePlan = artifacts.runtime?.runtime;
+	const phpPlan = artifacts.php;
+	const bundlerPlan = artifacts.bundler;
+
+	const paths: PlanLayoutPaths = {
+		planManifest: artifacts.plan.planManifestPath,
+		planBase: artifacts.plan.planBaseDir,
+		planIncoming: artifacts.plan.planIncomingDir,
+		runtimeGenerated: runtimePlan?.generated ?? '',
+		runtimeApplied: runtimePlan?.applied ?? '',
+		phpGenerated: '',
+		pluginLoader: '',
+		bundlerConfig: '',
 		viteConfig: 'vite.config.ts',
 	};
+
+	if (phpPlan) {
+		paths.phpGenerated = path.posix.dirname(phpPlan.pluginLoaderPath);
+		paths.pluginLoader = phpPlan.pluginLoaderPath;
+	}
+
+	if (bundlerPlan?.configPath) {
+		paths.bundlerConfig = bundlerPlan.configPath;
+	}
+
+	return paths;
 }

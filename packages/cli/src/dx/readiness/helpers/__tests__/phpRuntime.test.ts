@@ -3,6 +3,8 @@ import { createReadinessTestContext } from '@cli-tests/readiness.test-support';
 import {
 	createQuickstartDepsMock,
 	type QuickstartDepsMock,
+	makePromiseWithChild,
+	makeRejectedPromiseWithChild,
 } from '@cli-tests/dx/quickstart.test-support';
 
 describe('createPhpRuntimeReadinessHelper', () => {
@@ -13,7 +15,12 @@ describe('createPhpRuntimeReadinessHelper', () => {
 	});
 
 	it('detects php binary availability', async () => {
-		deps.exec.mockResolvedValue({ stdout: 'PHP 8.1.0' });
+		deps.exec.mockReturnValue(
+			makePromiseWithChild({
+				stdout: 'PHP 8.1.0',
+				stderr: '',
+			})
+		);
 		const helper = createPhpRuntimeReadinessHelper({
 			exec: deps.exec,
 		});
@@ -28,7 +35,9 @@ describe('createPhpRuntimeReadinessHelper', () => {
 	});
 
 	it('flags missing php binary', async () => {
-		deps.exec.mockRejectedValue(new Error('not found'));
+		deps.exec.mockReturnValue(
+			makeRejectedPromiseWithChild(new Error('not found'))
+		);
 		const helper = createPhpRuntimeReadinessHelper({
 			exec: deps.exec,
 		});
@@ -47,7 +56,12 @@ describe('createPhpRuntimeReadinessHelper', () => {
 	});
 
 	it('handles unknown version output gracefully', async () => {
-		deps.exec.mockResolvedValue({ stdout: '' });
+		deps.exec.mockReturnValue(
+			makePromiseWithChild({
+				stdout: '',
+				stderr: '',
+			})
+		);
 		const helper = createPhpRuntimeReadinessHelper({
 			exec: deps.exec,
 		});

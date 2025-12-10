@@ -2,6 +2,7 @@ import path from 'node:path';
 import fs from 'node:fs/promises';
 import type { Workspace } from '../../workspace';
 import { getCliPackageRoot } from '../../utils/module-url';
+import { pathExists } from '../../utils';
 
 const INIT_TEMPLATE_ROOT = path.join(getCliPackageRoot(), 'templates', 'init');
 
@@ -198,19 +199,6 @@ async function findRepoRoot(start: string): Promise<string | null> {
 		}
 
 		current = parent;
-	}
-}
-
-async function pathExists(targetPath: string): Promise<boolean> {
-	try {
-		await fs.access(targetPath);
-		return true;
-	} catch (error) {
-		if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
-			return false;
-		}
-
-		throw error;
 	}
 }
 

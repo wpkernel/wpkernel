@@ -6,7 +6,6 @@ import type { WPKernelConfigV1 } from '../../config/types';
 import type {
 	BuilderApplyOptions,
 	BuilderHelper,
-	BuilderNext,
 	FragmentApplyOptions,
 	FragmentHelper,
 } from '../types';
@@ -17,6 +16,7 @@ import {
 } from '../../../tests/runtime/pipeline.fixtures.test-support';
 import { withPipelineHarness } from '../../../tests/runtime/pipeline.test-support';
 import { loadTestLayoutSync } from '../../../tests/layout.test-support';
+import { buildTestArtifactsPlan, makeIrMeta } from '@cli-tests/ir.test-support';
 
 const DUMMY_LAYOUT = {
 	resolve(id: string) {
@@ -50,27 +50,11 @@ function createMetaHelper({
 		apply({ output }: FragmentApplyOptions) {
 			onApply?.();
 			output.assign({
-				meta: {
-					version: 1,
-					namespace,
+				meta: makeIrMeta(namespace, {
 					sanitizedNamespace,
-					origin: 'typescript',
 					sourcePath: 'config.ts',
-					features: [],
-					ids: {
-						algorithm: 'sha256',
-						resourcePrefix: 'res:',
-						schemaPrefix: 'sch:',
-						blockPrefix: 'blk:',
-						capabilityPrefix: 'cap:',
-					},
-					redactions: [],
-					limits: {
-						maxConfigKB: 512,
-						maxSchemaKB: 512,
-						policy: 'error',
-					},
-				},
+					origin: 'typescript',
+				}),
 				php: {
 					namespace: sanitizedNamespace,
 					autoload: 'inc/',
@@ -193,6 +177,22 @@ describe('createPipeline', () => {
 						},
 					})
 				);
+				ctx.pipeline.ir.use(
+					createHelper({
+						key: 'ir.artifacts.test',
+						kind: 'fragment',
+						mode: 'override',
+						dependsOn: ['ir.layout.test'],
+						apply({ input, output }) {
+							// Provide a minimal artifacts plan so pipeline finalisation succeeds.
+							output.assign({
+								artifacts: buildTestArtifactsPlan(
+									input.draft.layout as any
+								),
+							});
+						},
+					})
+				);
 				await run(ctx);
 			},
 			{ config, ...(options ?? {}) }
@@ -223,10 +223,9 @@ describe('createPipeline', () => {
 			const builderHelper = createHelper({
 				key: 'builder.test',
 				kind: 'builder',
-				apply({ reporter }: BuilderApplyOptions, next?: BuilderNext) {
+				apply({ reporter }: BuilderApplyOptions) {
 					runOrder.push('builder');
 					reporter.debug('builder executed');
-					return next?.();
 				},
 			});
 
@@ -248,6 +247,7 @@ describe('createPipeline', () => {
 			]);
 			expect(steps.map((step) => step.key)).toEqual([
 				'ir.layout.test',
+				'ir.artifacts.test',
 				'ir.meta.test',
 				'ir.collection.test',
 				'ir.capability-map.test',
@@ -258,7 +258,15 @@ describe('createPipeline', () => {
 	});
 
 	it('throws when multiple overrides register for the same key', async () => {
-		const pipeline = createPipeline();
+		const pipeline = createPipeline({
+			builderProvidedKeys: [
+				'builder.generate.php.controller.resources',
+				'builder.generate.php.capability',
+				'builder.generate.php.registration.persistence',
+				'builder.generate.php.plugin-loader',
+				'builder.generate.php.index',
+			],
+		});
 
 		pipeline.ir.use(
 			createHelper({
@@ -286,7 +294,15 @@ describe('createPipeline', () => {
 	});
 
 	it('rejects helpers registered under the wrong surface', () => {
-		const pipeline = createPipeline();
+		const pipeline = createPipeline({
+			builderProvidedKeys: [
+				'builder.generate.php.controller.resources',
+				'builder.generate.php.capability',
+				'builder.generate.php.registration.persistence',
+				'builder.generate.php.plugin-loader',
+				'builder.generate.php.index',
+			],
+		});
 
 		const builder = buildBuilderHelper({
 			key: 'builder.wrong-surface',
@@ -440,12 +456,8 @@ describe('createPipeline', () => {
 				createHelper({
 					key: 'builder.async',
 					kind: 'builder',
-					apply(
-						{ reporter }: BuilderApplyOptions,
-						next?: BuilderNext
-					) {
+					apply({ reporter }: BuilderApplyOptions) {
 						reporter.debug('async builder executed');
-						return next?.();
 					},
 				})
 			);
@@ -537,27 +549,11 @@ describe('createPipeline', () => {
 					mode: 'override',
 					apply({ output }: FragmentApplyOptions) {
 						output.assign({
-							meta: {
-								version: 1,
-								namespace: 'priority',
+							meta: makeIrMeta('priority', {
 								sanitizedNamespace: 'Priority',
 								origin: 'typescript',
 								sourcePath: 'config.ts',
-								features: [],
-								ids: {
-									algorithm: 'sha256',
-									resourcePrefix: 'res:',
-									schemaPrefix: 'sch:',
-									blockPrefix: 'blk:',
-									capabilityPrefix: 'cap:',
-								},
-								redactions: [],
-								limits: {
-									maxConfigKB: 512,
-									maxSchemaKB: 512,
-									policy: 'error',
-								},
-							},
+							}),
 							php: {
 								namespace: 'Priority',
 								autoload: 'inc/',
@@ -610,13 +606,9 @@ describe('createPipeline', () => {
 				key: 'builder.high-priority',
 				kind: 'builder',
 				priority: 5,
-				async apply(
-					{ reporter }: BuilderApplyOptions,
-					next?: BuilderNext
-				) {
+				async apply({ reporter }: BuilderApplyOptions) {
 					builderOrder.push('high');
 					reporter.debug('high priority builder executed');
-					await next?.();
 				},
 			});
 
@@ -624,14 +616,9 @@ describe('createPipeline', () => {
 				key: 'builder.alpha',
 				kind: 'builder',
 				priority: 1,
-				async apply(
-					{ reporter }: BuilderApplyOptions,
-					next?: BuilderNext
-				) {
+				async apply({ reporter }: BuilderApplyOptions) {
 					builderOrder.push('alpha');
 					reporter.debug('alpha builder executed');
-					await next?.();
-					await next?.();
 				},
 			});
 
@@ -648,26 +635,18 @@ describe('createPipeline', () => {
 			const duplicateFirst = createHelper({
 				key: 'builder.duplicate',
 				kind: 'builder',
-				async apply(
-					{ reporter }: BuilderApplyOptions,
-					next?: BuilderNext
-				) {
+				async apply({ reporter }: BuilderApplyOptions) {
 					builderOrder.push('duplicate-1');
 					reporter.debug('duplicate builder (first) executed');
-					await next?.();
 				},
 			});
 
 			const duplicateSecond = createHelper({
 				key: 'builder.duplicate',
 				kind: 'builder',
-				async apply(
-					{ reporter }: BuilderApplyOptions,
-					next?: BuilderNext
-				) {
+				async apply({ reporter }: BuilderApplyOptions) {
 					builderOrder.push('duplicate-2');
 					reporter.debug('duplicate builder (second) executed');
-					await next?.();
 				},
 			});
 
@@ -712,13 +691,11 @@ describe('createPipeline', () => {
 					mode: 'override',
 					apply({ output }: FragmentApplyOptions) {
 						output.assign({
-							meta: {
-								version: 1,
-								namespace: 'commit',
+							meta: makeIrMeta('priority', {
 								sanitizedNamespace: 'commit',
 								origin: 'typescript',
 								sourcePath: 'config.ts',
-							},
+							}),
 							php: {
 								namespace: 'Commit',
 								autoload: 'inc/',
@@ -794,13 +771,11 @@ describe('createPipeline', () => {
 					mode: 'override',
 					apply({ output }: FragmentApplyOptions) {
 						output.assign({
-							meta: {
-								version: 1,
-								namespace: 'extension-failure',
+							meta: makeIrMeta('priority', {
 								sanitizedNamespace: 'ExtensionFailure',
 								origin: 'typescript',
 								sourcePath: 'config.ts',
-							},
+							}),
 							php: {
 								namespace: 'ExtensionFailure',
 								autoload: 'inc/',
@@ -878,13 +853,11 @@ describe('createPipeline', () => {
 					mode: 'override',
 					apply({ output }: FragmentApplyOptions) {
 						output.assign({
-							meta: {
-								version: 1,
-								namespace: 'rollback',
+							meta: makeIrMeta('priority', {
 								sanitizedNamespace: 'rollback',
 								origin: 'typescript',
 								sourcePath: 'config.ts',
-							},
+							}),
 							php: {
 								namespace: 'Rollback',
 								autoload: 'inc/',
@@ -962,13 +935,11 @@ describe('createPipeline', () => {
 					mode: 'override',
 					apply({ output }: FragmentApplyOptions) {
 						output.assign({
-							meta: {
-								version: 1,
-								namespace: 'rollback-missing',
+							meta: makeIrMeta('priority', {
 								sanitizedNamespace: 'RollbackMissing',
 								origin: 'typescript',
 								sourcePath: 'config.ts',
-							},
+							}),
 							php: {
 								namespace: 'RollbackMissing',
 								autoload: 'inc/',
@@ -1048,13 +1019,11 @@ describe('createPipeline', () => {
 					mode: 'override',
 					apply({ output }: FragmentApplyOptions) {
 						output.assign({
-							meta: {
-								version: 1,
-								namespace: 'rollback-warning',
-								sanitizedNamespace: 'RollbackWarning',
+							meta: makeIrMeta('priority', {
+								sanitizedNamespace: 'RollbackMissing',
 								origin: 'typescript',
 								sourcePath: 'config.ts',
-							},
+							}),
 							php: {
 								namespace: 'RollbackWarning',
 								autoload: 'inc/',

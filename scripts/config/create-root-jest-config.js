@@ -56,12 +56,14 @@ export function createRootJestConfig(options = {}) {
 			'packages/*/src/**/*.{ts,tsx}',
 			'!examples/showcase/src/**',
 			'!packages/e2e-utils/src/**',
+			'!packages/test-utils/src/**',
 			'!packages/ui/src/hooks/testing/**',
 			'!packages/cli/src/cli/**',
 			'!packages/cli/src/commands/**',
 			'!packages/cli/src/internal/**',
 			'!packages/cli/src/version.ts',
 			'!packages/cli/src/ir/__fixtures__/**',
+			'!**/__fixtures__/**',
 			'!<rootDir>/packages/ui/src/dataviews/test-support/**',
 			'!packages/*/src/**/*.d.ts',
 			'!examples/*/src/**/*.d.ts',
@@ -85,6 +87,7 @@ export function createRootJestConfig(options = {}) {
 			'/node_modules/',
 			'/dist/',
 			'/build/',
+			'/.cache/',
 			'/.wp-env/',
 			'/packages/e2e-utils/tests/',
 			'/__tests__/e2e/',
@@ -112,6 +115,7 @@ export function createRootJestConfig(options = {}) {
 	config.modulePathIgnorePatterns = [
 		...(config.modulePathIgnorePatterns ?? []),
 		cliDistPath,
+		'/.cache/',
 	];
 	config.watchPathIgnorePatterns = [
 		...(config.watchPathIgnorePatterns ?? []),

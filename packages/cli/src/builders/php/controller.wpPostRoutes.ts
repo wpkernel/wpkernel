@@ -2,10 +2,9 @@ import { createHelper } from '../../runtime';
 import type {
 	BuilderApplyOptions,
 	BuilderHelper,
-	BuilderNext,
 	PipelineContext,
 } from '../../runtime/types';
-import { makeErrorCodeFactory, toPascalCase } from './utils';
+import { makeErrorCodeFactory, toPascalCase } from '../../utils';
 export { resolveIdentityConfig } from '@wpkernel/wp-json-ast';
 
 import {
@@ -73,10 +72,10 @@ export function createPhpWpPostRoutesHelper(): BuilderHelper {
 	return createHelper({
 		key: 'builder.generate.php.controller.resources.wpPostRoutes',
 		kind: 'builder',
-		async apply(options: BuilderApplyOptions, next?: BuilderNext) {
+		dependsOn: ['builder.generate.php.channel.bootstrap'],
+		async apply(options: BuilderApplyOptions) {
 			const { input } = options;
 			if (input.phase !== 'generate' || !input.ir) {
-				await next?.();
 				return;
 			}
 
@@ -87,8 +86,6 @@ export function createPhpWpPostRoutesHelper(): BuilderHelper {
 				ir: input.ir,
 				state,
 			});
-
-			await next?.();
 		},
 	});
 }

@@ -12,6 +12,14 @@ export {
 	handleExtensionRegisterResult,
 } from './registration';
 
+// Rollback utilities
+export { createPipelineRollback, runRollbackStack } from './rollback';
+export type {
+	PipelineRollback,
+	PipelineRollbackErrorMetadata,
+	RunRollbackStackOptions,
+} from './rollback';
+
 // Type exports (all types consumers need)
 export type {
 	// Core pipeline types
@@ -33,12 +41,12 @@ export type {
 	// Helper types
 	Helper,
 	HelperApplyFn,
+	HelperApplyResult,
 	HelperDescriptor,
 	HelperKind,
 	HelperMode,
 	CreateHelperOptions,
 	HelperApplyOptions,
-
 	// Utility types
 	MaybePromise,
 	PipelineStep,
@@ -70,7 +78,6 @@ export type {
 	ExtensionHookExecution,
 	RollbackErrorArgs,
 } from './extensions';
-export { createRollbackErrorMetadata } from './extensions';
 
 // Blueprint exports for official extensions
 export { OFFICIAL_EXTENSION_BLUEPRINTS } from './extensions/official';

@@ -9,7 +9,7 @@ namespaces, levels, and context metadata.
 - **Single source of truth** - Actions, capabilities, and registry plugins rely on the same transport configuration.
 - **Structured payloads** - Hooks receive `{ message, context, timestamp }` so downstream consumers stay typed.
 - **Environment aware** - Console logging is skipped in production, while hooks remain active for instrumentation.
-- **Lint enforcement** - The [`@kernel/no-console-in-kernel`](/eslint-rules/no-console-in-wpkernel.js) rule blocks accidental `console.*` usage in core code.
+- **Lint enforcement** - The [`@wpkernel/no-console-in-wpk`](/eslint-rules/no-console-in-wpkernel.js) rule blocks accidental `console.*` usage in core code.
 
 ## Creating a reporter
 

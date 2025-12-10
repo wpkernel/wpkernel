@@ -1,22 +1,22 @@
 import path from 'node:path';
 import {
-	buildModuleSpecifier,
-	buildBlockRegistrarMetadata,
-	buildAutoRegisterModuleMetadata,
-	formatBlockVariableName,
-	generateBlockImportPath,
-	resolveWPKernelImport,
-	resolveResourceImport,
-	toCamelCase,
-	toPascalCase,
-} from '../shared';
-import {
 	withWorkspace as baseWithWorkspace,
 	type BuilderHarnessContext,
 } from '@cli-tests/builders/ts.test-support';
 import { buildWorkspace } from '../../../workspace';
 import type { Workspace } from '../../../workspace';
-import { loadTestLayoutSync } from '@cli-tests/layout.test-support';
+import { loadTestLayoutSync } from '@wpkernel/test-utils/layout.test-support';
+import {
+	buildBlockRegistrarMetadata,
+	formatBlockVariableName,
+} from '../metadata';
+import { buildModuleSpecifier, resolveResourceImport } from '../imports';
+import {
+	buildAutoRegisterModuleMetadata,
+	generateBlockImportPath,
+} from '../registrar';
+import { toCamelCase, toPascalCase } from '../../../utils';
+import { buildTestArtifactsPlan } from '@cli-tests/ir.test-support';
 
 const withWorkspace = (
 	run: (context: BuilderHarnessContext<Workspace>) => Promise<void>
@@ -26,14 +26,26 @@ const withWorkspace = (
 	});
 
 describe('ts shared helpers', () => {
+	const layout = loadTestLayoutSync();
+	const artifacts = buildTestArtifactsPlan(layout);
+	const runtimeGenerated = artifacts.runtime.runtime.generated;
+	const runtimeApplied = artifacts.runtime.runtime.applied;
+	const generatedResourcesDir = path.join(runtimeGenerated, 'resources');
+	const appliedResourcesDir = path.join(runtimeApplied, 'resources');
+	const adminScreenPath = path.join(
+		artifacts.surfaces['res:job']?.appDir ?? runtimeApplied,
+		'job',
+		'admin',
+		'JobsAdminScreen.tsx'
+	);
+
 	describe('module specifiers', () => {
 		it('builds a relative specifier for workspace targets', async () => {
 			await withWorkspace(async ({ workspace }) => {
 				const specifier = buildModuleSpecifier({
 					workspace,
 					from: path.join(
-						'.generated',
-						'ui',
+						runtimeGenerated,
 						'fixtures',
 						'dataviews',
 						'job.ts'
@@ -41,7 +53,7 @@ describe('ts shared helpers', () => {
 					target: path.join('src', 'resources', 'job.ts'),
 				});
 
-				expect(specifier).toBe('../../../../src/resources/job');
+				expect(specifier).toBe('../../../../../../src/resources/job');
 			});
 		});
 
@@ -64,40 +76,18 @@ describe('ts shared helpers', () => {
 	});
 
 	describe('resolveResourceImport', () => {
-		it('prefers the configured specifier when provided', async () => {
+		it('writes a stub into the generated resources directory', async () => {
 			await withWorkspace(async ({ workspace }) => {
 				await expect(
 					resolveResourceImport({
 						workspace,
-						from: 'generated.ts',
+						from: adminScreenPath,
 						resourceKey: 'job',
-						configured: '@/custom/job-resource',
+						generatedResourcesDir,
+						appliedResourcesDir,
+						configPath: path.join('wpk.config.ts'),
 					})
-				).resolves.toBe('@/custom/job-resource');
-			});
-		});
-
-		it('derives a relative specifier when a matching module exists', async () => {
-			await withWorkspace(async ({ workspace }) => {
-				await workspace.write(
-					path.join('src', 'resources', 'job.ts'),
-					'export const job = {};\n'
-				);
-
-				await expect(
-					resolveResourceImport({
-						workspace,
-						from: path.join(
-							'.generated',
-							'ui',
-							'app',
-							'job',
-							'admin',
-							'JobsAdminScreen.tsx'
-						),
-						resourceKey: 'job',
-					})
-				).resolves.toBe('../../../../../src/resources/job');
+				).resolves.toBe('@/resources/job');
 			});
 		});
 
@@ -108,6 +98,8 @@ describe('ts shared helpers', () => {
 						workspace,
 						from: 'generated.ts',
 						resourceKey: 'job-board',
+						generatedResourcesDir,
+						appliedResourcesDir,
 					})
 				).resolves.toBe('@/resources/job-board');
 			});
@@ -123,75 +115,17 @@ describe('ts shared helpers', () => {
 				await expect(
 					resolveResourceImport({
 						workspace,
-						from: path.join(
-							'.generated',
-							'ui',
-							'app',
-							'job',
-							'admin',
-							'JobsAdminScreen.tsx'
-						),
+						from: adminScreenPath,
 						resourceKey: 'job',
 						resourceSymbol: 'job',
 						configPath: path.join(root, 'wpk.config.ts'),
+						generatedResourcesDir,
+						appliedResourcesDir,
 					})
-				).resolves.toBe('../../../../../src/resources/job');
+				).resolves.toBe('@/resources/job');
 
-				const stub = await workspace.readText(
-					path.join('src', 'resources', 'job.ts')
-				);
-				expect(stub).toContain("from '../../wpk.config'");
-				expect(stub).toContain(
-					'export const job = wpkConfig.resources.job;'
-				);
-			});
-		});
-	});
-
-	describe('resolveWPKernelImport', () => {
-		it('returns configured wpk specifier when provided', async () => {
-			await withWorkspace(async ({ workspace }) => {
-				await expect(
-					resolveWPKernelImport({
-						workspace,
-						from: 'generated.tsx',
-						configured: '@/bootstrap/custom-kernel',
-					})
-				).resolves.toBe('@/bootstrap/custom-kernel');
-			});
-		});
-
-		it('resolves an existing wpk module within the workspace', async () => {
-			await withWorkspace(async ({ workspace }) => {
-				await workspace.write(
-					path.join('src', 'bootstrap', 'kernel.ts'),
-					'export const wpk = {};\n'
-				);
-
-				await expect(
-					resolveWPKernelImport({
-						workspace,
-						from: path.join(
-							'.generated',
-							'ui',
-							'app',
-							'job',
-							'admin',
-							'JobsAdminScreen.tsx'
-						),
-					})
-				).resolves.toBe('../../../../../src/bootstrap/kernel');
-			});
-		});
-
-		it('falls back to the wpk alias when no module exists', async () => {
-			await withWorkspace(async ({ workspace }) => {
-				await expect(
-					resolveWPKernelImport({
-						workspace,
-						from: 'generated.ts',
-					})
-				).resolves.toBe('@/bootstrap/kernel');
+				const stubPath = path.join(generatedResourcesDir, 'job.ts');
+				await expect(workspace.readText(stubPath)).resolves.toBeNull();
 			});
 		});
 	});
@@ -261,19 +195,22 @@ describe('ts shared helpers', () => {
 		});
 
 		it('preserves leading dot segments when block paths live higher in the tree', () => {
-			const layout = loadTestLayoutSync();
+			const layoutManifest = loadTestLayoutSync();
 			const importPath = generateBlockImportPath(
 				path.join('/project/src/blocks/feature', 'block.json'),
 				path.join(
 					'/project',
-					layout.resolve('blocks.generated'),
+					layoutManifest.resolve('blocks.generated'),
 					'auto-register.ts'
 				)
 			);
 
 			const expected = path
 				.relative(
-					path.join('/project', layout.resolve('blocks.generated')),
+					path.join(
+						'/project',
+						layoutManifest.resolve('blocks.generated')
+					),
 					path.join('/project/src/blocks/feature', 'block.json')
 				)
 				.split(path.sep)

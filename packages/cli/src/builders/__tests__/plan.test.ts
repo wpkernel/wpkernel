@@ -12,10 +12,31 @@ import type { GenerationManifest } from '../../apply/manifest';
 import {
 	loadTestLayout,
 	loadTestLayoutSync,
-} from '@cli-tests/layout.test-support';
+} from '@wpkernel/test-utils/layout.test-support';
 import { createReporterMock } from '@cli-tests/reporter';
 import { buildOutput } from '@cli-tests/builders/builder-harness.test-support';
 import { resolvePlanPaths } from '../plan.paths';
+
+function seedBlockArtifacts(
+	ir: ReturnType<typeof makeIr>,
+	layout: { resolve: (id: string) => string }
+) {
+	const generated = layout.resolve('blocks.generated');
+	const applied = layout.resolve('blocks.applied');
+	ir.artifacts.blocks = {
+		[`${ir.meta.namespace}-block`]: {
+			key: 'demo',
+			appliedDir: applied,
+			generatedDir: generated,
+			jsonPath: path.posix.join(generated, 'demo/block.json'),
+			tsEntry: path.posix.join(generated, 'demo/index.tsx'),
+			tsView: path.posix.join(generated, 'demo/view.tsx'),
+			tsHelper: path.posix.join(generated, 'demo/helper.ts'),
+			mode: 'js',
+			phpRenderPath: undefined,
+		},
+	};
+}
 
 async function withTempWorkspace(
 	run: (context: {
@@ -44,6 +65,12 @@ async function runPlan(options: {
 			? makeIr()
 			: (options.ir as ReturnType<typeof makeIr> | null);
 	const optsSeed = irArg ?? makeIr();
+	const config = {
+		version: 1 as const,
+		namespace: optsSeed.meta.namespace,
+		schemas: {},
+		resources: {},
+	};
 	const reporter = createReporterMock();
 	const output = buildOutput();
 	const helper = createApplyPlanBuilder();
@@ -60,8 +87,7 @@ async function runPlan(options: {
 		input: {
 			phase: 'generate',
 			options: {
-				config: optsSeed.config,
-				namespace: optsSeed.meta.namespace,
+				namespace: config.namespace,
 				origin: optsSeed.meta.origin,
 				sourcePath: path.join(options.root, 'wpk.config.ts'),
 			},
@@ -98,7 +124,7 @@ describe('plan (orchestrator)', () => {
 					phase: 'generate',
 					options: {
 						config: {
-							version: 1,
+							version: 1 as const,
 							namespace: 'demo',
 							schemas: {},
 							resources: {},
@@ -138,6 +164,7 @@ describe('plan (orchestrator)', () => {
 					},
 				],
 			});
+			seedBlockArtifacts(ir, layout);
 
 			const { plan } = await runPlan({ root, workspace, ir });
 
@@ -244,6 +271,8 @@ describe('plan (orchestrator)', () => {
 				ensureDir: true,
 			});
 
+			seedBlockArtifacts(ir, ir.layout);
+
 			const { plan } = await runPlan({
 				root,
 				workspace,
@@ -322,7 +351,7 @@ describe('plan (orchestrator)', () => {
 			const plugin = plan.instructions?.find(
 				(instr: any) => instr.file === pluginLoaderPath
 			);
-			expect(plugin).toBeUndefined();
+			expect(plugin).toBeDefined();
 		});
 	});
 

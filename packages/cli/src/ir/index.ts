@@ -1,22 +1,25 @@
 export {
+	createIrWithBuilders,
 	createIr,
 	registerCoreFragments,
 	registerCoreBuilders,
 } from './createIr';
 export type { CreateIrEnvironment } from './createIr';
-export { buildIr } from './buildIr';
-export { createMetaFragment, META_EXTENSION_KEY } from './fragments/meta';
+export {
+	createMetaFragment,
+	META_EXTENSION_KEY,
+} from './fragments/ir.meta.core';
 export {
 	createSchemasFragment,
 	SCHEMA_EXTENSION_KEY,
-} from './fragments/schemas';
-export { createResourcesFragment } from './fragments/resources';
-export { createCapabilitiesFragment } from './fragments/capabilities';
-export { createCapabilityMapFragment } from './fragments/capability-map';
-export { createDiagnosticsFragment } from './fragments/diagnostics';
-export { createBlocksFragment } from './fragments/blocks';
-export { createOrderingFragment } from './fragments/ordering';
-export { createLayoutFragment } from './fragments/layout';
+} from './fragments/ir.schemas.core';
+export { createResourcesFragment } from './fragments/ir.resources.core';
+export { createCapabilitiesFragment } from './fragments/ir.capabilities.core';
+export { createCapabilityMapFragment } from './fragments/ir.capability-map.core';
+export { createDiagnosticsFragment } from './fragments/ir.diagnostics.core';
+export { createBlocksFragment } from './fragments/ir.blocks.core';
+export { createOrderingFragment } from './fragments/ir.ordering.core';
+export { createLayoutFragment } from './fragments/ir.layout.core';
 export { createValidationFragment } from './fragments/validation';
 export type {
 	IRDiagnostic,
@@ -27,7 +30,6 @@ export type {
 	IrFragmentOutput,
 } from './types';
 export type {
-	BuildIrOptions,
 	IRBlock,
 	IRPhpProject,
 	IRCapabilityDefinition,
@@ -36,6 +38,7 @@ export type {
 	IRCapabilityScope,
 	IRResource,
 	IRResourceCacheKey,
+	FragmentIrOptions,
 	IRRoute,
 	IRRouteTransport,
 	IRSchema,

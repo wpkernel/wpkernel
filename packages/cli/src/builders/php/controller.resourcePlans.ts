@@ -13,7 +13,7 @@ import {
 import { buildRoutePlans } from './controller.routePlans';
 import { buildRestArgs } from './controller.restArgs';
 import { readWpPostRouteBundle } from './controller.wpPostRoutes';
-import { toPascalCase, makeErrorCodeFactory, sanitizeJson } from './utils';
+import { toPascalCase, makeErrorCodeFactory, sanitizeJson } from '../../utils';
 import type { IRv1, IRResource } from '../../ir';
 import type { BuilderApplyOptions } from '../../runtime/types';
 import type {

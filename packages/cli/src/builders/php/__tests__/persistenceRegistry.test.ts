@@ -11,6 +11,7 @@ import {
 	createBuilderOutput,
 	createMinimalIr,
 	createPipelineContext,
+	seedArtifacts,
 } from '../test-support/php-builder.test-support';
 import {
 	makeResource,
@@ -24,7 +25,6 @@ describe('createPhpPersistenceRegistryHelper', () => {
 		resetPhpAstChannel(context);
 
 		const helper = createPhpPersistenceRegistryHelper();
-		const next = jest.fn();
 
 		await helper.apply(
 			{
@@ -33,10 +33,9 @@ describe('createPhpPersistenceRegistryHelper', () => {
 				output: createBuilderOutput(),
 				reporter: context.reporter,
 			},
-			next
+			undefined
 		);
 
-		expect(next).toHaveBeenCalledTimes(1);
 		expect(getPhpBuilderChannel(context).pending()).toHaveLength(0);
 	});
 
@@ -65,6 +64,7 @@ describe('createPhpPersistenceRegistryHelper', () => {
 
 		const helper = createPhpPersistenceRegistryHelper();
 		const ir = createMinimalIr({ resources });
+		await seedArtifacts(ir, context.reporter);
 
 		await helper.apply(
 			{

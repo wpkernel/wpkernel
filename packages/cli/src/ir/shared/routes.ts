@@ -2,6 +2,7 @@ import { WPKernelError } from '@wpkernel/core/error';
 import type { ResourceConfig, ResourceRoute } from '@wpkernel/core/resource';
 import type { IRRoute, IRWarning } from '../publicTypes';
 import { buildHashProvenance } from './hashing';
+import { isAbsoluteUrl } from '../../utils';
 
 const RESERVED_ROUTE_PREFIXES = [
 	'/wp/v2',
@@ -194,8 +195,4 @@ function analyseRoutePath(options: {
 	}
 
 	return { normalisedPath: collapsed || '/', transport, warnings };
-}
-
-function isAbsoluteUrl(candidate: string): boolean {
-	return candidate.startsWith('http://') || candidate.startsWith('https://');
 }

@@ -12,6 +12,7 @@ import {
 	maybeTry,
 	processSequentially,
 } from './async-utils';
+import { runRollbackStack } from './rollback.js';
 
 /**
  * An extension hook entry with its unique key.
@@ -214,29 +215,28 @@ export function rollbackExtensionResults<TContext, TOptions, TArtifact>(
 	const hookKeys = hooks.map((entry) => entry.key);
 	const hookSequence = hookKeys;
 
-	return processSequentially(
-		[...results].reverse(),
-		(execution) => {
-			const rollback = execution.result.rollback;
-			if (!rollback) {
-				return;
-			}
+	// Convert extension hook results to PipelineRollback entries
+	const rollbackEntries = results
+		.map((execution) => ({
+			result: execution.result,
+			hook: execution.hook,
+		}))
+		.filter((entry) => entry.result.rollback)
+		.map((entry) => ({
+			key: entry.hook.key,
+			run: entry.result.rollback!,
+		}));
 
-			return maybeTry(
-				() => rollback(),
-				(error) => {
-					onRollbackError({
-						error,
-						extensionKeys: hookKeys,
-						hookSequence,
-					});
-
-					return undefined;
-				}
-			);
+	return runRollbackStack(rollbackEntries, {
+		source: 'extension',
+		onError: ({ error }) => {
+			onRollbackError({
+				error,
+				extensionKeys: hookKeys,
+				hookSequence,
+			});
 		},
-		'forward'
-	);
+	});
 }
 
 export { OFFICIAL_EXTENSION_BLUEPRINTS } from './extensions/official.js';

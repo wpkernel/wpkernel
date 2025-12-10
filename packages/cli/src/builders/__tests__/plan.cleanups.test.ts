@@ -4,7 +4,7 @@ import os from 'node:os';
 import type { GenerationManifestDiff } from '../../apply/manifest';
 import { collectDeletionInstructions } from '../plan.cleanups';
 import { buildWorkspace } from '../../workspace';
-import { loadTestLayoutSync } from '@cli-tests/layout.test-support';
+import { loadTestLayoutSync } from '@wpkernel/test-utils/layout.test-support';
 import { createReporterMock } from '@cli-tests/reporter';
 
 describe('plan.cleanups', () => {
@@ -57,5 +57,107 @@ describe('plan.cleanups', () => {
 		} finally {
 			await fs.rm(root, { recursive: true, force: true });
 		}
+	});
+
+	it('skips deletions when base snapshots or targets are missing', async () => {
+		const reporter = createReporterMock();
+		const layout = loadTestLayoutSync();
+		const shimPath = 'inc/Rest/UsersController.php';
+		const planBasePath = layout.resolve('plan.base');
+		const reads: Record<string, string | null> = {
+			[path.posix.join(planBasePath, shimPath)]: null,
+			[shimPath]: '<?php // target',
+		};
+		const workspace = {
+			readText: jest.fn(
+				async (file?: string) => reads[file ?? ''] ?? null
+			),
+		} as unknown as ReturnType<typeof buildWorkspace>;
+
+		const diff: GenerationManifestDiff = {
+			removed: [
+				{
+					resource: 'users',
+					shims: [shimPath],
+					generated: [],
+				},
+			],
+		};
+
+		const result = await collectDeletionInstructions({
+			diff,
+			workspace,
+			reporter,
+			planBasePath,
+		});
+
+		expect(result.instructions).toEqual([]);
+		expect(result.skippedDeletions).toEqual([
+			expect.objectContaining({
+				file: shimPath,
+				reason: 'missing-base',
+			}),
+		]);
+	});
+
+	it('skips deletions when targets are missing or modified', async () => {
+		const reporter = createReporterMock();
+		const layout = loadTestLayoutSync();
+		const shimPath = 'inc/Rest/AuthorsController.php';
+		const planBasePath = layout.resolve('plan.base');
+		const reads: Record<string, string | null> = {
+			[path.posix.join(planBasePath, shimPath)]: '<?php // base',
+			[shimPath]: null,
+		};
+		const workspace = {
+			readText: jest.fn(
+				async (file?: string) => reads[file ?? ''] ?? null
+			),
+		} as unknown as ReturnType<typeof buildWorkspace>;
+
+		const diff: GenerationManifestDiff = {
+			removed: [
+				{
+					resource: 'authors',
+					shims: [shimPath, 'inc/Rest/EditorsController.php'],
+					generated: [],
+				},
+			],
+		};
+
+		const result = await collectDeletionInstructions({
+			diff,
+			workspace,
+			reporter,
+			planBasePath,
+		});
+
+		expect(result.instructions).toEqual([]);
+		expect(result.skippedDeletions).toEqual(
+			expect.arrayContaining([
+				expect.objectContaining({
+					file: shimPath,
+					reason: 'missing-target',
+				}),
+			])
+		);
+
+		reads[shimPath] = '<?php // modified';
+		const modifiedResult = await collectDeletionInstructions({
+			diff,
+			workspace,
+			reporter,
+			planBasePath,
+		});
+
+		expect(modifiedResult.instructions).toEqual([]);
+		expect(modifiedResult.skippedDeletions).toEqual(
+			expect.arrayContaining([
+				expect.objectContaining({
+					file: shimPath,
+					reason: 'modified-target',
+				}),
+			])
+		);
 	});
 });

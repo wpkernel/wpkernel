@@ -1,9 +1,5 @@
 import { createHelper } from '../../runtime';
-import type {
-	BuilderApplyOptions,
-	BuilderHelper,
-	BuilderNext,
-} from '../../runtime/types';
+import type { BuilderApplyOptions, BuilderHelper } from '../../runtime/types';
 import {
 	buildBaseControllerProgram,
 	buildGeneratedModuleProgram,
@@ -28,9 +24,9 @@ export function createPhpBaseControllerHelper(): BuilderHelper {
 	return createHelper({
 		key: 'builder.generate.php.controller.base',
 		kind: 'builder',
-		async apply(options: BuilderApplyOptions, next?: BuilderNext) {
+		dependsOn: ['builder.generate.php.channel.bootstrap'],
+		async apply(options: BuilderApplyOptions) {
 			if (options.input.phase !== 'generate' || !options.input.ir) {
-				await next?.();
 				return;
 			}
 
@@ -75,7 +71,6 @@ export function createPhpBaseControllerHelper(): BuilderHelper {
 			options.reporter.debug(
 				'createPhpBaseControllerHelper: queued Rest/BaseController.php.'
 			);
-			await next?.();
 		},
 	});
 }

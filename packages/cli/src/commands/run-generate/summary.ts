@@ -1,4 +1,4 @@
-import type { FileWriterSummary } from '../../utils';
+import type { FileWriterSummary } from '../../utils/file-writer';
 
 type ArtifactHint = {
 	label: string;
@@ -8,8 +8,9 @@ type ArtifactHint = {
 
 function applyArtifactHints(paths?: {
 	php: string;
-	ui: string;
-	js: string;
+	entry: string;
+	runtime: string;
+	blocks?: string;
 }): readonly ArtifactHint[] {
 	return [
 		{
@@ -18,15 +19,24 @@ function applyArtifactHints(paths?: {
 			description: 'REST controllers',
 		},
 		{
-			label: 'ui',
-			directory: paths?.ui ?? 'generate/ui',
-			description: 'admin application',
+			label: 'entry',
+			directory: paths?.entry ?? 'generate/src/entry',
+			description: 'admin entry point',
 		},
 		{
-			label: 'capabilities',
-			directory: paths?.js ?? 'generate/js',
-			description: 'capability runtime',
+			label: 'runtime',
+			directory: paths?.runtime ?? 'generate/src/runtime',
+			description: 'admin runtime/capabilities',
 		},
+		...(paths?.blocks
+			? [
+					{
+						label: 'blocks',
+						directory: paths.blocks,
+						description: 'block auto-register',
+					},
+				]
+			: []),
 	] as const;
 }
 
@@ -87,8 +97,9 @@ export function renderSummary(
 	verbose: boolean,
 	paths?: {
 		php: string;
-		ui: string;
-		js: string;
+		entry: string;
+		runtime: string;
+		blocks?: string;
 	}
 ): string {
 	const parts: string[] = [

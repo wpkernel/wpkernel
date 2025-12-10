@@ -30,6 +30,7 @@ import { resolveCommandCwd } from './init/command-runtime';
 import { runWithProgress, formatDuration } from '../utils/progress';
 import { COMMAND_HELP } from '../cli/help';
 import { resolvePatchPaths } from '../builders/patcher.paths';
+import { WPKernelError } from '@wpkernel/core/error';
 
 // Re-export types from sub-modules for TypeDoc
 export type { GenerationSummary } from './run-generate/types';
@@ -196,23 +197,35 @@ async function runGenerateWorkflow(
 				...writerSummary,
 				dryRun,
 			};
-			const artifactPaths = result.ir?.layout
-				? {
-						php: result.ir.layout.resolve('php.generated'),
-						ui: result.ir.layout.resolve('ui.generated'),
-						js: result.ir.layout.resolve('js.generated'),
-					}
-				: undefined;
+			const artifactPaths =
+				result.ir && result.ir.artifacts.runtime
+					? {
+							php: result.ir.php.outputDir,
+							entry: result.ir.artifacts.runtime.entry.generated,
+							runtime:
+								result.ir.artifacts.runtime.runtime.generated,
+							blocks: result.ir.artifacts.runtime
+								.blocksRegistrarPath,
+						}
+					: undefined;
+
+			const planArtifacts = result.ir?.artifacts.plan;
+			if (!planArtifacts) {
+				throw new WPKernelError('DeveloperError', {
+					message:
+						'Artifacts plan missing after generation; cannot locate patch manifest.',
+				});
+			}
 
 			const patchPaths = resolvePatchPaths({
-				layout: result.ir?.layout,
+				plan: planArtifacts,
 			});
 
 			const manifestFailure = await finalizeWorkspaceTransaction(
 				tracked.workspace,
 				reporter,
 				dryRun,
-				patchPaths.manifestPath
+				patchPaths.planPath
 			);
 
 			if (manifestFailure) {
@@ -226,22 +239,6 @@ async function runGenerateWorkflow(
 			reporter.debug('Generated files.', {
 				files: writerSummary.entries,
 			});
-
-			try {
-				await dependencies.validateGeneratedImports({
-					projectRoot: tracked.workspace.root,
-					summary: generationSummary,
-					reporter,
-				});
-			} catch (error) {
-				const exitCode = handleFailure(
-					error,
-					reporter,
-					WPK_EXIT_CODES.UNEXPECTED_ERROR,
-					{ includeContext: verbose }
-				);
-				return buildFailure(exitCode);
-			}
 
 			const output = dependencies.renderSummary(
 				writerSummary,

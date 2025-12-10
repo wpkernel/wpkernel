@@ -10,6 +10,7 @@ import type {
 	WriteJsonOptions,
 	WriteOptions,
 } from './types';
+import { loadLayoutFromWorkspace } from '../ir/fragments/ir.layout.core';
 
 interface TransactionOriginalMissing {
 	readonly type: 'missing';
@@ -75,8 +76,12 @@ function normaliseForMatch(root: string, absolute: string): string {
 
 function buildPatternMatcher(pattern: string): (candidate: string) => boolean {
 	const normalised = pattern.replace(/\\/g, '/');
-	const escaped = normalised.replace(/([.+^=!:${}()|[\]\/\\])/g, '\\$1');
-	const regexSource = `^${escaped.replace(/\*\*/g, '.*').replace(/\*/g, '[^/]*')}$`;
+	const escaped = normalised.replace(/([.+^=!:${}()|[\]/\\])/g, '\\$1');
+
+	// Allow globstars (**/) to match zero or more nested segments.
+	const globStarExpanded = escaped.replace(/\\\*\\\*\\\//g, '(?:.*\\/)?');
+	const singleStarExpanded = globStarExpanded.replace(/\*/g, '[^/]*');
+	const regexSource = `^${singleStarExpanded}$`;
 	const matcher = new RegExp(regexSource);
 	return (candidate: string) => matcher.test(candidate);
 }
@@ -400,7 +405,16 @@ class FilesystemWorkspace implements Workspace {
 	}
 
 	async tmpDir(prefix = 'wpk-workspace-'): Promise<string> {
-		const base = path.join(this.#root, '.tmp');
+		const layout = await loadLayoutFromWorkspace({
+			workspace: this,
+			strict: false,
+		});
+		let base =
+			layout?.resolve('workspace.tmp') ??
+			path.join(this.#root, '.wpk', 'tmp');
+		if (!path.isAbsolute(base)) {
+			base = path.join(this.#root, base);
+		}
 		await fs.mkdir(base, { recursive: true });
 		return fs.mkdtemp(path.join(base, prefix));
 	}

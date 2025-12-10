@@ -22,76 +22,39 @@ import type {
 	ReadinessPlan,
 	ReadinessRegistry,
 } from '../../dx';
-import { loadTestLayoutSync } from '@cli-tests/layout.test-support';
+import { loadTestLayoutSync } from '@wpkernel/test-utils/layout.test-support';
+import { resolvePatchPaths } from '../../builders/patcher.paths';
+import { buildTestArtifactsPlan, makeIr } from '@cli-tests/ir.test-support';
+import layoutManifest from '../../../../../layout.manifest.json' assert { type: 'json' };
 import { createDefaultResource } from '@cli-tests/ir/resource-builder.mock';
 
-function buildIrArtifact(workspaceRoot: string): PipelineRunResult['ir'] {
-	const layout = loadTestLayoutSync();
+jest.mock('../../ir/fragments/ir.layout.core', () => {
+	const actual = jest.requireActual('../../ir/fragments/ir.layout.core');
 	return {
+		...actual,
+		loadLayoutFromWorkspace: jest.fn(async () => loadTestLayoutSync()),
+	};
+});
+
+const buildIrArtifact = (workspaceRoot: string): PipelineRunResult['ir'] =>
+	makeIr({
+		namespace: 'Demo',
 		meta: {
-			version: 1,
-			namespace: 'Demo',
 			sourcePath: path.join(workspaceRoot, 'wpk.config.ts'),
 			origin: 'typescript',
-			sanitizedNamespace: 'Demo',
 			features: [],
-			ids: {
-				algorithm: 'sha256',
-				resourcePrefix: 'res:',
-				schemaPrefix: 'sch:',
-				blockPrefix: 'blk:',
-				capabilityPrefix: 'cap:',
-			},
-			redactions: [],
-			limits: {
-				maxConfigKB: 2048,
-				maxSchemaKB: 2048,
-				policy: 'truncate',
-			},
-			plugin: {
-				name: 'Demo',
-				description: 'Demo plugin',
-				version: '1.0.0',
-				requiresAtLeast: '6.0',
-				requiresPhp: '8.1',
-				textDomain: 'demo',
-				author: 'Demo',
-				license: 'GPL-2.0-or-later',
-				authorUri: 'https://example.com',
-				pluginUri: 'https://example.com',
-				licenseUri: 'https://example.com/license',
-			},
 		},
-		config: {
-			version: 1,
-			namespace: 'Demo',
-			resources: {},
-			schemas: {},
-		},
-		schemas: [],
 		resources: [],
-		capabilities: [],
-		capabilityMap: {
-			definitions: [],
-			fallback: { capability: 'manage_options', appliesTo: 'resource' },
-			missing: [],
-			unused: [],
-			warnings: [],
-		},
-		blocks: [],
-		php: {
-			namespace: 'Demo',
-			autoload: 'inc',
-			outputDir: layout.resolve('php.generated'),
-		},
-		diagnostics: [],
-		layout,
-	} satisfies PipelineRunResult['ir'];
-}
+		schemas: [],
+		artifacts: buildTestArtifactsPlan(loadTestLayoutSync()),
+	});
 
 function createWorkspaceStub() {
 	return createCommandWorkspaceHarness({
 		root: path.join(process.cwd(), 'workspace'),
+		files: {
+			'layout.manifest.json': JSON.stringify(layoutManifest),
+		},
 	}).workspace;
 }
 
@@ -102,9 +65,17 @@ function createPipelineStub(
 	const runMock = jest.fn(async (options: PipelineRunOptions) => {
 		const layout = loadTestLayoutSync();
 		await options.workspace.write(
-			path.join(layout.resolve('js.generated'), 'index.ts'),
+			'layout.manifest.json',
+			JSON.stringify(layoutManifest)
+		);
+		await options.workspace.write(
+			path.join(layout.resolve('entry.generated'), 'index.ts'),
 			"console.log('hello world');\n"
 		);
+		const patchPaths = resolvePatchPaths({
+			plan: buildTestArtifactsPlan(layout).plan,
+		});
+		await options.workspace.write(patchPaths.planPath, '{}');
 		await options.workspace.write(PATCH_MANIFEST_PATH, '{}');
 
 		return {
@@ -183,7 +154,6 @@ describe('GenerateCommand', () => {
 		});
 
 		const renderSummary = jest.fn().mockReturnValue('summary output\n');
-		const validateGeneratedImports = jest.fn().mockResolvedValue(undefined);
 
 		const GenerateCommand = buildGenerateCommand({
 			loadWPKernelConfig,
@@ -196,7 +166,6 @@ describe('GenerateCommand', () => {
 				.mockReturnValue({ key: 'adapter', register: jest.fn() }),
 			buildReporter: jest.fn().mockReturnValue(reporter),
 			renderSummary,
-			validateGeneratedImports,
 			buildReadinessRegistry: readiness.buildReadinessRegistry,
 		} as BuildGenerateCommandOptions);
 
@@ -222,14 +191,13 @@ describe('GenerateCommand', () => {
 			false,
 			{
 				php: layout.resolve('php.generated'),
-				ui: layout.resolve('ui.generated'),
-				js: layout.resolve('js.generated'),
+				entry: layout.resolve('entry.generated'),
+				runtime: layout.resolve('runtime.generated'),
+				blocks: path.posix.join(
+					layout.resolve('blocks.generated'),
+					'auto-register.ts'
+				),
 			}
-		);
-		expect(validateGeneratedImports).toHaveBeenCalledWith(
-			expect.objectContaining({
-				summary: expect.objectContaining({ dryRun: false }),
-			})
 		);
 		expect(stdout.toString()).toBe('summary output\n');
 		expect(command.summary).toEqual(
@@ -239,7 +207,7 @@ describe('GenerateCommand', () => {
 					expect.objectContaining({
 						path: expect.stringContaining(
 							path.posix.join(
-								loadTestLayoutSync().resolve('js.generated'),
+								loadTestLayoutSync().resolve('entry.generated'),
 								'index.ts'
 							)
 						),
@@ -273,7 +241,6 @@ describe('GenerateCommand', () => {
 		});
 
 		const renderSummary = jest.fn().mockReturnValue('dry-run summary\n');
-		const validateGeneratedImports = jest.fn().mockResolvedValue(undefined);
 
 		const GenerateCommand = buildGenerateCommand({
 			loadWPKernelConfig,
@@ -286,7 +253,6 @@ describe('GenerateCommand', () => {
 				.mockReturnValue({ key: 'adapter', register: jest.fn() }),
 			buildReporter: jest.fn().mockReturnValue(reporter),
 			renderSummary,
-			validateGeneratedImports,
 			buildReadinessRegistry: readiness.buildReadinessRegistry,
 		} as BuildGenerateCommandOptions);
 
@@ -304,11 +270,6 @@ describe('GenerateCommand', () => {
 		expect(runMock).toHaveBeenCalled();
 		expect(workspace.rollback).toHaveBeenCalledWith('generate');
 		expect(workspace.commit).not.toHaveBeenCalledWith('generate');
-		expect(validateGeneratedImports).toHaveBeenCalledWith(
-			expect.objectContaining({
-				summary: expect.objectContaining({ dryRun: true }),
-			})
-		);
 		expect(command.summary).toEqual(
 			expect.objectContaining({
 				dryRun: true,
@@ -373,7 +334,6 @@ describe('GenerateCommand', () => {
 				.mockReturnValue({ key: 'adapter', register: jest.fn() }),
 			buildReporter: jest.fn().mockReturnValue(reporter),
 			renderSummary: jest.fn().mockReturnValue('summary\n'),
-			validateGeneratedImports: jest.fn().mockResolvedValue(undefined),
 			buildReadinessRegistry: readiness.buildReadinessRegistry,
 		} as BuildGenerateCommandOptions);
 
@@ -421,7 +381,6 @@ describe('GenerateCommand', () => {
 				.mockReturnValue({ key: 'adapter', register: jest.fn() }),
 			buildReporter: jest.fn().mockReturnValue(reporter),
 			renderSummary: jest.fn().mockReturnValue('summary\n'),
-			validateGeneratedImports: jest.fn().mockResolvedValue(undefined),
 			buildReadinessRegistry: readiness.buildReadinessRegistry,
 		} as BuildGenerateCommandOptions);
 
@@ -469,7 +428,6 @@ describe('GenerateCommand', () => {
 				.mockReturnValue({ key: 'adapter', register: jest.fn() }),
 			buildReporter: jest.fn().mockReturnValue(reporter),
 			renderSummary: jest.fn().mockReturnValue('summary\n'),
-			validateGeneratedImports: jest.fn().mockResolvedValue(undefined),
 			buildReadinessRegistry: readiness.buildReadinessRegistry,
 		} as BuildGenerateCommandOptions);
 
@@ -505,7 +463,6 @@ describe('GenerateCommand', () => {
 		});
 
 		const renderSummary = jest.fn().mockReturnValue('summary output\n');
-		const validateGeneratedImports = jest.fn().mockResolvedValue(undefined);
 
 		const GenerateCommand = buildGenerateCommand({
 			loadWPKernelConfig,
@@ -518,7 +475,6 @@ describe('GenerateCommand', () => {
 				.mockReturnValue({ key: 'adapter', register: jest.fn() }),
 			buildReporter: jest.fn().mockReturnValue(reporter),
 			renderSummary,
-			validateGeneratedImports,
 			buildReadinessRegistry: readiness.buildReadinessRegistry,
 		} as BuildGenerateCommandOptions);
 
@@ -543,11 +499,12 @@ describe('GenerateCommand', () => {
 		expect(reporter.error).toHaveBeenCalledWith(
 			'Failed to locate apply manifest after generation.',
 			expect.objectContaining({
-				manifestPath: PATCH_MANIFEST_PATH,
+				manifestPath: resolvePatchPaths({
+					plan: buildTestArtifactsPlan(loadTestLayoutSync()).plan,
+				}).planPath,
 				workspace: workspace.root,
 			})
 		);
-		expect(validateGeneratedImports).not.toHaveBeenCalled();
 		expect(readiness.readinessRun).toHaveBeenCalledTimes(1);
 	});
 
@@ -571,11 +528,6 @@ describe('GenerateCommand', () => {
 								'Rest',
 								'BooksController.php'
 							),
-							path.posix.join(
-								phpGenerated,
-								'Rest',
-								'BooksController.php.ast.json'
-							),
 						],
 						shims: [
 							path.posix.join(
@@ -592,13 +544,19 @@ describe('GenerateCommand', () => {
 		const { pipeline, runMock } = createPipelineStub(
 			workspace,
 			async (options) => {
+				const pipelineLayout = loadTestLayoutSync();
+				const patchPaths = resolvePatchPaths({
+					plan: buildTestArtifactsPlan(pipelineLayout).plan,
+				});
+
 				await options.workspace.write(
 					path.join(
-						loadTestLayoutSync().resolve('js.generated'),
+						pipelineLayout.resolve('entry.generated'),
 						'index.ts'
 					),
 					"console.log('hello world');\n"
 				);
+				await options.workspace.write(patchPaths.planPath, '{}');
 				await options.workspace.write(PATCH_MANIFEST_PATH, '{}');
 
 				const ir = buildIrArtifact(options.workspace.root);
@@ -640,7 +598,6 @@ describe('GenerateCommand', () => {
 		});
 
 		const renderSummary = jest.fn().mockReturnValue('summary output\n');
-		const validateGeneratedImports = jest.fn().mockResolvedValue(undefined);
 
 		const GenerateCommand = buildGenerateCommand({
 			loadWPKernelConfig,
@@ -653,7 +610,6 @@ describe('GenerateCommand', () => {
 				.mockReturnValue({ key: 'adapter', register: jest.fn() }),
 			buildReporter: jest.fn().mockReturnValue(reporter),
 			renderSummary,
-			validateGeneratedImports,
 			buildReadinessRegistry: readiness.buildReadinessRegistry,
 		} as BuildGenerateCommandOptions);
 
@@ -671,13 +627,9 @@ describe('GenerateCommand', () => {
 			path.posix.join(phpGenerated, 'Rest', 'BooksController.php'),
 			undefined
 		);
-		expect(workspace.rm).toHaveBeenCalledWith(
-			path.posix.join(
-				phpGenerated,
-				'Rest',
-				'BooksController.php.ast.json'
-			),
-			undefined
+		expect(workspace.rm).not.toHaveBeenCalledWith(
+			expect.stringContaining('.ast.json'),
+			expect.anything()
 		);
 		expect(workspace.writeJson).toHaveBeenCalledWith(
 			generationStatePath,
@@ -698,7 +650,6 @@ describe('GenerateCommand', () => {
 			}),
 			expect.any(Object)
 		);
-		expect(validateGeneratedImports).toHaveBeenCalled();
 		expect(readiness.readinessRun).toHaveBeenCalledTimes(1);
 	});
 });

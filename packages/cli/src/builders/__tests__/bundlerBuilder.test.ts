@@ -18,11 +18,11 @@ import {
 	toWordPressGlobal,
 	toWordPressHandle,
 } from '../bundler';
-import { makeIrMeta } from '@cli-tests/ir.test-support';
+import { makeIrMeta, buildTestArtifactsPlan } from '@cli-tests/ir.test-support';
 import { withWorkspace as baseWithWorkspace } from '@cli-tests/builders/builder-harness.test-support';
 import type { BuilderHarnessContext } from '@cli-tests/builders/builder-harness.test-support';
 import { buildEmptyGenerationState } from '../../apply/manifest';
-import { loadTestLayoutSync } from '@cli-tests/layout.test-support';
+import { loadTestLayoutSync } from '@wpkernel/test-utils/layout.test-support';
 import { makeResource } from '@cli-tests/builders/fixtures.test-support';
 
 describe('createBundler', () => {
@@ -43,24 +43,17 @@ describe('createBundler', () => {
 		workspaceRoot,
 		phase,
 		resources = [],
-		resourceConfigs = {},
 	}: {
 		namespace: string;
 		sanitizedNamespace: string;
 		workspaceRoot: string;
 		phase: 'generate' | 'apply';
 		resources?: IRResource[];
-		resourceConfigs?: Record<string, unknown>;
 	}): BuilderInput {
+		const layout = loadTestLayoutSync();
 		return {
 			phase,
 			options: {
-				config: {
-					version: 1,
-					namespace,
-					schemas: {},
-					resources: resourceConfigs as Record<string, never>,
-				},
 				namespace,
 				origin: 'wpk.config.ts',
 				sourcePath: path.join(workspaceRoot, 'wpk.config.ts'),
@@ -71,12 +64,6 @@ describe('createBundler', () => {
 					origin: 'wpk.config.ts',
 					sourcePath: 'wpk.config.ts',
 				}),
-				config: {
-					version: 1,
-					namespace,
-					schemas: {},
-					resources: resourceConfigs as Record<string, never>,
-				},
 				schemas: [],
 				resources,
 				capabilities: [],
@@ -95,9 +82,10 @@ describe('createBundler', () => {
 				php: {
 					namespace: sanitizedNamespace,
 					autoload: 'inc/',
-					outputDir: loadTestLayoutSync().resolve('php.generated'),
+					outputDir: layout.resolve('php.generated'),
 				},
-				layout: loadTestLayoutSync(),
+				layout,
+				artifacts: buildTestArtifactsPlan(layout),
 			},
 		};
 	}
@@ -200,22 +188,58 @@ describe('createBundler', () => {
 				expect.arrayContaining([
 					'@wordpress/data',
 					'@wordpress/components',
-					'@wordpress/dataviews',
 					'@wordpress/block-editor',
 					'@wordpress/blocks',
 					'@wordpress/hooks',
 					'@wordpress/i18n',
 					'@wordpress/interactivity',
 					'@wordpress/api-fetch',
-					'react',
-					'react-dom',
-					'react-dom/client',
+					'@wordpress/private-apis',
+					'@wordpress/element',
 				])
 			);
-			const aliasRoot = workspace.resolve('src').replace(/\\/g, '/');
+			expect(assetManifest.dependencies).toEqual(
+				expect.arrayContaining(['wp-interactivity'])
+			);
+			const aliasRoot = workspace
+				.resolve(
+					path.posix.dirname(layout.resolve('runtime.generated'))
+				)
+				.replace(/\\/g, '/');
+			const shimDir = workspace
+				.resolve(layout.resolve('bundler.shims'))
+				.replace(/\\/g, '/');
 			expect(config.alias).toContainEqual({
 				find: '@/',
 				replacement: `${aliasRoot}/`,
+			});
+			expect(config.alias).toContainEqual({
+				find: '@wordpress/dataviews',
+				replacement: '@wordpress/dataviews/wp',
+			});
+			expect(config.alias).toContainEqual({
+				find: 'react',
+				replacement: `${shimDir}/wp-react.ts`,
+			});
+			expect(config.alias).toContainEqual({
+				find: 'react-dom',
+				replacement: `${shimDir}/wp-react.ts`,
+			});
+			expect(config.alias).toContainEqual({
+				find: 'react-dom/client',
+				replacement: `${shimDir}/wp-element-client.ts`,
+			});
+			expect(config.alias).toContainEqual({
+				find: 'react/jsx-runtime',
+				replacement: `${shimDir}/wp-element-jsx-runtime.ts`,
+			});
+			expect(config.alias).toContainEqual({
+				find: '@wordpress/element/jsx-runtime',
+				replacement: `${shimDir}/wp-element-jsx-runtime.ts`,
+			});
+			expect(config.alias).toContainEqual({
+				find: 'react/jsx-dev-runtime',
+				replacement: `${shimDir}/wp-element-jsx-runtime.ts`,
 			});
 			expect(updatedPkg.scripts).toEqual(
 				expect.objectContaining({
@@ -240,10 +264,10 @@ describe('createBundler', () => {
 				expect.arrayContaining([
 					'wp-data',
 					'wp-components',
-					'wp-dataviews',
 					'wp-block-editor',
 					'wp-blocks',
 					'wp-hooks',
+					'wp-date',
 					'wp-i18n',
 					'wp-interactivity',
 					'wp-api-fetch',
@@ -277,10 +301,11 @@ describe('createBundler', () => {
 				])
 			);
 
-			const uiGenerated = layout.resolve('ui.generated');
-			expect(config.input.index).toBe(
-				path.posix.join(uiGenerated, 'index.tsx')
-			);
+			const runtimeEntry = layout
+				.resolve('entry.generated')
+				.replace(/\\/g, '/');
+			const runtimeEntryFile = path.posix.join(runtimeEntry, 'index.tsx');
+			expect(config.input.index).toBe(runtimeEntryFile);
 
 			const viteConfig = await workspace.readText('vite.config.ts');
 			const relativeImport = path.posix
@@ -343,18 +368,6 @@ describe('createBundler', () => {
 				workspaceRoot,
 				phase: 'generate',
 				resources: [dataviewResource],
-				resourceConfigs: {
-					books: {
-						name: 'books',
-						ui: {
-							admin: {
-								dataviews: {
-									preferencesKey: 'books/admin',
-								},
-							},
-						},
-					},
-				},
 			});
 
 			await builder.apply(
@@ -449,7 +462,12 @@ describe('createBundler', () => {
 			expect.arrayContaining([
 				'@wordpress/data',
 				'@wordpress/components',
-				'react',
+				'@wordpress/hooks',
+				'@wordpress/api-fetch',
+				'@wordpress/block-editor',
+				'@wordpress/blocks',
+				'@wordpress/i18n',
+				'@wordpress/private-apis',
 			])
 		);
 		expect(artifacts.assetManifest.version).toBe('0.0.0');
@@ -511,11 +529,12 @@ describe('bundler helper exports', () => {
 		const externals = buildExternalList({
 			peerDependencies: {
 				'@wordpress/data': '^10.0.0',
-				react: '^18.0.0',
 			},
 			dependencies: {
 				'@wordpress/data': '^10.0.0',
 				'@wordpress/components': '^30.0.0',
+				'@wordpress/api-fetch': '^7.0.0',
+				'@wordpress/private-apis': '^1.0.0',
 				lodash: '^4.17.21',
 			},
 		});
@@ -525,8 +544,8 @@ describe('bundler helper exports', () => {
 				'@wordpress/components',
 				'@wordpress/data',
 				'@wordpress/hooks',
-				'react',
-				'react-dom',
+				'@wordpress/api-fetch',
+				'@wordpress/private-apis',
 			])
 		);
 		expect(new Set(externals).size).toBe(externals.length);
@@ -556,12 +575,14 @@ describe('bundler helper exports', () => {
 		const dependencies = buildAssetDependencies([
 			'@wordpress/data',
 			'@wordpress/hooks',
-			'react',
-			'react/jsx-runtime',
-			'lodash',
+			'@wordpress/private-apis',
 		]);
 
-		expect(dependencies).toEqual(['wp-data', 'wp-element', 'wp-hooks']);
+		expect(dependencies).toEqual([
+			'wp-data',
+			'wp-hooks',
+			'wp-private-apis',
+		]);
 	});
 
 	it('formats WordPress globals and handles trailing slashes for aliases', () => {

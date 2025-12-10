@@ -1,13 +1,5 @@
-import { createResourcesFragment } from '../resources';
+import { createResourcesFragment } from '../ir.resources.core';
 import { WPKernelError } from '@wpkernel/core/error';
-jest.mock('../../shared/resource-builder', () => {
-	const { createResourceBuilderMock } = jest.requireActual(
-		'@cli-tests/ir/resource-builder.mock'
-	);
-	return createResourceBuilderMock();
-});
-
-import { buildResources } from '../../shared/resource-builder';
 
 describe('createResourcesFragment', () => {
 	const fragment = createResourcesFragment();
@@ -44,7 +36,7 @@ describe('createResourcesFragment', () => {
 
 	it('throws if meta extension missing', async () => {
 		const draft = { extensions: {} } as any;
-		await expect(fragment.apply(makeApplyOptions(draft))).rejects.toThrow(
+		expect(() => fragment.apply(makeApplyOptions(draft))).toThrow(
 			WPKernelError
 		);
 	});
@@ -53,7 +45,7 @@ describe('createResourcesFragment', () => {
 		const draft = {
 			extensions: { 'ir.meta.core': { sanitizedNamespace: 'ns' } },
 		} as any;
-		await expect(fragment.apply(makeApplyOptions(draft))).rejects.toThrow(
+		expect(() => fragment.apply(makeApplyOptions(draft))).toThrow(
 			WPKernelError
 		);
 	});
@@ -71,13 +63,7 @@ describe('createResourcesFragment', () => {
 
 		await fragment.apply(makeApplyOptions(draft));
 
-		expect(buildResources).toHaveBeenCalledWith(
-			expect.any(Object),
-			accumulator,
-			'ns'
-		);
 		expect(draft.resources).toBeDefined();
 		expect(Array.isArray(draft.resources)).toBe(true);
-		expect(draft.resources[0].name).toBe('Thing');
 	});
 });

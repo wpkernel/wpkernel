@@ -3,10 +3,10 @@ import { WPKernelError } from '@wpkernel/core/error';
 import {
 	createReadinessHelper,
 	createReadinessRegistry,
-	type DxContext,
 	type ReadinessDetection,
 	type ReadinessConfirmation,
 } from '..';
+import type { DxContext } from '../../context';
 import { createRecordingReporter } from '@cli-tests/readiness.test-support';
 
 describe('ReadinessRegistry', () => {

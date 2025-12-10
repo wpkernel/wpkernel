@@ -6,12 +6,14 @@ import type {
 	PipelineContext,
 } from '../../../runtime/types';
 import type { IRv1 } from '../../../ir/publicTypes';
-import type { WPKernelConfigV1 } from '../../../config/types';
-import { buildPluginMeta } from '../../../ir/shared/pluginMeta';
+import { createArtifactsFragment } from '../../../ir/fragments/ir.artifacts.plan';
 import { makeWorkspaceMock } from '@cli-tests/workspace.test-support';
 import type { Workspace } from '../../../workspace/types';
 import { buildEmptyGenerationState } from '../../../apply/manifest';
-import { loadTestLayoutSync } from '@cli-tests/layout.test-support';
+import { loadTestLayoutSync } from '@wpkernel/test-utils/layout.test-support';
+import { makeIr, type DeepPartial } from '../../../../tests/ir.test-support';
+import { type WPKernelConfigV1 } from '../../../config';
+import { type MutableIr } from '../../../ir';
 
 const DEFAULT_CONFIG_SOURCE = 'tests.config.ts';
 
@@ -53,12 +55,10 @@ export function createBuilderInput(
 	overrides?: Partial<BuilderInput>
 ): BuilderInput {
 	const namespace = resolveNamespace(overrides);
-	const config = resolveConfig(overrides, namespace);
 
 	const base: BuilderInput = {
 		phase: 'generate',
 		options: {
-			config,
 			namespace,
 			origin: DEFAULT_CONFIG_SOURCE,
 			sourcePath: DEFAULT_CONFIG_SOURCE,
@@ -70,7 +70,6 @@ export function createBuilderInput(
 		...base,
 		...overrides,
 		options: buildBuilderOptions(base.options, overrides?.options, {
-			config,
 			namespace,
 		}),
 	};
@@ -90,241 +89,92 @@ export function createBuilderOutput(): BuilderOutput & {
 	};
 }
 
-type MinimalIrOverrides = Partial<
-	Omit<IRv1, 'meta' | 'php' | 'capabilityMap' | 'config'>
-> & {
-	meta?: Partial<IRv1['meta']>;
-	php?: Partial<IRv1['php']>;
-	capabilityMap?: Partial<IRv1['capabilityMap']>;
-	config?: Partial<WPKernelConfigV1>;
-};
+type MinimalIrOverrides = DeepPartial<IRv1> & { namespace?: string };
 
 export function createMinimalIr(overrides: MinimalIrOverrides = {}): IRv1 {
 	const namespace = resolveNamespaceFromOverrides(overrides);
-	const components = buildMinimalIrComponents(namespace, overrides);
-	const base = buildIrBase(overrides, components);
-	return mergeIrBase(base, overrides);
+	const baseLayout = loadTestLayoutSync();
+	const layout = overrides.layout
+		? ({ ...baseLayout, ...overrides.layout } as IRv1['layout'])
+		: baseLayout;
+	const php = overrides.php
+		? {
+				namespace,
+				autoload: 'inc/',
+				outputDir: layout.resolve('php.generated'),
+				...overrides.php,
+			}
+		: {
+				namespace,
+				autoload: 'inc/',
+				outputDir: layout.resolve('php.generated'),
+			};
+
+	return makeIr({
+		...overrides,
+		namespace,
+		layout,
+		php,
+	});
+}
+
+export async function seedArtifacts(
+	ir: IRv1,
+	reporter?: Reporter
+): Promise<IRv1> {
+	const fragment = createArtifactsFragment();
+	const context = createPipelineContext({ reporter });
+	const config = (ir as unknown as { config?: WPKernelConfigV1 }).config ?? {
+		version: 1,
+		namespace: ir.meta.namespace,
+		resources: {},
+		schemas: {},
+	};
+	const draft = ir as unknown as MutableIr;
+
+	await fragment.apply({
+		context,
+		input: {
+			options: {
+				config,
+				namespace: ir.meta.namespace,
+				origin: ir.meta.origin,
+				sourcePath: ir.meta.sourcePath,
+			},
+			draft,
+		},
+		output: {
+			draft,
+			assign(partial) {
+				Object.assign(draft, partial);
+			},
+		},
+		reporter: context.reporter,
+	});
+
+	return ir;
 }
 
 function resolveNamespaceFromOverrides(overrides: MinimalIrOverrides): string {
-	return overrides?.meta?.namespace ?? 'DemoPlugin';
-}
-
-function buildMinimalIrComponents(
-	namespace: string,
-	overrides: MinimalIrOverrides
-): {
-	meta: IRv1['meta'];
-	config: WPKernelConfigV1;
-	capabilityMap: IRv1['capabilityMap'];
-	php: IRv1['php'];
-	layout: IRv1['layout'];
-} {
-	const config = resolveIrConfig(overrides?.config, namespace);
-	const meta = buildIrMeta(namespace, overrides?.meta);
-	const capabilityMap = buildCapabilityMap(
-		namespace,
-		overrides?.capabilityMap
-	);
-	const layout = loadTestLayoutSync();
-	const php = buildPhpProject(namespace, {
-		...overrides?.php,
-		outputDir: overrides?.php?.outputDir ?? layout.resolve('php.generated'),
-	});
-
-	return {
-		meta,
-		config,
-		capabilityMap,
-		php,
-		layout,
-	};
+	return overrides?.meta?.namespace ?? overrides.namespace ?? 'DemoPlugin';
 }
 
 function resolveNamespace(overrides?: Partial<BuilderInput>): string {
-	const optionNamespace = overrides?.options?.namespace;
-	if (optionNamespace) {
-		return optionNamespace;
-	}
-
-	const configNamespace = overrides?.options?.config?.namespace;
-	return configNamespace ?? 'demo-plugin';
-}
-
-function resolveConfig(
-	overrides: Partial<BuilderInput> | undefined,
-	namespace: string
-): WPKernelConfigV1 {
 	return (
-		overrides?.options?.config ?? {
-			version: 1,
-			namespace,
-			resources: {},
-			schemas: {},
-		}
+		overrides?.options?.namespace ??
+		overrides?.ir?.meta?.namespace ??
+		'demo-plugin'
 	);
 }
 
 function buildBuilderOptions(
 	baseOptions: BuilderInput['options'],
 	overrideOptions: BuilderInput['options'] | undefined,
-	context: { config: WPKernelConfigV1; namespace: string }
+	context: { namespace: string }
 ): BuilderInput['options'] {
 	return {
 		...baseOptions,
 		...overrideOptions,
-		config: context.config,
 		namespace: context.namespace,
-	};
-}
-
-function resolveIrConfig(
-	config: Partial<WPKernelConfigV1> | undefined,
-	namespace: string
-): WPKernelConfigV1 {
-	const defaults: WPKernelConfigV1 = {
-		version: 1,
-		namespace,
-		resources: {},
-		schemas: {},
-	};
-
-	return {
-		...defaults,
-		...config,
-		resources: config?.resources ?? {},
-		schemas: config?.schemas ?? {},
-		namespace: config?.namespace ?? namespace,
-		version: config?.version ?? 1,
-	};
-}
-
-function buildIrMeta(
-	namespace: string,
-	overrides?: Partial<IRv1['meta']>
-): IRv1['meta'] {
-	const sanitizedNamespace =
-		overrides?.sanitizedNamespace ??
-		namespace.replace(/[^A-Za-z0-9]+/gu, '');
-	const { plugin: pluginOverrides, ...restOverrides } = overrides ?? {};
-	const plugin = pluginOverrides
-		? {
-				...buildPluginMeta({ sanitizedNamespace }),
-				...pluginOverrides,
-			}
-		: buildPluginMeta({ sanitizedNamespace });
-
-	const defaults: IRv1['meta'] = {
-		version: 1,
-		namespace,
-		sourcePath: DEFAULT_CONFIG_SOURCE,
-		origin: 'typescript',
-		sanitizedNamespace,
-		plugin,
-		features: ['capabilityMap', 'phpAutoload'],
-		ids: {
-			algorithm: 'sha256',
-			resourcePrefix: 'res:',
-			schemaPrefix: 'sch:',
-			blockPrefix: 'blk:',
-			capabilityPrefix: 'cap:',
-		},
-		redactions: ['config.env', 'adapters.secrets'],
-		limits: {
-			maxConfigKB: 256,
-			maxSchemaKB: 1024,
-			policy: 'truncate',
-		},
-	};
-
-	return {
-		...defaults,
-		...restOverrides,
-		namespace,
-		sanitizedNamespace,
-		plugin,
-	};
-}
-
-function buildCapabilityMap(
-	namespace: string,
-	overrides?: Partial<IRv1['capabilityMap']>
-): IRv1['capabilityMap'] {
-	const defaults: IRv1['capabilityMap'] = {
-		definitions: [],
-		fallback: {
-			capability: `manage_${namespace.toLowerCase()}`,
-			appliesTo: 'resource',
-		},
-		missing: [],
-		unused: [],
-		warnings: [],
-	};
-
-	return {
-		...defaults,
-		...overrides,
-		fallback: {
-			...defaults.fallback,
-			...overrides?.fallback,
-		},
-	};
-}
-
-function buildPhpProject(
-	namespace: string,
-	overrides?: Partial<IRv1['php']>
-): IRv1['php'] {
-	return {
-		namespace: overrides?.namespace ?? namespace,
-		autoload: overrides?.autoload ?? 'inc/',
-		outputDir: overrides?.outputDir as IRv1['php']['outputDir'],
-	};
-}
-
-function buildIrBase(
-	overrides: MinimalIrOverrides | undefined,
-	components: {
-		meta: IRv1['meta'];
-		config: WPKernelConfigV1;
-		capabilityMap: IRv1['capabilityMap'];
-		php: IRv1['php'];
-		layout: IRv1['layout'];
-	}
-): IRv1 {
-	const {
-		schemas = [],
-		resources = [],
-		capabilities = [],
-		blocks = [],
-		diagnostics = [],
-	} = overrides ?? {};
-
-	return {
-		meta: components.meta,
-		config: components.config,
-		schemas,
-		resources,
-		capabilities,
-		capabilityMap: components.capabilityMap,
-		blocks,
-		php: components.php,
-		layout: components.layout,
-		diagnostics,
-	};
-}
-
-function mergeIrBase(base: IRv1, overrides?: MinimalIrOverrides): IRv1 {
-	if (!overrides) {
-		return base;
-	}
-
-	return {
-		...base,
-		...overrides,
-		meta: base.meta,
-		config: base.config,
-		capabilityMap: base.capabilityMap,
-		php: base.php,
 	};
 }
