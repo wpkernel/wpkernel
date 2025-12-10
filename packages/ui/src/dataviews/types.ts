@@ -148,7 +148,6 @@ export interface ResourceDataViewConfig<TItem, TQuery> {
 	fields: Field<TItem>[];
 	defaultView: View;
 	mapQuery: QueryMapping<TQuery>;
-	preferencesKey?: string;
 	capability?: string;
 	actions?: Array<ResourceDataViewActionConfig<TItem, unknown, unknown>>;
 	search?: boolean;
@@ -204,8 +203,6 @@ export interface ResourceDataViewControllerOptions<TItem, TQuery> {
 	invalidate?: (patterns: CacheKeyPattern | CacheKeyPattern[]) => void;
 	/** The capability runtime source. */
 	capabilities?: WPKUICapabilityRuntimeSource;
-	/** The key for storing preferences. */
-	preferencesKey?: string;
 	/** A function to fetch a list of items. */
 	fetchList?: (query: TQuery) => Promise<ListResponse<TItem>>;
 	/** A function to prefetch a list of items. */
@@ -230,8 +227,6 @@ export interface ResourceDataViewController<TItem, TQuery> {
 	readonly runtime: DataViewsControllerRuntime;
 	/** The namespace of the project. */
 	readonly namespace: string;
-	/** The key for storing preferences. */
-	readonly preferencesKey: string;
 	/** A function to invalidate cache entries. */
 	readonly invalidate?: (
 		patterns: CacheKeyPattern | CacheKeyPattern[]
@@ -253,9 +248,9 @@ export interface ResourceDataViewController<TItem, TQuery> {
 	/** Emits a view change event. */
 	emitViewChange: (view: View) => void;
 	/** Emits a registered event. */
-	emitRegistered: (preferencesKey: string) => void;
+	emitRegistered: () => void;
 	/** Emits an unregistered event. */
-	emitUnregistered: (preferencesKey: string) => void;
+	emitUnregistered: () => void;
 	/** Emits an action event. */
 	emitAction: (payload: {
 		actionId: string;

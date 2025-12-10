@@ -8,7 +8,7 @@ import {
 import type { ResourceDataViewConfig } from '../../../dataviews/types';
 
 type TestResource = ResourceObject<unknown, { search?: string }> & {
-	ui?: { admin?: { dataviews?: unknown } };
+	ui?: { admin?: { view?: string; dataviews?: unknown } };
 };
 
 function createResource(
@@ -52,8 +52,13 @@ function createResource(
 		...(overrides.dataviews ?? {}),
 	} as Record<string, unknown>;
 
-	(resource as unknown as { ui?: { admin?: { dataviews?: unknown } } }).ui = {
+	(
+		resource as unknown as {
+			ui?: { admin?: { view?: string; dataviews?: unknown } };
+		}
+	).ui = {
 		admin: {
+			view: 'dataview',
 			dataviews,
 		},
 	};
@@ -100,32 +105,8 @@ describe('normalizeResourceDataViewMetadata', () => {
 					path: expect.arrayContaining([
 						'ui',
 						'admin',
-						'dataviews',
+						'view',
 						'mapQuery',
-					]),
-				}),
-			])
-		);
-	});
-
-	it('records an issue when preferencesKey is invalid', () => {
-		const resource = createResource({
-			dataviews: {
-				preferencesKey: 123,
-			},
-		});
-
-		const result = normalizeResourceDataViewMetadata(resource);
-
-		expect(result.metadata).toBeUndefined();
-		expect(result.issues).toEqual(
-			expect.arrayContaining([
-				expect.objectContaining({
-					path: expect.arrayContaining([
-						'ui',
-						'admin',
-						'dataviews',
-						'preferencesKey',
 					]),
 				}),
 			])

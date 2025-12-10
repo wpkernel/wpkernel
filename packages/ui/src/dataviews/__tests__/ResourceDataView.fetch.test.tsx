@@ -97,7 +97,6 @@ function createRawPerPageController(
 		queryMapping,
 		runtime: runtime.dataviews,
 		namespace: runtime.namespace,
-		preferencesKey: 'tests::items',
 		invalidate: runtime.invalidate,
 		capabilities: undefined,
 		fetchList: undefined,

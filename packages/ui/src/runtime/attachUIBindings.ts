@@ -203,7 +203,6 @@ function registerResourceWithDataViews<TItem, TQuery>(
 
 	const metadata = validateResourceMetadata(
 		resource,
-		runtime,
 		dataviews,
 		metadataModule
 	);
@@ -283,7 +282,6 @@ async function bootstrapDataViews(
 
 function validateResourceMetadata<TItem, TQuery>(
 	resource: ResourceObject<TItem, TQuery>,
-	runtime: WPKernelUIRuntime,
 	dataviews: WPKernelDataViewsRuntime,
 	metadataModule: DataViewsMetadataModule
 ) {
@@ -306,16 +304,8 @@ function validateResourceMetadata<TItem, TQuery>(
 		return undefined;
 	}
 
-	// Ensure preferencesKey is always set for downstream consumers.
-	const preferencesKey =
-		metadata.preferencesKey ??
-		[runtime.namespace ?? 'wpkernel', resource.name]
-			.filter(Boolean)
-			.join('/');
-
 	return {
 		config: metadata.config,
-		preferencesKey,
 	};
 }
 
@@ -325,7 +315,6 @@ function registerControllerWithRuntime<TItem, TQuery>(
 	resource: ResourceObject<TItem, TQuery>,
 	metadata: {
 		config: ResourceDataViewConfig<TItem, TQuery>;
-		preferencesKey: string;
 	},
 	controllerModule: DataViewsControllerModule
 ) {
@@ -342,7 +331,6 @@ function registerControllerWithRuntime<TItem, TQuery>(
 		namespace: runtime.namespace,
 		invalidate: runtime.invalidate,
 		capabilities: () => runtime.capabilities,
-		preferencesKey: metadata.preferencesKey,
 		fetchList: normalizedResource.fetchList,
 		prefetchList: normalizedResource.prefetchList,
 	});
@@ -350,17 +338,14 @@ function registerControllerWithRuntime<TItem, TQuery>(
 	dataviews.controllers.set(resource.name, controller);
 	dataviews.registry.set(resource.name, {
 		resource: resource.name,
-		preferencesKey: controller.preferencesKey,
 		metadata: metadata.config as unknown as Record<string, unknown>,
 	});
 
 	dataviews.events.registered({
 		resource: resource.name,
-		preferencesKey: controller.preferencesKey,
 	});
 
 	dataviews.reporter.debug?.('Auto-registered DataViews controller', {
 		resource: resource.name,
-		preferencesKey: controller.preferencesKey,
 	});
 }

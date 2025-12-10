@@ -22,7 +22,7 @@ describe('dataviews event emitter', () => {
 		} as unknown as Reporter;
 
 		const emitter = createDataViewsEventEmitter(wpk, reporter);
-		const payload = { resource: 'jobs', preferencesKey: 'ns/jobs' };
+		const payload = { resource: 'jobs' };
 		emitter.registered(payload);
 		expect(emit).toHaveBeenCalledWith(DATA_VIEWS_EVENT_REGISTERED, payload);
 		expect(reporter.debug).toHaveBeenCalledWith('Emitted DataViews event', {
@@ -89,7 +89,6 @@ describe('dataviews event emitter', () => {
 
 		emitEvent(wpk, reporter, DATA_VIEWS_EVENT_UNREGISTERED, {
 			resource: 'jobs',
-			preferencesKey: 'ns/jobs',
 		});
 		expect(reporter.error).toHaveBeenCalledWith(
 			'Failed to emit DataViews event',
@@ -109,16 +108,16 @@ describe('dataviews event emitter', () => {
 		} as unknown as Reporter;
 
 		emitEvent(wpk, reporter, DATA_VIEWS_EVENT_REGISTERED, {
-			preferencesKey: 'ns/jobs',
-		} as unknown as DataViewRegisteredPayload);
+			resource: 'jobs',
+		} as DataViewRegisteredPayload);
 
 		expect(emit).toHaveBeenCalledWith(
 			DATA_VIEWS_EVENT_REGISTERED,
-			expect.objectContaining({ preferencesKey: 'ns/jobs' })
+			expect.objectContaining({ resource: 'jobs' })
 		);
 		expect(reporter.debug).toHaveBeenCalledWith('Emitted DataViews event', {
 			event: DATA_VIEWS_EVENT_REGISTERED,
-			resource: undefined,
+			resource: 'jobs',
 		});
 	});
 });

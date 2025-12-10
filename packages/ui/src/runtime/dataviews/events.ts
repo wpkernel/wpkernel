@@ -13,7 +13,6 @@ export const DATA_VIEWS_EVENT_BOUNDARY_TRANSITION = `${DATA_VIEWS_EVENT_PREFIX}:
 
 export type DataViewRegisteredPayload = {
 	resource: string;
-	preferencesKey: string;
 };
 
 /**

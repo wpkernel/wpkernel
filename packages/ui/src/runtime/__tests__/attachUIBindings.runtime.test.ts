@@ -395,7 +395,6 @@ describe('attachUIBindings runtime behaviour', () => {
 
 		dataviews.events.unregistered({
 			resource: 'jobs',
-			preferencesKey: defaultPreferencesKey('tests', 'jobs'),
 		});
 
 		expect(wpk.emit).toHaveBeenCalledWith(

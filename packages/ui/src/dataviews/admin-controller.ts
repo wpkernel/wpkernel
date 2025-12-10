@@ -53,10 +53,6 @@ export function useResourceAdminController<TItem, TQuery>(
 				runtime: options.runtime.dataviews,
 				namespace: options.runtime.namespace,
 				capabilities: options.runtime.capabilities,
-				preferencesKey:
-					options.config.preferencesKey ??
-					options.resource.name ??
-					'resource',
 			}),
 		[options.config, options.resource, options.runtime]
 	);
@@ -64,10 +60,7 @@ export function useResourceAdminController<TItem, TQuery>(
 	const form = useDataFormHelper<TItem, unknown, TQuery>({
 		resource: options.resource,
 		runtime: options.runtime,
-		resourceName:
-			options.resource.name ??
-			options.config.preferencesKey ??
-			'resource',
+		resourceName: options.resource.name ?? 'resource',
 		action: defineAction({
 			name: `${options.resource.name ?? 'resource'}.form`,
 			handler: async (_ctx: unknown, input: unknown) => input,

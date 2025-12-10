@@ -68,7 +68,7 @@ describe('attachUIBindings DataViews auto-registration', () => {
 		const runtime = attachUIBindings(wpk);
 		const dataviews = await waitForDataViews(runtime);
 		const controller = dataviews.controllers.get('jobs') as
-			| { resourceName: string; preferencesKey: string }
+			| { resourceName: string }
 			| undefined;
 
 		expect(controller).toBeDefined();
@@ -76,7 +76,6 @@ describe('attachUIBindings DataViews auto-registration', () => {
 		expect(dataviews.registry.get('jobs')).toEqual(
 			expect.objectContaining({
 				resource: 'jobs',
-				preferencesKey: controller?.preferencesKey,
 				metadata: expect.any(Object),
 			})
 		);
@@ -85,7 +84,6 @@ describe('attachUIBindings DataViews auto-registration', () => {
 			DATA_VIEWS_EVENT_REGISTERED,
 			expect.objectContaining({
 				resource: 'jobs',
-				preferencesKey: controller?.preferencesKey,
 			})
 		);
 	});
@@ -133,7 +131,7 @@ describe('attachUIBindings DataViews auto-registration', () => {
 
 		const dataviews = await waitForDataViews(runtime);
 		const controller = dataviews.controllers.get('jobs') as
-			| { preferencesKey: string }
+			| { resourceName: string }
 			| undefined;
 
 		expect(controller).toBeDefined();
@@ -141,7 +139,6 @@ describe('attachUIBindings DataViews auto-registration', () => {
 			DATA_VIEWS_EVENT_REGISTERED,
 			expect.objectContaining({
 				resource: 'jobs',
-				preferencesKey: controller?.preferencesKey,
 			})
 		);
 	});
@@ -187,7 +184,7 @@ describe('attachUIBindings DataViews auto-registration', () => {
 						path: expect.arrayContaining([
 							'ui',
 							'admin',
-							'dataviews',
+							'view',
 							'views',
 							1,
 							'id',
