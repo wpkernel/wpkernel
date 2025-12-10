@@ -10,7 +10,7 @@ import type {
 	PipelineReporter,
 } from '../types';
 import type { RegisteredHelper } from '../dependency-graph';
-import type { Program } from 'src/async-utils.js';
+import type { Program } from '../async-utils.js';
 import {
 	type HelperInvokeOptions,
 	type RollbackContext,
