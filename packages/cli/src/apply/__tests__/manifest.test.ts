@@ -119,7 +119,7 @@ describe('generation manifest helpers', () => {
 						file: './plugin.php',
 					},
 					phpIndex: {
-						file: '.wpk/generate/php/index.php',
+						file: path.posix.join(phpGeneratedRoot, 'index.php'),
 					},
 				});
 			}),

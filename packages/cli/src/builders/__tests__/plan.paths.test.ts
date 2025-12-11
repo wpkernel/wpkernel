@@ -41,7 +41,7 @@ describe('plan.paths', () => {
 				runtimeGenerated: artifacts.runtime.runtime.generated,
 				runtimeApplied: artifacts.runtime.runtime.applied,
 				phpGenerated: path.posix.dirname(
-					artifacts.php.pluginLoaderPath
+					path.posix.dirname(artifacts.php.blocksRegistrarPath)
 				),
 				pluginLoader: artifacts.php.pluginLoaderPath,
 				bundlerConfig: artifacts.bundler.configPath,

@@ -11,11 +11,19 @@ import { buildEmptyGenerationState } from '../../apply/manifest';
 import { createPatcher } from '../patcher';
 import { makeIr } from '@cli-tests/ir.test-support';
 import { buildWorkspace } from '../../workspace';
-import { loadTestLayoutSync } from '@wpkernel/test-utils/layout.test-support';
 
 type PatcherWorkspaceContext = BuilderHarnessContext<
 	ReturnType<typeof buildWorkspace>
 >;
+
+const buildPlanArtifacts = () => {
+	const ir = makeIr();
+	const plan = ir.artifacts.plan;
+	const phpGeneratedDir = path.posix.dirname(
+		ir.artifacts.php?.pluginLoaderPath ?? ''
+	);
+	return { ir, plan, phpGeneratedDir };
+};
 
 const withWorkspace = (
 	run: (context: PatcherWorkspaceContext) => Promise<void>
@@ -27,7 +35,7 @@ describe('patcher.apply', () => {
 		await withWorkspace(async ({ workspace, root: workspaceRoot }) => {
 			const reporter = buildReporter();
 			const output = buildOutput<BuilderOutput['actions'][number]>();
-			const layout = loadTestLayoutSync();
+			const { ir, plan, phpGeneratedDir } = buildPlanArtifacts();
 
 			const baseContents = [
 				'<?php',
@@ -38,7 +46,7 @@ describe('patcher.apply', () => {
 			].join('\n');
 			const incomingContents = [
 				'<?php',
-				`require_once __DIR__ . '/../${layout.resolve('php.generated')}/Rest/JobController.php';`,
+				`require_once __DIR__ . '/../${phpGeneratedDir}/Rest/JobController.php';`,
 				'class JobController extends \\WPKernel\\Generated\\Rest\\JobController {',
 				'    public function handle() {',
 				'        parent::handle();',
@@ -48,7 +56,7 @@ describe('patcher.apply', () => {
 			].join('\n');
 
 			await workspace.write(
-				layout.resolve('plan.manifest'),
+				plan.planManifestPath,
 				JSON.stringify(
 					{
 						instructions: [
@@ -56,11 +64,11 @@ describe('patcher.apply', () => {
 								action: 'write',
 								file: 'php/JobController.php',
 								base: path.posix.join(
-									layout.resolve('plan.base'),
+									plan.planBaseDir,
 									'php/JobController.php'
 								),
 								incoming: path.posix.join(
-									layout.resolve('plan.incoming'),
+									plan.planIncomingDir,
 									'php/JobController.php'
 								),
 								description: 'Update Job controller shim',
@@ -73,16 +81,12 @@ describe('patcher.apply', () => {
 			);
 
 			await workspace.write(
-				path.posix.join(
-					layout.resolve('plan.base'),
-					'php',
-					'JobController.php'
-				),
+				path.posix.join(plan.planBaseDir, 'php', 'JobController.php'),
 				baseContents
 			);
 			await workspace.write(
 				path.posix.join(
-					layout.resolve('plan.incoming'),
+					plan.planIncomingDir,
 					'php',
 					'JobController.php'
 				),
@@ -92,7 +96,6 @@ describe('patcher.apply', () => {
 				ensureDir: true,
 			});
 
-			const ir = makeIr();
 			const input = {
 				phase: 'apply' as const,
 				options: {
@@ -122,9 +125,9 @@ describe('patcher.apply', () => {
 			const updated = await workspace.readText('php/JobController.php');
 			expect(updated).toBe(incomingContents);
 
-			const manifestPath = layout.resolve('patch.manifest');
+			const manifestPath = plan.patchManifestPath;
 			const basePath = path.posix.join(
-				layout.resolve('plan.base'),
+				plan.planBaseDir,
 				'php',
 				'JobController.php'
 			);
@@ -175,9 +178,9 @@ describe('patcher.apply', () => {
 			const baseContents = '<?php /* base */';
 			const incomingContents = '<?php /* incoming */';
 
-			const layout = loadTestLayoutSync();
+			const { ir, plan } = buildPlanArtifacts();
 			await workspace.write(
-				layout.resolve('plan.manifest'),
+				plan.planManifestPath,
 				JSON.stringify(
 					{
 						instructions: [
@@ -185,11 +188,11 @@ describe('patcher.apply', () => {
 								action: 'write',
 								file: 'php/JobController.php',
 								base: path.posix.join(
-									layout.resolve('plan.base'),
+									plan.planBaseDir,
 									'php/JobController.php'
 								),
 								incoming: path.posix.join(
-									layout.resolve('plan.incoming'),
+									plan.planIncomingDir,
 									'php/JobController.php'
 								),
 								description: 'Update Job controller shim',
@@ -202,23 +205,18 @@ describe('patcher.apply', () => {
 			);
 
 			await workspace.write(
-				path.posix.join(
-					layout.resolve('plan.base'),
-					'php',
-					'JobController.php'
-				),
+				path.posix.join(plan.planBaseDir, 'php', 'JobController.php'),
 				baseContents
 			);
 			await workspace.write(
 				path.posix.join(
-					layout.resolve('plan.incoming'),
+					plan.planIncomingDir,
 					'php',
 					'JobController.php'
 				),
 				incomingContents
 			);
 
-			const ir = makeIr();
 			const input = {
 				phase: 'apply' as const,
 				options: {
@@ -258,9 +256,9 @@ describe('patcher.apply', () => {
 			const baseContents = '<?php /* base */';
 			const incomingContents = '<?php /* incoming */';
 
-			const layout = loadTestLayoutSync();
+			const { ir, plan } = buildPlanArtifacts();
 			await workspace.write(
-				layout.resolve('plan.manifest'),
+				plan.planManifestPath,
 				JSON.stringify(
 					{
 						instructions: [
@@ -268,11 +266,11 @@ describe('patcher.apply', () => {
 								action: 'write',
 								file: 'php/JobController.php',
 								base: path.posix.join(
-									layout.resolve('plan.base'),
+									plan.planBaseDir,
 									'php/JobController.php'
 								),
 								incoming: path.posix.join(
-									layout.resolve('plan.incoming'),
+									plan.planIncomingDir,
 									'php/JobController.php'
 								),
 								description: 'Update Job controller shim',
@@ -285,16 +283,12 @@ describe('patcher.apply', () => {
 			);
 
 			await workspace.write(
-				path.posix.join(
-					layout.resolve('plan.base'),
-					'php',
-					'JobController.php'
-				),
+				path.posix.join(plan.planBaseDir, 'php', 'JobController.php'),
 				baseContents
 			);
 			await workspace.write(
 				path.posix.join(
-					layout.resolve('plan.incoming'),
+					plan.planIncomingDir,
 					'php',
 					'JobController.php'
 				),
@@ -304,7 +298,6 @@ describe('patcher.apply', () => {
 				ensureDir: true,
 			});
 
-			const ir = makeIr();
 			const input = {
 				phase: 'apply' as const,
 				options: {
@@ -340,10 +333,10 @@ describe('patcher.apply', () => {
 		await withWorkspace(async ({ workspace, root: workspaceRoot }) => {
 			const reporter = buildReporter();
 			const output = buildOutput<BuilderOutput['actions'][number]>();
-			const layout = loadTestLayoutSync();
+			const { ir, plan } = buildPlanArtifacts();
 
 			await workspace.write(
-				layout.resolve('plan.manifest'),
+				plan.planManifestPath,
 				JSON.stringify(
 					{
 						instructions: [
@@ -351,11 +344,11 @@ describe('patcher.apply', () => {
 								action: 'write',
 								file: 'php/JobController.php',
 								base: path.posix.join(
-									layout.resolve('plan.base'),
+									plan.planBaseDir,
 									'php/JobController.php'
 								),
 								incoming: path.posix.join(
-									layout.resolve('plan.incoming'),
+									plan.planIncomingDir,
 									'php/JobController.php'
 								),
 								description: 'Update Job controller shim',
@@ -377,19 +370,15 @@ describe('patcher.apply', () => {
 	require_once __DIR__ . '/generated.php';
 	// ${AUTO_GUARD_END}
 	do_action('demo_loaded');
-	`;
+			`;
 
 			await workspace.write(
-				path.posix.join(
-					layout.resolve('plan.base'),
-					'php',
-					'JobController.php'
-				),
+				path.posix.join(plan.planBaseDir, 'php', 'JobController.php'),
 				baseContents
 			);
 			await workspace.write(
 				path.posix.join(
-					layout.resolve('plan.incoming'),
+					plan.planIncomingDir,
 					'php',
 					'JobController.php'
 				),
@@ -399,7 +388,6 @@ describe('patcher.apply', () => {
 				ensureDir: true,
 			});
 
-			const ir = makeIr();
 			const input = {
 				phase: 'generate' as const,
 				options: {
@@ -426,7 +414,7 @@ describe('patcher.apply', () => {
 				undefined
 			);
 
-			const manifestPath = layout.resolve('patch.manifest');
+			const manifestPath = plan.patchManifestPath;
 			const manifestRaw = await workspace.readText(manifestPath);
 			expect(manifestRaw).toBeTruthy();
 			expect(reporter.info).toHaveBeenCalledWith(
@@ -440,6 +428,7 @@ describe('patcher.apply', () => {
 		await withWorkspace(async ({ workspace, root: workspaceRoot }) => {
 			const reporter = buildReporter();
 			const output = buildOutput<BuilderOutput['actions'][number]>();
+			const { ir, plan } = buildPlanArtifacts();
 
 			const baseLoader = [
 				'<?php',
@@ -457,10 +446,9 @@ describe('patcher.apply', () => {
 				'',
 			].join('\n');
 
-			const layout = loadTestLayoutSync();
-			const pluginLoaderPath = layout.resolve('plugin.loader');
+			const pluginLoaderPath = ir.artifacts.php.pluginLoaderPath;
 			await workspace.write(
-				layout.resolve('plan.manifest'),
+				plan.planManifestPath,
 				JSON.stringify(
 					{
 						instructions: [
@@ -468,11 +456,11 @@ describe('patcher.apply', () => {
 								action: 'write',
 								file: pluginLoaderPath,
 								base: path.posix.join(
-									layout.resolve('plan.base'),
+									plan.planBaseDir,
 									pluginLoaderPath
 								),
 								incoming: path.posix.join(
-									layout.resolve('plan.incoming'),
+									plan.planIncomingDir,
 									pluginLoaderPath
 								),
 								description: 'Update plugin loader',
@@ -485,15 +473,12 @@ describe('patcher.apply', () => {
 			);
 
 			await workspace.write(
-				path.posix.join(layout.resolve('plan.base'), pluginLoaderPath),
+				path.posix.join(plan.planBaseDir, pluginLoaderPath),
 				baseLoader,
 				{ ensureDir: true }
 			);
 			await workspace.write(
-				path.posix.join(
-					layout.resolve('plan.incoming'),
-					pluginLoaderPath
-				),
+				path.posix.join(plan.planIncomingDir, pluginLoaderPath),
 				incomingLoader,
 				{ ensureDir: true }
 			);
@@ -501,7 +486,6 @@ describe('patcher.apply', () => {
 				ensureDir: true,
 			});
 
-			const ir = makeIr();
 			const input = {
 				phase: 'apply' as const,
 				options: {
@@ -532,11 +516,11 @@ describe('patcher.apply', () => {
 			expect(updated).toBe(incomingLoader);
 
 			const baseSnapshot = await workspace.readText(
-				path.posix.join(layout.resolve('plan.base'), pluginLoaderPath)
+				path.posix.join(plan.planBaseDir, pluginLoaderPath)
 			);
 			expect(baseSnapshot).toBe(incomingLoader);
 
-			const manifestPath = layout.resolve('patch.manifest');
+			const manifestPath = plan.patchManifestPath;
 			const manifestRaw = await workspace.readText(manifestPath);
 			const manifest = JSON.parse(manifestRaw ?? '{}');
 			expect(manifest.summary).toEqual({
@@ -559,6 +543,7 @@ describe('patcher.apply', () => {
 		await withWorkspace(async ({ workspace, root: workspaceRoot }) => {
 			const reporter = buildReporter();
 			const output = buildOutput<BuilderOutput['actions'][number]>();
+			const { ir, plan } = buildPlanArtifacts();
 
 			const baseLoader = [
 				'<?php',
@@ -582,10 +567,9 @@ describe('patcher.apply', () => {
 				'',
 			].join('\n');
 
-			const layout = loadTestLayoutSync();
-			const pluginLoaderPath = layout.resolve('plugin.loader');
+			const pluginLoaderPath = ir.artifacts.php.pluginLoaderPath;
 			await workspace.write(
-				layout.resolve('plan.manifest'),
+				plan.planManifestPath,
 				JSON.stringify(
 					{
 						instructions: [
@@ -593,11 +577,11 @@ describe('patcher.apply', () => {
 								action: 'write',
 								file: pluginLoaderPath,
 								base: path.posix.join(
-									layout.resolve('plan.base'),
+									plan.planBaseDir,
 									pluginLoaderPath
 								),
 								incoming: path.posix.join(
-									layout.resolve('plan.incoming'),
+									plan.planIncomingDir,
 									pluginLoaderPath
 								),
 								description: 'Update plugin loader',
@@ -610,15 +594,12 @@ describe('patcher.apply', () => {
 			);
 
 			await workspace.write(
-				path.posix.join(layout.resolve('plan.base'), pluginLoaderPath),
+				path.posix.join(plan.planBaseDir, pluginLoaderPath),
 				baseLoader,
 				{ ensureDir: true }
 			);
 			await workspace.write(
-				path.posix.join(
-					layout.resolve('plan.incoming'),
-					pluginLoaderPath
-				),
+				path.posix.join(plan.planIncomingDir, pluginLoaderPath),
 				incomingLoader,
 				{ ensureDir: true }
 			);
@@ -626,7 +607,6 @@ describe('patcher.apply', () => {
 				ensureDir: true,
 			});
 
-			const ir = makeIr();
 			const input = {
 				phase: 'apply' as const,
 				options: {
@@ -658,11 +638,11 @@ describe('patcher.apply', () => {
 			expect(merged).toContain('<<<<<<<');
 
 			const baseSnapshot = await workspace.readText(
-				path.posix.join(layout.resolve('plan.base'), pluginLoaderPath)
+				path.posix.join(plan.planBaseDir, pluginLoaderPath)
 			);
 			expect(baseSnapshot).toBe(baseLoader);
 
-			const manifestPath = layout.resolve('patch.manifest');
+			const manifestPath = plan.patchManifestPath;
 			const manifestRaw = await workspace.readText(manifestPath);
 			const manifest = JSON.parse(manifestRaw ?? '{}');
 			expect(manifest.summary).toEqual({
@@ -685,12 +665,11 @@ describe('patcher.apply', () => {
 		await withWorkspace(async ({ workspace, root: workspaceRoot }) => {
 			const reporter = buildReporter();
 			const output = buildOutput<BuilderOutput['actions'][number]>();
+			const { ir, plan, phpGeneratedDir } = buildPlanArtifacts();
 
-			const layout = loadTestLayoutSync();
-			const phpGenerated = layout.resolve('php.generated');
 			const baseContents = [
 				'<?php',
-				`require_once __DIR__ . '/../${phpGenerated}/Rest/JobController.php';`,
+				`require_once __DIR__ . '/../${phpGeneratedDir}/Rest/JobController.php';`,
 				'class JobController extends \\Demo\\Plugin\\Generated\\Rest\\JobController',
 				'{',
 				'}',
@@ -698,7 +677,7 @@ describe('patcher.apply', () => {
 			].join('\n');
 			const incomingContents = [
 				'<?php',
-				`require_once __DIR__ . '/../../${phpGenerated}/Rest/JobController.php';`,
+				`require_once __DIR__ . '/../../${phpGeneratedDir}/Rest/JobController.php';`,
 				'class JobController extends \\Demo\\Plugin\\Generated\\Rest\\JobController',
 				'{',
 				'}',
@@ -706,7 +685,7 @@ describe('patcher.apply', () => {
 			].join('\n');
 			const currentContents = [
 				'<?php',
-				`require_once __DIR__ . '/../${phpGenerated}/Rest/JobController.php';`,
+				`require_once __DIR__ . '/../${phpGeneratedDir}/Rest/JobController.php';`,
 				'class JobController extends \\Demo\\Plugin\\Generated\\Rest\\JobController',
 				'{',
 				'    public function custom()',
@@ -718,7 +697,7 @@ describe('patcher.apply', () => {
 			].join('\n');
 
 			await workspace.write(
-				layout.resolve('plan.manifest'),
+				plan.planManifestPath,
 				JSON.stringify(
 					{
 						instructions: [
@@ -726,11 +705,11 @@ describe('patcher.apply', () => {
 								action: 'write',
 								file: 'php/JobController.php',
 								base: path.posix.join(
-									layout.resolve('plan.base'),
+									plan.planBaseDir,
 									'php/JobController.php'
 								),
 								incoming: path.posix.join(
-									layout.resolve('plan.incoming'),
+									plan.planIncomingDir,
 									'php/JobController.php'
 								),
 								description: 'Update Job controller shim',
@@ -743,16 +722,12 @@ describe('patcher.apply', () => {
 			);
 
 			await workspace.write(
-				path.posix.join(
-					layout.resolve('plan.base'),
-					'php',
-					'JobController.php'
-				),
+				path.posix.join(plan.planBaseDir, 'php', 'JobController.php'),
 				baseContents
 			);
 			await workspace.write(
 				path.posix.join(
-					layout.resolve('plan.incoming'),
+					plan.planIncomingDir,
 					'php',
 					'JobController.php'
 				),
@@ -762,7 +737,6 @@ describe('patcher.apply', () => {
 				ensureDir: true,
 			});
 
-			const ir = makeIr();
 			const input = {
 				phase: 'apply' as const,
 				options: {
@@ -791,12 +765,12 @@ describe('patcher.apply', () => {
 
 			const updated = await workspace.readText('php/JobController.php');
 			expect(updated).toContain(
-				`require_once __DIR__ . '/../../${phpGenerated}/Rest/JobController.php';`
+				`require_once __DIR__ . '/../../${phpGeneratedDir}/Rest/JobController.php';`
 			);
 			expect(updated).toContain('public function custom()');
 
 			const manifestRaw = await workspace.readText(
-				layout.resolve('patch.manifest')
+				plan.patchManifestPath
 			);
 			const manifest = JSON.parse(manifestRaw ?? '{}');
 			expect(manifest.summary).toEqual({

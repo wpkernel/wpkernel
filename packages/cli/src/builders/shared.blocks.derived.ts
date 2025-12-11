@@ -42,7 +42,10 @@ export function deriveResourceBlocks(options: {
 	readonly existingBlocks: ReadonlyMap<string, IRBlock>;
 }): readonly DerivedResourceBlock[] {
 	const { ir, existingBlocks } = options;
-	const generatedRoot = path.dirname(ir.php.outputDir);
+	const blocksRoot = ir.artifacts?.blockRoots?.generated;
+	if (!blocksRoot) {
+		return [];
+	}
 	const derived: DerivedResourceBlock[] = [];
 
 	for (const resource of ir.resources) {
@@ -59,8 +62,8 @@ export function deriveResourceBlocks(options: {
 			continue;
 		}
 
-		const directory = toPosixPath(path.join(generatedRoot, 'blocks', slug));
-		const manifestSource = toPosixPath(path.join(directory, 'block.json'));
+		const directory = path.posix.join(blocksRoot, slug);
+		const manifestSource = path.posix.join(directory, 'block.json');
 		const block: IRBlock = {
 			id: createBlockId({
 				key: blockKey,
@@ -365,6 +368,6 @@ function toTitleCase(value: string): string {
 		.join(' ');
 }
 
-function toPosixPath(candidate: string): string {
+export function toPosixPath(candidate: string): string {
 	return candidate.split(path.sep).join('/');
 }

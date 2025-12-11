@@ -62,7 +62,7 @@ function materialiseArtifacts(
 
 function attachBlockPlan(ir: IRv1, workspace: Workspace, block: IRBlock): void {
 	const appliedDir = workspace.resolve(block.directory);
-	const generatedRoot = ir.layout.resolve('blocks.generated');
+	const generatedRoot = ir.artifacts.blockRoots.generated;
 	const dirName = path.posix.basename(block.directory);
 	const generatedDir = path.posix.join(generatedRoot, dirName);
 

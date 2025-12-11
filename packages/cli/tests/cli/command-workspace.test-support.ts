@@ -1,3 +1,4 @@
+import os from 'node:os';
 import path from 'node:path';
 import type { Workspace, FileManifest } from '../../src/workspace/types';
 import {
@@ -33,7 +34,12 @@ export function createCommandWorkspaceHarness<
 >(
 	options: CommandWorkspaceHarnessOptions = {}
 ): CommandWorkspaceHarness<TWorkspace> {
-	const root = options.root ?? path.join(process.cwd(), 'workspace');
+	const root =
+		options.root ??
+		path.join(
+			os.tmpdir(),
+			`wpk-cli-workspace-${Math.random().toString(16).slice(2)}`
+		);
 	const files = new Map<string, Buffer>();
 
 	if (options.files) {

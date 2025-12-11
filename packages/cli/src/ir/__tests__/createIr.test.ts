@@ -132,7 +132,17 @@ describe('createIr', () => {
 				expect(ir.php).toEqual(
 					expect.objectContaining({
 						namespace: expect.any(String),
-						autoload: 'inc/',
+						autoload: (() => {
+							const controllersDir = path.posix.dirname(
+								ir.layout.resolve('controllers.applied')
+							);
+							if (!controllersDir || controllersDir === '.') {
+								return '';
+							}
+							return controllersDir.endsWith('/')
+								? controllersDir
+								: `${controllersDir}/`;
+						})(),
 						outputDir: ir.layout.resolve('php.generated'),
 					})
 				);

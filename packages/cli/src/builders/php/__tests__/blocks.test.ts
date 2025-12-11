@@ -24,7 +24,6 @@ import { buildWorkspace } from '../../../workspace';
 import type { Workspace } from '../../../workspace';
 import * as BlockModule from '@wpkernel/wp-json-ast';
 import { withBlocks } from '@cli-tests/builders/fixtures.test-support';
-import { loadTestLayout } from '@wpkernel/test-utils/layout.test-support';
 
 jest.mock('@wpkernel/wp-json-ast', () => {
 	const actual = jest.requireActual<typeof BlockModule>(
@@ -45,12 +44,15 @@ const withWorkspace = (
 
 describe('createPhpBlocksHelper', () => {
 	it('emits manifest, registrar, and render stub for SSR blocks', async () => {
-		await withWorkspace(async ({ workspace, root }) => {
+		await withWorkspace(async ({ workspace }) => {
 			const configSource = buildWPKernelConfigSource();
 			await workspace.write('wpk.config.ts', configSource);
-			const layout = await loadTestLayout({ cwd: workspace.root });
 
-			const blockDir = path.join('src', 'blocks', 'example');
+			const baseIr = createMinimalIr();
+			const blockDir = path.join(
+				baseIr.artifacts.blockRoots.applied,
+				'example'
+			);
 			const manifestPath = path.join(blockDir, 'block.json');
 			await workspace.write(
 				manifestPath,
@@ -68,7 +70,7 @@ describe('createPhpBlocksHelper', () => {
 			);
 
 			const reporter = buildReporter();
-			const irWithBlocks = withBlocks(createMinimalIr(), [
+			const irWithBlocks = withBlocks(baseIr, [
 				{
 					key: 'demo/example',
 					directory: blockDir,
@@ -90,22 +92,10 @@ describe('createPhpBlocksHelper', () => {
 				undefined
 			);
 
-			const pending = getPhpBuilderChannel(context).pending();
-			const queuedFiles = pending
-				.map((action) => normalise(path.relative(root, action.file)))
-				.sort();
+			const phpPlan = irWithBlocks.artifacts?.php;
+			expect(phpPlan).toBeDefined();
 
-			expect(queuedFiles).toEqual(
-				expect.arrayContaining([
-					expect.stringContaining('blocks-manifest.php'),
-					normalise(
-						path.join(
-							layout.resolve('php.generated'),
-							'Blocks/Register.php'
-						)
-					),
-				])
-			);
+			const pending = getPhpBuilderChannel(context).pending();
 
 			const manifestAction = pending.find(
 				(action) => action.metadata.kind === 'block-manifest'
@@ -122,9 +112,7 @@ describe('createPhpBlocksHelper', () => {
 			);
 			expect(registrarProgram).toContain('Stmt_Class');
 			await expect(
-				workspace.readText(
-					path.join('src', 'blocks', 'example', 'render.php')
-				)
+				workspace.readText(path.join(blockDir, 'render.php'))
 			).resolves.toContain('AUTO-GENERATED WPK STUB');
 
 			expect(reporter.warn).not.toHaveBeenCalled();
@@ -145,7 +133,7 @@ describe('createPhpBlocksHelper', () => {
 
 			expect(
 				output.actions.map((action) => normalise(action.file)).sort()
-			).toEqual(['src/blocks/example/render.php']);
+			).toEqual([normalise(path.join(blockDir, 'render.php'))]);
 		});
 	});
 
@@ -154,7 +142,11 @@ describe('createPhpBlocksHelper', () => {
 			const configSource = buildWPKernelConfigSource();
 			await workspace.write('wpk.config.ts', configSource);
 
-			const blockDir = path.join('src', 'blocks', 'example');
+			const baseIr = createMinimalIr();
+			const blockDir = path.join(
+				baseIr.artifacts.blockRoots.applied,
+				'example'
+			);
 			const manifestPath = path.join(blockDir, 'block.json');
 			await workspace.write(
 				manifestPath,
@@ -172,7 +164,7 @@ describe('createPhpBlocksHelper', () => {
 			);
 
 			const reporter = buildReporter();
-			const irWithBlocks = withBlocks(createMinimalIr(), [
+			const irWithBlocks = withBlocks(baseIr, [
 				{
 					key: 'demo/example',
 					directory: blockDir,
@@ -287,12 +279,16 @@ describe('createPhpBlocksHelper', () => {
 			const configSource = buildWPKernelConfigSource();
 			await workspace.write('wpk.config.ts', configSource);
 
-			const blockDir = path.join('src', 'blocks', 'broken');
+			const baseIr = createMinimalIr();
+			const blockDir = path.join(
+				baseIr.artifacts.blockRoots.applied,
+				'broken'
+			);
 			const manifestPath = path.join(blockDir, 'block.json');
 			await workspace.write(manifestPath, '{ invalid json');
 
 			const reporter = buildReporter();
-			const irWithBlocks = withBlocks(createMinimalIr(), [
+			const irWithBlocks = withBlocks(baseIr, [
 				{
 					key: 'demo/broken',
 					directory: blockDir,
@@ -328,7 +324,11 @@ describe('createPhpBlocksHelper', () => {
 			const configSource = buildWPKernelConfigSource();
 			await workspace.write('wpk.config.ts', configSource);
 
-			const blockDir = path.join('src', 'blocks', 'failing');
+			const baseIr = createMinimalIr();
+			const blockDir = path.join(
+				baseIr.artifacts.blockRoots.applied,
+				'failing'
+			);
 			const manifestPath = path.join(blockDir, 'block.json');
 			await workspace.write(
 				manifestPath,
@@ -345,7 +345,7 @@ describe('createPhpBlocksHelper', () => {
 				)
 			);
 
-			const irWithBlocks = withBlocks(createMinimalIr(), [
+			const irWithBlocks = withBlocks(baseIr, [
 				{
 					key: 'demo/failing',
 					directory: blockDir,

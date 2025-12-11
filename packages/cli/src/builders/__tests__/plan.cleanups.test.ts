@@ -4,21 +4,18 @@ import os from 'node:os';
 import type { GenerationManifestDiff } from '../../apply/manifest';
 import { collectDeletionInstructions } from '../plan.cleanups';
 import { buildWorkspace } from '../../workspace';
-import { loadTestLayoutSync } from '@wpkernel/test-utils/layout.test-support';
 import { createReporterMock } from '@cli-tests/reporter';
+import { makeIr } from '@cli-tests/ir.test-support';
+
+const PLAN = makeIr().artifacts.plan;
 
 describe('plan.cleanups', () => {
 	it('deletes removed shims when base matches target', async () => {
 		const root = await fs.mkdtemp(path.join(os.tmpdir(), 'wpk-cleanups-'));
-		const layout = loadTestLayoutSync();
 		const reporter = createReporterMock();
 		try {
 			const shimPath = 'inc/Rest/JobsController.php';
-			const basePath = path.join(
-				root,
-				layout.resolve('plan.base'),
-				shimPath
-			);
+			const basePath = path.join(root, PLAN.planBaseDir, shimPath);
 			await fs.mkdir(path.dirname(basePath), { recursive: true });
 			const contents = '<?php // base';
 			await fs.writeFile(basePath, contents);
@@ -42,7 +39,7 @@ describe('plan.cleanups', () => {
 					diff,
 					workspace,
 					reporter,
-					planBasePath: layout.resolve('plan.base'),
+					planBasePath: PLAN.planBaseDir,
 				});
 
 			expect(skippedDeletions).toEqual([]);
@@ -61,9 +58,8 @@ describe('plan.cleanups', () => {
 
 	it('skips deletions when base snapshots or targets are missing', async () => {
 		const reporter = createReporterMock();
-		const layout = loadTestLayoutSync();
 		const shimPath = 'inc/Rest/UsersController.php';
-		const planBasePath = layout.resolve('plan.base');
+		const planBasePath = PLAN.planBaseDir;
 		const reads: Record<string, string | null> = {
 			[path.posix.join(planBasePath, shimPath)]: null,
 			[shimPath]: '<?php // target',
@@ -102,9 +98,8 @@ describe('plan.cleanups', () => {
 
 	it('skips deletions when targets are missing or modified', async () => {
 		const reporter = createReporterMock();
-		const layout = loadTestLayoutSync();
 		const shimPath = 'inc/Rest/AuthorsController.php';
-		const planBasePath = layout.resolve('plan.base');
+		const planBasePath = PLAN.planBaseDir;
 		const reads: Record<string, string | null> = {
 			[path.posix.join(planBasePath, shimPath)]: '<?php // base',
 			[shimPath]: null,

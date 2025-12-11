@@ -679,7 +679,10 @@ describe('buildStartCommand', () => {
 
 		expect(reporter.info).toHaveBeenCalledWith(
 			'Applied generated PHP artifacts.',
-			expect.objectContaining({ source: '.', target: 'inc' })
+			expect.objectContaining({
+				source: '.',
+				target: layoutPaths.phpTargetDir,
+			})
 		);
 
 		resolveSpy.mockRestore();

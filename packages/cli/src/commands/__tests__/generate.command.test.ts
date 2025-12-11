@@ -10,7 +10,7 @@ import {
 	buildGenerateCommand,
 	type BuildGenerateCommandOptions,
 } from '../generate';
-import { PATCH_MANIFEST_PATH } from '../apply/constants';
+import { PATCH_MANIFEST_ID } from '../apply/constants';
 import { resolveGenerationStatePath } from '../../apply/manifest';
 import type {
 	Pipeline,
@@ -25,8 +25,8 @@ import type {
 import { loadTestLayoutSync } from '@wpkernel/test-utils/layout.test-support';
 import { resolvePatchPaths } from '../../builders/patcher.paths';
 import { buildTestArtifactsPlan, makeIr } from '@cli-tests/ir.test-support';
-import layoutManifest from '../../../../../layout.manifest.json' assert { type: 'json' };
 import { createDefaultResource } from '@cli-tests/ir/resource-builder.mock';
+import { ensureLayoutManifest } from '@wpkernel/test-utils/layout-manifest.test-support';
 
 jest.mock('../../ir/fragments/ir.layout.core', () => {
 	const actual = jest.requireActual('../../ir/fragments/ir.layout.core');
@@ -50,12 +50,9 @@ const buildIrArtifact = (workspaceRoot: string): PipelineRunResult['ir'] =>
 	});
 
 function createWorkspaceStub() {
-	return createCommandWorkspaceHarness({
-		root: path.join(process.cwd(), 'workspace'),
-		files: {
-			'layout.manifest.json': JSON.stringify(layoutManifest),
-		},
-	}).workspace;
+	const harness = createCommandWorkspaceHarness();
+	void ensureLayoutManifest(harness.workspace.root);
+	return harness.workspace;
 }
 
 function createPipelineStub(
@@ -64,10 +61,7 @@ function createPipelineStub(
 ): { pipeline: Pipeline; runMock: jest.Mock } {
 	const runMock = jest.fn(async (options: PipelineRunOptions) => {
 		const layout = loadTestLayoutSync();
-		await options.workspace.write(
-			'layout.manifest.json',
-			JSON.stringify(layoutManifest)
-		);
+		await ensureLayoutManifest(options.workspace.root);
 		await options.workspace.write(
 			path.join(layout.resolve('entry.generated'), 'index.ts'),
 			"console.log('hello world');\n"
@@ -76,7 +70,7 @@ function createPipelineStub(
 			plan: buildTestArtifactsPlan(layout).plan,
 		});
 		await options.workspace.write(patchPaths.planPath, '{}');
-		await options.workspace.write(PATCH_MANIFEST_PATH, '{}');
+		await options.workspace.write(layout.resolve(PATCH_MANIFEST_ID), '{}');
 
 		return {
 			ir: buildIrArtifact(options.workspace.root),
@@ -557,7 +551,10 @@ describe('GenerateCommand', () => {
 					"console.log('hello world');\n"
 				);
 				await options.workspace.write(patchPaths.planPath, '{}');
-				await options.workspace.write(PATCH_MANIFEST_PATH, '{}');
+				await options.workspace.write(
+					loadTestLayoutSync().resolve(PATCH_MANIFEST_ID),
+					'{}'
+				);
 
 				const ir = buildIrArtifact(options.workspace.root);
 				const baseResource = createDefaultResource();

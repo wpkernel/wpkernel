@@ -3,17 +3,37 @@ import path from 'node:path';
 import {
 	resolveBlockPath,
 	toWorkspaceRelative,
+	resolveBlockRoots,
 } from '../../shared.blocks.paths';
 import { makeWorkspaceMock } from '@cli-tests/workspace.test-support';
-import { loadTestLayoutSync } from '@wpkernel/test-utils/layout.test-support';
+import { makeIr } from '@cli-tests/ir.test-support';
 
 describe('shared.blocks.paths helpers', () => {
 	afterEach(() => {
 		jest.restoreAllMocks();
 	});
 
+	function makeRoots() {
+		const ir = makeIr();
+		// Ensure block artifacts exist so resolveBlockRoots returns non-null.
+		ir.artifacts.blocks = {
+			demo: {
+				key: 'demo',
+				appliedDir: ir.artifacts.blockRoots.applied,
+				generatedDir: ir.artifacts.blockRoots.generated,
+				jsonPath: '',
+				tsEntry: '',
+				tsView: '',
+				tsHelper: '',
+				mode: 'js',
+				phpRenderPath: undefined,
+			},
+		};
+		return resolveBlockRoots(ir)!;
+	}
+
 	it('returns workspace-resolved path when outside generated root', async () => {
-		const layout = loadTestLayoutSync();
+		const roots = makeRoots();
 		const workspace = makeWorkspaceMock({
 			root: '/repo',
 			resolve: (...p: string[]) => path.join('/repo', ...p),
@@ -22,8 +42,8 @@ describe('shared.blocks.paths helpers', () => {
 			workspace as any,
 			'src/blocks/post/block.json',
 			{
-				generated: layout.resolve('blocks.generated'),
-				surfaced: layout.resolve('blocks.applied'),
+				generated: roots.generated,
+				surfaced: roots.surfaced,
 			}
 		);
 		expect(result.relative).toBe('src/blocks/post/block.json');
@@ -33,7 +53,7 @@ describe('shared.blocks.paths helpers', () => {
 	});
 
 	it('maps generated block to surfaced path when it exists', async () => {
-		const layout = loadTestLayoutSync();
+		const roots = makeRoots();
 		jest.spyOn(fs, 'stat').mockResolvedValue({
 			isFile: () => true,
 		} as any);
@@ -43,20 +63,22 @@ describe('shared.blocks.paths helpers', () => {
 		});
 		const result = await resolveBlockPath(
 			workspace as any,
-			path.join(layout.resolve('blocks.generated'), 'demo/block.json'),
+			path.join(roots.generated, 'demo/block.json'),
 			{
-				generated: layout.resolve('blocks.generated'),
-				surfaced: layout.resolve('blocks.applied'),
+				generated: roots.generated,
+				surfaced: roots.surfaced,
 			}
 		);
-		expect(result.relative).toBe('src/blocks/demo/block.json');
-		expect(result.absolute).toBe(
-			path.join('/repo', 'src/blocks/demo/block.json')
+		const expectedRelative = path.posix.join(
+			roots.surfaced,
+			'demo/block.json'
 		);
+		expect(result.relative).toBe(expectedRelative);
+		expect(result.absolute).toBe(path.join('/repo', expectedRelative));
 	});
 
 	it('falls back to generated path when surfaced file is missing', async () => {
-		const layout = loadTestLayoutSync();
+		const roots = makeRoots();
 		jest.spyOn(fs, 'stat').mockRejectedValue(
 			Object.assign(new Error('nope'), { code: 'ENOENT' })
 		);
@@ -66,39 +88,33 @@ describe('shared.blocks.paths helpers', () => {
 		});
 		const result = await resolveBlockPath(
 			workspace as any,
-			path.join(layout.resolve('blocks.generated'), 'demo/block.json'),
+			path.join(roots.generated, 'demo/block.json'),
 			{
-				generated: layout.resolve('blocks.generated'),
-				surfaced: layout.resolve('blocks.applied'),
+				generated: roots.generated,
+				surfaced: roots.surfaced,
 			}
 		);
 		expect(result.relative).toBe(
-			path.join(layout.resolve('blocks.generated'), 'demo/block.json')
+			path.join(roots.generated, 'demo/block.json')
 		);
 	});
 
 	it('leaves paths unchanged when generated suffix escapes root', async () => {
-		const layout = loadTestLayoutSync();
+		const roots = makeRoots();
 		const workspace = makeWorkspaceMock({
 			root: '/repo',
 			resolve: (...p: string[]) => path.join('/repo', ...p),
 		});
 		const result = await resolveBlockPath(
 			workspace as any,
-			path.join(
-				layout.resolve('blocks.generated'),
-				'../outside/block.json'
-			),
+			path.join(roots.generated, '../outside/block.json'),
 			{
-				generated: layout.resolve('blocks.generated'),
-				surfaced: layout.resolve('blocks.applied'),
+				generated: roots.generated,
+				surfaced: roots.surfaced,
 			}
 		);
 		expect(result.relative).toBe(
-			path.join(
-				layout.resolve('blocks.generated'),
-				'../outside/block.json'
-			)
+			path.join(roots.generated, '../outside/block.json')
 		);
 	});
 

@@ -169,6 +169,7 @@ export function createArtifactsFixture(
 	const runtimeGenerated = DEFAULT_LAYOUT.resolve('runtime.generated');
 	const runtimeApplied = DEFAULT_LAYOUT.resolve('runtime.applied');
 	const blocksGenerated = DEFAULT_LAYOUT.resolve('blocks.generated');
+	const blocksApplied = DEFAULT_LAYOUT.resolve('blocks.applied');
 	const phpGenerated = DEFAULT_LAYOUT.resolve('php.generated');
 	const pluginLoaderPath = DEFAULT_LAYOUT.resolve('plugin.loader');
 
@@ -182,6 +183,10 @@ export function createArtifactsFixture(
 		resources: {},
 		surfaces: {},
 		blocks: {},
+		blockRoots: {
+			applied: blocksApplied,
+			generated: blocksGenerated,
+		},
 		schemas: {},
 		runtime: {
 			entry: {

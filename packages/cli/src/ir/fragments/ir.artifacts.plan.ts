@@ -98,6 +98,7 @@ export function createArtifactsFragment(): IrFragment {
 				php
 			);
 			const blockPlans = buildBlockPlans(blocks, layout);
+			const blockRoots = buildBlockRoots(layout);
 			const schemaPlans = buildSchemaPlans(schemas, layout);
 
 			const runtimePlans = buildRuntimePlans(layout, ui);
@@ -108,6 +109,7 @@ export function createArtifactsFragment(): IrFragment {
 				resources: buildResourcePlans(resources, layout, schemaPlans),
 				surfaces: buildSurfacePlans(resources, layout, ui),
 				blocks: blockPlans,
+				blockRoots,
 				schemas: schemaPlans,
 				runtime: runtimePlans,
 				bundler: buildBundlerPlan(layout, runtimePlans),
@@ -507,6 +509,13 @@ function buildBlockPlan(
 			? path.posix.join(appliedDir, 'render.php')
 			: undefined,
 		mode: block.hasRender ? 'ssr' : 'js',
+	};
+}
+
+function buildBlockRoots(layout: LayoutDraft): IRArtifactsPlan['blockRoots'] {
+	return {
+		applied: layout.resolve('blocks.applied'),
+		generated: layout.resolve('blocks.generated'),
 	};
 }
 

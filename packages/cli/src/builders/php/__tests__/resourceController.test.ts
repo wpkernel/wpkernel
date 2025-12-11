@@ -82,50 +82,7 @@ async function buildApplyOptionsWithArtifacts(
 	}));
 	await seedArtifacts(ir, reporter);
 	if (!ir.artifacts?.php) {
-		ir.artifacts ??= {} as IRv1['artifacts'];
-		const generatedRoot = ir.layout.resolve('php.generated');
-		const appliedRoot =
-			ir.layout.resolve('controllers.applied') ?? generatedRoot;
-		const controllers = Object.fromEntries(
-			ir.resources.map((resource, index) => [
-				resource.id ?? `res-${index}`,
-				{
-					className: `${resource.name}Controller`,
-					namespace: `${ir.php.namespace}\\Rest`,
-					appliedPath: path.posix.join(
-						appliedRoot,
-						`${resource.name}Controller.php`
-					),
-					generatedPath: path.posix.join(
-						generatedRoot,
-						`${resource.name}Controller.php`
-					),
-				},
-			])
-		);
-		ir.artifacts.php = {
-			pluginLoaderPath: path.posix.join(generatedRoot, 'plugin.php'),
-			autoload: {
-				strategy: 'composer',
-				autoloadPath: path.posix.join(
-					generatedRoot,
-					'vendor',
-					'autoload.php'
-				),
-			},
-			blocksManifestPath: path.posix.join(
-				generatedRoot,
-				'blocks-manifest.php'
-			),
-			blocksRegistrarPath: path.posix.join(
-				generatedRoot,
-				'Blocks',
-				'Register.php'
-			),
-			blocks: {},
-			controllers,
-			debugUiPath: path.posix.join(generatedRoot, 'debug-ui.php'),
-		};
+		throw new Error('Expected PHP artifacts to be seeded for test');
 	}
 	return buildApplyOptions(ir, overrides);
 }

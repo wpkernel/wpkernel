@@ -68,6 +68,9 @@ importers:
       '@types/jscodeshift':
         specifier: ^17.3.0
         version: 17.3.0
+      '@types/markdown-it':
+        specifier: ^14.1.2
+        version: 14.1.2
       '@types/node':
         specifier: ^24.10.1
         version: 24.10.1
@@ -209,6 +212,9 @@ importers:
       loglayer:
         specifier: ^6.10.0
         version: 6.10.0
+      markdown-it:
+        specifier: ^14.1.0
+        version: 14.1.0
       mermaid:
         specifier: ^11.12.1
         version: 11.12.1

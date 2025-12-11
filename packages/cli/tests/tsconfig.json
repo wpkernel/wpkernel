@@ -11,5 +11,8 @@
 	"files": ["../package.json"],
 	"exclude": [],
 	"include": ["./**/*.ts", "./**/*.tsx"],
-	"references": [{ "path": "../tsconfig.json" }]
+	"references": [
+		{ "path": "../tsconfig.json" },
+		{ "path": "../../test-utils/tsconfig.json" }
+	]
 }

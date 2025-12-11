@@ -8,11 +8,8 @@ import type {
 	IRSchema,
 } from '../../ir/publicTypes';
 import path from 'path';
-import { loadTestLayoutSync } from '@wpkernel/test-utils/layout.test-support';
 import { createDefaultResource } from '@cli-tests/ir/resource-builder.mock';
 import { makeIr } from '@cli-tests/ir.test-support';
-
-const layout = loadTestLayoutSync();
 
 describe('deriveResourceBlocks', () => {
 	it('derives manifest attributes from schema definitions', () => {
@@ -77,10 +74,11 @@ describe('deriveResourceBlocks', () => {
 		const entry = derived[0]!;
 
 		const namespace = ir.meta.namespace;
+		const blockRoot = ir.artifacts.blockRoots.generated;
 
 		expect(entry.block.key).toBe(`${namespace}/alpharesource`);
 		expect(entry.block.directory).toBe(
-			path.posix.join(layout.resolve('blocks.generated'), 'alpharesource')
+			path.posix.join(blockRoot, 'alpharesource')
 		);
 		expect(entry.kind).toBe('js');
 		expect(entry.block.id).toEqual(expect.stringMatching(/^blk:/));
@@ -144,7 +142,7 @@ describe('deriveResourceBlocks', () => {
 		});
 
 		const existingBlockDir = path.posix.join(
-			layout.resolve('blocks.generated'),
+			ir.artifacts.blockRoots.generated,
 			'existingresource'
 		);
 		const namespace = ir.meta.namespace;
@@ -303,7 +301,6 @@ type ResourceOverrides = Partial<
 // 		php: {
 // 			namespace,
 // 			autoload: 'inc/',
-// 			outputDir: options?.phpOutputDir ?? layout.resolve('php.generated'),
 // 		},
 // 		layout,
 // 		diagnostics: [],

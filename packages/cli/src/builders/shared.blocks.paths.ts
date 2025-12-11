@@ -14,10 +14,16 @@ export function resolveBlockRoots(ir: IRv1): BlockPathRoots | null {
 	if (blockPlans.length === 0) {
 		return null;
 	}
-	const first = blockPlans[0]!;
+
+	const generatedRoot = ir.artifacts?.blockRoots?.generated;
+	const appliedRoot = ir.artifacts?.blockRoots?.applied;
+	if (!generatedRoot || !appliedRoot) {
+		return null;
+	}
+
 	return {
-		generated: first.generatedDir,
-		surfaced: first.appliedDir,
+		generated: generatedRoot,
+		surfaced: appliedRoot,
 	};
 }
 

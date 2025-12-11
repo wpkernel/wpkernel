@@ -470,196 +470,6 @@
 			},
 			"description": "Map of query parameter names to their descriptors, defining the supported query-string filters for this resource."
 		},
-		"resourceDataViewsMenu": {
-			"type": "object",
-			"required": ["slug", "title"],
-			"additionalProperties": true,
-			"properties": {
-				"slug": {
-					"$ref": "#/$defs/nonEmptyString",
-					"description": "Menu slug used when registering the admin page for this resource."
-				},
-				"title": {
-					"$ref": "#/$defs/nonEmptyString",
-					"description": "Menu title shown in the WordPress admin sidebar."
-				},
-				"capability": {
-					"type": "string",
-					"minLength": 1,
-					"description": "Capability required to see this admin menu (for example, \"manage_options\" or a resource-specific capability)."
-				},
-				"parent": {
-					"type": "string",
-					"minLength": 1,
-					"description": "Parent menu slug if this screen should live under an existing menu (for example, \"options-general.php\")."
-				},
-				"position": {
-					"type": "number",
-					"description": "Numeric menu position, following WordPress's admin menu conventions."
-				}
-			},
-			"description": "Configuration for the WordPress admin menu entry that will host this resource's Data Views screen."
-		},
-		"resourceDataViewsScreen": {
-			"type": "object",
-			"additionalProperties": true,
-			"properties": {
-				"component": {
-					"type": "string",
-					"minLength": 1,
-					"description": "Name of the React component used to render the Data Views screen."
-				},
-				"route": {
-					"type": "string",
-					"minLength": 1,
-					"description": "Admin route or hash route where this screen is mounted."
-				},
-				"resourceImport": {
-					"type": "string",
-					"minLength": 1,
-					"description": "Import path for the generated resource client."
-				},
-				"resourceSymbol": {
-					"type": "string",
-					"minLength": 1,
-					"description": "Named export used for the generated resource client."
-				},
-				"wpkernelImport": {
-					"type": "string",
-					"minLength": 1,
-					"description": "Import path for WPKernel's UI helpers."
-				},
-				"wpkernelSymbol": {
-					"type": "string",
-					"minLength": 1,
-					"description": "Named export used for WPKernel's UI helpers."
-				},
-				"menu": {
-					"$ref": "#/$defs/resourceDataViewsMenu",
-					"description": "Menu configuration for this screen."
-				}
-			},
-			"description": "Low-level wiring details for the admin Data Views screen that WPKernel generates for this resource."
-		},
-		"resourceDataViewsSavedView": {
-			"type": "object",
-			"required": ["id", "label", "view"],
-			"additionalProperties": true,
-			"properties": {
-				"id": {
-					"$ref": "#/$defs/nonEmptyString",
-					"description": "Stable identifier for this saved view (for example, \"open-jobs\")."
-				},
-				"label": {
-					"$ref": "#/$defs/nonEmptyString",
-					"description": "Label shown in the UI for this saved view."
-				},
-				"view": {
-					"type": "object",
-					"additionalProperties": true,
-					"description": "Configuration object describing filters/sorts/layout for this saved view. The exact shape is defined by the Data Views integration."
-				},
-				"description": {
-					"type": "string",
-					"minLength": 1,
-					"description": "Optional longer description shown in tooltips or documentation."
-				},
-				"isDefault": {
-					"type": "boolean",
-					"description": "Whether this saved view should be the default when the screen first loads."
-				}
-			},
-			"description": "Represents a saved view in the resource's Data Views UI (for example, \"Open jobs\" or \"Draft posts\")."
-		},
-		"resourceDataViewsInteractivity": {
-			"type": "object",
-			"additionalProperties": true,
-			"properties": {
-				"feature": {
-					"type": "string",
-					"minLength": 1,
-					"default": "admin-screen",
-					"description": "Interactivity feature flag used by the Data Views integration. Defaults to \"admin-screen\"."
-				}
-			},
-			"description": "Fine-grained switches for Data Views interactivity; most plugins can rely on the defaults."
-		},
-		"resourceDataViews": {
-			"type": "object",
-			"additionalProperties": true,
-			"properties": {
-				"fields": {
-					"type": "array",
-					"items": {
-						"type": "object",
-						"additionalProperties": true
-					},
-					"description": "Field definitions for the Data Views table/list. Each entry describes a column or UI field."
-				},
-				"defaultView": {
-					"type": "object",
-					"additionalProperties": true,
-					"description": "Default Data Views configuration when the screen first loads."
-				},
-				"actions": {
-					"type": "array",
-					"items": {
-						"type": "object",
-						"additionalProperties": true
-					},
-					"description": "Action definitions (row/bulk actions) available from the Data Views UI."
-				},
-				"search": {
-					"type": "boolean",
-					"description": "Whether to show the search box for this Data Views screen."
-				},
-				"searchLabel": {
-					"type": "string",
-					"minLength": 1,
-					"description": "Label to use for the search input, if enabled."
-				},
-				"empty": {
-					"description": "Optional configuration for the empty-state UI when there are no items.",
-					"anyOf": [
-						{ "type": "object", "additionalProperties": true },
-						{ "type": "null" }
-					]
-				},
-				"perPageSizes": {
-					"type": "array",
-					"items": { "type": "number" },
-					"description": "List of page sizes the user can pick from in the Data Views UI."
-				},
-				"defaultLayouts": {
-					"type": "object",
-					"additionalProperties": {
-						"anyOf": [
-							{ "type": "object", "additionalProperties": true },
-							{ "type": "null" }
-						]
-					},
-					"description": "Default layout configuration keyed by layout type (for example, table vs grid)."
-				},
-				"views": {
-					"type": "array",
-					"items": { "$ref": "#/$defs/resourceDataViewsSavedView" },
-					"description": "List of saved views available from the Data Views UI."
-				},
-				"preferencesKey": {
-					"$ref": "#/$defs/nonEmptyString",
-					"description": "Key used to store user preferences for this Data Views screen (for example, in user meta)."
-				},
-				"interactivity": {
-					"$ref": "#/$defs/resourceDataViewsInteractivity",
-					"description": "Interactivity configuration for this Data Views instance."
-				},
-				"screen": {
-					"$ref": "#/$defs/resourceDataViewsScreen",
-					"description": "Screen and menu wiring for the Data Views UI."
-				}
-			},
-			"description": "Configuration for the WordPress admin Data Views UI generated for this resource."
-		},
 		"resourceAdminUI": {
 			"type": "object",
 			"additionalProperties": true,
@@ -667,14 +477,39 @@
 				"view": {
 					"type": "string",
 					"minLength": 1,
-					"description": "Identifier for the admin view associated with this resource (for example, a React route name)."
+					"description": "Selects the generated admin surface. Use \"dataviews\" to opt into the inferred DataViews UI; other values are reserved."
 				},
-				"dataviews": {
-					"$ref": "#/$defs/resourceDataViews",
-					"description": "Data Views configuration for this resource's admin screen."
+				"menu": {
+					"type": "object",
+					"additionalProperties": true,
+					"properties": {
+						"slug": {
+							"$ref": "#/$defs/nonEmptyString",
+							"description": "Menu slug used when registering the admin page for this resource."
+						},
+						"title": {
+							"$ref": "#/$defs/nonEmptyString",
+							"description": "Menu title shown in the WordPress admin sidebar."
+						},
+						"capability": {
+							"type": "string",
+							"minLength": 1,
+							"description": "Capability required to see this admin menu (for example, \"manage_options\" or a resource-specific capability)."
+						},
+						"parent": {
+							"type": "string",
+							"minLength": 1,
+							"description": "Parent menu slug if this screen should live under an existing menu (for example, \"options-general.php\")."
+						},
+						"position": {
+							"type": "number",
+							"description": "Numeric menu position, following WordPress's admin menu conventions."
+						}
+					},
+					"description": "Optional menu configuration for the admin screen. Unlike other UI pieces, menu registration is explicit."
 				}
 			},
-			"description": "Top-level configuration for how this resource appears in the WordPress admin UI."
+			"description": "Shallow admin UI configuration. Detailed DataViews wiring is inferred from schemas, storage, and layout manifests."
 		},
 		"resourceUI": {
 			"type": "object",
@@ -682,10 +517,10 @@
 			"properties": {
 				"admin": {
 					"$ref": "#/$defs/resourceAdminUI",
-					"description": "Admin-only UI configuration for this resource."
+					"description": "Optional admin UI hint. When set, WPKernel derives the screen, menu, and fixtures automatically."
 				}
 			},
-			"description": "UI configuration for the resource. At present this mostly focuses on WordPress admin screens."
+			"description": "UI configuration for the resource. Most projects only set `admin.view: \"dataviews\"` and rely on inference."
 		},
 		"resourceConfig": {
 			"type": "object",
@@ -727,7 +562,7 @@
 				},
 				"ui": {
 					"$ref": "#/$defs/resourceUI",
-					"description": "UI configuration, primarily for the WordPress admin, associated with this resource."
+					"description": "UI configuration, primarily for the WordPress admin, associated with this resource. Detailed DataViews descriptors are no longer authored here; they are inferred from your schemas, storage, and layout manifest."
 				},
 				"blocks": {
 					"$ref": "#/$defs/resourceBlocksConfig",

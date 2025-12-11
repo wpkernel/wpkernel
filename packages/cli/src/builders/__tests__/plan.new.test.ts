@@ -5,16 +5,12 @@ import { createApplyPlanBuilder } from '../plan';
 import { buildWorkspace } from '../../workspace';
 import { buildEmptyGenerationState } from '../../apply/manifest';
 import { makeIr } from '@cli-tests/ir.test-support';
-import { loadTestLayout } from '@wpkernel/test-utils/layout.test-support';
 import { createReporterMock } from '@cli-tests/reporter';
 import type { BuilderWriteAction } from '../../runtime/types';
 
-function seedBlockArtifacts(
-	ir: ReturnType<typeof makeIr>,
-	layout: { resolve: (id: string) => string }
-) {
-	const generated = layout.resolve('blocks.generated');
-	const applied = layout.resolve('blocks.applied');
+function seedBlockArtifacts(ir: ReturnType<typeof makeIr>) {
+	const generated = ir.artifacts.blockRoots.generated;
+	const applied = ir.artifacts.blockRoots.applied;
 	ir.artifacts.blocks = {
 		[`${ir.meta.namespace}-block`]: {
 			key: 'demo',
@@ -73,12 +69,11 @@ async function runPlanBuilder(root: string, ir = makeIr()): Promise<void> {
 	});
 }
 
-describe('apply plan (layout-driven)', () => {
+describe('apply plan (artifact-driven)', () => {
 	it('writes plugin loader and shim instructions to layout-derived paths', async () => {
 		await withTempWorkspace(
 			async () => {},
 			async (root) => {
-				const layout = await loadTestLayout({ cwd: root });
 				const ir = makeIr({
 					resources: [
 						{
@@ -95,15 +90,17 @@ describe('apply plan (layout-driven)', () => {
 						},
 					],
 				});
+				const plan = ir.artifacts.plan;
+				const pluginLoaderPath = ir.artifacts.php.pluginLoaderPath;
 
 				await runPlanBuilder(root, ir);
 
-				const planPath = layout.resolve('plan.manifest');
+				const planPath = plan.planManifestPath;
 				const planRaw = await buildWorkspace(root).readText(
 					path.posix.join(planPath)
 				);
 				expect(planRaw).toBeTruthy();
-				const plan = JSON.parse(planRaw ?? '{}') as {
+				const planManifest = JSON.parse(planRaw ?? '{}') as {
 					instructions?: Array<{
 						file: string;
 						base?: string;
@@ -111,30 +108,27 @@ describe('apply plan (layout-driven)', () => {
 					}>;
 				};
 
-				const plugin = plan.instructions?.find(
-					(instr) => instr.file === layout.resolve('plugin.loader')
+				const plugin = planManifest.instructions?.find(
+					(instr) => instr.file === pluginLoaderPath
 				);
 				expect(plugin).toMatchObject({
-					base: path.posix.join(
-						layout.resolve('plan.base'),
-						layout.resolve('plugin.loader')
-					),
+					base: path.posix.join(plan.planBaseDir, pluginLoaderPath),
 					incoming: path.posix.join(
-						layout.resolve('plan.incoming'),
-						layout.resolve('plugin.loader')
+						plan.planIncomingDir,
+						pluginLoaderPath
 					),
 				});
 
-				const shim = plan.instructions?.find((instr) =>
+				const shim = planManifest.instructions?.find((instr) =>
 					instr.file?.endsWith('inc/Rest/JobsController.php')
 				);
 				expect(shim).toMatchObject({
 					base: path.posix.join(
-						layout.resolve('plan.base'),
+						plan.planBaseDir,
 						'inc/Rest/JobsController.php'
 					),
 					incoming: path.posix.join(
-						layout.resolve('plan.incoming'),
+						plan.planIncomingDir,
 						'inc/Rest/JobsController.php'
 					),
 				});
@@ -145,10 +139,10 @@ describe('apply plan (layout-driven)', () => {
 	it('surfaces generated block assets into the applied blocks path', async () => {
 		await withTempWorkspace(
 			async (root) => {
-				const layout = await loadTestLayout({ cwd: root });
+				const blockRoots = makeIr().artifacts.blockRoots;
 				const generated = path.join(
 					root,
-					layout.resolve('blocks.generated'),
+					blockRoots.generated,
 					'example'
 				);
 				await fs.mkdir(generated, { recursive: true });
@@ -158,13 +152,12 @@ describe('apply plan (layout-driven)', () => {
 				);
 			},
 			async (root) => {
-				const layout = await loadTestLayout({ cwd: root });
 				const ir = makeIr();
-				seedBlockArtifacts(ir, layout);
+				seedBlockArtifacts(ir);
 				await runPlanBuilder(root, ir);
 
 				const planRaw = await buildWorkspace(root).readText(
-					path.posix.join(layout.resolve('plan.manifest'))
+					path.posix.join(ir.artifacts.plan.planManifestPath)
 				);
 				const plan = JSON.parse(planRaw ?? '{}') as {
 					instructions?: Array<{ file: string }>;
@@ -174,7 +167,7 @@ describe('apply plan (layout-driven)', () => {
 					expect.arrayContaining([
 						expect.objectContaining({
 							file: path.posix.join(
-								'src/blocks',
+								ir.artifacts.blockRoots.applied,
 								'example',
 								'index.tsx'
 							),
@@ -189,32 +182,13 @@ describe('apply plan (layout-driven)', () => {
 		await withTempWorkspace(
 			async () => {},
 			async (root) => {
-				const layout = await loadTestLayout({ cwd: root });
-				const ir = makeIr({
-					layout: {
-						resolve(id: string) {
-							const map: Record<string, string> = {
-								'plan.manifest': 'custom/plan.json',
-								'plan.base': 'base-dir',
-								'plan.incoming': 'incoming-dir',
-								'blocks.generated':
-									layout.resolve('blocks.generated'),
-								'blocks.applied': 'src/blocks',
-								'php.generated':
-									layout.resolve('php.generated'),
-								'plugin.loader': 'custom/plugin.php',
-							};
-							return map[id] ?? id;
-						},
-						all: layout.all,
-					},
-				});
+				const ir = makeIr();
 
-				seedBlockArtifacts(ir, ir.layout);
+				seedBlockArtifacts(ir);
 				await runPlanBuilder(root, ir);
 
 				const planRaw = await buildWorkspace(root).readText(
-					path.posix.join('custom', 'plan.json')
+					ir.artifacts.plan.planManifestPath
 				);
 				expect(planRaw).toBeTruthy();
 				const plan = JSON.parse(planRaw ?? '{}') as {
@@ -222,13 +196,16 @@ describe('apply plan (layout-driven)', () => {
 				};
 
 				const plugin = plan.instructions?.find(
-					(instr) => instr.file === 'custom/plugin.php'
+					(instr) => instr.file === ir.artifacts.php.pluginLoaderPath
 				);
 				expect(plugin).toMatchObject({
-					base: path.posix.join('base-dir', 'custom/plugin.php'),
+					base: path.posix.join(
+						ir.artifacts.plan.planBaseDir,
+						ir.artifacts.php.pluginLoaderPath
+					),
 					incoming: path.posix.join(
-						'incoming-dir',
-						'custom/plugin.php'
+						ir.artifacts.plan.planIncomingDir,
+						ir.artifacts.php.pluginLoaderPath
 					),
 				});
 			}

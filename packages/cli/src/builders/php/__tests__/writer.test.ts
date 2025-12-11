@@ -21,7 +21,7 @@ import {
 	createPipelineContext,
 } from '../test-support/php-builder.test-support';
 import { buildEmptyGenerationState } from '../../../apply/manifest';
-import { loadTestLayoutSync } from '@wpkernel/test-utils/layout.test-support';
+import { makeIr } from '@cli-tests/ir.test-support';
 
 jest.mock('@wpkernel/php-json-ast/php-driver', () => {
 	const actual = jest.requireActual<typeof phpDriverModule>(
@@ -42,15 +42,14 @@ jest.mock('@wpkernel/php-json-ast/php-driver', () => {
 
 const buildPhpPrettyPrinterMock = jest.mocked(buildPhpPrettyPrinter);
 
-// Use the shared test layout manifest instead of hard-coded paths.
-const TEST_LAYOUT = loadTestLayoutSync();
-const PHP_GENERATED_ID = 'php.generated';
+const PHP_ROOT = path.posix.dirname(
+	path.posix.dirname(makeIr().artifacts.php.blocksRegistrarPath)
+);
 
 type MockWorkspace = ReturnType<typeof makeWorkspaceMock>;
 
 function resolvePhpFile(workspace: MockWorkspace, fileName: string): string {
-	const phpRoot = TEST_LAYOUT.resolve(PHP_GENERATED_ID);
-	return workspace.resolve(phpRoot, fileName);
+	return workspace.resolve(PHP_ROOT, fileName);
 }
 
 function buildReporter(): Reporter {

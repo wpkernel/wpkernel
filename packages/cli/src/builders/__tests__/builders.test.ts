@@ -11,7 +11,6 @@ import {
 	buildReporter,
 	buildOutput,
 } from '@cli-tests/builders/builder-harness.test-support';
-import { loadTestLayoutSync } from '@wpkernel/test-utils/layout.test-support';
 import { makeIr } from '@cli-tests/ir.test-support';
 import { buildEmptyGenerationState } from '../../apply/manifest';
 
@@ -40,19 +39,15 @@ const buildOptions = {
 	sourcePath: '/workspace/wpk.config.ts',
 };
 
-const layout = loadTestLayoutSync();
-
 const ir: IRv1 = makeIr({
 	namespace: 'test',
 	meta: {
 		origin: 'typescript',
 		sourcePath: 'wpk.config.ts',
 	},
-	layout,
 	php: {
 		namespace: 'Test',
 		autoload: 'inc/',
-		outputDir: layout.resolve('php.generated'),
 	},
 });
 

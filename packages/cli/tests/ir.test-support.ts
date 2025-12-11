@@ -99,6 +99,7 @@ export function buildTestArtifactsPlan(layout: IRLayout): IRArtifactsPlan {
 	const runtimeGenerated = layout.resolve('runtime.generated');
 	const runtimeApplied = layout.resolve('runtime.applied');
 	const blocksGenerated = layout.resolve('blocks.generated');
+	const blocksApplied = layout.resolve('blocks.applied');
 	const phpGenerated = layout.resolve('php.generated');
 
 	return {
@@ -110,6 +111,10 @@ export function buildTestArtifactsPlan(layout: IRLayout): IRArtifactsPlan {
 		resources: Object.create(null),
 		surfaces: Object.create(null),
 		blocks: Object.create(null),
+		blockRoots: {
+			applied: blocksApplied,
+			generated: blocksGenerated,
+		},
 		schemas: Object.create(null),
 		runtime: {
 			entry: {

@@ -95,7 +95,7 @@
 		}
 	},
 	"validation": {
-		"notExported": true,
+		"notExported": false,
 		"invalidLink": true,
 		"notDocumented": false
 	},

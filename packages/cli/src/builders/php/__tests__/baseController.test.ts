@@ -12,7 +12,6 @@ import {
 	createPipelineContext,
 	seedArtifacts,
 } from '../test-support/php-builder.test-support';
-import { loadTestLayoutSync } from '@wpkernel/test-utils/layout.test-support';
 
 describe('createPhpBaseControllerHelper', () => {
 	it('skips generation when the IR artifact is not available', async () => {
@@ -49,7 +48,6 @@ describe('createPhpBaseControllerHelper', () => {
 			},
 			php: {
 				namespace: 'Demo\\Plugin',
-				outputDir: loadTestLayoutSync().resolve('php.generated'),
 				autoload: 'inc/',
 			},
 		});

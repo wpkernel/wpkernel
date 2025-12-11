@@ -35,8 +35,9 @@ import { runWithProgress, formatDuration } from '../utils/progress';
  */
 export {
 	APPLY_LOG_FALLBACK_PATH,
-	PATCH_MANIFEST_PATH,
+	PATCH_MANIFEST_ID,
 	resolveApplyLogPath,
+	resolvePatchManifestPath,
 } from './apply/constants';
 export { createBackups } from './apply/backups';
 export { appendApplyLog } from './apply/logging';

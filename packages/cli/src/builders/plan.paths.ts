@@ -55,7 +55,7 @@ function buildPlanPaths(
 	};
 
 	if (phpPlan) {
-		paths.phpGenerated = path.posix.dirname(phpPlan.pluginLoaderPath);
+		paths.phpGenerated = resolvePhpGeneratedRoot(phpPlan);
 		paths.pluginLoader = phpPlan.pluginLoaderPath;
 	}
 
@@ -64,4 +64,33 @@ function buildPlanPaths(
 	}
 
 	return paths;
+}
+
+function resolvePhpGeneratedRoot(
+	phpPlan: NonNullable<
+		NonNullable<BuilderApplyOptions['input']['ir']>['artifacts']['php']
+	>
+): string {
+	if (phpPlan.controllers) {
+		const firstController = Object.values(phpPlan.controllers)[0];
+		if (firstController?.generatedPath) {
+			return path.posix.dirname(
+				path.posix.dirname(firstController.generatedPath)
+			);
+		}
+	}
+
+	if (phpPlan.blocksRegistrarPath) {
+		return path.posix.dirname(
+			path.posix.dirname(phpPlan.blocksRegistrarPath)
+		);
+	}
+
+	if (phpPlan.blocksManifestPath) {
+		return path.posix.dirname(
+			path.posix.dirname(phpPlan.blocksManifestPath)
+		);
+	}
+
+	return path.posix.dirname(phpPlan.pluginLoaderPath);
 }

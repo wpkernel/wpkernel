@@ -9,7 +9,6 @@ import type { PlanInstruction } from '../types';
 import { makeIr } from '@cli-tests/ir.test-support';
 import { buildPhpPrettyPrinter } from '@wpkernel/php-json-ast/php-driver';
 import { buildEmptyGenerationState } from '../../apply/manifest';
-import { loadTestLayoutSync } from '@wpkernel/test-utils/layout.test-support';
 import { createReporterMock } from '@cli-tests/reporter';
 import { buildWorkspace } from '../../workspace';
 
@@ -38,11 +37,12 @@ function makeOptions(root: string, ir = makeIr()) {
 }
 
 describe('plan.plugin-loader', () => {
-	it('emits loader instruction using layout paths', async () => {
+	it('emits loader instruction using IR artifact paths', async () => {
 		const root = await fs.mkdtemp(path.join(os.tmpdir(), 'wpk-loader-'));
 		try {
-			const layout = loadTestLayoutSync();
-			const options = makeOptions(root, makeIr({ layout }));
+			const ir = makeIr();
+			const { plan, php } = ir.artifacts;
+			const options = makeOptions(root, ir);
 			const prettyPrinter = buildPhpPrettyPrinter({
 				workspace: options.context.workspace,
 			});
@@ -54,14 +54,11 @@ describe('plan.plugin-loader', () => {
 			});
 			const [instr] = instructions;
 			expect(instr).toMatchObject({
-				file: layout.resolve('plugin.loader'),
-				base: path.posix.join(
-					layout.resolve('plan.base'),
-					layout.resolve('plugin.loader')
-				),
+				file: php.pluginLoaderPath,
+				base: path.posix.join(plan.planBaseDir, php.pluginLoaderPath),
 				incoming: path.posix.join(
-					layout.resolve('plan.incoming'),
-					layout.resolve('plugin.loader')
+					plan.planIncomingDir,
+					php.pluginLoaderPath
 				),
 			});
 		} finally {
