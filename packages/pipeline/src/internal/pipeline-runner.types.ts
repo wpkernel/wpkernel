@@ -400,6 +400,18 @@ export interface PipelineState<
 		TRunOptions,
 		TArtifact
 	>;
+	readonly extensionStack?: Array<{
+		readonly coordinator: ExtensionCoordinator<
+			TContext,
+			TRunOptions,
+			TArtifact
+		>;
+		readonly state: ExtensionLifecycleState<
+			TContext,
+			TRunOptions,
+			TArtifact
+		>;
+	}>;
 }
 
 export type { ExtensionHookEntry };
@@ -431,6 +443,14 @@ export type RollbackContext<TContext, TOptions, TArtifact> = {
 		TOptions,
 		TArtifact
 	>;
+	readonly extensionStack?: Array<{
+		readonly coordinator: RollbackCapableCoordinator<
+			TContext,
+			TOptions,
+			TArtifact
+		>;
+		readonly state: ExtensionLifecycleState<TContext, TOptions, TArtifact>;
+	}>;
 };
 export type HelperInvokeOptions<
 	THelper,

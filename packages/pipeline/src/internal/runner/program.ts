@@ -297,6 +297,7 @@ export const createCoreProgram = <
 		context: state.context,
 		extensionCoordinator: state.extensionCoordinator,
 		extensionState: state.extensionState,
+		extensionStack: state.extensionStack,
 	});
 
 	const snapshotFragmentExecution = (
@@ -310,13 +311,22 @@ export const createCoreProgram = <
 		);
 
 	const commitExtensions = (state: RunnerState): MaybePromise<void> => {
-		const { extensionCoordinator, extensionState } = state;
+		const stack = state.extensionStack ?? [];
 
-		if (!extensionCoordinator || !extensionState) {
-			return;
+		// Fallback for states populated without stack (legacy/intermediate) or single lifecycle
+		if (
+			stack.length === 0 &&
+			state.extensionCoordinator &&
+			state.extensionState
+		) {
+			return state.extensionCoordinator.commit(state.extensionState);
 		}
 
-		return extensionCoordinator.commit(extensionState);
+		return stack.reduce(
+			(previous, { coordinator, state: extState }) =>
+				maybeThen(previous, () => coordinator.commit(extState)),
+			undefined as MaybePromise<void>
+		);
 	};
 
 	const toBuilderRollbackPlan = (
@@ -393,6 +403,13 @@ export const createCoreProgram = <
 					artifact: extensionState.artifact,
 					extensionCoordinator,
 					extensionState,
+					extensionStack: [
+						...(state.extensionStack ?? []),
+						{
+							coordinator: extensionCoordinator,
+							state: extensionState,
+						},
+					],
 				})
 			);
 		};
