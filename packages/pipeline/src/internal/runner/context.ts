@@ -125,10 +125,6 @@ export const prepareContext = <
 				},
 			};
 		} else if (kind === dependencies.builderKind) {
-			// Builder options are constructed separately below for exposure,
-			// but we can duplicate logic or re-use for consistency?
-			// Actually builderGraphOptions below is exposed on context.
-			// Let's use the same logic.
 			graphOptions = {
 				providedKeys: dependencies.options.builderProvidedKeys,
 				onMissingDependency: ({ dependant, dependencyKey }) => {
@@ -158,8 +154,7 @@ export const prepareContext = <
 				},
 			};
 		} else {
-			// Default for arbitrary kinds: strict checks?
-			// For now, strict.
+			// Default for arbitrary kinds: For now, strict.
 			graphOptions = {
 				onMissingDependency: ({ dependant, dependencyKey }) => {
 					const helper = dependant.helper;
