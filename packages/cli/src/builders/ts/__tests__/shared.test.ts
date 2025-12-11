@@ -5,7 +5,6 @@ import {
 } from '@cli-tests/builders/ts.test-support';
 import { buildWorkspace } from '../../../workspace';
 import type { Workspace } from '../../../workspace';
-import { loadTestLayoutSync } from '@wpkernel/test-utils/layout.test-support';
 import {
 	buildBlockRegistrarMetadata,
 	formatBlockVariableName,
@@ -16,7 +15,7 @@ import {
 	generateBlockImportPath,
 } from '../registrar';
 import { toCamelCase, toPascalCase } from '../../../utils';
-import { buildTestArtifactsPlan } from '@cli-tests/ir.test-support';
+import { makeIr } from '@cli-tests/ir.test-support';
 
 const withWorkspace = (
 	run: (context: BuilderHarnessContext<Workspace>) => Promise<void>
@@ -26,12 +25,12 @@ const withWorkspace = (
 	});
 
 describe('ts shared helpers', () => {
-	const layout = loadTestLayoutSync();
-	const artifacts = buildTestArtifactsPlan(layout);
+	const artifacts = makeIr().artifacts;
 	const runtimeGenerated = artifacts.runtime.runtime.generated;
 	const runtimeApplied = artifacts.runtime.runtime.applied;
 	const generatedResourcesDir = path.join(runtimeGenerated, 'resources');
 	const appliedResourcesDir = path.join(runtimeApplied, 'resources');
+	const blockRoot = artifacts.blockRoots.generated;
 	const adminScreenPath = path.join(
 		artifacts.surfaces['res:job']?.appDir ?? runtimeApplied,
 		'job',
@@ -195,22 +194,14 @@ describe('ts shared helpers', () => {
 		});
 
 		it('preserves leading dot segments when block paths live higher in the tree', () => {
-			const layoutManifest = loadTestLayoutSync();
 			const importPath = generateBlockImportPath(
 				path.join('/project/src/blocks/feature', 'block.json'),
-				path.join(
-					'/project',
-					layoutManifest.resolve('blocks.generated'),
-					'auto-register.ts'
-				)
+				path.join('/project', blockRoot, 'auto-register.ts')
 			);
 
 			const expected = path
 				.relative(
-					path.join(
-						'/project',
-						layoutManifest.resolve('blocks.generated')
-					),
+					path.join('/project', blockRoot),
 					path.join('/project/src/blocks/feature', 'block.json')
 				)
 				.split(path.sep)

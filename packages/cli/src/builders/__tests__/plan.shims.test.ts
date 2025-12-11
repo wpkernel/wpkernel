@@ -5,13 +5,10 @@ import { buildPhpPrettyPrinter } from '@wpkernel/php-json-ast/php-driver';
 import { makeIr } from '@cli-tests/ir.test-support';
 import { collectResourceInstructions } from '../plan.shims';
 import { buildWorkspace } from '../../workspace';
-import { loadTestLayoutSync } from '@wpkernel/test-utils/layout.test-support';
 
 function makeOptions(root: string) {
 	const workspace = buildWorkspace(root);
-	const layout = loadTestLayoutSync();
 	const ir = makeIr({
-		php: { outputDir: layout.resolve('php.generated'), autoload: 'inc/' },
 		resources: [
 			{
 				name: 'jobs',
@@ -26,8 +23,8 @@ function makeOptions(root: string) {
 				warnings: [],
 			},
 		],
-		layout,
 	});
+	const plan = ir.artifacts.plan;
 
 	const builderOptions = {
 		input: {
@@ -64,14 +61,14 @@ function makeOptions(root: string) {
 			typeof collectResourceInstructions
 		>[0]['options'],
 		prettyPrinter: buildPhpPrettyPrinter({ workspace }),
-		layout,
+		plan,
 	};
 }
 
 describe('plan.shims', () => {
 	it('emits shim instructions with layout paths and require guard', async () => {
 		const root = await fs.mkdtemp(path.join(os.tmpdir(), 'wpk-shims-'));
-		const { options, prettyPrinter, layout } = makeOptions(root);
+		const { options, prettyPrinter, plan } = makeOptions(root);
 		try {
 			const instructions = await collectResourceInstructions({
 				options,
@@ -82,11 +79,11 @@ describe('plan.shims', () => {
 			expect(shim).toMatchObject({
 				file: 'inc/Rest/JobsController.php',
 				base: path.posix.join(
-					layout.resolve('plan.base'),
+					plan.planBaseDir,
 					'inc/Rest/JobsController.php'
 				),
 				incoming: path.posix.join(
-					layout.resolve('plan.incoming'),
+					plan.planIncomingDir,
 					'inc/Rest/JobsController.php'
 				),
 			});

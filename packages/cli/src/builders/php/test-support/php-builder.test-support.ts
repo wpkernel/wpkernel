@@ -10,7 +10,6 @@ import { createArtifactsFragment } from '../../../ir/fragments/ir.artifacts.plan
 import { makeWorkspaceMock } from '@cli-tests/workspace.test-support';
 import type { Workspace } from '../../../workspace/types';
 import { buildEmptyGenerationState } from '../../../apply/manifest';
-import { loadTestLayoutSync } from '@wpkernel/test-utils/layout.test-support';
 import { makeIr, type DeepPartial } from '../../../../tests/ir.test-support';
 import { type WPKernelConfigV1 } from '../../../config';
 import { type MutableIr } from '../../../ir';
@@ -93,10 +92,10 @@ type MinimalIrOverrides = DeepPartial<IRv1> & { namespace?: string };
 
 export function createMinimalIr(overrides: MinimalIrOverrides = {}): IRv1 {
 	const namespace = resolveNamespaceFromOverrides(overrides);
-	const baseLayout = loadTestLayoutSync();
+	const baseIr = makeIr();
 	const layout = overrides.layout
-		? ({ ...baseLayout, ...overrides.layout } as IRv1['layout'])
-		: baseLayout;
+		? ({ ...baseIr.layout, ...overrides.layout } as IRv1['layout'])
+		: baseIr.layout;
 	const php = overrides.php
 		? {
 				namespace,

@@ -18,7 +18,6 @@ import {
 	makeRoute,
 } from '@cli-tests/builders/fixtures.test-support';
 import { buildEmptyGenerationState } from '../../../apply/manifest';
-import { loadTestLayoutSync } from '@wpkernel/test-utils/layout.test-support';
 
 describe('createPhpIndexFileHelper', () => {
 	it('skips generation when no IR is present', async () => {
@@ -74,7 +73,6 @@ describe('createPhpIndexFileHelper', () => {
 			resources,
 			php: {
 				namespace: 'Demo\\Plugin',
-				outputDir: loadTestLayoutSync().resolve('php.generated'),
 				autoload: 'inc/',
 			},
 		});

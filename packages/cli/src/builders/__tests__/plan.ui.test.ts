@@ -8,8 +8,7 @@ import {
 } from '../plan.ui';
 import type { GenerationManifest } from '../../apply/manifest';
 import { buildEmptyGenerationState } from '../../apply/manifest';
-import { loadTestLayoutSync } from '@wpkernel/test-utils/layout.test-support';
-import { makeIr, buildTestArtifactsPlan } from '@cli-tests/ir.test-support';
+import { makeIr } from '@cli-tests/ir.test-support';
 
 function makeBuilderOptions(root: string) {
 	const workspace = buildWorkspace(root);
@@ -20,15 +19,7 @@ function makeBuilderOptions(root: string) {
 		error: jest.fn(),
 		child: jest.fn().mockReturnThis(),
 	};
-	const layout = loadTestLayoutSync();
-	const artifacts = buildTestArtifactsPlan(layout);
-	artifacts.plan = {
-		planManifestPath: layout.resolve('plan.manifest'),
-		planBaseDir: layout.resolve('plan.base'),
-		planIncomingDir: layout.resolve('plan.incoming'),
-		patchManifestPath: layout.resolve('patch.manifest'),
-	};
-	const ir = makeIr({ layout, artifacts });
+	const ir = makeIr();
 
 	const builderOptions = {
 		reporter,
@@ -50,7 +41,7 @@ function makeBuilderOptions(root: string) {
 		output: { actions: [], queueWrite: jest.fn() },
 	};
 
-	return { builderOptions, layout, ir };
+	return { builderOptions, ir };
 }
 
 describe('plan.ui', () => {

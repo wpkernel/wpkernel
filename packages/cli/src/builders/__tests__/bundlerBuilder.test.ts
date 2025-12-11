@@ -18,11 +18,10 @@ import {
 	toWordPressGlobal,
 	toWordPressHandle,
 } from '../bundler';
-import { makeIrMeta, buildTestArtifactsPlan } from '@cli-tests/ir.test-support';
+import { makeIr } from '@cli-tests/ir.test-support';
 import { withWorkspace as baseWithWorkspace } from '@cli-tests/builders/builder-harness.test-support';
 import type { BuilderHarnessContext } from '@cli-tests/builders/builder-harness.test-support';
 import { buildEmptyGenerationState } from '../../apply/manifest';
-import { loadTestLayoutSync } from '@wpkernel/test-utils/layout.test-support';
 import { makeResource } from '@cli-tests/builders/fixtures.test-support';
 
 describe('createBundler', () => {
@@ -50,7 +49,19 @@ describe('createBundler', () => {
 		phase: 'generate' | 'apply';
 		resources?: IRResource[];
 	}): BuilderInput {
-		const layout = loadTestLayoutSync();
+		const ir = makeIr({
+			meta: {
+				namespace,
+				sanitizedNamespace,
+				origin: 'wpk.config.ts',
+				sourcePath: 'wpk.config.ts',
+			},
+			php: {
+				namespace: sanitizedNamespace,
+				autoload: 'inc/',
+			},
+			resources,
+		});
 		return {
 			phase,
 			options: {
@@ -58,43 +69,12 @@ describe('createBundler', () => {
 				origin: 'wpk.config.ts',
 				sourcePath: path.join(workspaceRoot, 'wpk.config.ts'),
 			},
-			ir: {
-				meta: makeIrMeta(namespace, {
-					sanitizedNamespace,
-					origin: 'wpk.config.ts',
-					sourcePath: 'wpk.config.ts',
-				}),
-				schemas: [],
-				resources,
-				capabilities: [],
-				capabilityMap: {
-					sourcePath: undefined,
-					definitions: [],
-					fallback: {
-						capability: 'manage_options',
-						appliesTo: 'resource',
-					},
-					missing: [],
-					unused: [],
-					warnings: [],
-				},
-				blocks: [],
-				php: {
-					namespace: sanitizedNamespace,
-					autoload: 'inc/',
-					outputDir: layout.resolve('php.generated'),
-				},
-				layout,
-				artifacts: buildTestArtifactsPlan(layout),
-			},
+			ir,
 		};
 	}
 
 	it('writes rollup driver configuration and asset metadata', async () => {
 		await withWorkspace(async ({ workspace, root: workspaceRoot }) => {
-			const layout = loadTestLayoutSync();
-			const bundlerConfigPath = layout.resolve('bundler.config');
-			const bundlerAssetsPath = layout.resolve('bundler.assets');
 			await workspace.writeJson(
 				'package.json',
 				{
@@ -142,6 +122,8 @@ describe('createBundler', () => {
 					}),
 				],
 			});
+			const bundlerConfigPath = input.ir!.artifacts.bundler.configPath;
+			const bundlerAssetsPath = input.ir!.artifacts.bundler.assetsPath;
 
 			await builder.apply(
 				{
@@ -158,14 +140,8 @@ describe('createBundler', () => {
 				undefined
 			);
 
-			const configPath = path.join(
-				workspaceRoot,
-				layout.resolve('bundler.config')
-			);
-			const assetPath = path.join(
-				workspaceRoot,
-				layout.resolve('bundler.assets')
-			);
+			const configPath = path.join(workspaceRoot, bundlerConfigPath);
+			const assetPath = path.join(workspaceRoot, bundlerAssetsPath);
 
 			const config = JSON.parse(await fs.readFile(configPath, 'utf8'));
 			const assetManifest = JSON.parse(
@@ -197,12 +173,10 @@ describe('createBundler', () => {
 				expect.arrayContaining(['wp-interactivity'])
 			);
 			const aliasRoot = workspace
-				.resolve(
-					path.posix.dirname(layout.resolve('runtime.generated'))
-				)
+				.resolve(input.ir!.artifacts.bundler.aliasRoot)
 				.replace(/\\/g, '/');
 			const shimDir = workspace
-				.resolve(layout.resolve('bundler.shims'))
+				.resolve(input.ir!.artifacts.bundler.shimsDir)
 				.replace(/\\/g, '/');
 			expect(config.alias).toContainEqual({
 				find: '@/',
@@ -296,9 +270,8 @@ describe('createBundler', () => {
 				])
 			);
 
-			const runtimeEntry = layout
-				.resolve('entry.generated')
-				.replace(/\\/g, '/');
+			const runtimeEntry =
+				input.ir!.artifacts.runtime.entry.generated.replace(/\\/g, '/');
 			const runtimeEntryFile = path.posix.join(runtimeEntry, 'index.tsx');
 			expect(config.input.index).toBe(runtimeEntryFile);
 
@@ -322,7 +295,6 @@ describe('createBundler', () => {
 
 	it('includes UI handle metadata when dataview resources exist', async () => {
 		await withWorkspace(async ({ workspace, root: workspaceRoot }) => {
-			const layout = loadTestLayoutSync();
 			await workspace.writeJson(
 				'package.json',
 				{
@@ -383,7 +355,7 @@ describe('createBundler', () => {
 
 			const assetPath = path.join(
 				workspaceRoot,
-				layout.resolve('bundler.assets')
+				input.ir!.artifacts.bundler.assetsPath
 			);
 			const assetManifest = JSON.parse(
 				await fs.readFile(assetPath, 'utf8')

@@ -10,11 +10,15 @@ import {
 	buildOutput,
 } from '@cli-tests/builders/builder-harness.test-support';
 import type { BuilderHarnessContext } from '@cli-tests/builders/builder-harness.test-support';
-import { loadTestLayoutSync } from '@wpkernel/test-utils/layout.test-support';
 
 type PatcherWorkspaceContext = BuilderHarnessContext<
 	ReturnType<typeof buildWorkspace>
 >;
+
+const buildPlanArtifacts = () => {
+	const ir = makeIr();
+	return { ir, plan: ir.artifacts.plan };
+};
 
 const withWorkspace = (
 	run: (context: PatcherWorkspaceContext) => Promise<void>
@@ -28,14 +32,14 @@ describe('createPatcher', () => {
 		await withWorkspace(async ({ workspace, root: workspaceRoot }) => {
 			const reporter = buildReporter();
 			const output = buildOutput<BuilderOutput['actions'][number]>();
-			const layout = loadTestLayoutSync();
+			const { ir, plan } = buildPlanArtifacts();
 
 			const base = ['line-one', 'line-two', ''].join('\n');
 			const incoming = ['line-one updated', 'line-two', ''].join('\n');
 			const current = ['line-one user', 'line-two', ''].join('\n');
 
 			await workspace.write(
-				layout.resolve('plan.manifest'),
+				plan.planManifestPath,
 				JSON.stringify(
 					{
 						instructions: [
@@ -43,11 +47,11 @@ describe('createPatcher', () => {
 								action: 'write',
 								file: 'php/Conflict.php',
 								base: path.posix.join(
-									layout.resolve('plan.base'),
+									plan.planBaseDir,
 									'php/Conflict.php'
 								),
 								incoming: path.posix.join(
-									layout.resolve('plan.incoming'),
+									plan.planIncomingDir,
 									'php/Conflict.php'
 								),
 							},
@@ -59,26 +63,17 @@ describe('createPatcher', () => {
 			);
 
 			await workspace.write(
-				path.posix.join(
-					layout.resolve('plan.base'),
-					'php',
-					'Conflict.php'
-				),
+				path.posix.join(plan.planBaseDir, 'php', 'Conflict.php'),
 				base
 			);
 			await workspace.write(
-				path.posix.join(
-					layout.resolve('plan.incoming'),
-					'php',
-					'Conflict.php'
-				),
+				path.posix.join(plan.planIncomingDir, 'php', 'Conflict.php'),
 				incoming
 			);
 			await workspace.write('php/Conflict.php', current, {
 				ensureDir: true,
 			});
 
-			const ir = makeIr();
 			const input = {
 				phase: 'apply' as const,
 				options: {
@@ -110,8 +105,9 @@ describe('createPatcher', () => {
 			expect(merged).toContain('=======');
 			expect(merged).toContain('>>>>>>>');
 
-			const manifestPath = layout.resolve('patch.manifest');
-			const manifestRaw = await workspace.readText(manifestPath);
+			const manifestRaw = await workspace.readText(
+				plan.patchManifestPath
+			);
 			const manifest = JSON.parse(manifestRaw ?? '{}');
 			expect(manifest.summary).toEqual({
 				applied: 0,
@@ -119,10 +115,16 @@ describe('createPatcher', () => {
 				skipped: 0,
 			});
 			expect(manifest.actions).toEqual(
-				expect.arrayContaining(['php/Conflict.php', manifestPath])
+				expect.arrayContaining([
+					'php/Conflict.php',
+					plan.patchManifestPath,
+				])
 			);
 			expect(output.actions.map((action) => action.file)).toEqual(
-				expect.arrayContaining(['php/Conflict.php', manifestPath])
+				expect.arrayContaining([
+					'php/Conflict.php',
+					plan.patchManifestPath,
+				])
 			);
 			expect(reporter.warn).toHaveBeenCalledWith(
 				'createPatcher: merge conflict detected.',
@@ -136,7 +138,7 @@ describe('createPatcher', () => {
 			const reporter = buildReporter();
 			const output = buildOutput<BuilderOutput['actions'][number]>();
 
-			const ir = makeIr();
+			const { ir } = buildPlanArtifacts();
 			const input = {
 				phase: 'apply' as const,
 				options: {
@@ -174,10 +176,10 @@ describe('createPatcher', () => {
 		await withWorkspace(async ({ workspace, root: workspaceRoot }) => {
 			const reporter = buildReporter();
 			const output = buildOutput<BuilderOutput['actions'][number]>();
-			const layout = loadTestLayoutSync();
+			const { ir, plan } = buildPlanArtifacts();
 
 			await workspace.write(
-				layout.resolve('plan.manifest'),
+				plan.planManifestPath,
 				JSON.stringify(
 					{
 						instructions: [
@@ -185,11 +187,11 @@ describe('createPatcher', () => {
 								action: 'write',
 								file: './',
 								base: path.posix.join(
-									layout.resolve('plan.base'),
+									plan.planBaseDir,
 									'placeholder.txt'
 								),
 								incoming: path.posix.join(
-									layout.resolve('plan.incoming'),
+									plan.planIncomingDir,
 									'missing.txt'
 								),
 								description: 'missing incoming',
@@ -198,11 +200,11 @@ describe('createPatcher', () => {
 								action: 'write',
 								file: 'php/Skip.php',
 								base: path.posix.join(
-									layout.resolve('plan.base'),
+									plan.planBaseDir,
 									'php/Skip.php'
 								),
 								incoming: path.posix.join(
-									layout.resolve('plan.incoming'),
+									plan.planIncomingDir,
 									'php/Skip.php'
 								),
 								description: 'missing incoming file',
@@ -215,11 +217,10 @@ describe('createPatcher', () => {
 			);
 
 			await workspace.write(
-				path.posix.join(layout.resolve('plan.base'), 'php', 'Skip.php'),
+				path.posix.join(plan.planBaseDir, 'php', 'Skip.php'),
 				'base'
 			);
 
-			const ir = makeIr();
 			const input = {
 				phase: 'apply' as const,
 				options: {
@@ -246,7 +247,7 @@ describe('createPatcher', () => {
 				undefined
 			);
 
-			const manifestPath = layout.resolve('patch.manifest');
+			const manifestPath = plan.patchManifestPath;
 			const manifestRaw = await workspace.readText(manifestPath);
 			const manifest = JSON.parse(manifestRaw ?? '{}');
 			expect(manifest.summary).toEqual({
@@ -272,9 +273,9 @@ describe('createPatcher', () => {
 					}),
 				])
 			);
-			expect(manifest.actions).toEqual([manifestPath]);
+			expect(manifest.actions).toEqual([plan.patchManifestPath]);
 			expect(output.actions.map((action) => action.file)).toEqual([
-				manifestPath,
+				plan.patchManifestPath,
 			]);
 			expect(reporter.warn).toHaveBeenCalled();
 		});
@@ -284,12 +285,12 @@ describe('createPatcher', () => {
 		await withWorkspace(async ({ workspace, root: workspaceRoot }) => {
 			const reporter = buildReporter();
 			const output = buildOutput<BuilderOutput['actions'][number]>();
-			const layout = loadTestLayoutSync();
+			const { ir, plan } = buildPlanArtifacts();
 
 			const sharedContents = ['<?php', 'echo "noop";', ''].join('\n');
 
 			await workspace.write(
-				layout.resolve('plan.manifest'),
+				plan.planManifestPath,
 				JSON.stringify(
 					{
 						instructions: [
@@ -297,11 +298,11 @@ describe('createPatcher', () => {
 								action: 'write',
 								file: 'php/Noop.php',
 								base: path.posix.join(
-									layout.resolve('plan.base'),
+									plan.planBaseDir,
 									'php/Noop.php'
 								),
 								incoming: path.posix.join(
-									layout.resolve('plan.incoming'),
+									plan.planIncomingDir,
 									'php/Noop.php'
 								),
 								description: 'noop check',
@@ -314,22 +315,17 @@ describe('createPatcher', () => {
 			);
 
 			await workspace.write(
-				path.posix.join(layout.resolve('plan.base'), 'php', 'Noop.php'),
+				path.posix.join(plan.planBaseDir, 'php', 'Noop.php'),
 				sharedContents
 			);
 			await workspace.write(
-				path.posix.join(
-					layout.resolve('plan.incoming'),
-					'php',
-					'Noop.php'
-				),
+				path.posix.join(plan.planIncomingDir, 'php', 'Noop.php'),
 				sharedContents
 			);
 			await workspace.write('php/Noop.php', sharedContents, {
 				ensureDir: true,
 			});
 
-			const ir = makeIr();
 			const input = {
 				phase: 'apply' as const,
 				options: {
@@ -356,7 +352,7 @@ describe('createPatcher', () => {
 				undefined
 			);
 
-			const manifestPath = layout.resolve('patch.manifest');
+			const manifestPath = plan.patchManifestPath;
 			const manifestRaw = await workspace.readText(manifestPath);
 			const manifest = JSON.parse(manifestRaw ?? '{}');
 			expect(manifest.summary).toEqual({
@@ -371,7 +367,7 @@ describe('createPatcher', () => {
 			});
 			expect(manifest.actions).toEqual([manifestPath]);
 			expect(output.actions.map((action) => action.file)).toEqual([
-				manifestPath,
+				plan.patchManifestPath,
 			]);
 		});
 	});
@@ -380,10 +376,10 @@ describe('createPatcher', () => {
 		await withWorkspace(async ({ workspace, root: workspaceRoot }) => {
 			const reporter = buildReporter();
 			const output = buildOutput<BuilderOutput['actions'][number]>();
-			const layout = loadTestLayoutSync();
+			const { ir, plan } = buildPlanArtifacts();
 
 			await workspace.write(
-				layout.resolve('plan.manifest'),
+				plan.planManifestPath,
 				JSON.stringify(
 					{
 						instructions: [
@@ -400,11 +396,7 @@ describe('createPatcher', () => {
 			);
 
 			await workspace.write(
-				path.posix.join(
-					layout.resolve('plan.base'),
-					'php',
-					'Stale.php'
-				),
+				path.posix.join(plan.planBaseDir, 'php', 'Stale.php'),
 				'<?php',
 				{ ensureDir: true }
 			);
@@ -412,7 +404,6 @@ describe('createPatcher', () => {
 				ensureDir: true,
 			});
 
-			const ir = makeIr();
 			const input = {
 				phase: 'apply' as const,
 				options: {
@@ -442,7 +433,7 @@ describe('createPatcher', () => {
 			const exists = await workspace.exists('php/Stale.php');
 			expect(exists).toBe(false);
 
-			const manifestPath = layout.resolve('patch.manifest');
+			const manifestPath = plan.patchManifestPath;
 			const manifestRaw = await workspace.readText(manifestPath);
 			const manifest = JSON.parse(manifestRaw ?? '{}');
 			expect(manifest.summary).toEqual({
@@ -463,7 +454,7 @@ describe('createPatcher', () => {
 				expect.arrayContaining([manifestPath, 'php/Stale.php'])
 			);
 			expect(output.actions.map((action) => action.file)).toEqual([
-				manifestPath,
+				plan.patchManifestPath,
 			]);
 		});
 	});
@@ -472,10 +463,10 @@ describe('createPatcher', () => {
 		await withWorkspace(async ({ workspace, root: workspaceRoot }) => {
 			const reporter = buildReporter();
 			const output = buildOutput<BuilderOutput['actions'][number]>();
-			const layout = loadTestLayoutSync();
+			const { ir, plan } = buildPlanArtifacts();
 
 			await workspace.write(
-				layout.resolve('plan.manifest'),
+				plan.planManifestPath,
 				JSON.stringify(
 					{
 						instructions: [
@@ -498,11 +489,7 @@ describe('createPatcher', () => {
 			].join('\n');
 
 			await workspace.write(
-				path.posix.join(
-					layout.resolve('plan.base'),
-					'php',
-					'Edited.php'
-				),
+				path.posix.join(plan.planBaseDir, 'php', 'Edited.php'),
 				baseContents,
 				{ ensureDir: true }
 			);
@@ -510,7 +497,6 @@ describe('createPatcher', () => {
 				ensureDir: true,
 			});
 
-			const ir = makeIr();
 			const input = {
 				phase: 'apply' as const,
 				options: {
@@ -537,7 +523,7 @@ describe('createPatcher', () => {
 				undefined
 			);
 
-			const manifestPath = layout.resolve('patch.manifest');
+			const manifestPath = plan.patchManifestPath;
 			const manifestRaw = await workspace.readText(manifestPath);
 			const manifest = JSON.parse(manifestRaw ?? '{}');
 			expect(manifest.summary).toEqual({
@@ -562,10 +548,10 @@ describe('createPatcher', () => {
 		await withWorkspace(async ({ workspace, root: workspaceRoot }) => {
 			const reporter = buildReporter();
 			const output = buildOutput<BuilderOutput['actions'][number]>();
-			const layout = loadTestLayoutSync();
+			const { ir, plan } = buildPlanArtifacts();
 
 			await workspace.write(
-				layout.resolve('plan.manifest'),
+				plan.planManifestPath,
 				JSON.stringify(
 					{
 						instructions: [],
@@ -582,7 +568,6 @@ describe('createPatcher', () => {
 				)
 			);
 
-			const ir = makeIr();
 			const input = {
 				phase: 'apply' as const,
 				options: {
@@ -609,7 +594,7 @@ describe('createPatcher', () => {
 				undefined
 			);
 
-			const manifestPath = layout.resolve('patch.manifest');
+			const manifestPath = plan.patchManifestPath;
 			const manifestRaw = await workspace.readText(manifestPath);
 			const manifest = JSON.parse(manifestRaw ?? '{}');
 			expect(manifest.summary).toEqual({
@@ -638,14 +623,10 @@ describe('createPatcher', () => {
 		await withWorkspace(async ({ workspace, root: workspaceRoot }) => {
 			const reporter = buildReporter();
 			const output = buildOutput<BuilderOutput['actions'][number]>();
-			const layout = loadTestLayoutSync();
+			const { ir, plan } = buildPlanArtifacts();
 
-			await workspace.write(
-				layout.resolve('plan.manifest'),
-				'{ invalid json ]'
-			);
+			await workspace.write(plan.planManifestPath, '{ invalid json ]');
 
-			const ir = makeIr();
 			const input = {
 				phase: 'apply' as const,
 				options: {

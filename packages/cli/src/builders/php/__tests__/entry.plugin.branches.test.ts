@@ -6,10 +6,12 @@ import {
 	buildOutput,
 } from '@cli-tests/builders/builder-harness.test-support';
 import { AUTO_GUARD_BEGIN } from '@wpkernel/wp-json-ast';
-import { loadTestLayoutSync } from '@wpkernel/test-utils/layout.test-support';
 import { buildEmptyGenerationState } from '../../../apply/manifest';
 
-const layout = loadTestLayoutSync();
+const clonePhpArtifacts = (ir: ReturnType<typeof makeIr>) => ({
+	...ir.artifacts.php,
+	controllers: {},
+});
 
 describe('entry.plugin (branches)', () => {
 	it('skips if phase is not generate', async () => {
@@ -81,15 +83,7 @@ describe('entry.plugin (branches)', () => {
 		const reporter = buildReporter();
 		const output = buildOutput();
 		const ir = makeIr();
-		ir.artifacts.php = {
-			pluginLoaderPath: 'plugin.php',
-			autoload: {
-				strategy: 'composer',
-				autoloadPath: 'vendor/autoload.php',
-			},
-			controllers: {},
-			debugUiPath: layout.resolve('debug.ui'),
-		} as any;
+		ir.artifacts.php = clonePhpArtifacts(ir);
 
 		await createPhpPluginLoaderHelper().apply({
 			input: {
@@ -124,15 +118,7 @@ describe('entry.plugin (branches)', () => {
 		const reporter = buildReporter();
 		const output = buildOutput();
 		const ir = makeIr();
-		ir.artifacts.php = {
-			pluginLoaderPath: 'plugin.php',
-			autoload: {
-				strategy: 'composer',
-				autoloadPath: 'vendor/autoload.php',
-			},
-			controllers: {},
-			debugUiPath: layout.resolve('debug.ui'),
-		} as any;
+		ir.artifacts.php = clonePhpArtifacts(ir);
 
 		await createPhpPluginLoaderHelper().apply({
 			input: {
@@ -188,15 +174,7 @@ describe('entry.plugin (branches)', () => {
 				} as any,
 			],
 		});
-		ir.artifacts.php = {
-			pluginLoaderPath: 'plugin.php',
-			autoload: {
-				strategy: 'composer',
-				autoloadPath: 'vendor/autoload.php',
-			},
-			controllers: {},
-			debugUiPath: layout.resolve('debug.ui'),
-		} as any;
+		ir.artifacts.php = clonePhpArtifacts(ir);
 
 		await createPhpPluginLoaderHelper().apply({
 			input: {
@@ -243,15 +221,7 @@ describe('entry.plugin (branches)', () => {
 				} as any,
 			],
 		});
-		ir.artifacts.php = {
-			pluginLoaderPath: 'plugin.php',
-			autoload: {
-				strategy: 'composer',
-				autoloadPath: 'vendor/autoload.php',
-			},
-			controllers: {},
-			debugUiPath: layout.resolve('debug.ui'),
-		} as any;
+		ir.artifacts.php = clonePhpArtifacts(ir);
 
 		await createPhpPluginLoaderHelper().apply({
 			input: {
