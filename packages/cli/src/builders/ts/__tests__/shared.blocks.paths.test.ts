@@ -19,8 +19,8 @@ describe('shared.blocks.paths helpers', () => {
 		ir.artifacts.blocks = {
 			demo: {
 				key: 'demo',
-				appliedDir: ir.layout.resolve('blocks.applied'),
-				generatedDir: ir.layout.resolve('blocks.generated'),
+				appliedDir: ir.artifacts.blockRoots.applied,
+				generatedDir: ir.artifacts.blockRoots.generated,
 				jsonPath: '',
 				tsEntry: '',
 				tsView: '',
@@ -28,10 +28,6 @@ describe('shared.blocks.paths helpers', () => {
 				mode: 'js',
 				phpRenderPath: undefined,
 			},
-		};
-		ir.artifacts.blockRoots = {
-			applied: ir.layout.resolve('blocks.applied'),
-			generated: ir.layout.resolve('blocks.generated'),
 		};
 		return resolveBlockRoots(ir)!;
 	}

@@ -116,10 +116,24 @@ describe('plan (branches)', () => {
 		await withWorkspace(
 			async ({ root, workspace }) => {
 				const irPlan = makeIr();
-				const shimPath = path.posix.join(
-					irPlan.layout.resolve('controllers.applied'),
+				const controllersDir = path.posix.join(
+					path.posix.dirname(irPlan.artifacts.php.pluginLoaderPath),
+					'Rest'
+				);
+				const controllerPath = path.posix.join(
+					controllersDir,
 					'JobsController.php'
 				);
+				irPlan.artifacts.php.controllers = {
+					...(irPlan.artifacts.php.controllers ?? {}),
+					'res:jobs': {
+						className: 'JobsController',
+						namespace: `${irPlan.php.namespace}\\Rest`,
+						appliedPath: controllerPath,
+						generatedPath: controllerPath,
+					},
+				};
+				const shimPath = controllerPath;
 				const basePath = path.join(
 					root,
 					irPlan.artifacts.plan.planBaseDir,
@@ -164,10 +178,24 @@ describe('plan (branches)', () => {
 		await withWorkspace(
 			async ({ root, workspace }) => {
 				const irPlan = makeIr();
-				const shimPath = path.posix.join(
-					irPlan.layout.resolve('controllers.applied'),
+				const controllersDir = path.posix.join(
+					path.posix.dirname(irPlan.artifacts.php.pluginLoaderPath),
+					'Rest'
+				);
+				const controllerPath = path.posix.join(
+					controllersDir,
 					'JobsController.php'
 				);
+				irPlan.artifacts.php.controllers = {
+					...(irPlan.artifacts.php.controllers ?? {}),
+					'res:jobs': {
+						className: 'JobsController',
+						namespace: `${irPlan.php.namespace}\\Rest`,
+						appliedPath: controllerPath,
+						generatedPath: controllerPath,
+					},
+				};
+				const shimPath = controllerPath;
 				const basePath = path.join(
 					root,
 					irPlan.artifacts.plan.planBaseDir,

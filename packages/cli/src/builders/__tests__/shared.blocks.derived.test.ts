@@ -301,7 +301,6 @@ type ResourceOverrides = Partial<
 // 		php: {
 // 			namespace,
 // 			autoload: 'inc/',
-// 			outputDir: options?.phpOutputDir ?? layout.resolve('php.generated'),
 // 		},
 // 		layout,
 // 		diagnostics: [],

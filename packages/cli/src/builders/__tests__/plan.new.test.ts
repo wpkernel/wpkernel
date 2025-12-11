@@ -69,7 +69,7 @@ async function runPlanBuilder(root: string, ir = makeIr()): Promise<void> {
 	});
 }
 
-describe('apply plan (layout-driven)', () => {
+describe('apply plan (artifact-driven)', () => {
 	it('writes plugin loader and shim instructions to layout-derived paths', async () => {
 		await withTempWorkspace(
 			async () => {},
@@ -90,16 +90,17 @@ describe('apply plan (layout-driven)', () => {
 						},
 					],
 				});
-				const layout = ir.layout;
+				const plan = ir.artifacts.plan;
+				const pluginLoaderPath = ir.artifacts.php.pluginLoaderPath;
 
 				await runPlanBuilder(root, ir);
 
-				const planPath = layout.resolve('plan.manifest');
+				const planPath = plan.planManifestPath;
 				const planRaw = await buildWorkspace(root).readText(
 					path.posix.join(planPath)
 				);
 				expect(planRaw).toBeTruthy();
-				const plan = JSON.parse(planRaw ?? '{}') as {
+				const planManifest = JSON.parse(planRaw ?? '{}') as {
 					instructions?: Array<{
 						file: string;
 						base?: string;
@@ -107,30 +108,27 @@ describe('apply plan (layout-driven)', () => {
 					}>;
 				};
 
-				const plugin = plan.instructions?.find(
-					(instr) => instr.file === layout.resolve('plugin.loader')
+				const plugin = planManifest.instructions?.find(
+					(instr) => instr.file === pluginLoaderPath
 				);
 				expect(plugin).toMatchObject({
-					base: path.posix.join(
-						layout.resolve('plan.base'),
-						layout.resolve('plugin.loader')
-					),
+					base: path.posix.join(plan.planBaseDir, pluginLoaderPath),
 					incoming: path.posix.join(
-						layout.resolve('plan.incoming'),
-						layout.resolve('plugin.loader')
+						plan.planIncomingDir,
+						pluginLoaderPath
 					),
 				});
 
-				const shim = plan.instructions?.find((instr) =>
+				const shim = planManifest.instructions?.find((instr) =>
 					instr.file?.endsWith('inc/Rest/JobsController.php')
 				);
 				expect(shim).toMatchObject({
 					base: path.posix.join(
-						layout.resolve('plan.base'),
+						plan.planBaseDir,
 						'inc/Rest/JobsController.php'
 					),
 					incoming: path.posix.join(
-						layout.resolve('plan.incoming'),
+						plan.planIncomingDir,
 						'inc/Rest/JobsController.php'
 					),
 				});

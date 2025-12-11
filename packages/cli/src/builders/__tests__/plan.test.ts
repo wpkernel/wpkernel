@@ -242,29 +242,23 @@ describe('plan (orchestrator)', () => {
 
 	it('writes plan to custom layout paths and uses custom plugin loader path', async () => {
 		await withTempWorkspace(async ({ root, workspace }) => {
-			const defaultArtifacts = makeIr().artifacts;
-			const bundlerConfigPath = defaultArtifacts.bundler.configPath;
-			const bundlerAssetsPath = defaultArtifacts.bundler.assetsPath;
-			const ir = makeIr({
-				layout: {
-					resolve(id: string) {
-						const map: Record<string, string> = {
-							'plan.manifest': 'custom/plan.json',
-							'plan.base': 'base-dir',
-							'plan.incoming': 'incoming-dir',
-							'blocks.generated': 'generated-blocks',
-							'blocks.applied': 'surfaced-blocks',
-							'php.generated': 'generated-php',
-							'plugin.loader': 'custom/plugin.php',
-							'bundler.config': bundlerConfigPath,
-							'bundler.assets': bundlerAssetsPath,
-						};
-						return map[id] ?? id;
-					},
-					all: {},
-				},
-			});
-			await workspace.write(ir.layout.resolve('bundler.config'), '{}', {
+			const ir = makeIr();
+			ir.artifacts.plan = {
+				...ir.artifacts.plan,
+				planManifestPath: 'custom/plan.json',
+				planBaseDir: 'base-dir',
+				planIncomingDir: 'incoming-dir',
+				patchManifestPath: 'custom/patch.json',
+			};
+			ir.artifacts.blockRoots = {
+				applied: 'surfaced-blocks',
+				generated: 'generated-blocks',
+			};
+			ir.artifacts.php = {
+				...ir.artifacts.php,
+				pluginLoaderPath: 'custom/plugin.php',
+			};
+			await workspace.write(ir.artifacts.bundler.configPath, '{}', {
 				ensureDir: true,
 			});
 			await workspace.write('vite.config.ts', '// vite config', {

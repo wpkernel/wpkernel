@@ -54,9 +54,9 @@ function seedResource(ir: IRv1, name = 'job'): IRResource {
 		sourcePath: `schemas/${name}.json`,
 		provenance: 'manual',
 	});
-	const typesRoot = ir.layout.resolve('types.generated');
-	const appGenerated = ir.layout.resolve('app.generated');
-	const appApplied = ir.layout.resolve('app.applied');
+	const typesRoot = ir.artifacts.runtime.runtime.generated;
+	const appGenerated = ir.artifacts.runtime.runtime.generated;
+	const appApplied = ir.artifacts.runtime.runtime.applied;
 	ir.artifacts.schemas[resource.schemaKey] = {
 		typeDefPath: path.posix.join(typesRoot, `${name}.d.ts`),
 	};
@@ -320,13 +320,14 @@ describe('dataview builders', () => {
 			sourcePath: 'wpk.config.ts',
 			ir,
 			paths: {
-				blocksGenerated: ir.layout.resolve('blocks.generated'),
-				blocksApplied: ir.layout.resolve('blocks.applied'),
+				blocksGenerated: ir.artifacts.blockRoots.generated,
+				blocksApplied: ir.artifacts.blockRoots.applied,
 				runtimeGenerated: ir.artifacts.runtime?.runtime.generated ?? '',
 				runtimeApplied: ir.artifacts.runtime?.runtime.applied ?? '',
 				surfacesApplied:
 					ir.artifacts.surfaces[resource.id]?.appDir ??
-					ir.layout.resolve('app.applied'),
+					ir.artifacts.runtime?.runtime.applied ??
+					'',
 			},
 			reporter: buildReporter(),
 			emit: async ({ filePath, sourceFile }) => {

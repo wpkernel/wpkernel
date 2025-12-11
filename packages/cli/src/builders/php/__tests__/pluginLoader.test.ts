@@ -172,24 +172,15 @@ describe('createPhpPluginLoaderHelper', () => {
 				}),
 			],
 		});
-		const layout = ir.layout;
+		const runtime = ir.artifacts.runtime.runtime;
 		ir.artifacts.surfaces = {
 			'res:books': {
 				resource: 'books',
-				appDir: layout.resolve('app.applied'),
-				generatedAppDir: layout.resolve('app.generated'),
-				pagePath: path.join(
-					layout.resolve('app.applied'),
-					'books/page.tsx'
-				),
-				formPath: path.join(
-					layout.resolve('app.applied'),
-					'books/form.tsx'
-				),
-				configPath: path.join(
-					layout.resolve('app.applied'),
-					'books/config.tsx'
-				),
+				appDir: runtime.applied,
+				generatedAppDir: runtime.generated,
+				pagePath: path.join(runtime.applied, 'books/page.tsx'),
+				formPath: path.join(runtime.applied, 'books/form.tsx'),
+				configPath: path.join(runtime.applied, 'books/config.tsx'),
 				menu: { slug: 'books', title: 'Books' },
 			},
 		};

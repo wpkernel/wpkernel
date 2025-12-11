@@ -1,4 +1,5 @@
 /* eslint-env jest */
+import path from 'node:path';
 import type { Reporter } from '@wpkernel/core/reporter';
 import type {
 	BuilderInput,
@@ -96,17 +97,20 @@ export function createMinimalIr(overrides: MinimalIrOverrides = {}): IRv1 {
 	const layout = overrides.layout
 		? ({ ...baseIr.layout, ...overrides.layout } as IRv1['layout'])
 		: baseIr.layout;
+	const defaultPhpOutputDir = path.posix.dirname(
+		baseIr.artifacts.php.pluginLoaderPath
+	);
 	const php = overrides.php
 		? {
 				namespace,
 				autoload: 'inc/',
-				outputDir: layout.resolve('php.generated'),
+				outputDir: overrides.php.outputDir ?? defaultPhpOutputDir,
 				...overrides.php,
 			}
 		: {
 				namespace,
 				autoload: 'inc/',
-				outputDir: layout.resolve('php.generated'),
+				outputDir: defaultPhpOutputDir,
 			};
 
 	return makeIr({
