@@ -7,7 +7,9 @@
 # Function: createPhpFileBuilder()
 
 ```ts
-function createPhpFileBuilder<TContext, TInput, TOutput>(options): BuilderHelper<TContext, TInput, TOutput>;
+function createPhpFileBuilder<TContext, TInput, TOutput>(
+	options
+): BuilderHelper<TContext, TInput, TOutput>;
 ```
 
 ## Type Parameters

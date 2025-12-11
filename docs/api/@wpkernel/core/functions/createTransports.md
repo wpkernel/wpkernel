@@ -7,7 +7,10 @@
 # Function: createTransports()
 
 ```ts
-function createTransports(channel, level): LogLayerTransport<any> | LogLayerTransport<any>[];
+function createTransports(
+	channel,
+	level
+): LogLayerTransport<any> | LogLayerTransport<any>[];
 ```
 
 Create transports for browser/WordPress environments.

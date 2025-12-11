@@ -7,11 +7,14 @@
 # Type Alias: PostTypesMap
 
 ```ts
-type PostTypesMap = Map<string, {
-  labels: Record<string, string>;
-  showInMenu: boolean;
-  showUi: boolean;
-  taxonomies: Set<string>;
-  supports?: readonly string[];
-}>;
+type PostTypesMap = Map<
+	string,
+	{
+		labels: Record<string, string>;
+		showInMenu: boolean;
+		showUi: boolean;
+		taxonomies: Set<string>;
+		supports?: readonly string[];
+	}
+>;
 ```

@@ -8,30 +8,33 @@
 
 ```ts
 type ResourceStorageConfig =
-  | {
-  mode: "transient";
-}
-  | {
-  mode: "wp-post";
-  meta?: Record<string, ResourcePostMetaDescriptor>;
-  postType?: string;
-  statuses?: string[];
-  supports?: ("title" | "editor" | "excerpt" | "custom-fields")[];
-  taxonomies?: Record<string, {
-     taxonomy: string;
-     hierarchical?: boolean;
-     register?: boolean;
-  }>;
-}
-  | {
-  mode: "wp-taxonomy";
-  taxonomy: string;
-  hierarchical?: boolean;
-}
-  | {
-  mode: "wp-option";
-  option: string;
-};
+	| {
+			mode: 'transient';
+	  }
+	| {
+			mode: 'wp-post';
+			meta?: Record<string, ResourcePostMetaDescriptor>;
+			postType?: string;
+			statuses?: string[];
+			supports?: ('title' | 'editor' | 'excerpt' | 'custom-fields')[];
+			taxonomies?: Record<
+				string,
+				{
+					taxonomy: string;
+					hierarchical?: boolean;
+					register?: boolean;
+				}
+			>;
+	  }
+	| {
+			mode: 'wp-taxonomy';
+			taxonomy: string;
+			hierarchical?: boolean;
+	  }
+	| {
+			mode: 'wp-option';
+			option: string;
+	  };
 ```
 
 High-level storage configuration for CLI-driven persistence.

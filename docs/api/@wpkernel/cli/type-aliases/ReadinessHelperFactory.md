@@ -7,10 +7,9 @@
 # Type Alias: ReadinessHelperFactory
 
 ```ts
-type ReadinessHelperFactory = (context) =>
-  | void
-  | ReadinessHelper
-| ReadonlyArray<ReadinessHelper>;
+type ReadinessHelperFactory = (
+	context
+) => void | ReadinessHelper | ReadonlyArray<ReadinessHelper>;
 ```
 
 ## Parameters

@@ -7,7 +7,9 @@
 # Function: buildDocCommentAttributes()
 
 ```ts
-function buildDocCommentAttributes(lines): Readonly<Record<string, unknown>> | undefined;
+function buildDocCommentAttributes(
+	lines
+): Readonly<Record<string, unknown>> | undefined;
 ```
 
 Builds doc comment attributes from a list of lines.

@@ -7,7 +7,9 @@
 # Function: buildCoreActionPipelineHarness()
 
 ```ts
-function buildCoreActionPipelineHarness<TArgs, TResult>(options): CoreActionPipelineHarness<TArgs, TResult>;
+function buildCoreActionPipelineHarness<TArgs, TResult>(
+	options
+): CoreActionPipelineHarness<TArgs, TResult>;
 ```
 
 Builds a harness for testing core action pipelines.

@@ -37,5 +37,5 @@ An Error instance
 
 ```typescript
 const createError = (code: string, message: string) =>
-  new MyCustomError(code, { message });
+	new MyCustomError(code, { message });
 ```

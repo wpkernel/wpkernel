@@ -7,7 +7,9 @@
 # Function: createWorkspaceRunner()
 
 ```ts
-function createWorkspaceRunner(defaultOptions): (run, overrides?) => Promise<void>;
+function createWorkspaceRunner(
+	defaultOptions
+): (run, overrides?) => Promise<void>;
 ```
 
 Creates a workspace runner function with default options.

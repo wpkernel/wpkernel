@@ -7,10 +7,13 @@
 # Function: compareManifestStates()
 
 ```ts
-function compareManifestStates(workspace, definition): Promise<{
-  after: FileManifest;
-  before: FileManifest;
-  diff: FileManifestDiff;
+function compareManifestStates(
+	workspace,
+	definition
+): Promise<{
+	after: FileManifest;
+	before: FileManifest;
+	diff: FileManifestDiff;
 }>;
 ```
 

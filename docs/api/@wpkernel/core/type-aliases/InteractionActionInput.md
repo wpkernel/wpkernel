@@ -8,8 +8,8 @@
 
 ```ts
 type InteractionActionInput<TArgs, TResult> =
-  | InteractionActionBinding<TArgs, TResult>
-| DefinedAction<TArgs, TResult>;
+	| InteractionActionBinding<TArgs, TResult>
+	| DefinedAction<TArgs, TResult>;
 ```
 
 User-facing value accepted when configuring interaction actions.

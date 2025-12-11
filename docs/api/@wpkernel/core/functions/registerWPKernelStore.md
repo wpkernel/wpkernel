@@ -7,7 +7,10 @@
 # Function: registerWPKernelStore()
 
 ```ts
-function registerWPKernelStore<Key, State, Actions, Selectors>(key, config): StoreDescriptor<ReduxStoreConfig<State, Actions, Selectors>>;
+function registerWPKernelStore<Key, State, Actions, Selectors>(
+	key,
+	config
+): StoreDescriptor<ReduxStoreConfig<State, Actions, Selectors>>;
 ```
 
 Register a WordPress data store using WPKernel defaults.

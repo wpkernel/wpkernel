@@ -7,7 +7,9 @@
 # Function: createPipelineExtension()
 
 ```ts
-function createPipelineExtension<TPipeline, TContext, TOptions, TArtifact>(options): PipelineExtension<TPipeline, TContext, TOptions, TArtifact>;
+function createPipelineExtension<TPipeline, TContext, TOptions, TArtifact>(
+	options
+): PipelineExtension<TPipeline, TContext, TOptions, TArtifact>;
 ```
 
 Creates a pipeline extension with optional setup and hook registration helpers.
@@ -32,15 +34,15 @@ Use when hook logic depends on pipeline state discovered during registration:
 
 ```ts
 createPipelineExtension({
-  key: 'acme.conditional-minify',
-  register(pipeline) {
-    const shouldMinify = pipeline.context.env === 'production';
-    if (!shouldMinify) return; // No hook registered
+	key: 'acme.conditional-minify',
+	register(pipeline) {
+		const shouldMinify = pipeline.context.env === 'production';
+		if (!shouldMinify) return; // No hook registered
 
-    return ({ artifact }) => ({
-      artifact: minify(artifact),
-    });
-  },
+		return ({ artifact }) => ({
+			artifact: minify(artifact),
+		});
+	},
 });
 ```
 
@@ -75,19 +77,19 @@ createPipelineExtension({
 
 ```ts
 createPipelineExtension({
-  key: 'acme.remote-validator',
-  async register(pipeline) {
-    // Async setup (e.g., fetch remote schema)
-    const schema = await fetchValidationSchema();
+	key: 'acme.remote-validator',
+	async register(pipeline) {
+		// Async setup (e.g., fetch remote schema)
+		const schema = await fetchValidationSchema();
 
-    return ({ artifact }) => {
-      const valid = validateAgainstSchema(artifact, schema);
-      if (!valid) {
-        throw new Error('Artifact validation failed');
-      }
-      return { artifact };
-    };
-  },
+		return ({ artifact }) => {
+			const valid = validateAgainstSchema(artifact, schema);
+			if (!valid) {
+				throw new Error('Artifact validation failed');
+			}
+			return { artifact };
+		};
+	},
 });
 ```
 
@@ -98,18 +100,21 @@ and a `rollback` function to undo those effects on pipeline failure:
 
 ```ts
 createPipelineExtension({
-  key: 'acme.file-writer',
-  hook({ artifact }) {
-    return {
-      artifact,
-      commit: async () => {
-        await fs.writeFile('/tmp/output.json', JSON.stringify(artifact));
-      },
-      rollback: async () => {
-        await fs.unlink('/tmp/output.json');
-      },
-    };
-  },
+	key: 'acme.file-writer',
+	hook({ artifact }) {
+		return {
+			artifact,
+			commit: async () => {
+				await fs.writeFile(
+					'/tmp/output.json',
+					JSON.stringify(artifact)
+				);
+			},
+			rollback: async () => {
+				await fs.unlink('/tmp/output.json');
+			},
+		};
+	},
 });
 ```
 
@@ -168,15 +173,15 @@ Conditional minification based on pipeline context:
 
 ```ts
 const minifyExtension = createPipelineExtension({
-  key: 'acme.minify',
-  register(pipeline) {
-    if (pipeline.context.env !== 'production') {
-      return; // Skip minification in dev
-    }
-    return ({ artifact }) => ({
-      artifact: minify(artifact),
-    });
-  },
+	key: 'acme.minify',
+	register(pipeline) {
+		if (pipeline.context.env !== 'production') {
+			return; // Skip minification in dev
+		}
+		return ({ artifact }) => ({
+			artifact: minify(artifact),
+		});
+	},
 });
 ```
 
@@ -184,18 +189,18 @@ File writer with atomic commit/rollback:
 
 ```ts
 const fileWriterExtension = createPipelineExtension({
-  key: 'acme.file-writer',
-  hook({ artifact }) {
-    const tempPath = `/tmp/${Date.now()}.json`;
-    return {
-      artifact,
-      commit: async () => {
-        await fs.writeFile(tempPath, JSON.stringify(artifact));
-      },
-      rollback: async () => {
-        await fs.unlink(tempPath).catch(() => {});
-      },
-    };
-  },
+	key: 'acme.file-writer',
+	hook({ artifact }) {
+		const tempPath = `/tmp/${Date.now()}.json`;
+		return {
+			artifact,
+			commit: async () => {
+				await fs.writeFile(tempPath, JSON.stringify(artifact));
+			},
+			rollback: async () => {
+				await fs.unlink(tempPath).catch(() => {});
+			},
+		};
+	},
 });
 ```

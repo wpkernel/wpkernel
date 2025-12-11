@@ -21,11 +21,9 @@ const builder = createWpPhpProgramBuilder({
 	},
 	build: (builder) => {
 		builder.appendProgramStatement(
-			buildReturn(
-				buildScalarString('Hello from my plugin!')
-			)
+			buildReturn(buildScalarString('Hello from my plugin!'))
 		);
-	}
+	},
 });
 ```
 

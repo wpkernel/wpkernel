@@ -7,7 +7,10 @@
 # Type Alias: InteractionActionsRecord
 
 ```ts
-type InteractionActionsRecord = Record<string, InteractionActionInput<unknown, unknown>>;
+type InteractionActionsRecord = Record<
+	string,
+	InteractionActionInput<unknown, unknown>
+>;
 ```
 
 Map of action identifiers to bindings registered on the store surface.

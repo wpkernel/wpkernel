@@ -65,10 +65,11 @@ cwd: () => string;
 ### dryRun()
 
 ```ts
-dryRun: <T>(fn) => Promise<{
-  manifest: FileManifest;
-  result: T;
-}>;
+dryRun: <T>(fn) =>
+	Promise<{
+		manifest: FileManifest;
+		result: T;
+	}>;
 ```
 
 #### Type Parameters
@@ -251,7 +252,8 @@ WorkspaceLike.root;
 ### threeWayMerge()
 
 ```ts
-threeWayMerge: (file, base, current, incoming, options?) => Promise<"conflict" | "clean">;
+threeWayMerge: (file, base, current, incoming, options?) =>
+	Promise<'conflict' | 'clean'>;
 ```
 
 #### Parameters

@@ -7,7 +7,10 @@
 # Type Alias: WpTaxonomyStorage
 
 ```ts
-type WpTaxonomyStorage = Extract<NonNullable<Resource["storage"]>, {
-  mode: "wp-taxonomy";
-}>;
+type WpTaxonomyStorage = Extract<
+	NonNullable<Resource['storage']>,
+	{
+		mode: 'wp-taxonomy';
+	}
+>;
 ```

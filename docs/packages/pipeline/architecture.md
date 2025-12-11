@@ -1,70 +1,72 @@
-# @wpkernel/pipeline Architecture Guide
+# @wpkernel/pipeline <-> Architecture Guide
 
-## Overview
+## The Philosophy
 
-`@wpkernel/pipeline` orchestrates helper DAGs, extension hooks, and transactional commits for any generation task. Pipelines collect fragments, build artefacts, and coordinate rollbacks so CLI builders, UI registries, and PHP codemods all share the same execution guarantees.
+The pipeline is designed as a **Directed Acyclic Graph (DAG) Execution Engine**. Its primary goal is to take a set of "Helpers"—which can be anything from simple functions to complex services - sort them based on their dependencies, and execute them in a deterministic order.
 
-## Workflow
+It is **NOT** opinionated about what your helpers do. It does **NOT** enforce a specific "Fragment/Builder" pattern, though that is a common use case.
 
-A pipeline assembles fragments, executes builders, and then commits or rolls back work depending on reporter diagnostics. Helpers register dependencies so the scheduler can resolve order, while extensions observe or mutate artefacts during the hook phase before commits fire.
+## Core Concepts
+
+### 1. Helpers & Kinds
+
+A `Helper` is an atomic unit of work identified by a `key`. Every helper belongs to a `kind` (e.g., `'extract'`, `'transform'`, `'render'`).
+helpers declare their dependencies using `dependsOn`. The runner builds a separate dependency graph for _each_ kind.
 
 ```mermaid
 graph TD
-    subgraph Phase 1: Fragments
-    F1[Helper A] --> F2[Helper B]
-    F2 --> Draft[Draft State]
-    end
-
-    subgraph Phase 2: Builders
-    Draft --> Artifact[Artifact]
-    Artifact --> B1[Helper C]
-    B1 --> B2[Helper D]
-    end
-
-    subgraph Phase 3: Extensions
-    B2 --> H1{Hooks}
-    H1 -- Success --> Commit[Commit]
-    H1 -- Failure --> Rollback[Rollback]
-    end
+    A[Extract User] --> B[Extract Posts]
+    B --> C[Extract Comments]
 ```
 
-## Examples
+### 2. Stages
 
-```ts
-const resourcePipeline = makePipeline({
-	createContext: (reporter) => ({
-		reporter,
-		config: loadKernelConfig(),
-	}),
-	buildFragment: (ctx, opts) => {
-		return buildResourceClass(opts.input, ctx.config);
-	},
-	buildArtifact: async (ctx, opts) => {
-		const code = await printPhpAst(opts.draft);
-		return { artifact: code };
-	},
-});
+A `Stage` defines _when_ a set of helpers executes. You define the sequence of stages in your pipeline.
+For example, an ETL pipeline might have three stages corresponding to three helper kinds:
 
-resourcePipeline.use(phpOpeningTagHelper);
-resourcePipeline.use(namespaceHelper);
-resourcePipeline.use(useStatementsHelper);
-resourcePipeline.use(classDefinitionHelper);
-resourcePipeline.use(writeFileHelper);
-resourcePipeline.use(formatCodeHelper);
+```mermaid
+graph LR
+    S1[Stage: Extract] --> S2[Stage: Transform] --> S3[Stage: Load]
 ```
 
-## Patterns
+- **Independent execution**: Each stage executes its registered helpers topologically.
+- **Shared Context**: Stages share a mutable `context` and can pass data via "Drafts" or "Artifacts".
 
-Model fragments as pure functions that return serialisable drafts and let builders persist artefacts. Declare helper dependencies explicitly so the DAG resolver can detect cycles and surface conflict diagnostics when helpers target the same output.
+### 3. Extensions & Lifecycles
 
-## Extension Points
+Extensions wrap the execution flow. They attach to lifecycle hooks (defined by strings like `'prepare'`, `'commit'`, `'finalize'`).
+This allows for cross-cutting concerns:
 
-Use `createPipelineExtension()` to wrap transactional work in hooks. Extensions can enqueue commit and rollback callbacks, mutate artefacts, or inject diagnostics, and they run after helpers finalise drafts but before commits execute, ensuring rollback metadata stays consistent.
+- **Transactions**: Open a transaction in `prepare`, commit in `commit`, rollback in `rollback`.
+- **Logging**: Log start/end times.
+- **Resource Management**: Connect/Disconnect databases.
 
-## Testing
+## The "Standard" Model (WPKernel CLI)
 
-Exercise new helpers through the existing integration suites under `packages/pipeline/src/__tests__`. Pair unit tests with fixtures that simulate rollback failures so regression suites confirm diagnostics propagate through the reporter interface.
+While generic, WPKernel's main use case (code generation) uses a specific configuration:
 
-## Cross-links
+1.  **Phase 1: Fragments (`kind: 'fragment'`)**
+    - Helpers generate partial ASTs or code snippets.
+    - They write to a shared "Draft" (e.g., a list of PHP blocks).
+    - Executed by `makeLifecycleStage('fragment')`.
 
-Review the CLI and php-json-ast codemod plans before altering pipeline phases. CLI adapters consume the same hook payloads, and codemod stacks rely on the pipeline to deliver diagnostics into `.wpk/` manifests.
+2.  **Phase 2: Builders (`kind: 'builder'`)**
+    - Helpers take the finalized "Artifact" (merged fragments) and write files to disk.
+    - Executed by `makeLifecycleStage('builder')`.
+
+3.  **Extensions**
+    - Manage file system writes (committing files only if generation succeeds).
+
+## Building Custom Architectures
+
+You can build entirely different architectures using `makePipeline`:
+
+- **Serial Pipelines**: A single stage with one helper kind.
+- **Micro-Frontends**: Resolution stages for different UI widgets.
+- **Data Migrations**: Versioned migration helpers with rollback guarantees.
+
+The generic runner ensures:
+
+- **Cycle Detection**: `A -> B -> A` throws a diagnostic error.
+- **Missing Dependencies**: `A` depends on `C` (which doesn't exist) throws an error.
+- **Atomic Rollback**: If _any_ stage throws, the pipeline halts and executes the rollback chain for all extensions and helpers.

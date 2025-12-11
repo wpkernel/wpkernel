@@ -7,7 +7,9 @@
 # Function: createWpPhpProgramBuilder()
 
 ```ts
-function createWpPhpProgramBuilder<TContext, TInput, TOutput>(options): BuilderHelper<TContext, TInput, TOutput>;
+function createWpPhpProgramBuilder<TContext, TInput, TOutput>(
+	options
+): BuilderHelper<TContext, TInput, TOutput>;
 ```
 
 Creates a WordPress PHP program builder.
@@ -46,7 +48,11 @@ A builder helper.
 ## Example
 
 ```ts
-import { createWpPhpProgramBuilder, buildReturn, buildScalarString } from '@wpkernel/wp-json-ast';
+import {
+	createWpPhpProgramBuilder,
+	buildReturn,
+	buildScalarString,
+} from '@wpkernel/wp-json-ast';
 
 const builder = createWpPhpProgramBuilder({
 	metadata: {
@@ -56,11 +62,9 @@ const builder = createWpPhpProgramBuilder({
 	},
 	build: (builder) => {
 		builder.appendProgramStatement(
-			buildReturn(
-				buildScalarString('Hello from my plugin!')
-			)
+			buildReturn(buildScalarString('Hello from my plugin!'))
 		);
-	}
+	},
 });
 
 const result = await builder.apply(context, input);

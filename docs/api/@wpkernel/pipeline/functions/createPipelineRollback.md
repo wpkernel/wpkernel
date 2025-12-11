@@ -45,12 +45,12 @@ A rollback descriptor with the run function and metadata
 
 ```typescript
 const rollback = createPipelineRollback(
-  () => {
-    cleanup();
-  },
-  {
-    key: 'my-helper',
-    label: 'Restore previous state',
-  }
+	() => {
+		cleanup();
+	},
+	{
+		key: 'my-helper',
+		label: 'Restore previous state',
+	}
 );
 ```

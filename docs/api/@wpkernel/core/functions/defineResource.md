@@ -9,7 +9,9 @@
 ## Call Signature
 
 ```ts
-function defineResource<T, TQuery, TRoutes>(config): ResourceObject<T, TQuery, TRoutes>;
+function defineResource<T, TQuery, TRoutes>(
+	config
+): ResourceObject<T, TQuery, TRoutes>;
 ```
 
 Define a resource with typed REST client
@@ -62,7 +64,13 @@ DeveloperError if configuration is invalid
 ## Call Signature
 
 ```ts
-function defineResource<Config>(config): ResourceObject<InferResourceDefinition<Config>["entity"], InferResourceDefinition<Config>["query"], InferResourceDefinition<Config>["routes"]>;
+function defineResource<Config>(
+	config
+): ResourceObject<
+	InferResourceDefinition<Config>['entity'],
+	InferResourceDefinition<Config>['query'],
+	InferResourceDefinition<Config>['routes']
+>;
 ```
 
 Define a resource with typed REST client

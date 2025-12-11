@@ -47,7 +47,7 @@ import { createStore } from '@wpkernel/core/resource';
 import { thing } from './resources/thing';
 
 const thingStore = createStore({
-  resource: thing,
-  getId: (item) => item.id,
+	resource: thing,
+	getId: (item) => item.id,
 });
 ```

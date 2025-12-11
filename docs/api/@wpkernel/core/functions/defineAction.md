@@ -36,25 +36,25 @@ import { defineAction } from '@wpkernel/core/actions';
 import { testimonial } from '@/resources/testimonial';
 
 export const CreateTestimonial = defineAction<
-  { data: Testimonial },
-  Testimonial
+	{ data: Testimonial },
+	Testimonial
 >('Testimonial.Create', async (ctx, { data }) => {
-  // 1. Capability check
-  ctx.capability.assert('testimonials.create');
+	// 1. Capability check
+	ctx.capability.assert('testimonials.create');
 
-  // 2. Resource call (the actual write)
-  const created = await testimonial.create!(data);
+	// 2. Resource call (the actual write)
+	const created = await testimonial.create!(data);
 
-  // 3. Emit canonical event
-  ctx.emit(testimonial.events.created, { id: created.id, data: created });
+	// 3. Emit canonical event
+	ctx.emit(testimonial.events.created, { id: created.id, data: created });
 
-  // 4. Invalidate cache
-  ctx.invalidate(['testimonial', 'list']);
+	// 4. Invalidate cache
+	ctx.invalidate(['testimonial', 'list']);
 
-  // 5. Queue background job
-  await ctx.jobs.enqueue('IndexTestimonial', { id: created.id });
+	// 5. Queue background job
+	await ctx.jobs.enqueue('IndexTestimonial', { id: created.id });
 
-  return created;
+	return created;
 });
 
 // Use in UI
@@ -131,7 +131,7 @@ All errors are automatically normalized to `WPKernelError` instances with:
 
 ```typescript
 defineAction('TestAction', async (ctx, args) => {
-  throw new WPKernelError('DeveloperError', { message: 'Something broke' });
+	throw new WPKernelError('DeveloperError', { message: 'Something broke' });
 });
 ```
 
@@ -202,41 +202,38 @@ DeveloperError if actionName is invalid or fn is not a function
 ```ts
 // Basic action
 export const CreatePost = defineAction(
-  'Post.Create',
-  async (ctx, { title, content }) => {
-    const post = await postResource.create!({ title, content });
-    ctx.invalidate(['post', 'list']);
-    return post;
-  }
+	'Post.Create',
+	async (ctx, { title, content }) => {
+		const post = await postResource.create!({ title, content });
+		ctx.invalidate(['post', 'list']);
+		return post;
+	}
 );
 ```
 
 ```ts
 // With full orchestration
-export const PublishPost = defineAction(
-  'Post.Publish',
-  async (ctx, { id }) => {
-    ctx.capability.assert('posts.publish');
-    const post = await postResource.update!({ id, status: 'publish' });
-    ctx.emit(postResource.events.updated, { id, data: post });
-    ctx.invalidate(['post', 'list'], { storeKey: 'my-plugin/post' });
-    await ctx.jobs.enqueue('SendPublishNotifications', { postId: id });
-    ctx.reporter.info('Post published', { postId: id });
-    return post;
-  }
-);
+export const PublishPost = defineAction('Post.Publish', async (ctx, { id }) => {
+	ctx.capability.assert('posts.publish');
+	const post = await postResource.update!({ id, status: 'publish' });
+	ctx.emit(postResource.events.updated, { id, data: post });
+	ctx.invalidate(['post', 'list'], { storeKey: 'my-plugin/post' });
+	await ctx.jobs.enqueue('SendPublishNotifications', { postId: id });
+	ctx.reporter.info('Post published', { postId: id });
+	return post;
+});
 ```
 
 ```ts
 // Tab-local UI action
 export const ToggleSidebar = defineAction({
-  name: 'UI.ToggleSidebar',
-  handler: async (ctx, { isOpen }) => {
-    // Events stay in this tab only
-    ctx.emit('ui.sidebar.toggled', { isOpen });
-    return { isOpen };
-  },
-  options: { scope: 'tabLocal' }
+	name: 'UI.ToggleSidebar',
+	handler: async (ctx, { isOpen }) => {
+		// Events stay in this tab only
+		ctx.emit('ui.sidebar.toggled', { isOpen });
+		return { isOpen };
+	},
+	options: { scope: 'tabLocal' },
 });
 ```
 

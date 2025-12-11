@@ -8,9 +8,10 @@
 
 ```ts
 function useNextPagePrefetch<TRecord, TQuery>(
-   resource,
-   currentQuery,
-   options): void;
+	resource,
+	currentQuery,
+	options
+): void;
 ```
 
 Prefetches the next page of a paginated resource.

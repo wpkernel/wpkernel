@@ -7,7 +7,14 @@
 # Type Alias: RouteCapabilityKeys<TRoutes>
 
 ```ts
-type RouteCapabilityKeys<TRoutes> = Extract<{ [TKey in keyof TRoutes]: ExtractRouteCapability<NonNullable<TRoutes[TKey]>> }[keyof TRoutes], string>;
+type RouteCapabilityKeys<TRoutes> = Extract<
+	{
+		[TKey in keyof TRoutes]: ExtractRouteCapability<
+			NonNullable<TRoutes[TKey]>
+		>;
+	}[keyof TRoutes],
+	string
+>;
 ```
 
 Capability keys referenced across all configured routes.

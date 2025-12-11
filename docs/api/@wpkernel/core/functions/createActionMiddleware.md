@@ -51,11 +51,11 @@ import { register } from '@wordpress/data';
 
 const actionMiddleware = createActionMiddleware();
 register({
-  reducer: rootReducer,
-  actions: {},
-  selectors: {},
-  controls: {},
-  __experimentalUseMiddleware: () => [actionMiddleware]
+	reducer: rootReducer,
+	actions: {},
+	selectors: {},
+	controls: {},
+	__experimentalUseMiddleware: () => [actionMiddleware],
 });
 
 // Dispatching actions

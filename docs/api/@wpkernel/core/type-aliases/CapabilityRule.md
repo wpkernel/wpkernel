@@ -46,26 +46,32 @@ Parameters required by the rule. `void` indicates no params needed.
 ```typescript
 // Synchronous rule (no params)
 const viewRule: CapabilityRule<void> = (ctx) => {
-  return ctx.adapters.wp?.canUser('read', { kind: 'postType', name: 'post' }) ?? false;
+	return (
+		ctx.adapters.wp?.canUser('read', { kind: 'postType', name: 'post' }) ??
+		false
+	);
 };
 
 // Async rule with params
 const editRule: CapabilityRule<number> = async (ctx, postId) => {
-  const result = await ctx.adapters.wp?.canUser('update', {
-    kind: 'postType',
-    name: 'post',
-    id: postId
-  });
-  return result ?? false;
+	const result = await ctx.adapters.wp?.canUser('update', {
+		kind: 'postType',
+		name: 'post',
+		id: postId,
+	});
+	return result ?? false;
 };
 
 // Complex params
-const assignRule: CapabilityRule<{ userId: number; postId: number }> = async (ctx, params) => {
-  const canEdit = await ctx.adapters.wp?.canUser('update', {
-    kind: 'postType',
-    name: 'post',
-    id: params.postId
-  });
-  return canEdit && params.userId > 0;
+const assignRule: CapabilityRule<{ userId: number; postId: number }> = async (
+	ctx,
+	params
+) => {
+	const canEdit = await ctx.adapters.wp?.canUser('update', {
+		kind: 'postType',
+		name: 'post',
+		id: params.postId,
+	});
+	return canEdit && params.userId > 0;
 };
 ```

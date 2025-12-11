@@ -8,9 +8,9 @@
 
 ```ts
 type PipelineDiagnostic<TKind> =
-  | ConflictDiagnostic<TKind>
-  | MissingDependencyDiagnostic<TKind>
-| UnusedHelperDiagnostic<TKind>;
+	| ConflictDiagnostic<TKind>
+	| MissingDependencyDiagnostic<TKind>
+	| UnusedHelperDiagnostic<TKind>;
 ```
 
 Union of all diagnostic types.

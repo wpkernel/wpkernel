@@ -7,10 +7,13 @@
 # Type Alias: StatusesMap
 
 ```ts
-type StatusesMap = Map<string, {
-  label: string;
-  public?: boolean;
-  showInAdminAllList?: boolean;
-  showInAdminStatusList?: boolean;
-}>;
+type StatusesMap = Map<
+	string,
+	{
+		label: string;
+		public?: boolean;
+		showInAdminAllList?: boolean;
+		showInAdminStatusList?: boolean;
+	}
+>;
 ```

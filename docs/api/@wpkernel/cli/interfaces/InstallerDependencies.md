@@ -78,15 +78,15 @@ import { spawn } from 'node:child_process';
 const ls = spawn('ls', ['-lh', '/usr']);
 
 ls.stdout.on('data', (data) => {
-  console.log(`stdout: ${data}`);
+	console.log(`stdout: ${data}`);
 });
 
 ls.stderr.on('data', (data) => {
-  console.error(`stderr: ${data}`);
+	console.error(`stderr: ${data}`);
 });
 
 ls.on('close', (code) => {
-  console.log(`child process exited with code ${code}`);
+	console.log(`child process exited with code ${code}`);
 });
 ```
 
@@ -98,32 +98,32 @@ const ps = spawn('ps', ['ax']);
 const grep = spawn('grep', ['ssh']);
 
 ps.stdout.on('data', (data) => {
-  grep.stdin.write(data);
+	grep.stdin.write(data);
 });
 
 ps.stderr.on('data', (data) => {
-  console.error(`ps stderr: ${data}`);
+	console.error(`ps stderr: ${data}`);
 });
 
 ps.on('close', (code) => {
-  if (code !== 0) {
-    console.log(`ps process exited with code ${code}`);
-  }
-  grep.stdin.end();
+	if (code !== 0) {
+		console.log(`ps process exited with code ${code}`);
+	}
+	grep.stdin.end();
 });
 
 grep.stdout.on('data', (data) => {
-  console.log(data.toString());
+	console.log(data.toString());
 });
 
 grep.stderr.on('data', (data) => {
-  console.error(`grep stderr: ${data}`);
+	console.error(`grep stderr: ${data}`);
 });
 
 grep.on('close', (code) => {
-  if (code !== 0) {
-    console.log(`grep process exited with code ${code}`);
-  }
+	if (code !== 0) {
+		console.log(`grep process exited with code ${code}`);
+	}
 });
 ```
 
@@ -134,7 +134,7 @@ import { spawn } from 'node:child_process';
 const subprocess = spawn('bad_command');
 
 subprocess.on('error', (err) => {
-  console.error('Failed to start subprocess.');
+	console.error('Failed to start subprocess.');
 });
 ```
 
@@ -153,7 +153,7 @@ const controller = new AbortController();
 const { signal } = controller;
 const grep = spawn('grep', ['ssh'], { signal });
 grep.on('error', (err) => {
-  // This will be called with err being an AbortError if the controller aborts
+	// This will be called with err being an AbortError if the controller aborts
 });
 controller.abort(); // Stops the child process
 ```
@@ -219,15 +219,15 @@ import { spawn } from 'node:child_process';
 const ls = spawn('ls', ['-lh', '/usr']);
 
 ls.stdout.on('data', (data) => {
-  console.log(`stdout: ${data}`);
+	console.log(`stdout: ${data}`);
 });
 
 ls.stderr.on('data', (data) => {
-  console.error(`stderr: ${data}`);
+	console.error(`stderr: ${data}`);
 });
 
 ls.on('close', (code) => {
-  console.log(`child process exited with code ${code}`);
+	console.log(`child process exited with code ${code}`);
 });
 ```
 
@@ -239,32 +239,32 @@ const ps = spawn('ps', ['ax']);
 const grep = spawn('grep', ['ssh']);
 
 ps.stdout.on('data', (data) => {
-  grep.stdin.write(data);
+	grep.stdin.write(data);
 });
 
 ps.stderr.on('data', (data) => {
-  console.error(`ps stderr: ${data}`);
+	console.error(`ps stderr: ${data}`);
 });
 
 ps.on('close', (code) => {
-  if (code !== 0) {
-    console.log(`ps process exited with code ${code}`);
-  }
-  grep.stdin.end();
+	if (code !== 0) {
+		console.log(`ps process exited with code ${code}`);
+	}
+	grep.stdin.end();
 });
 
 grep.stdout.on('data', (data) => {
-  console.log(data.toString());
+	console.log(data.toString());
 });
 
 grep.stderr.on('data', (data) => {
-  console.error(`grep stderr: ${data}`);
+	console.error(`grep stderr: ${data}`);
 });
 
 grep.on('close', (code) => {
-  if (code !== 0) {
-    console.log(`grep process exited with code ${code}`);
-  }
+	if (code !== 0) {
+		console.log(`grep process exited with code ${code}`);
+	}
 });
 ```
 
@@ -275,7 +275,7 @@ import { spawn } from 'node:child_process';
 const subprocess = spawn('bad_command');
 
 subprocess.on('error', (err) => {
-  console.error('Failed to start subprocess.');
+	console.error('Failed to start subprocess.');
 });
 ```
 
@@ -294,7 +294,7 @@ const controller = new AbortController();
 const { signal } = controller;
 const grep = spawn('grep', ['ssh'], { signal });
 grep.on('error', (err) => {
-  // This will be called with err being an AbortError if the controller aborts
+	// This will be called with err being an AbortError if the controller aborts
 });
 controller.abort(); // Stops the child process
 ```
@@ -360,15 +360,15 @@ import { spawn } from 'node:child_process';
 const ls = spawn('ls', ['-lh', '/usr']);
 
 ls.stdout.on('data', (data) => {
-  console.log(`stdout: ${data}`);
+	console.log(`stdout: ${data}`);
 });
 
 ls.stderr.on('data', (data) => {
-  console.error(`stderr: ${data}`);
+	console.error(`stderr: ${data}`);
 });
 
 ls.on('close', (code) => {
-  console.log(`child process exited with code ${code}`);
+	console.log(`child process exited with code ${code}`);
 });
 ```
 
@@ -380,32 +380,32 @@ const ps = spawn('ps', ['ax']);
 const grep = spawn('grep', ['ssh']);
 
 ps.stdout.on('data', (data) => {
-  grep.stdin.write(data);
+	grep.stdin.write(data);
 });
 
 ps.stderr.on('data', (data) => {
-  console.error(`ps stderr: ${data}`);
+	console.error(`ps stderr: ${data}`);
 });
 
 ps.on('close', (code) => {
-  if (code !== 0) {
-    console.log(`ps process exited with code ${code}`);
-  }
-  grep.stdin.end();
+	if (code !== 0) {
+		console.log(`ps process exited with code ${code}`);
+	}
+	grep.stdin.end();
 });
 
 grep.stdout.on('data', (data) => {
-  console.log(data.toString());
+	console.log(data.toString());
 });
 
 grep.stderr.on('data', (data) => {
-  console.error(`grep stderr: ${data}`);
+	console.error(`grep stderr: ${data}`);
 });
 
 grep.on('close', (code) => {
-  if (code !== 0) {
-    console.log(`grep process exited with code ${code}`);
-  }
+	if (code !== 0) {
+		console.log(`grep process exited with code ${code}`);
+	}
 });
 ```
 
@@ -416,7 +416,7 @@ import { spawn } from 'node:child_process';
 const subprocess = spawn('bad_command');
 
 subprocess.on('error', (err) => {
-  console.error('Failed to start subprocess.');
+	console.error('Failed to start subprocess.');
 });
 ```
 
@@ -435,7 +435,7 @@ const controller = new AbortController();
 const { signal } = controller;
 const grep = spawn('grep', ['ssh'], { signal });
 grep.on('error', (err) => {
-  // This will be called with err being an AbortError if the controller aborts
+	// This will be called with err being an AbortError if the controller aborts
 });
 controller.abort(); // Stops the child process
 ```
@@ -501,15 +501,15 @@ import { spawn } from 'node:child_process';
 const ls = spawn('ls', ['-lh', '/usr']);
 
 ls.stdout.on('data', (data) => {
-  console.log(`stdout: ${data}`);
+	console.log(`stdout: ${data}`);
 });
 
 ls.stderr.on('data', (data) => {
-  console.error(`stderr: ${data}`);
+	console.error(`stderr: ${data}`);
 });
 
 ls.on('close', (code) => {
-  console.log(`child process exited with code ${code}`);
+	console.log(`child process exited with code ${code}`);
 });
 ```
 
@@ -521,32 +521,32 @@ const ps = spawn('ps', ['ax']);
 const grep = spawn('grep', ['ssh']);
 
 ps.stdout.on('data', (data) => {
-  grep.stdin.write(data);
+	grep.stdin.write(data);
 });
 
 ps.stderr.on('data', (data) => {
-  console.error(`ps stderr: ${data}`);
+	console.error(`ps stderr: ${data}`);
 });
 
 ps.on('close', (code) => {
-  if (code !== 0) {
-    console.log(`ps process exited with code ${code}`);
-  }
-  grep.stdin.end();
+	if (code !== 0) {
+		console.log(`ps process exited with code ${code}`);
+	}
+	grep.stdin.end();
 });
 
 grep.stdout.on('data', (data) => {
-  console.log(data.toString());
+	console.log(data.toString());
 });
 
 grep.stderr.on('data', (data) => {
-  console.error(`grep stderr: ${data}`);
+	console.error(`grep stderr: ${data}`);
 });
 
 grep.on('close', (code) => {
-  if (code !== 0) {
-    console.log(`grep process exited with code ${code}`);
-  }
+	if (code !== 0) {
+		console.log(`grep process exited with code ${code}`);
+	}
 });
 ```
 
@@ -557,7 +557,7 @@ import { spawn } from 'node:child_process';
 const subprocess = spawn('bad_command');
 
 subprocess.on('error', (err) => {
-  console.error('Failed to start subprocess.');
+	console.error('Failed to start subprocess.');
 });
 ```
 
@@ -576,7 +576,7 @@ const controller = new AbortController();
 const { signal } = controller;
 const grep = spawn('grep', ['ssh'], { signal });
 grep.on('error', (err) => {
-  // This will be called with err being an AbortError if the controller aborts
+	// This will be called with err being an AbortError if the controller aborts
 });
 controller.abort(); // Stops the child process
 ```
@@ -642,15 +642,15 @@ import { spawn } from 'node:child_process';
 const ls = spawn('ls', ['-lh', '/usr']);
 
 ls.stdout.on('data', (data) => {
-  console.log(`stdout: ${data}`);
+	console.log(`stdout: ${data}`);
 });
 
 ls.stderr.on('data', (data) => {
-  console.error(`stderr: ${data}`);
+	console.error(`stderr: ${data}`);
 });
 
 ls.on('close', (code) => {
-  console.log(`child process exited with code ${code}`);
+	console.log(`child process exited with code ${code}`);
 });
 ```
 
@@ -662,32 +662,32 @@ const ps = spawn('ps', ['ax']);
 const grep = spawn('grep', ['ssh']);
 
 ps.stdout.on('data', (data) => {
-  grep.stdin.write(data);
+	grep.stdin.write(data);
 });
 
 ps.stderr.on('data', (data) => {
-  console.error(`ps stderr: ${data}`);
+	console.error(`ps stderr: ${data}`);
 });
 
 ps.on('close', (code) => {
-  if (code !== 0) {
-    console.log(`ps process exited with code ${code}`);
-  }
-  grep.stdin.end();
+	if (code !== 0) {
+		console.log(`ps process exited with code ${code}`);
+	}
+	grep.stdin.end();
 });
 
 grep.stdout.on('data', (data) => {
-  console.log(data.toString());
+	console.log(data.toString());
 });
 
 grep.stderr.on('data', (data) => {
-  console.error(`grep stderr: ${data}`);
+	console.error(`grep stderr: ${data}`);
 });
 
 grep.on('close', (code) => {
-  if (code !== 0) {
-    console.log(`grep process exited with code ${code}`);
-  }
+	if (code !== 0) {
+		console.log(`grep process exited with code ${code}`);
+	}
 });
 ```
 
@@ -698,7 +698,7 @@ import { spawn } from 'node:child_process';
 const subprocess = spawn('bad_command');
 
 subprocess.on('error', (err) => {
-  console.error('Failed to start subprocess.');
+	console.error('Failed to start subprocess.');
 });
 ```
 
@@ -717,7 +717,7 @@ const controller = new AbortController();
 const { signal } = controller;
 const grep = spawn('grep', ['ssh'], { signal });
 grep.on('error', (err) => {
-  // This will be called with err being an AbortError if the controller aborts
+	// This will be called with err being an AbortError if the controller aborts
 });
 controller.abort(); // Stops the child process
 ```
@@ -783,15 +783,15 @@ import { spawn } from 'node:child_process';
 const ls = spawn('ls', ['-lh', '/usr']);
 
 ls.stdout.on('data', (data) => {
-  console.log(`stdout: ${data}`);
+	console.log(`stdout: ${data}`);
 });
 
 ls.stderr.on('data', (data) => {
-  console.error(`stderr: ${data}`);
+	console.error(`stderr: ${data}`);
 });
 
 ls.on('close', (code) => {
-  console.log(`child process exited with code ${code}`);
+	console.log(`child process exited with code ${code}`);
 });
 ```
 
@@ -803,32 +803,32 @@ const ps = spawn('ps', ['ax']);
 const grep = spawn('grep', ['ssh']);
 
 ps.stdout.on('data', (data) => {
-  grep.stdin.write(data);
+	grep.stdin.write(data);
 });
 
 ps.stderr.on('data', (data) => {
-  console.error(`ps stderr: ${data}`);
+	console.error(`ps stderr: ${data}`);
 });
 
 ps.on('close', (code) => {
-  if (code !== 0) {
-    console.log(`ps process exited with code ${code}`);
-  }
-  grep.stdin.end();
+	if (code !== 0) {
+		console.log(`ps process exited with code ${code}`);
+	}
+	grep.stdin.end();
 });
 
 grep.stdout.on('data', (data) => {
-  console.log(data.toString());
+	console.log(data.toString());
 });
 
 grep.stderr.on('data', (data) => {
-  console.error(`grep stderr: ${data}`);
+	console.error(`grep stderr: ${data}`);
 });
 
 grep.on('close', (code) => {
-  if (code !== 0) {
-    console.log(`grep process exited with code ${code}`);
-  }
+	if (code !== 0) {
+		console.log(`grep process exited with code ${code}`);
+	}
 });
 ```
 
@@ -839,7 +839,7 @@ import { spawn } from 'node:child_process';
 const subprocess = spawn('bad_command');
 
 subprocess.on('error', (err) => {
-  console.error('Failed to start subprocess.');
+	console.error('Failed to start subprocess.');
 });
 ```
 
@@ -858,7 +858,7 @@ const controller = new AbortController();
 const { signal } = controller;
 const grep = spawn('grep', ['ssh'], { signal });
 grep.on('error', (err) => {
-  // This will be called with err being an AbortError if the controller aborts
+	// This will be called with err being an AbortError if the controller aborts
 });
 controller.abort(); // Stops the child process
 ```
@@ -924,15 +924,15 @@ import { spawn } from 'node:child_process';
 const ls = spawn('ls', ['-lh', '/usr']);
 
 ls.stdout.on('data', (data) => {
-  console.log(`stdout: ${data}`);
+	console.log(`stdout: ${data}`);
 });
 
 ls.stderr.on('data', (data) => {
-  console.error(`stderr: ${data}`);
+	console.error(`stderr: ${data}`);
 });
 
 ls.on('close', (code) => {
-  console.log(`child process exited with code ${code}`);
+	console.log(`child process exited with code ${code}`);
 });
 ```
 
@@ -944,32 +944,32 @@ const ps = spawn('ps', ['ax']);
 const grep = spawn('grep', ['ssh']);
 
 ps.stdout.on('data', (data) => {
-  grep.stdin.write(data);
+	grep.stdin.write(data);
 });
 
 ps.stderr.on('data', (data) => {
-  console.error(`ps stderr: ${data}`);
+	console.error(`ps stderr: ${data}`);
 });
 
 ps.on('close', (code) => {
-  if (code !== 0) {
-    console.log(`ps process exited with code ${code}`);
-  }
-  grep.stdin.end();
+	if (code !== 0) {
+		console.log(`ps process exited with code ${code}`);
+	}
+	grep.stdin.end();
 });
 
 grep.stdout.on('data', (data) => {
-  console.log(data.toString());
+	console.log(data.toString());
 });
 
 grep.stderr.on('data', (data) => {
-  console.error(`grep stderr: ${data}`);
+	console.error(`grep stderr: ${data}`);
 });
 
 grep.on('close', (code) => {
-  if (code !== 0) {
-    console.log(`grep process exited with code ${code}`);
-  }
+	if (code !== 0) {
+		console.log(`grep process exited with code ${code}`);
+	}
 });
 ```
 
@@ -980,7 +980,7 @@ import { spawn } from 'node:child_process';
 const subprocess = spawn('bad_command');
 
 subprocess.on('error', (err) => {
-  console.error('Failed to start subprocess.');
+	console.error('Failed to start subprocess.');
 });
 ```
 
@@ -999,7 +999,7 @@ const controller = new AbortController();
 const { signal } = controller;
 const grep = spawn('grep', ['ssh'], { signal });
 grep.on('error', (err) => {
-  // This will be called with err being an AbortError if the controller aborts
+	// This will be called with err being an AbortError if the controller aborts
 });
 controller.abort(); // Stops the child process
 ```
@@ -1065,15 +1065,15 @@ import { spawn } from 'node:child_process';
 const ls = spawn('ls', ['-lh', '/usr']);
 
 ls.stdout.on('data', (data) => {
-  console.log(`stdout: ${data}`);
+	console.log(`stdout: ${data}`);
 });
 
 ls.stderr.on('data', (data) => {
-  console.error(`stderr: ${data}`);
+	console.error(`stderr: ${data}`);
 });
 
 ls.on('close', (code) => {
-  console.log(`child process exited with code ${code}`);
+	console.log(`child process exited with code ${code}`);
 });
 ```
 
@@ -1085,32 +1085,32 @@ const ps = spawn('ps', ['ax']);
 const grep = spawn('grep', ['ssh']);
 
 ps.stdout.on('data', (data) => {
-  grep.stdin.write(data);
+	grep.stdin.write(data);
 });
 
 ps.stderr.on('data', (data) => {
-  console.error(`ps stderr: ${data}`);
+	console.error(`ps stderr: ${data}`);
 });
 
 ps.on('close', (code) => {
-  if (code !== 0) {
-    console.log(`ps process exited with code ${code}`);
-  }
-  grep.stdin.end();
+	if (code !== 0) {
+		console.log(`ps process exited with code ${code}`);
+	}
+	grep.stdin.end();
 });
 
 grep.stdout.on('data', (data) => {
-  console.log(data.toString());
+	console.log(data.toString());
 });
 
 grep.stderr.on('data', (data) => {
-  console.error(`grep stderr: ${data}`);
+	console.error(`grep stderr: ${data}`);
 });
 
 grep.on('close', (code) => {
-  if (code !== 0) {
-    console.log(`grep process exited with code ${code}`);
-  }
+	if (code !== 0) {
+		console.log(`grep process exited with code ${code}`);
+	}
 });
 ```
 
@@ -1121,7 +1121,7 @@ import { spawn } from 'node:child_process';
 const subprocess = spawn('bad_command');
 
 subprocess.on('error', (err) => {
-  console.error('Failed to start subprocess.');
+	console.error('Failed to start subprocess.');
 });
 ```
 
@@ -1140,7 +1140,7 @@ const controller = new AbortController();
 const { signal } = controller;
 const grep = spawn('grep', ['ssh'], { signal });
 grep.on('error', (err) => {
-  // This will be called with err being an AbortError if the controller aborts
+	// This will be called with err being an AbortError if the controller aborts
 });
 controller.abort(); // Stops the child process
 ```
@@ -1206,15 +1206,15 @@ import { spawn } from 'node:child_process';
 const ls = spawn('ls', ['-lh', '/usr']);
 
 ls.stdout.on('data', (data) => {
-  console.log(`stdout: ${data}`);
+	console.log(`stdout: ${data}`);
 });
 
 ls.stderr.on('data', (data) => {
-  console.error(`stderr: ${data}`);
+	console.error(`stderr: ${data}`);
 });
 
 ls.on('close', (code) => {
-  console.log(`child process exited with code ${code}`);
+	console.log(`child process exited with code ${code}`);
 });
 ```
 
@@ -1226,32 +1226,32 @@ const ps = spawn('ps', ['ax']);
 const grep = spawn('grep', ['ssh']);
 
 ps.stdout.on('data', (data) => {
-  grep.stdin.write(data);
+	grep.stdin.write(data);
 });
 
 ps.stderr.on('data', (data) => {
-  console.error(`ps stderr: ${data}`);
+	console.error(`ps stderr: ${data}`);
 });
 
 ps.on('close', (code) => {
-  if (code !== 0) {
-    console.log(`ps process exited with code ${code}`);
-  }
-  grep.stdin.end();
+	if (code !== 0) {
+		console.log(`ps process exited with code ${code}`);
+	}
+	grep.stdin.end();
 });
 
 grep.stdout.on('data', (data) => {
-  console.log(data.toString());
+	console.log(data.toString());
 });
 
 grep.stderr.on('data', (data) => {
-  console.error(`grep stderr: ${data}`);
+	console.error(`grep stderr: ${data}`);
 });
 
 grep.on('close', (code) => {
-  if (code !== 0) {
-    console.log(`grep process exited with code ${code}`);
-  }
+	if (code !== 0) {
+		console.log(`grep process exited with code ${code}`);
+	}
 });
 ```
 
@@ -1262,7 +1262,7 @@ import { spawn } from 'node:child_process';
 const subprocess = spawn('bad_command');
 
 subprocess.on('error', (err) => {
-  console.error('Failed to start subprocess.');
+	console.error('Failed to start subprocess.');
 });
 ```
 
@@ -1281,7 +1281,7 @@ const controller = new AbortController();
 const { signal } = controller;
 const grep = spawn('grep', ['ssh'], { signal });
 grep.on('error', (err) => {
-  // This will be called with err being an AbortError if the controller aborts
+	// This will be called with err being an AbortError if the controller aborts
 });
 controller.abort(); // Stops the child process
 ```
@@ -1347,15 +1347,15 @@ import { spawn } from 'node:child_process';
 const ls = spawn('ls', ['-lh', '/usr']);
 
 ls.stdout.on('data', (data) => {
-  console.log(`stdout: ${data}`);
+	console.log(`stdout: ${data}`);
 });
 
 ls.stderr.on('data', (data) => {
-  console.error(`stderr: ${data}`);
+	console.error(`stderr: ${data}`);
 });
 
 ls.on('close', (code) => {
-  console.log(`child process exited with code ${code}`);
+	console.log(`child process exited with code ${code}`);
 });
 ```
 
@@ -1367,32 +1367,32 @@ const ps = spawn('ps', ['ax']);
 const grep = spawn('grep', ['ssh']);
 
 ps.stdout.on('data', (data) => {
-  grep.stdin.write(data);
+	grep.stdin.write(data);
 });
 
 ps.stderr.on('data', (data) => {
-  console.error(`ps stderr: ${data}`);
+	console.error(`ps stderr: ${data}`);
 });
 
 ps.on('close', (code) => {
-  if (code !== 0) {
-    console.log(`ps process exited with code ${code}`);
-  }
-  grep.stdin.end();
+	if (code !== 0) {
+		console.log(`ps process exited with code ${code}`);
+	}
+	grep.stdin.end();
 });
 
 grep.stdout.on('data', (data) => {
-  console.log(data.toString());
+	console.log(data.toString());
 });
 
 grep.stderr.on('data', (data) => {
-  console.error(`grep stderr: ${data}`);
+	console.error(`grep stderr: ${data}`);
 });
 
 grep.on('close', (code) => {
-  if (code !== 0) {
-    console.log(`grep process exited with code ${code}`);
-  }
+	if (code !== 0) {
+		console.log(`grep process exited with code ${code}`);
+	}
 });
 ```
 
@@ -1403,7 +1403,7 @@ import { spawn } from 'node:child_process';
 const subprocess = spawn('bad_command');
 
 subprocess.on('error', (err) => {
-  console.error('Failed to start subprocess.');
+	console.error('Failed to start subprocess.');
 });
 ```
 
@@ -1422,7 +1422,7 @@ const controller = new AbortController();
 const { signal } = controller;
 const grep = spawn('grep', ['ssh'], { signal });
 grep.on('error', (err) => {
-  // This will be called with err being an AbortError if the controller aborts
+	// This will be called with err being an AbortError if the controller aborts
 });
 controller.abort(); // Stops the child process
 ```
@@ -1491,15 +1491,15 @@ import { spawn } from 'node:child_process';
 const ls = spawn('ls', ['-lh', '/usr']);
 
 ls.stdout.on('data', (data) => {
-  console.log(`stdout: ${data}`);
+	console.log(`stdout: ${data}`);
 });
 
 ls.stderr.on('data', (data) => {
-  console.error(`stderr: ${data}`);
+	console.error(`stderr: ${data}`);
 });
 
 ls.on('close', (code) => {
-  console.log(`child process exited with code ${code}`);
+	console.log(`child process exited with code ${code}`);
 });
 ```
 
@@ -1511,32 +1511,32 @@ const ps = spawn('ps', ['ax']);
 const grep = spawn('grep', ['ssh']);
 
 ps.stdout.on('data', (data) => {
-  grep.stdin.write(data);
+	grep.stdin.write(data);
 });
 
 ps.stderr.on('data', (data) => {
-  console.error(`ps stderr: ${data}`);
+	console.error(`ps stderr: ${data}`);
 });
 
 ps.on('close', (code) => {
-  if (code !== 0) {
-    console.log(`ps process exited with code ${code}`);
-  }
-  grep.stdin.end();
+	if (code !== 0) {
+		console.log(`ps process exited with code ${code}`);
+	}
+	grep.stdin.end();
 });
 
 grep.stdout.on('data', (data) => {
-  console.log(data.toString());
+	console.log(data.toString());
 });
 
 grep.stderr.on('data', (data) => {
-  console.error(`grep stderr: ${data}`);
+	console.error(`grep stderr: ${data}`);
 });
 
 grep.on('close', (code) => {
-  if (code !== 0) {
-    console.log(`grep process exited with code ${code}`);
-  }
+	if (code !== 0) {
+		console.log(`grep process exited with code ${code}`);
+	}
 });
 ```
 
@@ -1547,7 +1547,7 @@ import { spawn } from 'node:child_process';
 const subprocess = spawn('bad_command');
 
 subprocess.on('error', (err) => {
-  console.error('Failed to start subprocess.');
+	console.error('Failed to start subprocess.');
 });
 ```
 
@@ -1566,7 +1566,7 @@ const controller = new AbortController();
 const { signal } = controller;
 const grep = spawn('grep', ['ssh'], { signal });
 grep.on('error', (err) => {
-  // This will be called with err being an AbortError if the controller aborts
+	// This will be called with err being an AbortError if the controller aborts
 });
 controller.abort(); // Stops the child process
 ```
@@ -1641,15 +1641,15 @@ import { spawn } from 'node:child_process';
 const ls = spawn('ls', ['-lh', '/usr']);
 
 ls.stdout.on('data', (data) => {
-  console.log(`stdout: ${data}`);
+	console.log(`stdout: ${data}`);
 });
 
 ls.stderr.on('data', (data) => {
-  console.error(`stderr: ${data}`);
+	console.error(`stderr: ${data}`);
 });
 
 ls.on('close', (code) => {
-  console.log(`child process exited with code ${code}`);
+	console.log(`child process exited with code ${code}`);
 });
 ```
 
@@ -1661,32 +1661,32 @@ const ps = spawn('ps', ['ax']);
 const grep = spawn('grep', ['ssh']);
 
 ps.stdout.on('data', (data) => {
-  grep.stdin.write(data);
+	grep.stdin.write(data);
 });
 
 ps.stderr.on('data', (data) => {
-  console.error(`ps stderr: ${data}`);
+	console.error(`ps stderr: ${data}`);
 });
 
 ps.on('close', (code) => {
-  if (code !== 0) {
-    console.log(`ps process exited with code ${code}`);
-  }
-  grep.stdin.end();
+	if (code !== 0) {
+		console.log(`ps process exited with code ${code}`);
+	}
+	grep.stdin.end();
 });
 
 grep.stdout.on('data', (data) => {
-  console.log(data.toString());
+	console.log(data.toString());
 });
 
 grep.stderr.on('data', (data) => {
-  console.error(`grep stderr: ${data}`);
+	console.error(`grep stderr: ${data}`);
 });
 
 grep.on('close', (code) => {
-  if (code !== 0) {
-    console.log(`grep process exited with code ${code}`);
-  }
+	if (code !== 0) {
+		console.log(`grep process exited with code ${code}`);
+	}
 });
 ```
 
@@ -1697,7 +1697,7 @@ import { spawn } from 'node:child_process';
 const subprocess = spawn('bad_command');
 
 subprocess.on('error', (err) => {
-  console.error('Failed to start subprocess.');
+	console.error('Failed to start subprocess.');
 });
 ```
 
@@ -1716,7 +1716,7 @@ const controller = new AbortController();
 const { signal } = controller;
 const grep = spawn('grep', ['ssh'], { signal });
 grep.on('error', (err) => {
-  // This will be called with err being an AbortError if the controller aborts
+	// This will be called with err being an AbortError if the controller aborts
 });
 controller.abort(); // Stops the child process
 ```
@@ -1791,15 +1791,15 @@ import { spawn } from 'node:child_process';
 const ls = spawn('ls', ['-lh', '/usr']);
 
 ls.stdout.on('data', (data) => {
-  console.log(`stdout: ${data}`);
+	console.log(`stdout: ${data}`);
 });
 
 ls.stderr.on('data', (data) => {
-  console.error(`stderr: ${data}`);
+	console.error(`stderr: ${data}`);
 });
 
 ls.on('close', (code) => {
-  console.log(`child process exited with code ${code}`);
+	console.log(`child process exited with code ${code}`);
 });
 ```
 
@@ -1811,32 +1811,32 @@ const ps = spawn('ps', ['ax']);
 const grep = spawn('grep', ['ssh']);
 
 ps.stdout.on('data', (data) => {
-  grep.stdin.write(data);
+	grep.stdin.write(data);
 });
 
 ps.stderr.on('data', (data) => {
-  console.error(`ps stderr: ${data}`);
+	console.error(`ps stderr: ${data}`);
 });
 
 ps.on('close', (code) => {
-  if (code !== 0) {
-    console.log(`ps process exited with code ${code}`);
-  }
-  grep.stdin.end();
+	if (code !== 0) {
+		console.log(`ps process exited with code ${code}`);
+	}
+	grep.stdin.end();
 });
 
 grep.stdout.on('data', (data) => {
-  console.log(data.toString());
+	console.log(data.toString());
 });
 
 grep.stderr.on('data', (data) => {
-  console.error(`grep stderr: ${data}`);
+	console.error(`grep stderr: ${data}`);
 });
 
 grep.on('close', (code) => {
-  if (code !== 0) {
-    console.log(`grep process exited with code ${code}`);
-  }
+	if (code !== 0) {
+		console.log(`grep process exited with code ${code}`);
+	}
 });
 ```
 
@@ -1847,7 +1847,7 @@ import { spawn } from 'node:child_process';
 const subprocess = spawn('bad_command');
 
 subprocess.on('error', (err) => {
-  console.error('Failed to start subprocess.');
+	console.error('Failed to start subprocess.');
 });
 ```
 
@@ -1866,7 +1866,7 @@ const controller = new AbortController();
 const { signal } = controller;
 const grep = spawn('grep', ['ssh'], { signal });
 grep.on('error', (err) => {
-  // This will be called with err being an AbortError if the controller aborts
+	// This will be called with err being an AbortError if the controller aborts
 });
 controller.abort(); // Stops the child process
 ```
@@ -1941,15 +1941,15 @@ import { spawn } from 'node:child_process';
 const ls = spawn('ls', ['-lh', '/usr']);
 
 ls.stdout.on('data', (data) => {
-  console.log(`stdout: ${data}`);
+	console.log(`stdout: ${data}`);
 });
 
 ls.stderr.on('data', (data) => {
-  console.error(`stderr: ${data}`);
+	console.error(`stderr: ${data}`);
 });
 
 ls.on('close', (code) => {
-  console.log(`child process exited with code ${code}`);
+	console.log(`child process exited with code ${code}`);
 });
 ```
 
@@ -1961,32 +1961,32 @@ const ps = spawn('ps', ['ax']);
 const grep = spawn('grep', ['ssh']);
 
 ps.stdout.on('data', (data) => {
-  grep.stdin.write(data);
+	grep.stdin.write(data);
 });
 
 ps.stderr.on('data', (data) => {
-  console.error(`ps stderr: ${data}`);
+	console.error(`ps stderr: ${data}`);
 });
 
 ps.on('close', (code) => {
-  if (code !== 0) {
-    console.log(`ps process exited with code ${code}`);
-  }
-  grep.stdin.end();
+	if (code !== 0) {
+		console.log(`ps process exited with code ${code}`);
+	}
+	grep.stdin.end();
 });
 
 grep.stdout.on('data', (data) => {
-  console.log(data.toString());
+	console.log(data.toString());
 });
 
 grep.stderr.on('data', (data) => {
-  console.error(`grep stderr: ${data}`);
+	console.error(`grep stderr: ${data}`);
 });
 
 grep.on('close', (code) => {
-  if (code !== 0) {
-    console.log(`grep process exited with code ${code}`);
-  }
+	if (code !== 0) {
+		console.log(`grep process exited with code ${code}`);
+	}
 });
 ```
 
@@ -1997,7 +1997,7 @@ import { spawn } from 'node:child_process';
 const subprocess = spawn('bad_command');
 
 subprocess.on('error', (err) => {
-  console.error('Failed to start subprocess.');
+	console.error('Failed to start subprocess.');
 });
 ```
 
@@ -2016,7 +2016,7 @@ const controller = new AbortController();
 const { signal } = controller;
 const grep = spawn('grep', ['ssh'], { signal });
 grep.on('error', (err) => {
-  // This will be called with err being an AbortError if the controller aborts
+	// This will be called with err being an AbortError if the controller aborts
 });
 controller.abort(); // Stops the child process
 ```
@@ -2091,15 +2091,15 @@ import { spawn } from 'node:child_process';
 const ls = spawn('ls', ['-lh', '/usr']);
 
 ls.stdout.on('data', (data) => {
-  console.log(`stdout: ${data}`);
+	console.log(`stdout: ${data}`);
 });
 
 ls.stderr.on('data', (data) => {
-  console.error(`stderr: ${data}`);
+	console.error(`stderr: ${data}`);
 });
 
 ls.on('close', (code) => {
-  console.log(`child process exited with code ${code}`);
+	console.log(`child process exited with code ${code}`);
 });
 ```
 
@@ -2111,32 +2111,32 @@ const ps = spawn('ps', ['ax']);
 const grep = spawn('grep', ['ssh']);
 
 ps.stdout.on('data', (data) => {
-  grep.stdin.write(data);
+	grep.stdin.write(data);
 });
 
 ps.stderr.on('data', (data) => {
-  console.error(`ps stderr: ${data}`);
+	console.error(`ps stderr: ${data}`);
 });
 
 ps.on('close', (code) => {
-  if (code !== 0) {
-    console.log(`ps process exited with code ${code}`);
-  }
-  grep.stdin.end();
+	if (code !== 0) {
+		console.log(`ps process exited with code ${code}`);
+	}
+	grep.stdin.end();
 });
 
 grep.stdout.on('data', (data) => {
-  console.log(data.toString());
+	console.log(data.toString());
 });
 
 grep.stderr.on('data', (data) => {
-  console.error(`grep stderr: ${data}`);
+	console.error(`grep stderr: ${data}`);
 });
 
 grep.on('close', (code) => {
-  if (code !== 0) {
-    console.log(`grep process exited with code ${code}`);
-  }
+	if (code !== 0) {
+		console.log(`grep process exited with code ${code}`);
+	}
 });
 ```
 
@@ -2147,7 +2147,7 @@ import { spawn } from 'node:child_process';
 const subprocess = spawn('bad_command');
 
 subprocess.on('error', (err) => {
-  console.error('Failed to start subprocess.');
+	console.error('Failed to start subprocess.');
 });
 ```
 
@@ -2166,7 +2166,7 @@ const controller = new AbortController();
 const { signal } = controller;
 const grep = spawn('grep', ['ssh'], { signal });
 grep.on('error', (err) => {
-  // This will be called with err being an AbortError if the controller aborts
+	// This will be called with err being an AbortError if the controller aborts
 });
 controller.abort(); // Stops the child process
 ```
@@ -2241,15 +2241,15 @@ import { spawn } from 'node:child_process';
 const ls = spawn('ls', ['-lh', '/usr']);
 
 ls.stdout.on('data', (data) => {
-  console.log(`stdout: ${data}`);
+	console.log(`stdout: ${data}`);
 });
 
 ls.stderr.on('data', (data) => {
-  console.error(`stderr: ${data}`);
+	console.error(`stderr: ${data}`);
 });
 
 ls.on('close', (code) => {
-  console.log(`child process exited with code ${code}`);
+	console.log(`child process exited with code ${code}`);
 });
 ```
 
@@ -2261,32 +2261,32 @@ const ps = spawn('ps', ['ax']);
 const grep = spawn('grep', ['ssh']);
 
 ps.stdout.on('data', (data) => {
-  grep.stdin.write(data);
+	grep.stdin.write(data);
 });
 
 ps.stderr.on('data', (data) => {
-  console.error(`ps stderr: ${data}`);
+	console.error(`ps stderr: ${data}`);
 });
 
 ps.on('close', (code) => {
-  if (code !== 0) {
-    console.log(`ps process exited with code ${code}`);
-  }
-  grep.stdin.end();
+	if (code !== 0) {
+		console.log(`ps process exited with code ${code}`);
+	}
+	grep.stdin.end();
 });
 
 grep.stdout.on('data', (data) => {
-  console.log(data.toString());
+	console.log(data.toString());
 });
 
 grep.stderr.on('data', (data) => {
-  console.error(`grep stderr: ${data}`);
+	console.error(`grep stderr: ${data}`);
 });
 
 grep.on('close', (code) => {
-  if (code !== 0) {
-    console.log(`grep process exited with code ${code}`);
-  }
+	if (code !== 0) {
+		console.log(`grep process exited with code ${code}`);
+	}
 });
 ```
 
@@ -2297,7 +2297,7 @@ import { spawn } from 'node:child_process';
 const subprocess = spawn('bad_command');
 
 subprocess.on('error', (err) => {
-  console.error('Failed to start subprocess.');
+	console.error('Failed to start subprocess.');
 });
 ```
 
@@ -2316,7 +2316,7 @@ const controller = new AbortController();
 const { signal } = controller;
 const grep = spawn('grep', ['ssh'], { signal });
 grep.on('error', (err) => {
-  // This will be called with err being an AbortError if the controller aborts
+	// This will be called with err being an AbortError if the controller aborts
 });
 controller.abort(); // Stops the child process
 ```
@@ -2391,15 +2391,15 @@ import { spawn } from 'node:child_process';
 const ls = spawn('ls', ['-lh', '/usr']);
 
 ls.stdout.on('data', (data) => {
-  console.log(`stdout: ${data}`);
+	console.log(`stdout: ${data}`);
 });
 
 ls.stderr.on('data', (data) => {
-  console.error(`stderr: ${data}`);
+	console.error(`stderr: ${data}`);
 });
 
 ls.on('close', (code) => {
-  console.log(`child process exited with code ${code}`);
+	console.log(`child process exited with code ${code}`);
 });
 ```
 
@@ -2411,32 +2411,32 @@ const ps = spawn('ps', ['ax']);
 const grep = spawn('grep', ['ssh']);
 
 ps.stdout.on('data', (data) => {
-  grep.stdin.write(data);
+	grep.stdin.write(data);
 });
 
 ps.stderr.on('data', (data) => {
-  console.error(`ps stderr: ${data}`);
+	console.error(`ps stderr: ${data}`);
 });
 
 ps.on('close', (code) => {
-  if (code !== 0) {
-    console.log(`ps process exited with code ${code}`);
-  }
-  grep.stdin.end();
+	if (code !== 0) {
+		console.log(`ps process exited with code ${code}`);
+	}
+	grep.stdin.end();
 });
 
 grep.stdout.on('data', (data) => {
-  console.log(data.toString());
+	console.log(data.toString());
 });
 
 grep.stderr.on('data', (data) => {
-  console.error(`grep stderr: ${data}`);
+	console.error(`grep stderr: ${data}`);
 });
 
 grep.on('close', (code) => {
-  if (code !== 0) {
-    console.log(`grep process exited with code ${code}`);
-  }
+	if (code !== 0) {
+		console.log(`grep process exited with code ${code}`);
+	}
 });
 ```
 
@@ -2447,7 +2447,7 @@ import { spawn } from 'node:child_process';
 const subprocess = spawn('bad_command');
 
 subprocess.on('error', (err) => {
-  console.error('Failed to start subprocess.');
+	console.error('Failed to start subprocess.');
 });
 ```
 
@@ -2466,7 +2466,7 @@ const controller = new AbortController();
 const { signal } = controller;
 const grep = spawn('grep', ['ssh'], { signal });
 grep.on('error', (err) => {
-  // This will be called with err being an AbortError if the controller aborts
+	// This will be called with err being an AbortError if the controller aborts
 });
 controller.abort(); // Stops the child process
 ```
@@ -2541,15 +2541,15 @@ import { spawn } from 'node:child_process';
 const ls = spawn('ls', ['-lh', '/usr']);
 
 ls.stdout.on('data', (data) => {
-  console.log(`stdout: ${data}`);
+	console.log(`stdout: ${data}`);
 });
 
 ls.stderr.on('data', (data) => {
-  console.error(`stderr: ${data}`);
+	console.error(`stderr: ${data}`);
 });
 
 ls.on('close', (code) => {
-  console.log(`child process exited with code ${code}`);
+	console.log(`child process exited with code ${code}`);
 });
 ```
 
@@ -2561,32 +2561,32 @@ const ps = spawn('ps', ['ax']);
 const grep = spawn('grep', ['ssh']);
 
 ps.stdout.on('data', (data) => {
-  grep.stdin.write(data);
+	grep.stdin.write(data);
 });
 
 ps.stderr.on('data', (data) => {
-  console.error(`ps stderr: ${data}`);
+	console.error(`ps stderr: ${data}`);
 });
 
 ps.on('close', (code) => {
-  if (code !== 0) {
-    console.log(`ps process exited with code ${code}`);
-  }
-  grep.stdin.end();
+	if (code !== 0) {
+		console.log(`ps process exited with code ${code}`);
+	}
+	grep.stdin.end();
 });
 
 grep.stdout.on('data', (data) => {
-  console.log(data.toString());
+	console.log(data.toString());
 });
 
 grep.stderr.on('data', (data) => {
-  console.error(`grep stderr: ${data}`);
+	console.error(`grep stderr: ${data}`);
 });
 
 grep.on('close', (code) => {
-  if (code !== 0) {
-    console.log(`grep process exited with code ${code}`);
-  }
+	if (code !== 0) {
+		console.log(`grep process exited with code ${code}`);
+	}
 });
 ```
 
@@ -2597,7 +2597,7 @@ import { spawn } from 'node:child_process';
 const subprocess = spawn('bad_command');
 
 subprocess.on('error', (err) => {
-  console.error('Failed to start subprocess.');
+	console.error('Failed to start subprocess.');
 });
 ```
 
@@ -2616,7 +2616,7 @@ const controller = new AbortController();
 const { signal } = controller;
 const grep = spawn('grep', ['ssh'], { signal });
 grep.on('error', (err) => {
-  // This will be called with err being an AbortError if the controller aborts
+	// This will be called with err being an AbortError if the controller aborts
 });
 controller.abort(); // Stops the child process
 ```
@@ -2691,15 +2691,15 @@ import { spawn } from 'node:child_process';
 const ls = spawn('ls', ['-lh', '/usr']);
 
 ls.stdout.on('data', (data) => {
-  console.log(`stdout: ${data}`);
+	console.log(`stdout: ${data}`);
 });
 
 ls.stderr.on('data', (data) => {
-  console.error(`stderr: ${data}`);
+	console.error(`stderr: ${data}`);
 });
 
 ls.on('close', (code) => {
-  console.log(`child process exited with code ${code}`);
+	console.log(`child process exited with code ${code}`);
 });
 ```
 
@@ -2711,32 +2711,32 @@ const ps = spawn('ps', ['ax']);
 const grep = spawn('grep', ['ssh']);
 
 ps.stdout.on('data', (data) => {
-  grep.stdin.write(data);
+	grep.stdin.write(data);
 });
 
 ps.stderr.on('data', (data) => {
-  console.error(`ps stderr: ${data}`);
+	console.error(`ps stderr: ${data}`);
 });
 
 ps.on('close', (code) => {
-  if (code !== 0) {
-    console.log(`ps process exited with code ${code}`);
-  }
-  grep.stdin.end();
+	if (code !== 0) {
+		console.log(`ps process exited with code ${code}`);
+	}
+	grep.stdin.end();
 });
 
 grep.stdout.on('data', (data) => {
-  console.log(data.toString());
+	console.log(data.toString());
 });
 
 grep.stderr.on('data', (data) => {
-  console.error(`grep stderr: ${data}`);
+	console.error(`grep stderr: ${data}`);
 });
 
 grep.on('close', (code) => {
-  if (code !== 0) {
-    console.log(`grep process exited with code ${code}`);
-  }
+	if (code !== 0) {
+		console.log(`grep process exited with code ${code}`);
+	}
 });
 ```
 
@@ -2747,7 +2747,7 @@ import { spawn } from 'node:child_process';
 const subprocess = spawn('bad_command');
 
 subprocess.on('error', (err) => {
-  console.error('Failed to start subprocess.');
+	console.error('Failed to start subprocess.');
 });
 ```
 
@@ -2766,7 +2766,7 @@ const controller = new AbortController();
 const { signal } = controller;
 const grep = spawn('grep', ['ssh'], { signal });
 grep.on('error', (err) => {
-  // This will be called with err being an AbortError if the controller aborts
+	// This will be called with err being an AbortError if the controller aborts
 });
 controller.abort(); // Stops the child process
 ```
@@ -2841,15 +2841,15 @@ import { spawn } from 'node:child_process';
 const ls = spawn('ls', ['-lh', '/usr']);
 
 ls.stdout.on('data', (data) => {
-  console.log(`stdout: ${data}`);
+	console.log(`stdout: ${data}`);
 });
 
 ls.stderr.on('data', (data) => {
-  console.error(`stderr: ${data}`);
+	console.error(`stderr: ${data}`);
 });
 
 ls.on('close', (code) => {
-  console.log(`child process exited with code ${code}`);
+	console.log(`child process exited with code ${code}`);
 });
 ```
 
@@ -2861,32 +2861,32 @@ const ps = spawn('ps', ['ax']);
 const grep = spawn('grep', ['ssh']);
 
 ps.stdout.on('data', (data) => {
-  grep.stdin.write(data);
+	grep.stdin.write(data);
 });
 
 ps.stderr.on('data', (data) => {
-  console.error(`ps stderr: ${data}`);
+	console.error(`ps stderr: ${data}`);
 });
 
 ps.on('close', (code) => {
-  if (code !== 0) {
-    console.log(`ps process exited with code ${code}`);
-  }
-  grep.stdin.end();
+	if (code !== 0) {
+		console.log(`ps process exited with code ${code}`);
+	}
+	grep.stdin.end();
 });
 
 grep.stdout.on('data', (data) => {
-  console.log(data.toString());
+	console.log(data.toString());
 });
 
 grep.stderr.on('data', (data) => {
-  console.error(`grep stderr: ${data}`);
+	console.error(`grep stderr: ${data}`);
 });
 
 grep.on('close', (code) => {
-  if (code !== 0) {
-    console.log(`grep process exited with code ${code}`);
-  }
+	if (code !== 0) {
+		console.log(`grep process exited with code ${code}`);
+	}
 });
 ```
 
@@ -2897,7 +2897,7 @@ import { spawn } from 'node:child_process';
 const subprocess = spawn('bad_command');
 
 subprocess.on('error', (err) => {
-  console.error('Failed to start subprocess.');
+	console.error('Failed to start subprocess.');
 });
 ```
 
@@ -2916,7 +2916,7 @@ const controller = new AbortController();
 const { signal } = controller;
 const grep = spawn('grep', ['ssh'], { signal });
 grep.on('error', (err) => {
-  // This will be called with err being an AbortError if the controller aborts
+	// This will be called with err being an AbortError if the controller aborts
 });
 controller.abort(); // Stops the child process
 ```

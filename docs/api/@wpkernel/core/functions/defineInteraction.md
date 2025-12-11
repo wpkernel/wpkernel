@@ -7,7 +7,9 @@
 # Function: defineInteraction()
 
 ```ts
-function defineInteraction<TEntity, TQuery, TStore, TActions>(options): DefinedInteraction<InteractivityStoreResult>;
+function defineInteraction<TEntity, TQuery, TStore, TActions>(
+	options
+): DefinedInteraction<InteractivityStoreResult>;
 ```
 
 Define an interactivity store that bridges a resource and optional actions to

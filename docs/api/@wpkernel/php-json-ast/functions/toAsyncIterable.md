@@ -7,7 +7,9 @@
 # Function: toAsyncIterable()
 
 ```ts
-function toAsyncIterable(source): AsyncIterable<string | Buffer<ArrayBufferLike>>;
+function toAsyncIterable(
+	source
+): AsyncIterable<string | Buffer<ArrayBufferLike>>;
 ```
 
 ## Parameters

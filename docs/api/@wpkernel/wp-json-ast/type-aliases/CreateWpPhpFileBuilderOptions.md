@@ -7,7 +7,8 @@
 # ~~Type Alias: CreateWpPhpFileBuilderOptions<TContext, TInput, TOutput>~~
 
 ```ts
-type CreateWpPhpFileBuilderOptions<TContext, TInput, TOutput> = CreateWpPhpProgramBuilderOptions<TContext, TInput, TOutput>;
+type CreateWpPhpFileBuilderOptions<TContext, TInput, TOutput> =
+	CreateWpPhpProgramBuilderOptions<TContext, TInput, TOutput>;
 ```
 
 Options for creating a WordPress PHP file builder.

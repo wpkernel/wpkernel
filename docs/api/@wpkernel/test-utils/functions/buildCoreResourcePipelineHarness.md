@@ -7,7 +7,9 @@
 # Function: buildCoreResourcePipelineHarness()
 
 ```ts
-function buildCoreResourcePipelineHarness<T, TQuery>(options): CoreResourcePipelineHarness<T, TQuery>;
+function buildCoreResourcePipelineHarness<T, TQuery>(
+	options
+): CoreResourcePipelineHarness<T, TQuery>;
 ```
 
 Builds a harness for testing core resource pipelines.

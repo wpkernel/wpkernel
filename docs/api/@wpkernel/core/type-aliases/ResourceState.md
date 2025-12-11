@@ -50,12 +50,15 @@ Map of items by ID.
 ### listMeta
 
 ```ts
-listMeta: Record<string, {
-  hasMore?: boolean;
-  nextCursor?: string;
-  status?: ResourceListStatus;
-  total?: number;
-}>;
+listMeta: Record<
+	string,
+	{
+		hasMore?: boolean;
+		nextCursor?: string;
+		status?: ResourceListStatus;
+		total?: number;
+	}
+>;
 ```
 
 List metadata (total count, pagination, etc).

@@ -7,7 +7,9 @@
 # Function: createCapabilityProxy()
 
 ```ts
-function createCapabilityProxy(options): Pick<CapabilityHelpers<Record<string, unknown>>, "assert" | "can">;
+function createCapabilityProxy(
+	options
+): Pick<CapabilityHelpers<Record<string, unknown>>, 'assert' | 'can'>;
 ```
 
 Create an action-scoped capability proxy for `ctx.capability`.

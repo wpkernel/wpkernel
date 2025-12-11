@@ -8,6 +8,6 @@
 
 ```ts
 type BlockModuleFileEntry = BlockModuleFile<
-  | BlockManifestMetadata
-| BlockRegistrarMetadata>;
+	BlockManifestMetadata | BlockRegistrarMetadata
+>;
 ```

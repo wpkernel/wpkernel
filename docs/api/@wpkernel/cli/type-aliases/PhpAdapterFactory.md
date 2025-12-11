@@ -7,9 +7,9 @@
 # Type Alias: PhpAdapterFactory<TConfigSurface, TIr>
 
 ```ts
-type PhpAdapterFactory<TConfigSurface, TIr> = (context) =>
-  | PhpAdapterConfig<TConfigSurface, TIr>
-  | void;
+type PhpAdapterFactory<TConfigSurface, TIr> = (
+	context
+) => PhpAdapterConfig<TConfigSurface, TIr> | void;
 ```
 
 Factory for producing PHP adapter configuration.

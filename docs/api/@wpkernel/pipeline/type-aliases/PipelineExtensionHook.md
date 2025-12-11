@@ -7,9 +7,9 @@
 # Type Alias: PipelineExtensionHook<TContext, TOptions, TArtifact>
 
 ```ts
-type PipelineExtensionHook<TContext, TOptions, TArtifact> = (options) => MaybePromise<
-  | PipelineExtensionHookResult<TArtifact>
-| void>;
+type PipelineExtensionHook<TContext, TOptions, TArtifact> = (
+	options
+) => MaybePromise<PipelineExtensionHookResult<TArtifact> | void>;
 ```
 
 A pipeline extension hook function.

@@ -540,7 +540,7 @@ Promise resolving when prefetch completes
 ```ts
 // Prefetch on app mount
 useEffect(() => {
-  thing.prefetchList({ status: 'active' });
+	thing.prefetchList({ status: 'active' });
 }, []);
 ```
 

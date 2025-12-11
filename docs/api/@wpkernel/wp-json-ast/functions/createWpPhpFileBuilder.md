@@ -7,7 +7,9 @@
 # ~~Function: createWpPhpFileBuilder()~~
 
 ```ts
-function createWpPhpFileBuilder<TContext, TInput, TOutput>(options): BuilderHelper<TContext, TInput, TOutput>;
+function createWpPhpFileBuilder<TContext, TInput, TOutput>(
+	options
+): BuilderHelper<TContext, TInput, TOutput>;
 ```
 
 Creates a WordPress PHP file builder.
@@ -50,7 +52,11 @@ Use `createWpPhpProgramBuilder` instead.
 ## Example
 
 ```ts
-import { createWpPhpFileBuilder, buildReturn, buildScalarString } from '@wpkernel/wp-json-ast';
+import {
+	createWpPhpFileBuilder,
+	buildReturn,
+	buildScalarString,
+} from '@wpkernel/wp-json-ast';
 
 const builder = createWpPhpFileBuilder({
 	metadata: {
@@ -60,11 +66,9 @@ const builder = createWpPhpFileBuilder({
 	},
 	build: (builder) => {
 		builder.appendProgramStatement(
-			buildReturn(
-				buildScalarString('Hello from my plugin!')
-			)
+			buildReturn(buildScalarString('Hello from my plugin!'))
 		);
-	}
+	},
 });
 
 const result = await builder.apply(context, input);

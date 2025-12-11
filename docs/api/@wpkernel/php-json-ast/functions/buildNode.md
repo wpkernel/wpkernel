@@ -7,10 +7,7 @@
 # Function: buildNode()
 
 ```ts
-function buildNode<T>(
-   nodeType,
-   props,
-   attributes?): T;
+function buildNode<T>(nodeType, props, attributes?): T;
 ```
 
 Generic factory helper for PHP AST node construction.

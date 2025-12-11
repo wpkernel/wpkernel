@@ -7,7 +7,9 @@
 # Function: createWpProgramWriterHelper()
 
 ```ts
-function createWpProgramWriterHelper<TContext, TInput, TOutput>(options): BuilderHelper<TContext, TInput, TOutput>;
+function createWpProgramWriterHelper<TContext, TInput, TOutput>(
+	options
+): BuilderHelper<TContext, TInput, TOutput>;
 ```
 
 ## Type Parameters

@@ -7,7 +7,42 @@
 # Function: createPipeline()
 
 ```ts
-function createPipeline<TRunOptions, TBuildOptions, TContext, TReporter, TDraft, TArtifact, TDiagnostic, TRunResult, TFragmentInput, TFragmentOutput, TBuilderInput, TBuilderOutput, TFragmentKind, TBuilderKind, TFragmentHelper, TBuilderHelper>(options): Pipeline<TRunOptions, TRunResult, TContext, TReporter, TBuildOptions, TArtifact, TFragmentInput, TFragmentOutput, TBuilderInput, TBuilderOutput, TDiagnostic, TFragmentKind, TBuilderKind, TFragmentHelper, TBuilderHelper>;
+function createPipeline<
+	TRunOptions,
+	TBuildOptions,
+	TContext,
+	TReporter,
+	TDraft,
+	TArtifact,
+	TDiagnostic,
+	TRunResult,
+	TFragmentInput,
+	TFragmentOutput,
+	TBuilderInput,
+	TBuilderOutput,
+	TFragmentKind,
+	TBuilderKind,
+	TFragmentHelper,
+	TBuilderHelper,
+>(
+	options
+): Pipeline<
+	TRunOptions,
+	TRunResult,
+	TContext,
+	TReporter,
+	TBuildOptions,
+	TArtifact,
+	TFragmentInput,
+	TFragmentOutput,
+	TBuilderInput,
+	TBuilderOutput,
+	TDiagnostic,
+	TFragmentKind,
+	TBuilderKind,
+	TFragmentHelper,
+	TBuilderHelper
+>;
 ```
 
 Creates a pipeline orchestrator-the execution engine that powers WPKernel's code generation stack.

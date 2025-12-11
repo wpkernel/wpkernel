@@ -33,8 +33,7 @@ Creates a new `WPKernelUIRuntime` instance.
 ### createWrapper()
 
 ```ts
-createWrapper: (runtime?) => (__namedParameters) => ReactElement<{
-}>;
+createWrapper: (runtime?) => (__namedParameters) => ReactElement<{}>;
 ```
 
 Creates a React wrapper component for the WPKernel UI runtime.

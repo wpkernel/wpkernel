@@ -8,6 +8,6 @@
 
 ```ts
 type ResourceCacheKeyDescriptor = Readonly<{
-  segments: readonly unknown[];
+	segments: readonly unknown[];
 }>;
 ```

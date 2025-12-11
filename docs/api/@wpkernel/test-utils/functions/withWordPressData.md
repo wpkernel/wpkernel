@@ -7,7 +7,10 @@
 # Function: withWordPressData()
 
 ```ts
-function withWordPressData<ReturnType>(overrides, callback): Promise<ReturnType>;
+function withWordPressData<ReturnType>(
+	overrides,
+	callback
+): Promise<ReturnType>;
 ```
 
 Executes a callback with a modified `window.wp` global, restoring the original afterwards.

@@ -7,7 +7,9 @@
 # Function: createPhpProgramBuilder()
 
 ```ts
-function createPhpProgramBuilder<TContext, TInput, TOutput>(options): BuilderHelper<TContext, TInput, TOutput>;
+function createPhpProgramBuilder<TContext, TInput, TOutput>(
+	options
+): BuilderHelper<TContext, TInput, TOutput>;
 ```
 
 ## Type Parameters

@@ -31,7 +31,10 @@ A pipeline extension descriptor.
 ### register()
 
 ```ts
-register: (pipeline) => MaybePromise<PipelineExtensionRegisterOutput<TContext, TOptions, TArtifact>>;
+register: (pipeline) =>
+	MaybePromise<
+		PipelineExtensionRegisterOutput<TContext, TOptions, TArtifact>
+	>;
 ```
 
 #### Parameters

@@ -1,20 +1,23 @@
 # @wpkernel/pipeline
 
-> Framework-agnostic orchestration primitives for building dependency-aware execution pipelines with atomic rollback.
+> A type-safe, dependency-aware workflow engine for orchestrating complex generation tasks.
 
 ## Overview
 
-`@wpkernel/pipeline` powers every generation flow inside WPKernel. It was extracted from
-`@wpkernel/core` so CLI builders, PHP bridges, and external projects can compose helpers,
-validate dependencies, and execute deterministic plans. The runtime enforces a three-phase
-model (fragments → builders → extensions) and provides rich diagnostics when helpers clash or
-dependencies are missing.
+`@wpkernel/pipeline` is a generic orchestration engine that turns sets of decoupled "helpers" into deterministic, topologically sorted execution plans.
 
-## Quick links
+While it powers WPKernel's code generation (assembling fragments into artifacts), the core is completely agnostic. You can use it to build:
 
-- [Package guide](../../docs/packages/pipeline.md)
-- [API reference](../../docs/api/@wpkernel/pipeline/README.md)
-- [PHP codemod roadmap](../../docs/internal/php-json-ast-codemod-plan.md)
+- **ETL Pipelines**: Extract, Transform, and Load stages with shared state.
+- **Build Systems**: Compile, Bundle, and Minify steps with precise ordering.
+- **Code Generators**: The standard "Fragment → Builder" pattern.
+
+It guarantees:
+
+- **Deterministic Ordering**: Topologically sorts helpers based on `dependsOn`.
+- **Cycle Detection**: Fails fast if dependencies form a loop.
+- **Atomic Rollbacks**: Extensions provide transactional `commit` and `rollback` hooks.
+- **Type Safety**: Full TypeScript support for custom contexts, options, and artifacts.
 
 ## Installation
 
@@ -24,108 +27,81 @@ pnpm add @wpkernel/pipeline
 
 The package ships pure TypeScript and has no runtime dependencies.
 
+## Usage
+
+### 1. Define Your World
+
+The pipeline is generic. You define the "Stages" and "State" relevant to your domain.
+
 ```ts
 import { makePipeline } from '@wpkernel/pipeline';
 
-// 1. Create a pipeline with your specific runtime behavior
 const pipeline = makePipeline({
-    // Adapters to bridge the generic runner with your domain
-    createContext: (options) => ({ ... }),
-    createFragmentState: () => ({ items: [] }),
-    // ... complete wiring (see Advanced Usage)
+	// Define the "Stages" of your pipeline
+	stages: (deps) => [
+		deps.makeLifecycleStage('extract'),
+		deps.makeLifecycleStage('transform'),
+		deps.makeLifecycleStage('load'),
+		deps.commitStage,
+		deps.finalizeResult,
+	],
+	// Define how to create your context and state
+	createContext: (ops) => ({ db: ops.db }),
+	// ... logic for resolving args for your helpers ...
 });
-
-// 2. Register helpers (fragments or builders)
-pipeline.use({
-    kind: 'fragment', // Phase 1: Accumulate
-    key: 'source',
-    apply: ({ output }) => output.items.push('data')
-});
-
-pipeline.use({
-    kind: 'builder',  // Phase 2: Persist
-    key: 'sink',
-    apply: ({ input }) => console.log(input.items)
-});
-
-// 3. Execute
-await pipeline.run({});
 ```
 
-## Advanced usage
+### 2. Register Helpers
 
-### Anatomy of `makePipeline`
-
-The runner is fully generic. To make it useful, you provide adapters that define your "World" (Context, Artifacts, Drafts).
+Helpers are the atomic units of work. They can be anything - functions, objects, or complex services.
 
 ```ts
-const pipeline = makePipeline({
-	// [Required] Define your execution context
-	createContext: (ops) => ({ reporter: ops.reporter }),
+// "Extract" helper
+pipeline.use({
+	kind: 'extract',
+	key: 'users',
+	apply: async ({ context }) => {
+		return context.db.query('SELECT * FROM users');
+	},
+});
 
-	// [Required] Define the "Draft" state for Phase 1 (Fragments)
-	createFragmentState: () => ({ items: [] }),
-	createFragmentArgs: ({ context, draft }) => ({
-		context,
-		output: draft, // Fragments write to the draft
-	}),
-	finalizeFragmentState: ({ draft }) => draft, // Turn draft into artifact
-
-	// [Required] Define the "Artifact" for Phase 2 (Builders)
-	createBuilderArgs: ({ context, artifact }) => ({
-		context,
-		input: artifact, // Builders read the artifact
-	}),
-
-	// [Optional] Custom error factories, build options, etc.
-	createBuildOptions: (opts) => opts,
+// "Transform" helper (depends on generic extract logic)
+pipeline.use({
+	kind: 'transform',
+	key: 'clean-users',
+	dependsOn: ['users'],
+	apply: ({ input }) => {
+		return input.map((u) => ({ ...u, name: u.name.trim() }));
+	},
 });
 ```
 
-## Core concepts
+### 3. Run It
 
-- **Three-phase execution** – fragment helpers assemble intermediate representations, builder
-  helpers produce artefacts, and extension hooks commit or roll back side-effects.
-- **Deterministic ordering** – helpers declare `dependsOn` relationships; the runtime performs
-  topological sorting, cycle detection, and unused-helper diagnostics.
-- **Extension system** – register hooks via `createPipelineExtension()` to manage commits,
-  rollbacks, and shared setup/teardown logic.
-- **Typed contracts** – helper descriptors, execution metadata, and diagnostics surfaces are
-  fully typed for TypeScript consumers.
+The pipeline resolves the graph, executes the content, and manages the lifecycle.
 
-## Official extension incubator
+```ts
+const result = await pipeline.run({ db: myDatabase });
+```
 
-The package owns an `src/extensions/` workspace where internal extensions are designed before
-being promoted to standalone packages. The directory ships a README that documents authoring
-guidelines and an [`official.ts`](./src/extensions/official.ts) catalogue describing the
-blueprints for:
+## Concepts
 
-- a live runner extension that streams reporter events to interactive renderers;
-- a deterministic concurrency scheduler;
-- additional integration blueprints for telemetry and runtime adapters.
+### Agnostic Helper Kinds
 
-Consumers can import the catalogue through `@wpkernel/pipeline/extensions` to understand the
-contracts and helper annotations each extension expects while we finalise their
-implementations.
+You are not limited to fixed roles. Define any `kind` of helper (e.g., `'validator'`, `'compiler'`, `'notifier'`) and map them to execution stages.
 
-## Consumers
+### Dependency Graph
 
-- `@wpkernel/cli` (code generation pipeline, codemod entry points)
-- `@wpkernel/core` (resource/action orchestration)
-- `@wpkernel/php-json-ast` (codemod and builder stacks)
-- External tooling that requires deterministic job orchestration
+Pipeline creates a dependency graph for _each_ kind of helper. If `Helper B` depends on `Helper A`, the runner ensures `A` executes before `B` (and passes `A`'s output to `B` if configured).
 
-## Diagnostics & error handling
+### Extensions & Lifecycles
 
-Use the built-in factories (`createDefaultError`, `PipelineDiagnostic`) to capture conflicts,
-missing dependencies, and rollback metadata. Execution snapshots describe which helpers ran,
-which were skipped, and what extensions committed.
+Extensions wrap the execution with hooks like `prepare`, `onSuccess`, and `rollback`. They are crucial for ensuring atomic operations - if any stage fails, the pipeline automatically triggers the rollback chain for all executed extensions.
 
-## Contributing
+## Documentation
 
-Keep helpers exported through `src/index.ts` and accompany new primitives with examples in the
-API reference. When expanding the extension system or diagnostics, update the codemod roadmap to
-reflect new capabilities that PHP bridges or the CLI can adopt.
+- [Architecture Guide](../../docs/packages/pipeline/architecture.md): Deep dive into the runner's internals and DAG resolution.
+- [API Reference](../../docs/api/@wpkernel/pipeline/README.md): Generated TSDoc for all interfaces.
 
 ## License
 

@@ -52,9 +52,9 @@ Return type (value returned by the action)
 ```typescript
 // Simple action
 const CreatePost: ActionFn<CreatePostInput, Post> = async (ctx, input) => {
-  const post = await api.posts.create(input);
-  ctx.emit('post.created', { postId: post.id });
-  ctx.invalidate(['posts']);
-  return post;
+	const post = await api.posts.create(input);
+	ctx.emit('post.created', { postId: post.id });
+	ctx.invalidate(['posts']);
+	return post;
 };
 ```

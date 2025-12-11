@@ -7,7 +7,8 @@
 # Type Alias: ResourceCacheKeysPlan
 
 ```ts
-type ResourceCacheKeysPlan = object & Partial<Record<OptionalCacheKeyKind, ResourceCacheKeyDescriptor>>;
+type ResourceCacheKeysPlan = object &
+	Partial<Record<OptionalCacheKeyKind, ResourceCacheKeyDescriptor>>;
 ```
 
 ## Type Declaration

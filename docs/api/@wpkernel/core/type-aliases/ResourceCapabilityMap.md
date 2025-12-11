@@ -7,9 +7,9 @@
 # Type Alias: ResourceCapabilityMap<TRoutes>
 
 ```ts
-type ResourceCapabilityMap<TRoutes> = Partial<Record<RouteCapabilityKeys<TRoutes>,
-  | string
-| ResourceCapabilityDescriptor>>;
+type ResourceCapabilityMap<TRoutes> = Partial<
+	Record<RouteCapabilityKeys<TRoutes>, string | ResourceCapabilityDescriptor>
+>;
 ```
 
 Capability map for a resource.

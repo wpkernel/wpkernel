@@ -7,7 +7,9 @@
 # Type Alias: CacheKeyFn<TParams>
 
 ```ts
-type CacheKeyFn<TParams> = (params?) => (string | number | boolean | null | undefined)[];
+type CacheKeyFn<TParams> = (
+	params?
+) => (string | number | boolean | null | undefined)[];
 ```
 
 Cache key generator function

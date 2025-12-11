@@ -7,7 +7,13 @@
 # Type Alias: BuilderHelper<TContext, TInput, TOutput>
 
 ```ts
-type BuilderHelper<TContext, TInput, TOutput> = Helper<TContext, TInput, TOutput, TContext["reporter"], "builder">;
+type BuilderHelper<TContext, TInput, TOutput> = Helper<
+	TContext,
+	TInput,
+	TOutput,
+	TContext['reporter'],
+	'builder'
+>;
 ```
 
 ## Type Parameters

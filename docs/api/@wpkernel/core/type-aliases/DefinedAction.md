@@ -23,10 +23,10 @@ After wrapping with `defineAction()`, actions become callable functions that:
 
 ```typescript
 const CreatePost = defineAction({
-  name: 'CreatePost',
-  handler: async (ctx, input) => {
-    // implementation
-  }
+	name: 'CreatePost',
+	handler: async (ctx, input) => {
+		// implementation
+	},
 });
 
 // Usage
@@ -78,10 +78,10 @@ After wrapping with `defineAction()`, actions become callable functions that:
 
 ```typescript
 const CreatePost = defineAction({
-  name: 'CreatePost',
-  handler: async (ctx, input) => {
-    // implementation
-  }
+	name: 'CreatePost',
+	handler: async (ctx, input) => {
+		// implementation
+	},
 });
 
 // Usage

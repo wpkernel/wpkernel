@@ -8,9 +8,9 @@
 
 ```ts
 type PipelineExtensionRegisterOutput<TContext, TOptions, TArtifact> =
-  | void
-  | PipelineExtensionHook<TContext, TOptions, TArtifact>
-| PipelineExtensionHookRegistration<TContext, TOptions, TArtifact>;
+	| void
+	| PipelineExtensionHook<TContext, TOptions, TArtifact>
+	| PipelineExtensionHookRegistration<TContext, TOptions, TArtifact>;
 ```
 
 ## Type Parameters

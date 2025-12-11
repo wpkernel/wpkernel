@@ -7,7 +7,9 @@
 # Function: buildResourceAccessors()
 
 ```ts
-function buildResourceAccessors<TStorageKind>(options): ResourceAccessors<TStorageKind>;
+function buildResourceAccessors<TStorageKind>(
+	options
+): ResourceAccessors<TStorageKind>;
 ```
 
 ## Type Parameters

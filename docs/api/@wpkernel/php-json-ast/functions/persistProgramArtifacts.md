@@ -8,12 +8,13 @@
 
 ```ts
 function persistProgramArtifacts(
-   context,
-   output,
-   filePath,
-   code,
-   ast,
-options): Promise<void>;
+	context,
+	output,
+	filePath,
+	code,
+	ast,
+	options
+): Promise<void>;
 ```
 
 ## Parameters
