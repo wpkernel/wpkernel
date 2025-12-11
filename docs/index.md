@@ -107,7 +107,7 @@ Enable your plugin and open its admin screen.
 
 > Your wpk.config.ts was compiled into REST endpoints, capability checks, typed React hooks and an optional admin UI without boilerplate.
 
-## :::
+:::
 
 ## What is WPKernel?
 

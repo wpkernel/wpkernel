@@ -257,21 +257,13 @@ The idea is that you describe the intent once — “this resource should have a
 
 ## resources.<key>.ui
 
-Finally, resources.<key>.ui is where resources grow a proper admin face.
+Finally, resources.<key>.ui is where you opt a resource into a generated admin surface.
 
-This section is intentionally thin at the top level. In most real projects you’ll be working with:
+The authored part is now deliberately tiny:
 
-- resources.<key>.ui.admin.view – selects which kind of admin experience you want. Today the canonical option is `"dataviews"`.
-- resources.<key>.ui.admin.dataviews – the detailed configuration for fields, actions, layouts, and saved views.
-- resources.<key>.ui.admin.dataviews.screen – describes the admin screen: route, component, menu entry, and how it plugs into the plugin loader.
+- `resources.<key>.ui.admin.view` – set to `"dataviews"` to ask the CLI to generate an admin DataView. Leave it undefined to stay API-only.
+- `resources.<key>.ui.admin.menu` – optional. Provide `slug`/`title` (and `capability`/`parent`/`position` when needed) if you want WordPress to register an admin menu page for the generated screen. Menu registration is explicit and not inferred.
 
-Given enough metadata here, WPKernel can:
-• Generate DataView fixtures for the admin list/table UI.
-• Emit interactivity fixtures so actions, selection, and filters hook cleanly into the WordPress interactivity runtime.
-• Register admin menus with sensible defaults, wired to React entrypoints that are aware of your resources.
+Everything else (fields, saved views, interactivity wiring, loader handle) is inferred from your schema, storage metadata, and the layout manifest. The builders emit sensible defaults you can edit in the generated files if you need bespoke tweaks, but you no longer hand-author `ui.admin.dataviews.*` in the config.
 
-Think of resources.<key>.ui as the bridge between “this resource exists” and “this resource has an opinionated, generated back-office”. The details live in the dedicated UI and DataViews documentation, but this is the one place in the config that connects the two worlds.
-
-```
-
-```
+Think of resources.<key>.ui as the intent flag — “give this resource an admin face” — while the actual shape of that face is derived automatically from the domain hints you’ve already provided. The only explicit wiring you might keep authoring is the menu if you want a WP admin entry.

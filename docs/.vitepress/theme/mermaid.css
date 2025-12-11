@@ -1,13 +1,61 @@
 /* Base helpers */
-.mermaid .node .label > * { fill: var(--vp-c-text-1); }
+.mermaid .node .label > * {
+	fill: var(--vp-c-text-1);
+}
 
 /* Rects/paths for nodes */
-.mermaid .node.blue   rect, .mermaid .node.blue   path { fill: var(--vp-c-blue-soft);   stroke: var(--vp-c-blue-1); }
-.mermaid .node.purple rect, .mermaid .node.purple path { fill: var(--vp-c-purple-soft); stroke: var(--vp-c-purple-1); }
-.mermaid .node.green  rect, .mermaid .node.green  path { fill: var(--vp-c-green-soft);  stroke: var(--vp-c-green-1); }
-.mermaid .node.red    rect, .mermaid .node.red    path { fill: var(--vp-c-red-soft);    stroke: var(--vp-c-red-1); }
-.mermaid .node.yellow rect, .mermaid .node.yellow path { fill: var(--vp-c-yellow-soft); stroke: var(--vp-c-yellow-1); }
-.mermaid .node.gray   rect, .mermaid .node.gray   path { fill: var(--vp-c-gray-soft-2); stroke: var(--vp-c-gray-2); }
-.mermaid .node.default rect, .mermaid .node.default path { fill: var(--vp-c-bg); stroke: var(--vp-c-brand-1); }
-.mermaid .node.decision rect, .mermaid .node.decision path { fill: var(--vp-c-brand-soft); stroke: var(--vp-c-brand-2); }
-.mermaid .node.error rect, .mermaid .node.error path { fill: var(--vp-c-red-soft); stroke: var(--vp-c-red-1); }
+.mermaid .node.blue rect,
+.mermaid .node.blue path {
+	fill: var(--vp-c-blue-soft);
+	stroke: var(--vp-c-blue-1);
+}
+.mermaid .node.purple rect,
+.mermaid .node.purple path {
+	fill: var(--vp-c-purple-soft);
+	stroke: var(--vp-c-purple-1);
+}
+.mermaid .node.green rect,
+.mermaid .node.green path {
+	fill: var(--vp-c-green-soft);
+	stroke: var(--vp-c-green-1);
+}
+.mermaid .node.red rect,
+.mermaid .node.red path {
+	fill: var(--vp-c-red-soft);
+	stroke: var(--vp-c-red-1);
+}
+.mermaid .node.yellow rect,
+.mermaid .node.yellow path {
+	fill: var(--vp-c-yellow-soft);
+	stroke: var(--vp-c-yellow-1);
+}
+.mermaid .node.gray rect,
+.mermaid .node.gray path {
+	fill: var(--vp-c-gray-soft-2);
+	stroke: var(--vp-c-gray-2);
+}
+.mermaid .node.default rect,
+.mermaid .node.default path {
+	fill: var(--vp-c-bg);
+	stroke: var(--vp-c-brand-1);
+}
+.mermaid .node.decision rect,
+.mermaid .node.decision path {
+	fill: var(--vp-c-brand-soft);
+	stroke: var(--vp-c-brand-2);
+}
+.mermaid .node.error rect,
+.mermaid .node.error path {
+	fill: var(--vp-c-red-soft);
+	stroke: var(--vp-c-red-1);
+}
+.sponsor-hero-strip {
+	margin-top: 2rem;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.5rem 0;
+	border-radius: 0; /* or drop bg/border entirely */
+	background: transparent;
+	border: none;
+}
