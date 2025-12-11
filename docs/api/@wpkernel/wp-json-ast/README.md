@@ -1,8 +1,8 @@
-**@wpkernel/wp-json-ast v0.12.3-beta.0**
+**@wpkernel/wp-json-ast v0.12.3-beta.1**
 
----
+***
 
-# @wpkernel/wp-json-ast v0.12.3-beta.0
+# @wpkernel/wp-json-ast v0.12.3-beta.1
 
 ## Interfaces
 
@@ -228,15 +228,17 @@
 - [ResourceCacheKeysPlan](type-aliases/ResourceCacheKeysPlan.md)
 - [ResourceCacheKeysSource](type-aliases/ResourceCacheKeysSource.md)
 - [ResourceRouteKind](type-aliases/ResourceRouteKind.md)
+- [WpPostMetaDescriptor](type-aliases/WpPostMetaDescriptor.md)
+- [WpPostTaxonomyDescriptor](type-aliases/WpPostTaxonomyDescriptor.md)
 
 ## Variables
 
 ### WordPress AST
 
-- [AUTO_GUARD_BEGIN](variables/AUTO_GUARD_BEGIN.md)
-- [AUTO_GUARD_END](variables/AUTO_GUARD_END.md)
-- [DEFAULT_DOC_HEADER](variables/DEFAULT_DOC_HEADER.md)
-- [WP_POST_MUTATION_CONTRACT](variables/WP_POST_MUTATION_CONTRACT.md)
+- [AUTO\_GUARD\_BEGIN](variables/AUTO_GUARD_BEGIN.md)
+- [AUTO\_GUARD\_END](variables/AUTO_GUARD_END.md)
+- [DEFAULT\_DOC\_HEADER](variables/DEFAULT_DOC_HEADER.md)
+- [WP\_POST\_MUTATION\_CONTRACT](variables/WP_POST_MUTATION_CONTRACT.md)
 
 ## Functions
 
@@ -289,7 +291,6 @@
 - [buildPersistenceRegistryDocblock](functions/buildPersistenceRegistryDocblock.md)
 - [buildPersistenceRegistryModule](functions/buildPersistenceRegistryModule.md)
 - [buildPhpChannelHelpers](functions/buildPhpChannelHelpers.md)
-- [buildPluginLoaderProgram](functions/buildPluginLoaderProgram.md)
 - [buildPrepareTaxonomyTermResponseCall](functions/buildPrepareTaxonomyTermResponseCall.md)
 - [buildProgramTargetPlanner](functions/buildProgramTargetPlanner.md)
 - [buildPropertyExpression](functions/buildPropertyExpression.md)
@@ -349,17 +350,15 @@
 - [createWpProgramWriterHelper](functions/createWpProgramWriterHelper.md)
 - [deriveModuleNamespace](functions/deriveModuleNamespace.md)
 - [deriveRestControllerImports](functions/deriveRestControllerImports.md)
+- [ensureStorage](functions/ensureStorage.md)
 - [ensureWpTaxonomyStorage](functions/ensureWpTaxonomyStorage.md)
 - [expression](functions/expression.md)
 - [isNumericIdentity](functions/isNumericIdentity.md)
 - [isStringIdentity](functions/isStringIdentity.md)
 - [moduleSegment](functions/moduleSegment.md)
-- [prepareWpPostResponse](functions/prepareWpPostResponse.md)
 - [renderPhpValue](functions/renderPhpValue.md)
 - [resolveIdentityConfig](functions/resolveIdentityConfig.md)
 - [resolveTransientKey](functions/resolveTransientKey.md)
-- [syncWpPostMeta](functions/syncWpPostMeta.md)
-- [syncWpPostTaxonomies](functions/syncWpPostTaxonomies.md)
 - [toSnakeCase](functions/toSnakeCase.md)
 - [variable](functions/variable.md)
 - [withGeneratedDocComment](functions/withGeneratedDocComment.md)
@@ -372,6 +371,11 @@
 - [buildBlockManifestMetadata](functions/buildBlockManifestMetadata.md)
 - [buildBlockRegistrarMetadata](functions/buildBlockRegistrarMetadata.md)
 - [buildCapabilityHelperMetadata](functions/buildCapabilityHelperMetadata.md)
+- [buildGetPostTypeHelper](functions/buildGetPostTypeHelper.md)
+- [buildGetStatusesHelper](functions/buildGetStatusesHelper.md)
+- [buildNormaliseStatusHelper](functions/buildNormaliseStatusHelper.md)
+- [buildPluginLoaderProgram](functions/buildPluginLoaderProgram.md)
+- [buildResolvePostHelper](functions/buildResolvePostHelper.md)
 - [buildResourceCacheKeysPlan](functions/buildResourceCacheKeysPlan.md)
 - [buildResourceControllerMetadata](functions/buildResourceControllerMetadata.md)
 - [buildResourceControllerRouteMetadata](functions/buildResourceControllerRouteMetadata.md)
@@ -381,6 +385,9 @@
 - [getPhpBuilderChannel](functions/getPhpBuilderChannel.md)
 - [normaliseCacheSegments](functions/normaliseCacheSegments.md)
 - [normalizeRoutePath](functions/normalizeRoutePath.md)
+- [prepareWpPostResponse](functions/prepareWpPostResponse.md)
 - [resetPhpAstChannel](functions/resetPhpAstChannel.md)
 - [resetPhpBuilderChannel](functions/resetPhpBuilderChannel.md)
 - [routeUsesIdentity](functions/routeUsesIdentity.md)
+- [syncWpPostMeta](functions/syncWpPostMeta.md)
+- [syncWpPostTaxonomies](functions/syncWpPostTaxonomies.md)

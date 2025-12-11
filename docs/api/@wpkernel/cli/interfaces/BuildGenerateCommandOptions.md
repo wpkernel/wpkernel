@@ -1,6 +1,6 @@
-[**@wpkernel/cli v0.12.3-beta.0**](../README.md)
+[**@wpkernel/cli v0.12.3-beta.1**](../README.md)
 
----
+***
 
 [@wpkernel/cli](../README.md) / BuildGenerateCommandOptions
 
@@ -13,7 +13,7 @@
 #### buildReporter()?
 
 ```ts
-readonly optional buildReporter: (options) => Reporter;
+readonly optional buildReporter: (options) =&gt; Reporter;
 ```
 
 Create a WPKernel reporter backed by LogLayer transports.
@@ -40,7 +40,7 @@ Reporter instance with child helpers
 #### registerBuilders()?
 
 ```ts
-readonly optional registerBuilders: (pipeline) => void;
+readonly optional registerBuilders: (pipeline) =&gt; void;
 ```
 
 Registers the core builders with the pipeline.
@@ -60,12 +60,12 @@ The pipeline instance to register builders with.
 
 `void`
 
----
+***
 
 #### registerFragments()?
 
 ```ts
-readonly optional registerFragments: (pipeline) => void;
+readonly optional registerFragments: (pipeline) =&gt; void;
 ```
 
 Registers the core IR fragments with the pipeline.
@@ -85,44 +85,24 @@ The pipeline instance to register fragments with.
 
 `void`
 
-### Runtime
-
-#### createPipeline()?
-
-```ts
-readonly optional createPipeline: () => Pipeline;
-```
-
-Creates a new CLI pipeline instance.
-
-This function initializes a robust code generation pipeline that processes project
-configurations, builds an Intermediate Representation (IR), and executes various
-builder and fragment helpers to generate code and artifacts.
-
-##### Returns
-
-[`Pipeline`](../type-aliases/Pipeline.md)
-
-A `Pipeline` instance configured for CLI operations.
-
 ### Other
 
 #### buildAdapterExtensionsExtension()?
 
 ```ts
-readonly optional buildAdapterExtensionsExtension: () => PipelineExtension;
+readonly optional buildAdapterExtensionsExtension: () =&gt; PipelineExtension;
 ```
 
 ##### Returns
 
 [`PipelineExtension`](../type-aliases/PipelineExtension.md)
 
----
+***
 
 #### buildReadinessRegistry()?
 
 ```ts
-readonly optional buildReadinessRegistry: (options?) => ReadinessRegistry;
+readonly optional buildReadinessRegistry: (options?) =&gt; ReadinessRegistry;
 ```
 
 ##### Parameters
@@ -135,12 +115,12 @@ readonly optional buildReadinessRegistry: (options?) => ReadinessRegistry;
 
 [`ReadinessRegistry`](../classes/ReadinessRegistry.md)
 
----
+***
 
 #### buildWorkspace()?
 
 ```ts
-readonly optional buildWorkspace: (root) => Workspace;
+readonly optional buildWorkspace: (root) =&gt; Workspace;
 ```
 
 ##### Parameters
@@ -153,12 +133,30 @@ readonly optional buildWorkspace: (root) => Workspace;
 
 [`Workspace`](Workspace.md)
 
----
+***
+
+#### createPipeline()?
+
+```ts
+readonly optional createPipeline: (overrides) =&gt; Pipeline;
+```
+
+##### Parameters
+
+###### overrides
+
+`Partial`&lt;`CliPipelineOptions`&gt; = `{}`
+
+##### Returns
+
+[`Pipeline`](../type-aliases/Pipeline.md)
+
+***
 
 #### loadWPKernelConfig()?
 
 ```ts
-readonly optional loadWPKernelConfig: (options?) => Promise<LoadedWPKernelConfig>;
+readonly optional loadWPKernelConfig: (options?) =&gt; Promise&lt;LoadedWPKernelConfig&gt;;
 ```
 
 Locate and load the project's wpk configuration.
@@ -177,7 +175,7 @@ canonicalised configuration metadata.
 
 ##### Returns
 
-`Promise`<[`LoadedWPKernelConfig`](LoadedWPKernelConfig.md)>
+`Promise`&lt;[`LoadedWPKernelConfig`](LoadedWPKernelConfig.md)&gt;
 
 The validated wpk config and associated metadata.
 
@@ -185,12 +183,12 @@ The validated wpk config and associated metadata.
 
 WPKernelError when discovery, parsing or validation fails.
 
----
+***
 
 #### renderSummary()?
 
 ```ts
-readonly optional renderSummary: (summary, dryRun, verbose, paths?) => string;
+readonly optional renderSummary: (summary, dryRun, verbose, paths?) =&gt; string;
 ```
 
 ##### Parameters
@@ -209,7 +207,7 @@ readonly optional renderSummary: (summary, dryRun, verbose, paths?) => string;
 
 ###### paths?
 
-###### js
+###### entry
 
 `string`
 
@@ -217,7 +215,11 @@ readonly optional renderSummary: (summary, dryRun, verbose, paths?) => string;
 
 `string`
 
-###### ui
+###### runtime
+
+`string`
+
+###### blocks?
 
 `string`
 
@@ -225,12 +227,12 @@ readonly optional renderSummary: (summary, dryRun, verbose, paths?) => string;
 
 `string`
 
----
+***
 
 #### validateGeneratedImports()?
 
 ```ts
-readonly optional validateGeneratedImports: (__namedParameters) => Promise<void>;
+readonly optional validateGeneratedImports: (__namedParameters) =&gt; Promise&lt;void&gt;;
 ```
 
 ##### Parameters
@@ -241,4 +243,4 @@ readonly optional validateGeneratedImports: (__namedParameters) => Promise<void>
 
 ##### Returns
 
-`Promise`<`void`>
+`Promise`&lt;`void`&gt;

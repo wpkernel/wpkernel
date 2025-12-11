@@ -1,13 +1,13 @@
-[**@wpkernel/e2e-utils v0.12.3-beta.0**](../README.md)
+[**@wpkernel/e2e-utils v0.12.3-beta.1**](../README.md)
 
----
+***
 
 [@wpkernel/e2e-utils](../README.md) / CapturedEvent
 
-# Type Alias: CapturedEvent<P>
+# Type Alias: CapturedEvent&lt;P&gt;
 
 ```ts
-type CapturedEvent<P> = object;
+type CapturedEvent&lt;P&gt; = object;
 ```
 
 Captured event structure
@@ -26,7 +26,7 @@ Captured event structure
 timestamp: number;
 ```
 
----
+***
 
 ### type
 
@@ -34,7 +34,7 @@ timestamp: number;
 type: string;
 ```
 
----
+***
 
 ### payload?
 

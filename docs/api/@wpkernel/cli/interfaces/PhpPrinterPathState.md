@@ -1,6 +1,6 @@
-[**@wpkernel/cli v0.12.3-beta.0**](../README.md)
+[**@wpkernel/cli v0.12.3-beta.1**](../README.md)
 
----
+***
 
 [@wpkernel/cli](../README.md) / PhpPrinterPathState
 
@@ -14,7 +14,7 @@
 readonly canonicalPath: string | null;
 ```
 
----
+***
 
 ### scriptPath
 
@@ -22,7 +22,7 @@ readonly canonicalPath: string | null;
 readonly scriptPath: string;
 ```
 
----
+***
 
 ### workspaceRoot
 

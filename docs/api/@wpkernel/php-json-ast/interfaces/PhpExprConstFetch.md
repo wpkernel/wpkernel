@@ -1,6 +1,6 @@
-[**@wpkernel/php-json-ast v0.12.3-beta.0**](../README.md)
+[**@wpkernel/php-json-ast v0.12.3-beta.1**](../README.md)
 
----
+***
 
 [@wpkernel/php-json-ast](../README.md) / PhpExprConstFetch
 
@@ -24,7 +24,7 @@ readonly attributes: PhpAttributes;
 
 [`PhpExprBase`](PhpExprBase.md).[`attributes`](PhpExprBase.md#attributes)
 
----
+***
 
 ### name
 
@@ -32,7 +32,7 @@ readonly attributes: PhpAttributes;
 readonly name: PhpName;
 ```
 
----
+***
 
 ### nodeType
 

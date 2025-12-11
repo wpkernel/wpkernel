@@ -1,17 +1,16 @@
-[**@wpkernel/core v0.12.3-beta.0**](../README.md)
+[**@wpkernel/core v0.12.3-beta.1**](../README.md)
 
----
+***
 
 [@wpkernel/core](../README.md) / invokeAction
 
 # Function: invokeAction()
 
 ```ts
-function invokeAction<TArgs, TResult>(
-	action,
-	args,
-	meta
-): ActionEnvelope<TArgs, TResult>;
+function invokeAction&lt;TArgs, TResult&gt;(
+   action, 
+   args, 
+meta): ActionEnvelope&lt;TArgs, TResult&gt;;
 ```
 
 Create an action envelope for dispatching a WPKernel action through Redux.
@@ -45,7 +44,7 @@ Return type from the action
 
 ### action
 
-[`DefinedAction`](../type-aliases/DefinedAction.md)<`TArgs`, `TResult`>
+[`DefinedAction`](../type-aliases/DefinedAction.md)&lt;`TArgs`, `TResult`&gt;
 
 The defined WPKernel action to execute
 
@@ -57,13 +56,13 @@ Arguments to pass to the action function
 
 ### meta
 
-`Record`<`string`, `unknown`> = `{}`
+`Record`&lt;`string`, `unknown`&gt; = `{}`
 
 Optional metadata for middleware coordination
 
 ## Returns
 
-[`ActionEnvelope`](../type-aliases/ActionEnvelope.md)<`TArgs`, `TResult`>
+[`ActionEnvelope`](../type-aliases/ActionEnvelope.md)&lt;`TArgs`, `TResult`&gt;
 
 Action envelope ready for Redux dispatch
 
@@ -75,16 +74,16 @@ import { CreatePost } from './actions/CreatePost';
 
 // Basic usage
 const envelope = invokeAction(CreatePost, {
-	title: 'My First Post',
-	content: 'Hello world!',
+  title: 'My First Post',
+  content: 'Hello world!'
 });
 const post = await store.dispatch(envelope);
 
 // With metadata
 const envelope = invokeAction(
-	CreatePost,
-	{ title: 'Post', content: '...' },
-	{ correlationId: 'req-123', source: 'editor-ui' }
+  CreatePost,
+  { title: 'Post', content: '...' },
+  { correlationId: 'req-123', source: 'editor-ui' }
 );
 const post = await store.dispatch(envelope);
 ```

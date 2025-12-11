@@ -1,6 +1,6 @@
-[**@wpkernel/cli v0.12.3-beta.0**](../README.md)
+[**@wpkernel/cli v0.12.3-beta.1**](../README.md)
 
----
+***
 
 [@wpkernel/cli](../README.md) / GenerationManifestResourceEntry
 
@@ -14,7 +14,7 @@
 readonly artifacts: GenerationManifestResourceArtifacts;
 ```
 
----
+***
 
 ### hash
 

@@ -1,15 +1,13 @@
-[**@wpkernel/php-json-ast v0.12.3-beta.0**](../README.md)
+[**@wpkernel/php-json-ast v0.12.3-beta.1**](../README.md)
 
----
+***
 
 [@wpkernel/php-json-ast](../README.md) / createHelper
 
 # Function: createHelper()
 
 ```ts
-function createHelper<TContext, TInput, TOutput, TReporter, TKind>(
-	options
-): Helper<TContext, TInput, TOutput, TReporter, TKind>;
+function createHelper&lt;TContext, TInput, TOutput, TReporter, TKind&gt;(options): Helper&lt;TContext, TInput, TOutput, TReporter, TKind&gt;;
 ```
 
 Creates a pipeline helper-the fundamental building block of WPKernel's code generation system.
@@ -17,13 +15,11 @@ Creates a pipeline helper-the fundamental building block of WPKernel's code gene
 ## Overview
 
 Helpers are composable, dependency-aware transformation units that power the entire framework:
-
 - **CLI package**: Generates PHP resources, actions, blocks, and bindings via helper chains
 - **PHP Driver**: Transforms PHP AST nodes through fragment helpers
 - **Core**: Orchestrates resource definitions and action middleware
 
 Each helper is a pure, immutable descriptor that declares:
-
 - **What it does**: Fragment transformations or artifact building
 - **When it runs**: Priority ordering and dependency relationships
 - **How it integrates**: Mode (extend/replace/before/after) and rollback behavior
@@ -31,24 +27,28 @@ Each helper is a pure, immutable descriptor that declares:
 ## Key Concepts
 
 ### Helper Kinds
-
 - `fragment`: Modifies AST nodes in-place (e.g., add PHP opening tag, inject imports)
 - `builder`: Produces final artifacts from fragments (e.g., write files, format code)
 
 ### Execution Modes
-
 - `extend` (default): Add to existing transformations; multiple helpers with same key can coexist
 - `override`: Only one override helper per key is allowed; prevents duplicate override registrations
 
 Note: Mode primarily affects registration validation. For execution ordering, use `priority` and `dependsOn`.
 
 ### Dependency Resolution
-
 The pipeline automatically:
-
 - Topologically sorts helpers based on `dependsOn` declarations
 - Validates dependency chains and reports missing/circular dependencies
 - Ensures helpers run in correct order regardless of registration sequence
+
+### Apply results & rollback
+Helpers typically perform their work by mutating the provided `fragment` or `output` in place and optionally calling `next()` to continue the chain.
+For more advanced scenarios, a helper can **also return** a result object:
+- `output` — an updated output value to feed into subsequent helpers
+- `rollback` — a rollback operation created via `createPipelineRollback`, which will be executed if the pipeline fails after this helper completes
+
+Returning a result object is opt-in; existing helpers that return `void` remain valid and continue to behave as before.
 
 ## Architecture
 
@@ -57,10 +57,9 @@ and edges represent dependencies. The pipeline executes helpers in topological o
 ensuring all dependencies complete before dependent helpers run.
 
 This design enables:
-
 - **Composability**: Combine helpers from different packages without conflicts
 - **Extensibility**: Third-party helpers integrate seamlessly via dependency declarations
-- **Reliability**: Rollback support ensures atomic operations across helper chains
+- **Reliability**: Helper-level rollback (via `createPipelineRollback`) ensures atomic behaviour across helper chains
 - **Observability**: Built-in diagnostics and reporter integration for debugging
 
 ## Type Parameters
@@ -79,21 +78,21 @@ This design enables:
 
 ### TReporter
 
-`TReporter` _extends_ `PipelineReporter` = `PipelineReporter`
+`TReporter` *extends* `PipelineReporter` = `PipelineReporter`
 
 ### TKind
 
-`TKind` _extends_ [`HelperKind`](../type-aliases/HelperKind.md) = [`HelperKind`](../type-aliases/HelperKind.md)
+`TKind` *extends* [`HelperKind`](../type-aliases/HelperKind.md) = [`HelperKind`](../type-aliases/HelperKind.md)
 
 ## Parameters
 
 ### options
 
-[`CreateHelperOptions`](../interfaces/CreateHelperOptions.md)<`TContext`, `TInput`, `TOutput`, `TReporter`, `TKind`>
+[`CreateHelperOptions`](../interfaces/CreateHelperOptions.md)&lt;`TContext`, `TInput`, `TOutput`, `TReporter`, `TKind`&gt;
 
 ## Returns
 
-[`Helper`](../interfaces/Helper.md)<`TContext`, `TInput`, `TOutput`, `TReporter`, `TKind`>
+[`Helper`](../interfaces/Helper.md)&lt;`TContext`, `TInput`, `TOutput`, `TReporter`, `TKind`&gt;
 
 ## Examples
 
@@ -102,79 +101,79 @@ import { createHelper } from '@wpkernel/pipeline';
 
 // Add PHP opening tag to generated files
 const addPHPTag = createHelper({
-	key: 'add-php-opening-tag',
-	kind: 'fragment',
-	mode: 'extend',
-	priority: 100, // Run early in pipeline
-	origin: 'wp-kernel-core',
-	apply: ({ fragment }) => {
-		fragment.children.unshift({
-			kind: 'text',
-			text: '<?php\n',
-		});
-	},
+  key: 'add-php-opening-tag',
+  kind: 'fragment',
+  mode: 'extend',
+  priority: 100, // Run early in pipeline
+  origin: 'wp-kernel-core',
+  apply: ({ fragment }) =&gt; {
+    fragment.children.unshift({
+      kind: 'text',
+      text: '&lt;?php\n',
+    });
+  },
 });
 ```
 
 ```typescript
 // This helper depends on namespace detection running first
 const addNamespaceDeclaration = createHelper({
-	key: 'add-namespace',
-	kind: 'fragment',
-	dependsOn: ['detect-namespace'], // Won't run until this completes
-	apply: ({ fragment, context }) => {
-		const ns = context.detectedNamespace;
-		fragment.children.push({
-			kind: 'namespace',
-			name: ns,
-		});
-	},
+  key: 'add-namespace',
+  kind: 'fragment',
+  dependsOn: ['detect-namespace'], // Won't run until this completes
+  apply: ({ fragment, context }) =&gt; {
+    const ns = context.detectedNamespace;
+    fragment.children.push({
+      kind: 'namespace',
+      name: ns,
+    });
+  },
 });
 ```
 
 ```typescript
-import {
-	createPipelineCommit,
-	createPipelineRollback,
-} from '@wpkernel/pipeline';
+import { createHelper, createPipelineRollback } from '@wpkernel/pipeline';
 
 const writeFileHelper = createHelper({
-	key: 'write-file',
-	kind: 'builder',
-	apply: ({ draft, context }) => {
-		const path = context.outputPath;
-		const backup = readFileSync(path, 'utf-8'); // Capture current state
+  key: 'write-file',
+  kind: 'builder',
+  apply: ({ output, context }) =&gt; {
+    const path = context.outputPath;
+    const before = [...output]; // Capture current in-memory state
 
-		writeFileSync(path, draft);
+    output.push(context.fileContent);
 
-		return {
-			commit: createPipelineCommit(() =>
-				context.reporter.info(`Wrote ${path}`)
-			),
-			rollback: createPipelineRollback(
-				() => writeFileSync(path, backup), // Restore on error
-				() => context.reporter.warn(`Rolled back ${path}`)
-			),
-		};
-	},
+    return {
+      rollback: createPipelineRollback(
+        () =&gt; {
+          output.length = 0;
+          output.push(...before);
+        },
+        {
+          key: 'write-file',
+          label: 'Restore file output state',
+        }
+      ),
+    };
+  },
 });
 ```
 
 ```typescript
 const formatCodeHelper = createHelper({
-	key: 'format-code',
-	kind: 'builder',
-	dependsOn: ['write-file'],
-	apply: async ({ artifact, context }) => {
-		try {
-			const formatted = await prettier.format(artifact, {
-				parser: 'php',
-			});
-			return { artifact: formatted };
-		} catch (error) {
-			context.reporter.error('Formatting failed', { error });
-			throw error;
-		}
-	},
+  key: 'format-code',
+  kind: 'builder',
+  dependsOn: ['write-file'],
+  apply: async ({ output, context }) =&gt; {
+    try {
+      const formatted = await prettier.format(output.join(''), {
+        parser: 'php',
+      });
+      return { output: formatted.split('') }; // Optionally return a new output value
+    } catch (error) {
+      context.reporter.warn?.('Formatting failed', { error });
+      throw error;
+    }
+  },
 });
 ```

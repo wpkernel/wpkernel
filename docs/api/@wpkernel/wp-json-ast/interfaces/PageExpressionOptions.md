@@ -1,6 +1,6 @@
-[**@wpkernel/wp-json-ast v0.12.3-beta.0**](../README.md)
+[**@wpkernel/wp-json-ast v0.12.3-beta.1**](../README.md)
 
----
+***
 
 [@wpkernel/wp-json-ast](../README.md) / PageExpressionOptions
 
@@ -14,7 +14,7 @@
 readonly requestVariable: string;
 ```
 
----
+***
 
 ### minimum?
 
@@ -22,7 +22,7 @@ readonly requestVariable: string;
 readonly optional minimum: number;
 ```
 
----
+***
 
 ### param?
 

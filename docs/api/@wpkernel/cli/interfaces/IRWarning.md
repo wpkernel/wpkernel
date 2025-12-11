@@ -1,6 +1,6 @@
-[**@wpkernel/cli v0.12.3-beta.0**](../README.md)
+[**@wpkernel/cli v0.12.3-beta.1**](../README.md)
 
----
+***
 
 [@wpkernel/cli](../README.md) / IRWarning
 
@@ -18,7 +18,7 @@ code: string;
 
 A unique code for the warning.
 
----
+***
 
 ### message
 
@@ -28,17 +28,17 @@ message: string;
 
 A human-readable warning message.
 
----
+***
 
 ### context?
 
 ```ts
-optional context: Record<string, unknown>;
+optional context: Record&lt;string, unknown&gt;;
 ```
 
 Optional: Additional context for the warning.
 
----
+***
 
 ### hint?
 

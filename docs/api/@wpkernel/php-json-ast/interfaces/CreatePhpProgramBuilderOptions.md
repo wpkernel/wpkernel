@@ -1,35 +1,35 @@
-[**@wpkernel/php-json-ast v0.12.3-beta.0**](../README.md)
+[**@wpkernel/php-json-ast v0.12.3-beta.1**](../README.md)
 
----
+***
 
 [@wpkernel/php-json-ast](../README.md) / CreatePhpProgramBuilderOptions
 
-# Interface: CreatePhpProgramBuilderOptions<TContext, TInput, TOutput>
+# Interface: CreatePhpProgramBuilderOptions&lt;TContext, TInput, TOutput&gt;
 
 ## Extends
 
-- `Pick`<[`CreateHelperOptions`](CreateHelperOptions.md)<`TContext`, `TInput`, `TOutput`>, `"dependsOn"` \| `"mode"` \| `"priority"` \| `"origin"`>
+- `Pick`&lt;[`CreateHelperOptions`](CreateHelperOptions.md)&lt;`TContext`, `TInput`, `TOutput`&gt;, `"dependsOn"` \| `"mode"` \| `"priority"` \| `"origin"`&gt;
 
 ## Type Parameters
 
 ### TContext
 
-`TContext` _extends_ [`PipelineContext`](PipelineContext.md) = [`PipelineContext`](PipelineContext.md)
+`TContext` *extends* [`PipelineContext`](PipelineContext.md) = [`PipelineContext`](PipelineContext.md)
 
 ### TInput
 
-`TInput` _extends_ [`BuilderInput`](BuilderInput.md) = [`BuilderInput`](BuilderInput.md)
+`TInput` *extends* [`BuilderInput`](BuilderInput.md) = [`BuilderInput`](BuilderInput.md)
 
 ### TOutput
 
-`TOutput` _extends_ [`BuilderOutput`](BuilderOutput.md) = [`BuilderOutput`](BuilderOutput.md)
+`TOutput` *extends* [`BuilderOutput`](BuilderOutput.md) = [`BuilderOutput`](BuilderOutput.md)
 
 ## Properties
 
 ### build()
 
 ```ts
-readonly build: (builder, entry) => void | Promise<void>;
+readonly build: (builder, entry) =&gt; void | Promise&lt;void&gt;;
 ```
 
 #### Parameters
@@ -44,9 +44,9 @@ readonly build: (builder, entry) => void | Promise<void>;
 
 #### Returns
 
-`void` \| `Promise`<`void`>
+`void` \| `Promise`&lt;`void`&gt;
 
----
+***
 
 ### filePath
 
@@ -54,7 +54,7 @@ readonly build: (builder, entry) => void | Promise<void>;
 readonly filePath: string;
 ```
 
----
+***
 
 ### key
 
@@ -62,7 +62,7 @@ readonly filePath: string;
 readonly key: string;
 ```
 
----
+***
 
 ### metadata
 
@@ -70,7 +70,7 @@ readonly key: string;
 readonly metadata: PhpFileMetadata;
 ```
 
----
+***
 
 ### namespace
 
@@ -78,7 +78,7 @@ readonly metadata: PhpFileMetadata;
 readonly namespace: string;
 ```
 
----
+***
 
 ### dependsOn?
 
@@ -90,7 +90,7 @@ readonly optional dependsOn: readonly string[];
 
 [`CreateHelperOptions`](CreateHelperOptions.md).[`dependsOn`](CreateHelperOptions.md#dependson)
 
----
+***
 
 ### mode?
 
@@ -102,7 +102,7 @@ readonly optional mode: HelperMode;
 
 [`CreateHelperOptions`](CreateHelperOptions.md).[`mode`](CreateHelperOptions.md#mode)
 
----
+***
 
 ### origin?
 
@@ -114,7 +114,7 @@ readonly optional origin: string;
 
 [`CreateHelperOptions`](CreateHelperOptions.md).[`origin`](CreateHelperOptions.md#origin)
 
----
+***
 
 ### priority?
 

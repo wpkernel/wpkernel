@@ -1,23 +1,30 @@
-[**@wpkernel/cli v0.12.3-beta.0**](../README.md)
+[**@wpkernel/cli v0.12.3-beta.1**](../README.md)
 
----
+***
 
 [@wpkernel/cli](../README.md) / createPipeline
 
 # Function: createPipeline()
 
 ```ts
-function createPipeline(): Pipeline;
+function createPipeline(overrides): Pipeline;
 ```
 
-Creates a new CLI pipeline instance.
+Creates a new pipeline instance.
+ ```
 
-This function initializes a robust code generation pipeline that processes project
-configurations, builds an Intermediate Representation (IR), and executes various
-builder and fragment helpers to generate code and artifacts.
+The pipeline orchestrates the execution of IR fragments and builders,
+allowing for a modular and extensible code generation process.
+
+@category Runtime
+@returns A `Pipeline` instance.
+
+## Parameters
+
+### overrides
+
+`Partial`\&lt;`CliPipelineOptions`\&gt; = `{}`
 
 ## Returns
 
 [`Pipeline`](../type-aliases/Pipeline.md)
-
-A `Pipeline` instance configured for CLI operations.

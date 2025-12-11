@@ -1,30 +1,28 @@
-[**@wpkernel/wp-json-ast v0.12.3-beta.0**](../README.md)
+[**@wpkernel/wp-json-ast v0.12.3-beta.1**](../README.md)
 
----
+***
 
 [@wpkernel/wp-json-ast](../README.md) / buildPhpChannelHelpers
 
 # Function: buildPhpChannelHelpers()
 
 ```ts
-function buildPhpChannelHelpers<TContext, TInput, TOutput>(
-	options
-): PhpChannelHelpers<TContext, TInput, TOutput>;
+function buildPhpChannelHelpers&lt;TContext, TInput, TOutput&gt;(options): PhpChannelHelpers&lt;TContext, TInput, TOutput&gt;;
 ```
 
 ## Type Parameters
 
 ### TContext
 
-`TContext` _extends_ `PipelineContext` = `PipelineContext`
+`TContext` *extends* `PipelineContext` = `PipelineContext`
 
 ### TInput
 
-`TInput` _extends_ `BuilderInput` = `BuilderInput`
+`TInput` *extends* `BuilderInput` = `BuilderInput`
 
 ### TOutput
 
-`TOutput` _extends_ `BuilderOutput` = `BuilderOutput`
+`TOutput` *extends* `BuilderOutput` = `BuilderOutput`
 
 ## Parameters
 
@@ -34,4 +32,4 @@ function buildPhpChannelHelpers<TContext, TInput, TOutput>(
 
 ## Returns
 
-[`PhpChannelHelpers`](../interfaces/PhpChannelHelpers.md)<`TContext`, `TInput`, `TOutput`>
+[`PhpChannelHelpers`](../interfaces/PhpChannelHelpers.md)&lt;`TContext`, `TInput`, `TOutput`&gt;

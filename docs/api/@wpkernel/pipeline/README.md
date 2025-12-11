@@ -1,8 +1,8 @@
-**@wpkernel/pipeline v0.12.3-beta.0**
+**@wpkernel/pipeline v0.12.3-beta.1**
 
----
+***
 
-# @wpkernel/pipeline v0.12.3-beta.0
+# @wpkernel/pipeline v0.12.3-beta.1
 
 ## Interfaces
 
@@ -18,6 +18,7 @@
 - [FragmentFinalizationMetadata](interfaces/FragmentFinalizationMetadata.md)
 - [Helper](interfaces/Helper.md)
 - [HelperApplyOptions](interfaces/HelperApplyOptions.md)
+- [HelperApplyResult](interfaces/HelperApplyResult.md)
 - [HelperDescriptor](interfaces/HelperDescriptor.md)
 - [HelperExecutionSnapshot](interfaces/HelperExecutionSnapshot.md)
 - [MissingDependencyDiagnostic](interfaces/MissingDependencyDiagnostic.md)
@@ -29,8 +30,11 @@
 - [PipelineExtensionHookResult](interfaces/PipelineExtensionHookResult.md)
 - [PipelineExtensionRollbackErrorMetadata](interfaces/PipelineExtensionRollbackErrorMetadata.md)
 - [PipelineReporter](interfaces/PipelineReporter.md)
+- [PipelineRollback](interfaces/PipelineRollback.md)
+- [PipelineRollbackErrorMetadata](interfaces/PipelineRollbackErrorMetadata.md)
 - [PipelineRunState](interfaces/PipelineRunState.md)
 - [PipelineStep](interfaces/PipelineStep.md)
+- [RunRollbackStackOptions](interfaces/RunRollbackStackOptions.md)
 - [UnusedHelperDiagnostic](interfaces/UnusedHelperDiagnostic.md)
 
 ## Type Aliases
@@ -50,7 +54,7 @@
 
 ### Pipeline
 
-- [OFFICIAL_EXTENSION_BLUEPRINTS](variables/OFFICIAL_EXTENSION_BLUEPRINTS.md)
+- [OFFICIAL\_EXTENSION\_BLUEPRINTS](variables/OFFICIAL_EXTENSION_BLUEPRINTS.md)
 
 ## Functions
 
@@ -64,3 +68,4 @@
 
 - [createDefaultError](functions/createDefaultError.md)
 - [createErrorFactory](functions/createErrorFactory.md)
+- [createPipelineRollback](functions/createPipelineRollback.md)

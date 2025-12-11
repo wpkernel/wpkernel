@@ -1,11 +1,11 @@
-[**@wpkernel/wp-json-ast v0.12.3-beta.0**](../README.md)
+[**@wpkernel/wp-json-ast v0.12.3-beta.1**](../README.md)
 
----
+***
 
 [@wpkernel/wp-json-ast](../README.md) / BaseControllerProgram
 
 # Type Alias: BaseControllerProgram
 
 ```ts
-type BaseControllerProgram = ModuleProgramFile<BaseControllerMetadata>;
+type BaseControllerProgram = ModuleProgramFile&lt;BaseControllerMetadata&gt;;
 ```

@@ -1,6 +1,6 @@
-[**@wpkernel/wp-json-ast v0.12.3-beta.0**](../README.md)
+[**@wpkernel/wp-json-ast v0.12.3-beta.1**](../README.md)
 
----
+***
 
 [@wpkernel/wp-json-ast](../README.md) / buildBlockRegistrarFile
 
@@ -8,10 +8,9 @@
 
 ```ts
 function buildBlockRegistrarFile(
-	origin,
-	namespace,
-	fileName
-): BlockModuleFile<BlockRegistrarMetadata>;
+   origin, 
+   namespace, 
+fileName): BlockModuleFile&lt;BlockRegistrarMetadata&gt;;
 ```
 
 ## Parameters
@@ -30,4 +29,4 @@ function buildBlockRegistrarFile(
 
 ## Returns
 
-[`BlockModuleFile`](../interfaces/BlockModuleFile.md)<[`BlockRegistrarMetadata`](../type-aliases/BlockRegistrarMetadata.md)>
+[`BlockModuleFile`](../interfaces/BlockModuleFile.md)&lt;[`BlockRegistrarMetadata`](../type-aliases/BlockRegistrarMetadata.md)&gt;

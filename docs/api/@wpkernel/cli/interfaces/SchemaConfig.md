@@ -1,6 +1,6 @@
-[**@wpkernel/cli v0.12.3-beta.0**](../README.md)
+[**@wpkernel/cli v0.12.3-beta.1**](../README.md)
 
----
+***
 
 [@wpkernel/cli](../README.md) / SchemaConfig
 
@@ -13,23 +13,6 @@ be written. Mirrors the JSON Schema `schemaConfig` definition.
 
 ## Properties
 
-### generated
-
-```ts
-generated: object;
-```
-
-#### types
-
-```ts
-types: string;
-```
-
-Relative path where WPKernel should write the generated TypeScript
-types for this schema.
-
----
-
 ### path
 
 ```ts
@@ -39,7 +22,7 @@ path: string;
 Relative path (from plugin root) to the source schema file
 (for example, a JSON Schema or Zod schema).
 
----
+***
 
 ### description?
 

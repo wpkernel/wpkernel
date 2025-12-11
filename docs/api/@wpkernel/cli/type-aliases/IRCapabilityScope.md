@@ -1,13 +1,13 @@
-[**@wpkernel/cli v0.12.3-beta.0**](../README.md)
+[**@wpkernel/cli v0.12.3-beta.1**](../README.md)
 
----
+***
 
 [@wpkernel/cli](../README.md) / IRCapabilityScope
 
 # Type Alias: IRCapabilityScope
 
 ```ts
-type IRCapabilityScope = 'resource' | 'object';
+type IRCapabilityScope = "resource" | "object";
 ```
 
 Defines the scope of a capability.

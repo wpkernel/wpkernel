@@ -1,13 +1,13 @@
-[**@wpkernel/core v0.12.3-beta.0**](../README.md)
+[**@wpkernel/core v0.12.3-beta.1**](../README.md)
 
----
+***
 
 [@wpkernel/core](../README.md) / ActionConfig
 
-# Type Alias: ActionConfig<TArgs, TResult>
+# Type Alias: ActionConfig&lt;TArgs, TResult&gt;
 
 ```ts
-type ActionConfig<TArgs, TResult> = object;
+type ActionConfig&lt;TArgs, TResult&gt; = object;
 ```
 
 Configuration object accepted by `defineAction()`.
@@ -27,12 +27,12 @@ Configuration object accepted by `defineAction()`.
 ### handler
 
 ```ts
-handler: ActionFn<TArgs, TResult>;
+handler: ActionFn&lt;TArgs, TResult&gt;;
 ```
 
 Implementation invoked when the action is executed.
 
----
+***
 
 ### name
 
@@ -42,7 +42,7 @@ name: string;
 
 Unique action identifier.
 
----
+***
 
 ### options?
 

@@ -1,6 +1,6 @@
-[**@wpkernel/wp-json-ast v0.12.3-beta.0**](../README.md)
+[**@wpkernel/wp-json-ast v0.12.3-beta.1**](../README.md)
 
----
+***
 
 [@wpkernel/wp-json-ast](../README.md) / ModuleNamespaceConfig
 
@@ -18,7 +18,7 @@ readonly pluginNamespace: string;
 
 The root namespace of the plugin.
 
----
+***
 
 ### sanitizedPluginNamespace?
 
@@ -28,7 +28,7 @@ readonly optional sanitizedPluginNamespace: string | null;
 
 An optional sanitized version of the plugin namespace.
 
----
+***
 
 ### segments?
 

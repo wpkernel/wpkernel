@@ -1,6 +1,6 @@
-[**@wpkernel/wp-json-ast v0.12.3-beta.0**](../README.md)
+[**@wpkernel/wp-json-ast v0.12.3-beta.1**](../README.md)
 
----
+***
 
 [@wpkernel/wp-json-ast](../README.md) / buildRequestParamAssignmentStatement
 
@@ -38,5 +38,5 @@ const statement = buildRequestParamAssignmentStatement({
 	cast: 'int',
 });
 
-// $myParam = (int) $request->get_param('my_param');
+// $myParam = (int) $request-&gt;get_param('my_param');
 ```

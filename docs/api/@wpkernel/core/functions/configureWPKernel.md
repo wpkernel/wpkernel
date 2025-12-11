@@ -1,6 +1,6 @@
-[**@wpkernel/core v0.12.3-beta.0**](../README.md)
+[**@wpkernel/core v0.12.3-beta.1**](../README.md)
 
----
+***
 
 [@wpkernel/core](../README.md) / configureWPKernel
 
@@ -37,8 +37,8 @@ import { configureWPKernel } from '@wpkernel/core/data';
 import { registerWPKernelStore } from '@wpkernel/core/data';
 
 const wpk = configureWPKernel({
-	namespace: 'acme',
-	registry: registerWPKernelStore('acme/store', storeConfig),
+  namespace: 'acme',
+  registry: registerWPKernelStore('acme/store', storeConfig),
 });
 
 wpk.invalidate(['post', 'list']);

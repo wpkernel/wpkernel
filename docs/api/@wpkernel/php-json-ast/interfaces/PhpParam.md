@@ -1,6 +1,6 @@
-[**@wpkernel/php-json-ast v0.12.3-beta.0**](../README.md)
+[**@wpkernel/php-json-ast v0.12.3-beta.1**](../README.md)
 
----
+***
 
 [@wpkernel/php-json-ast](../README.md) / PhpParam
 
@@ -20,7 +20,7 @@ Represents a PHP parameter node in a function or method signature.
 readonly attrGroups: PhpAttrGroup[];
 ```
 
----
+***
 
 ### attributes
 
@@ -32,7 +32,7 @@ readonly attributes: PhpAttributes;
 
 [`PhpNode`](PhpNode.md).[`attributes`](PhpNode.md#attributes)
 
----
+***
 
 ### byRef
 
@@ -40,7 +40,7 @@ readonly attributes: PhpAttributes;
 readonly byRef: boolean;
 ```
 
----
+***
 
 ### default
 
@@ -48,7 +48,7 @@ readonly byRef: boolean;
 readonly default: PhpExpr | null;
 ```
 
----
+***
 
 ### flags
 
@@ -56,7 +56,7 @@ readonly default: PhpExpr | null;
 readonly flags: number;
 ```
 
----
+***
 
 ### hooks
 
@@ -64,7 +64,7 @@ readonly flags: number;
 readonly hooks: PhpPropertyHook[];
 ```
 
----
+***
 
 ### nodeType
 
@@ -76,7 +76,7 @@ readonly nodeType: "Param";
 
 [`PhpNode`](PhpNode.md).[`nodeType`](PhpNode.md#nodetype)
 
----
+***
 
 ### type
 
@@ -84,7 +84,7 @@ readonly nodeType: "Param";
 readonly type: PhpType | null;
 ```
 
----
+***
 
 ### var
 
@@ -92,7 +92,7 @@ readonly type: PhpType | null;
 readonly var: PhpExpr;
 ```
 
----
+***
 
 ### variadic
 

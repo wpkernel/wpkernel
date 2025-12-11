@@ -1,6 +1,6 @@
-[**@wpkernel/cli v0.12.3-beta.0**](../README.md)
+[**@wpkernel/cli v0.12.3-beta.1**](../README.md)
 
----
+***
 
 [@wpkernel/cli](../README.md) / createHelper
 
@@ -31,7 +31,7 @@ Helpers are reusable units of logic that can transform input into output within 
 
 #### options
 
-[`FragmentHelperOptions`](../type-aliases/FragmentHelperOptions.md)
+`FragmentHelperOptions`
 
 Configuration options for the helper, including its kind, handler, and metadata.
 
@@ -57,7 +57,7 @@ Helpers are reusable units of logic that can transform input into output within 
 
 #### options
 
-[`BuilderHelperOptions`](../type-aliases/BuilderHelperOptions.md)
+`BuilderHelperOptions`
 
 Configuration options for the helper, including its kind, handler, and metadata.
 

@@ -1,13 +1,13 @@
-[**@wpkernel/core v0.12.3-beta.0**](../README.md)
+[**@wpkernel/core v0.12.3-beta.1**](../README.md)
 
----
+***
 
 [@wpkernel/core](../README.md) / WPKernelReduxMiddleware
 
-# Type Alias: WPKernelReduxMiddleware<TState>
+# Type Alias: WPKernelReduxMiddleware&lt;TState&gt;
 
 ```ts
-type WPKernelReduxMiddleware<TState> = object & ReduxMiddleware<TState>;
+type WPKernelReduxMiddleware&lt;TState&gt; = object & ReduxMiddleware&lt;TState&gt;;
 ```
 
 Redux middleware with an optional destroy method for cleanup.
@@ -21,7 +21,7 @@ middleware is no longer needed.
 ### destroy()?
 
 ```ts
-optional destroy: () => void;
+optional destroy: () =&gt; void;
 ```
 
 Optional cleanup method for middleware teardown

@@ -1,14 +1,14 @@
-[**@wpkernel/php-json-ast v0.12.3-beta.0**](../README.md)
+[**@wpkernel/php-json-ast v0.12.3-beta.1**](../README.md)
 
----
+***
 
 [@wpkernel/php-json-ast](../README.md) / PhpBuilderFactoryMethodStep
 
 # Type Alias: PhpBuilderFactoryMethodStep
 
 ```ts
-type PhpBuilderFactoryMethodStep =
-	| PhpBuilderFactoryMethodAssignPropertyStep
-	| PhpBuilderFactoryMethodReturnPropertyStep
-	| PhpBuilderFactoryMethodReturnNewStep;
+type PhpBuilderFactoryMethodStep = 
+  | PhpBuilderFactoryMethodAssignPropertyStep
+  | PhpBuilderFactoryMethodReturnPropertyStep
+  | PhpBuilderFactoryMethodReturnNewStep;
 ```

@@ -1,6 +1,6 @@
-[**@wpkernel/php-json-ast v0.12.3-beta.0**](../README.md)
+[**@wpkernel/php-json-ast v0.12.3-beta.1**](../README.md)
 
----
+***
 
 [@wpkernel/php-json-ast](../README.md) / ConsumePhpProgramIngestionOptions
 
@@ -14,7 +14,7 @@
 readonly context: PipelineContext;
 ```
 
----
+***
 
 ### source
 
@@ -22,7 +22,7 @@ readonly context: PipelineContext;
 readonly source: PhpProgramIngestionSource;
 ```
 
----
+***
 
 ### defaultMetadata?
 
@@ -30,7 +30,7 @@ readonly source: PhpProgramIngestionSource;
 readonly optional defaultMetadata: PhpFileMetadata;
 ```
 
----
+***
 
 ### reporter?
 
@@ -38,12 +38,12 @@ readonly optional defaultMetadata: PhpFileMetadata;
 readonly optional reporter: Reporter;
 ```
 
----
+***
 
 ### resolveFilePath()?
 
 ```ts
-readonly optional resolveFilePath: (message) => string;
+readonly optional resolveFilePath: (message) =&gt; string;
 ```
 
 #### Parameters

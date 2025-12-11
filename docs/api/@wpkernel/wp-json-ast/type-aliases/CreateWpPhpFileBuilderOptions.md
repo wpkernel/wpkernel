@@ -1,14 +1,13 @@
-[**@wpkernel/wp-json-ast v0.12.3-beta.0**](../README.md)
+[**@wpkernel/wp-json-ast v0.12.3-beta.1**](../README.md)
 
----
+***
 
 [@wpkernel/wp-json-ast](../README.md) / CreateWpPhpFileBuilderOptions
 
-# ~~Type Alias: CreateWpPhpFileBuilderOptions<TContext, TInput, TOutput>~~
+# ~~Type Alias: CreateWpPhpFileBuilderOptions&lt;TContext, TInput, TOutput&gt;~~
 
 ```ts
-type CreateWpPhpFileBuilderOptions<TContext, TInput, TOutput> =
-	CreateWpPhpProgramBuilderOptions<TContext, TInput, TOutput>;
+type CreateWpPhpFileBuilderOptions&lt;TContext, TInput, TOutput&gt; = CreateWpPhpProgramBuilderOptions&lt;TContext, TInput, TOutput&gt;;
 ```
 
 Options for creating a WordPress PHP file builder.
@@ -17,15 +16,15 @@ Options for creating a WordPress PHP file builder.
 
 ### TContext
 
-`TContext` _extends_ `PipelineContext` = `PipelineContext`
+`TContext` *extends* `PipelineContext` = `PipelineContext`
 
 ### TInput
 
-`TInput` _extends_ `BuilderInput` = `BuilderInput`
+`TInput` *extends* `BuilderInput` = `BuilderInput`
 
 ### TOutput
 
-`TOutput` _extends_ `BuilderOutput` = `BuilderOutput`
+`TOutput` *extends* `BuilderOutput` = `BuilderOutput`
 
 ## Deprecated
 

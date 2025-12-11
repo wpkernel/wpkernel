@@ -1,10 +1,10 @@
-[**@wpkernel/core v0.12.3-beta.0**](../README.md)
+[**@wpkernel/core v0.12.3-beta.1**](../README.md)
 
----
+***
 
-[@wpkernel/core](../README.md) / WPK_EXIT_CODES
+[@wpkernel/core](../README.md) / WPK\_EXIT\_CODES
 
-# Variable: WPK_EXIT_CODES
+# Variable: WPK\_EXIT\_CODES
 
 ```ts
 const WPK_EXIT_CODES: object;
@@ -14,7 +14,7 @@ Framework-wide exit codes for CLI tooling and scripts.
 
 ## Type Declaration
 
-### ADAPTER_ERROR
+### ADAPTER\_ERROR
 
 ```ts
 readonly ADAPTER_ERROR: 3 = 3;
@@ -30,7 +30,7 @@ readonly SUCCESS: 0 = 0;
 
 Command completed successfully.
 
-### UNEXPECTED_ERROR
+### UNEXPECTED\_ERROR
 
 ```ts
 readonly UNEXPECTED_ERROR: 2 = 2;
@@ -38,7 +38,7 @@ readonly UNEXPECTED_ERROR: 2 = 2;
 
 Runtime failure outside adapter evaluation.
 
-### VALIDATION_ERROR
+### VALIDATION\_ERROR
 
 ```ts
 readonly VALIDATION_ERROR: 1 = 1;

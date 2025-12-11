@@ -1,6 +1,6 @@
-[**@wpkernel/php-json-ast v0.12.3-beta.0**](../README.md)
+[**@wpkernel/php-json-ast v0.12.3-beta.1**](../README.md)
 
----
+***
 
 [@wpkernel/php-json-ast](../README.md) / PhpArg
 
@@ -24,7 +24,7 @@ readonly attributes: PhpAttributes;
 
 [`PhpNode`](PhpNode.md).[`attributes`](PhpNode.md#attributes)
 
----
+***
 
 ### byRef
 
@@ -32,7 +32,7 @@ readonly attributes: PhpAttributes;
 readonly byRef: boolean;
 ```
 
----
+***
 
 ### name
 
@@ -40,7 +40,7 @@ readonly byRef: boolean;
 readonly name: PhpIdentifier | null;
 ```
 
----
+***
 
 ### nodeType
 
@@ -52,7 +52,7 @@ readonly nodeType: "Arg";
 
 [`PhpNode`](PhpNode.md).[`nodeType`](PhpNode.md#nodetype)
 
----
+***
 
 ### unpack
 
@@ -60,7 +60,7 @@ readonly nodeType: "Arg";
 readonly unpack: boolean;
 ```
 
----
+***
 
 ### value
 

@@ -1,13 +1,16 @@
-[**@wpkernel/php-json-ast v0.12.3-beta.0**](../README.md)
+[**@wpkernel/php-json-ast v0.12.3-beta.1**](../README.md)
 
----
+***
 
 [@wpkernel/php-json-ast](../README.md) / buildConst
 
 # Function: buildConst()
 
 ```ts
-function buildConst(name, value, attributes?): PhpConst;
+function buildConst(
+   name, 
+   value, 
+   attributes?): PhpConst;
 ```
 
 Builds a PHP constant node.
@@ -28,7 +31,7 @@ The expression representing the constant's value.
 
 ### attributes?
 
-`Readonly`<`Record`<`string`, `unknown`>>
+`Readonly`&lt;`Record`&lt;`string`, `unknown`&gt;&gt;
 
 Optional attributes for the node.
 

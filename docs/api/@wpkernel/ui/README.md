@@ -1,28 +1,14 @@
-**@wpkernel/ui v0.12.3-beta.0**
+**@wpkernel/ui v0.12.3-beta.1**
 
----
+***
 
-# @wpkernel/ui v0.12.3-beta.0
+# @wpkernel/ui v0.12.3-beta.1
 
 WPKernel UI - Component Library Package
 
 Reusable UI components for WPKernel.
 
 ## Interfaces
-
-### DataViews Integration
-
-- [CreateDataFormControllerOptions](interfaces/CreateDataFormControllerOptions.md)
-- [CreateDataViewInteractionOptions](interfaces/CreateDataViewInteractionOptions.md)
-- [DataFormControllerState](interfaces/DataFormControllerState.md)
-- [DataViewInteractionResult](interfaces/DataViewInteractionResult.md)
-- [DataViewsRuntimeOptions](interfaces/DataViewsRuntimeOptions.md)
-- [DataViewsStandaloneRuntime](interfaces/DataViewsStandaloneRuntime.md)
-- [ResourceDataViewController](interfaces/ResourceDataViewController.md)
-- [ResourceDataViewControllerOptions](interfaces/ResourceDataViewControllerOptions.md)
-- [ResourceDataViewProps](interfaces/ResourceDataViewProps.md)
-- [ResourceDataViewSavedView](interfaces/ResourceDataViewSavedView.md)
-- [UseDataFormController](interfaces/UseDataFormController.md)
 
 ### Action Bindings
 
@@ -42,28 +28,7 @@ Reusable UI components for WPKernel.
 - [UseResourceListResult](interfaces/UseResourceListResult.md)
 - [VisiblePrefetchOptions](interfaces/VisiblePrefetchOptions.md)
 
-### Other
-
-- [DataViewPreferencesAdapter](interfaces/DataViewPreferencesAdapter.md)
-- [DataViewPreferencesRuntime](interfaces/DataViewPreferencesRuntime.md)
-- [DataViewRegistryEntry](interfaces/DataViewRegistryEntry.md)
-- [DataViewsControllerRuntime](interfaces/DataViewsControllerRuntime.md)
-- [DataViewsEventEmitter](interfaces/DataViewsEventEmitter.md)
-- [DataViewsRuntimeContext](interfaces/DataViewsRuntimeContext.md)
-- [NormalizedDataViewsRuntimeOptions](interfaces/NormalizedDataViewsRuntimeOptions.md)
-- [ResourceDataViewActionConfig](interfaces/ResourceDataViewActionConfig.md)
-- [ResourceDataViewConfig](interfaces/ResourceDataViewConfig.md)
-- [SubscribeToDataViewsEventOptions](interfaces/SubscribeToDataViewsEventOptions.md)
-- [WPKernelDataViewsRuntime](interfaces/WPKernelDataViewsRuntime.md)
-
 ## Type Aliases
-
-### DataViews Integration
-
-- [DataViewInteractionState](type-aliases/DataViewInteractionState.md)
-- [ResourceDataViewMenuConfig](type-aliases/ResourceDataViewMenuConfig.md)
-- [ResourceDataViewScreenConfig](type-aliases/ResourceDataViewScreenConfig.md)
-- [WPKUICapabilityRuntimeSource](type-aliases/WPKUICapabilityRuntimeSource.md)
 
 ### Utilities
 
@@ -72,17 +37,7 @@ Reusable UI components for WPKernel.
 
 ### Other
 
-- [DataViewActionTriggeredPayload](type-aliases/DataViewActionTriggeredPayload.md)
-- [DataViewBoundaryState](type-aliases/DataViewBoundaryState.md)
-- [DataViewBoundaryTransitionPayload](type-aliases/DataViewBoundaryTransitionPayload.md)
-- [DataViewChangedPayload](type-aliases/DataViewChangedPayload.md)
-- [DataViewFetchFailedPayload](type-aliases/DataViewFetchFailedPayload.md)
-- [DataViewPermissionDeniedPayload](type-aliases/DataViewPermissionDeniedPayload.md)
-- [DataViewPreferenceScope](type-aliases/DataViewPreferenceScope.md)
-- [DataViewRegisteredPayload](type-aliases/DataViewRegisteredPayload.md)
-- [DataViewsEventName](type-aliases/DataViewsEventName.md)
-- [DataViewsEventPayloadMap](type-aliases/DataViewsEventPayloadMap.md)
-- [QueryMapping](type-aliases/QueryMapping.md)
+- [TaxonomyOption](type-aliases/TaxonomyOption.md)
 
 ## Variables
 
@@ -95,15 +50,6 @@ Reusable UI components for WPKernel.
 - [VERSION](variables/VERSION.md)
 
 ## Functions
-
-### DataViews Integration
-
-- [createDataFormController](functions/createDataFormController.md)
-- [createDataViewInteraction](functions/createDataViewInteraction.md)
-- [createDataViewsRuntime](functions/createDataViewsRuntime.md)
-- [createResourceDataViewController](functions/createResourceDataViewController.md)
-- [ensureControllerRuntime](functions/ensureControllerRuntime.md)
-- [ResourceDataView](functions/ResourceDataView.md)
 
 ### Action Bindings
 
@@ -125,5 +71,6 @@ Reusable UI components for WPKernel.
 
 ### Other
 
-- [subscribeToDataViewsEvent](functions/subscribeToDataViewsEvent.md)
-- [useDataViewsEvent](functions/useDataViewsEvent.md)
+- [TaxonomyList](functions/TaxonomyList.md)
+- [useTaxonomyOptions](functions/useTaxonomyOptions.md)
+- [WPKernelScreen](functions/WPKernelScreen.md)

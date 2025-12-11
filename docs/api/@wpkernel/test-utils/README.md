@@ -1,8 +1,8 @@
-**@wpkernel/test-utils v0.12.3-beta.0**
+**@wpkernel/test-utils v0.12.3-beta.1**
 
----
+***
 
-# @wpkernel/test-utils v0.12.3-beta.0
+# @wpkernel/test-utils v0.12.3-beta.1
 
 ## Interfaces
 
@@ -98,6 +98,9 @@
 - [ensureLayoutManifest](functions/ensureLayoutManifest.md)
 - [ensureWpData](functions/ensureWpData.md)
 - [loadDefaultLayout](functions/loadDefaultLayout.md)
+- [loadTestLayout](functions/loadTestLayout.md)
+- [loadTestLayoutSync](functions/loadTestLayoutSync.md)
+- [resolveLayoutRelativeSpecifier](functions/resolveLayoutRelativeSpecifier.md)
 - [runNodeProcess](functions/runNodeProcess.md)
 - [runProcess](functions/runProcess.md)
 - [sanitizePhpIntegrationEnv](functions/sanitizePhpIntegrationEnv.md)

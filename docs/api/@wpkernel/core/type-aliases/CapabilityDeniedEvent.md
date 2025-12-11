@@ -1,6 +1,6 @@
-[**@wpkernel/core v0.12.3-beta.0**](../README.md)
+[**@wpkernel/core v0.12.3-beta.1**](../README.md)
 
----
+***
 
 [@wpkernel/core](../README.md) / CapabilityDeniedEvent
 
@@ -20,7 +20,7 @@ Payload emitted with `{namespace}.capability.denied` events.
 capabilityKey: string;
 ```
 
----
+***
 
 ### timestamp
 
@@ -28,15 +28,15 @@ capabilityKey: string;
 timestamp: number;
 ```
 
----
+***
 
 ### context?
 
 ```ts
-optional context: Record<string, unknown>;
+optional context: Record&lt;string, unknown&gt;;
 ```
 
----
+***
 
 ### messageKey?
 
@@ -44,7 +44,7 @@ optional context: Record<string, unknown>;
 optional messageKey: string;
 ```
 
----
+***
 
 ### reason?
 
@@ -52,7 +52,7 @@ optional messageKey: string;
 optional reason: string;
 ```
 
----
+***
 
 ### requestId?
 

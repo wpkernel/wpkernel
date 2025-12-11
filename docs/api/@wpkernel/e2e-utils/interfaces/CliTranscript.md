@@ -1,6 +1,6 @@
-[**@wpkernel/e2e-utils v0.12.3-beta.0**](../README.md)
+[**@wpkernel/e2e-utils v0.12.3-beta.1**](../README.md)
 
----
+***
 
 [@wpkernel/e2e-utils](../README.md) / CliTranscript
 
@@ -14,7 +14,7 @@
 args: string[];
 ```
 
----
+***
 
 ### command
 
@@ -22,7 +22,7 @@ args: string[];
 command: string;
 ```
 
----
+***
 
 ### completedAt
 
@@ -30,7 +30,7 @@ command: string;
 completedAt: string;
 ```
 
----
+***
 
 ### cwd
 
@@ -38,7 +38,7 @@ completedAt: string;
 cwd: string;
 ```
 
----
+***
 
 ### durationMs
 
@@ -46,15 +46,15 @@ cwd: string;
 durationMs: number;
 ```
 
----
+***
 
 ### env
 
 ```ts
-env: Record<string, string | undefined>;
+env: Record&lt;string, string | undefined&gt;;
 ```
 
----
+***
 
 ### exitCode
 
@@ -62,7 +62,7 @@ env: Record<string, string | undefined>;
 exitCode: number;
 ```
 
----
+***
 
 ### startedAt
 
@@ -70,7 +70,7 @@ exitCode: number;
 startedAt: string;
 ```
 
----
+***
 
 ### stderr
 
@@ -78,7 +78,7 @@ startedAt: string;
 stderr: string;
 ```
 
----
+***
 
 ### stdout
 

@@ -1,13 +1,13 @@
-[**@wpkernel/core v0.12.3-beta.0**](../README.md)
+[**@wpkernel/core v0.12.3-beta.1**](../README.md)
 
----
+***
 
 [@wpkernel/core](../README.md) / AnyFn
 
 # Type Alias: AnyFn
 
 ```ts
-type AnyFn = (...args) => unknown;
+type AnyFn = (...args) =&gt; unknown;
 ```
 
 Generic function type accepting any arguments and returning unknown.

@@ -1,6 +1,6 @@
-[**@wpkernel/cli v0.12.3-beta.0**](../README.md)
+[**@wpkernel/cli v0.12.3-beta.1**](../README.md)
 
----
+***
 
 [@wpkernel/cli](../README.md) / ApplyLogEntry
 
@@ -16,7 +16,7 @@ Represents an entry in the apply log.
 readonly actions: readonly string[];
 ```
 
----
+***
 
 ### exitCode
 
@@ -24,7 +24,7 @@ readonly actions: readonly string[];
 readonly exitCode: WPKExitCode;
 ```
 
----
+***
 
 ### flags
 
@@ -32,7 +32,7 @@ readonly exitCode: WPKExitCode;
 readonly flags: ApplyFlags;
 ```
 
----
+***
 
 ### records
 
@@ -40,7 +40,7 @@ readonly flags: ApplyFlags;
 readonly records: readonly PatchRecord[];
 ```
 
----
+***
 
 ### status
 
@@ -48,7 +48,7 @@ readonly records: readonly PatchRecord[];
 readonly status: ApplyLogStatus;
 ```
 
----
+***
 
 ### summary
 
@@ -56,7 +56,7 @@ readonly status: ApplyLogStatus;
 readonly summary: PatchManifestSummary | null;
 ```
 
----
+***
 
 ### timestamp
 
@@ -64,7 +64,7 @@ readonly summary: PatchManifestSummary | null;
 readonly timestamp: string;
 ```
 
----
+***
 
 ### version
 
@@ -72,7 +72,7 @@ readonly timestamp: string;
 readonly version: 1;
 ```
 
----
+***
 
 ### error?
 

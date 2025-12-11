@@ -1,21 +1,20 @@
-[**@wpkernel/core v0.12.3-beta.0**](../README.md)
+[**@wpkernel/core v0.12.3-beta.1**](../README.md)
 
----
+***
 
 [@wpkernel/core](../README.md) / ResourceCapabilityMap
 
-# Type Alias: ResourceCapabilityMap<TRoutes>
+# Type Alias: ResourceCapabilityMap&lt;TRoutes&gt;
 
 ```ts
-type ResourceCapabilityMap<TRoutes> = Partial<
-	Record<RouteCapabilityKeys<TRoutes>, string | ResourceCapabilityDescriptor>
->;
+type ResourceCapabilityMap&lt;TRoutes&gt; = Partial&lt;Record&lt;RouteCapabilityKeys&lt;TRoutes&gt;, 
+  | string
+| ResourceCapabilityDescriptor&gt;&gt;;
 ```
 
 Capability map for a resource.
 
 Maps capability keys to WordPress capabilities. Values can be:
-
 - String: Simple WordPress capability (e.g., 'edit_posts')
 - Object: Detailed descriptor with appliesTo and optional binding
 
@@ -23,4 +22,4 @@ Maps capability keys to WordPress capabilities. Values can be:
 
 ### TRoutes
 
-`TRoutes` _extends_ [`ResourceRoutes`](ResourceRoutes.md) = [`ResourceRoutes`](ResourceRoutes.md)
+`TRoutes` *extends* [`ResourceRoutes`](ResourceRoutes.md) = [`ResourceRoutes`](ResourceRoutes.md)

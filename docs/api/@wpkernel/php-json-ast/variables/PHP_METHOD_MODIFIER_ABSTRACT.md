@@ -1,10 +1,10 @@
-[**@wpkernel/php-json-ast v0.12.3-beta.0**](../README.md)
+[**@wpkernel/php-json-ast v0.12.3-beta.1**](../README.md)
 
----
+***
 
-[@wpkernel/php-json-ast](../README.md) / PHP_METHOD_MODIFIER_ABSTRACT
+[@wpkernel/php-json-ast](../README.md) / PHP\_METHOD\_MODIFIER\_ABSTRACT
 
-# Variable: PHP_METHOD_MODIFIER_ABSTRACT
+# Variable: PHP\_METHOD\_MODIFIER\_ABSTRACT
 
 ```ts
 const PHP_METHOD_MODIFIER_ABSTRACT: 16 = 16;

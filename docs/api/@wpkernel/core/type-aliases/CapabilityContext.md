@@ -1,6 +1,6 @@
-[**@wpkernel/core v0.12.3-beta.0**](../README.md)
+[**@wpkernel/core v0.12.3-beta.1**](../README.md)
 
----
+***
 
 [@wpkernel/core](../README.md) / CapabilityContext
 
@@ -19,28 +19,27 @@ first parameter and use it to make capability decisions.
 ## Example
 
 ```typescript
-const rule: CapabilityRule<number> = async (ctx, postId) => {
-	// Log evaluation
-	ctx.reporter?.debug('Checking edit capability', { postId });
+const rule: CapabilityRule&lt;number&gt; = async (ctx, postId) =&gt; {
+  // Log evaluation
+  ctx.reporter?.debug('Checking edit capability', { postId });
 
-	// Check cached result first
-	const cacheKey = `posts.edit::${postId}`;
-	const cached = ctx.cache.get(cacheKey);
-	if (typeof cached === 'boolean') {
-		ctx.reporter?.debug('Cache hit', { result: cached });
-		return cached;
-	}
+  // Check cached result first
+  const cacheKey = `posts.edit::${postId}`;
+  const cached = ctx.cache.get(cacheKey);
+  if (typeof cached === 'boolean') {
+    ctx.reporter?.debug('Cache hit', { result: cached });
+    return cached;
+  }
 
-	// Use adapter for capability check
-	const result =
-		(await ctx.adapters.wp?.canUser('update', {
-			kind: 'postType',
-			name: 'post',
-			id: postId,
-		})) ?? false;
+  // Use adapter for capability check
+  const result = await ctx.adapters.wp?.canUser('update', {
+    kind: 'postType',
+    name: 'post',
+    id: postId
+  }) ?? false;
 
-	ctx.reporter?.info('Capability checked', { postId, result });
-	return result;
+  ctx.reporter?.info('Capability checked', { postId, result });
+  return result;
 };
 ```
 
@@ -52,7 +51,7 @@ const rule: CapabilityRule<number> = async (ctx, postId) => {
 adapters: CapabilityAdapters;
 ```
 
----
+***
 
 ### cache
 
@@ -60,7 +59,7 @@ adapters: CapabilityAdapters;
 cache: CapabilityCache;
 ```
 
----
+***
 
 ### namespace
 
@@ -68,7 +67,7 @@ cache: CapabilityCache;
 namespace: string;
 ```
 
----
+***
 
 ### reporter?
 

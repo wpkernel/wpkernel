@@ -1,6 +1,6 @@
-[**@wpkernel/core v0.12.3-beta.0**](../README.md)
+[**@wpkernel/core v0.12.3-beta.1**](../README.md)
 
----
+***
 
 [@wpkernel/core](../README.md) / CapabilityCache
 
@@ -17,19 +17,19 @@ Minimal cache contract used by the capability runtime and React hook.
 ### clear()
 
 ```ts
-clear: () => void;
+clear: () =&gt; void;
 ```
 
 #### Returns
 
 `void`
 
----
+***
 
 ### get()
 
 ```ts
-get: (key) => boolean | undefined;
+get: (key) =&gt; boolean | undefined;
 ```
 
 #### Parameters
@@ -42,24 +42,24 @@ get: (key) => boolean | undefined;
 
 `boolean` \| `undefined`
 
----
+***
 
 ### getSnapshot()
 
 ```ts
-getSnapshot: () => number;
+getSnapshot: () =&gt; number;
 ```
 
 #### Returns
 
 `number`
 
----
+***
 
 ### invalidate()
 
 ```ts
-invalidate: (capabilityKey?) => void;
+invalidate: (capabilityKey?) =&gt; void;
 ```
 
 #### Parameters
@@ -72,24 +72,24 @@ invalidate: (capabilityKey?) => void;
 
 `void`
 
----
+***
 
 ### keys()
 
 ```ts
-keys: () => string[];
+keys: () =&gt; string[];
 ```
 
 #### Returns
 
 `string`[]
 
----
+***
 
 ### set()
 
 ```ts
-set: (key, value, options?) => void;
+set: (key, value, options?) =&gt; void;
 ```
 
 #### Parameters
@@ -120,19 +120,19 @@ set: (key, value, options?) => void;
 
 `void`
 
----
+***
 
 ### subscribe()
 
 ```ts
-subscribe: (listener) => () => void;
+subscribe: (listener) =&gt; () =&gt; void;
 ```
 
 #### Parameters
 
 ##### listener
 
-() => `void`
+() =&gt; `void`
 
 #### Returns
 

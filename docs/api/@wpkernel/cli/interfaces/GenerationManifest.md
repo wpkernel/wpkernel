@@ -1,6 +1,6 @@
-[**@wpkernel/cli v0.12.3-beta.0**](../README.md)
+[**@wpkernel/cli v0.12.3-beta.1**](../README.md)
 
----
+***
 
 [@wpkernel/cli](../README.md) / GenerationManifest
 
@@ -13,10 +13,10 @@ Represents the manifest of generated files and resources.
 ### resources
 
 ```ts
-readonly resources: Record<string, GenerationManifestResourceEntry>;
+readonly resources: Record&lt;string, GenerationManifestResourceEntry&gt;;
 ```
 
----
+***
 
 ### version
 
@@ -24,26 +24,40 @@ readonly resources: Record<string, GenerationManifestResourceEntry>;
 readonly version: 1;
 ```
 
----
+***
+
+### blocks?
+
+```ts
+readonly optional blocks: object;
+```
+
+#### files
+
+```ts
+readonly files: readonly GenerationManifestFilePair[];
+```
+
+***
 
 ### phpIndex?
 
 ```ts
-readonly optional phpIndex: GenerationManifestFilePair;
+readonly optional phpIndex: GenerationManifestFile;
 ```
 
----
+***
 
 ### pluginLoader?
 
 ```ts
-readonly optional pluginLoader: GenerationManifestFilePair;
+readonly optional pluginLoader: GenerationManifestFile;
 ```
 
----
+***
 
-### ui?
+### runtime?
 
 ```ts
-readonly optional ui: GenerationManifestUiState;
+readonly optional runtime: GenerationManifestRuntimeState;
 ```

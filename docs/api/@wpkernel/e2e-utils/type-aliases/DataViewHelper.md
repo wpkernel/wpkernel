@@ -1,6 +1,6 @@
-[**@wpkernel/e2e-utils v0.12.3-beta.0**](../README.md)
+[**@wpkernel/e2e-utils v0.12.3-beta.1**](../README.md)
 
----
+***
 
 [@wpkernel/e2e-utils](../README.md) / DataViewHelper
 
@@ -17,21 +17,21 @@ Convenience helpers for interacting with ResourceDataView in tests.
 ### clearSearch()
 
 ```ts
-clearSearch: () => Promise<void>;
+clearSearch: () =&gt; Promise&lt;void&gt;;
 ```
 
 Clear the search control.
 
 #### Returns
 
-`Promise`<`void`>
+`Promise`&lt;`void`&gt;
 
----
+***
 
 ### getRow()
 
 ```ts
-getRow: (text) => Locator;
+getRow: (text) =&gt; Locator;
 ```
 
 Retrieve a locator for a row containing the provided text.
@@ -46,40 +46,40 @@ Retrieve a locator for a row containing the provided text.
 
 `Locator`
 
----
+***
 
 ### getSelectedCount()
 
 ```ts
-getSelectedCount: () => Promise<number>;
+getSelectedCount: () =&gt; Promise&lt;number&gt;;
 ```
 
 Read the bulk selection counter rendered in the footer.
 
 #### Returns
 
-`Promise`<`number`>
+`Promise`&lt;`number`&gt;
 
----
+***
 
 ### getTotalCount()
 
 ```ts
-getTotalCount: () => Promise<number>;
+getTotalCount: () =&gt; Promise&lt;number&gt;;
 ```
 
 Read the total item count exposed by the wrapper metadata.
 
 #### Returns
 
-`Promise`<`number`>
+`Promise`&lt;`number`&gt;
 
----
+***
 
 ### root()
 
 ```ts
-root: () => Locator;
+root: () =&gt; Locator;
 ```
 
 Root locator for the DataView wrapper.
@@ -88,12 +88,12 @@ Root locator for the DataView wrapper.
 
 `Locator`
 
----
+***
 
 ### runBulkAction()
 
 ```ts
-runBulkAction: (label) => Promise<void>;
+runBulkAction: (label) =&gt; Promise&lt;void&gt;;
 ```
 
 Trigger a bulk action button by its visible label.
@@ -106,14 +106,14 @@ Trigger a bulk action button by its visible label.
 
 #### Returns
 
-`Promise`<`void`>
+`Promise`&lt;`void`&gt;
 
----
+***
 
 ### search()
 
 ```ts
-search: (value) => Promise<void>;
+search: (value) =&gt; Promise&lt;void&gt;;
 ```
 
 Fill the toolbar search control.
@@ -126,14 +126,14 @@ Fill the toolbar search control.
 
 #### Returns
 
-`Promise`<`void`>
+`Promise`&lt;`void`&gt;
 
----
+***
 
 ### selectRow()
 
 ```ts
-selectRow: (text) => Promise<void>;
+selectRow: (text) =&gt; Promise&lt;void&gt;;
 ```
 
 Toggle selection for a row that matches the provided text.
@@ -146,18 +146,18 @@ Toggle selection for a row that matches the provided text.
 
 #### Returns
 
-`Promise`<`void`>
+`Promise`&lt;`void`&gt;
 
----
+***
 
 ### waitForLoaded()
 
 ```ts
-waitForLoaded: () => Promise<void>;
+waitForLoaded: () =&gt; Promise&lt;void&gt;;
 ```
 
 Wait until the DataView reports that loading has finished.
 
 #### Returns
 
-`Promise`<`void`>
+`Promise`&lt;`void`&gt;

@@ -1,6 +1,6 @@
-[**@wpkernel/e2e-utils v0.12.3-beta.0**](../README.md)
+[**@wpkernel/e2e-utils v0.12.3-beta.1**](../README.md)
 
----
+***
 
 [@wpkernel/e2e-utils](../README.md) / ManifestComparisonDefinition
 
@@ -13,18 +13,18 @@ Specification for before/after manifest comparisons.
 ### after
 
 ```ts
-after: Record<string, ManifestMutationDefinition>;
+after: Record&lt;string, ManifestMutationDefinition&gt;;
 ```
 
----
+***
 
 ### before
 
 ```ts
-before: Record<string, ManifestFileDefinition>;
+before: Record&lt;string, ManifestFileDefinition&gt;;
 ```
 
----
+***
 
 ### ignore?
 

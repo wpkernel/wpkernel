@@ -1,6 +1,6 @@
-[**@wpkernel/test-utils v0.12.3-beta.0**](../README.md)
+[**@wpkernel/test-utils v0.12.3-beta.1**](../README.md)
 
----
+***
 
 [@wpkernel/test-utils](../README.md) / BuildNodeOptionsConfig
 
@@ -14,7 +14,7 @@
 optional base: string;
 ```
 
----
+***
 
 ### extras?
 
@@ -22,7 +22,7 @@ optional base: string;
 optional extras: readonly string[];
 ```
 
----
+***
 
 ### loader?
 
@@ -30,7 +30,7 @@ optional extras: readonly string[];
 optional loader: string;
 ```
 
----
+***
 
 ### noWarnings?
 

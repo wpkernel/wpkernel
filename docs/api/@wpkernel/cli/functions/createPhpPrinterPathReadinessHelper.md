@@ -1,22 +1,21 @@
-[**@wpkernel/cli v0.12.3-beta.0**](../README.md)
+[**@wpkernel/cli v0.12.3-beta.1**](../README.md)
 
----
+***
 
 [@wpkernel/cli](../README.md) / createPhpPrinterPathReadinessHelper
 
 # Function: createPhpPrinterPathReadinessHelper()
 
 ```ts
-function createPhpPrinterPathReadinessHelper(overrides): ReadinessHelper & lt;
-PhpPrinterPathState & gt;
+function createPhpPrinterPathReadinessHelper(overrides): ReadinessHelper&lt;PhpPrinterPathState&gt;;
 ```
 
 ## Parameters
 
 ### overrides
 
-`Partial`<[`PhpPrinterPathDependencies`](../interfaces/PhpPrinterPathDependencies.md)> = `{}`
+`Partial`&lt;[`PhpPrinterPathDependencies`](../interfaces/PhpPrinterPathDependencies.md)&gt; = `{}`
 
 ## Returns
 
-[`ReadinessHelper`](../interfaces/ReadinessHelper.md)<[`PhpPrinterPathState`](../interfaces/PhpPrinterPathState.md)>
+[`ReadinessHelper`](../interfaces/ReadinessHelper.md)&lt;[`PhpPrinterPathState`](../interfaces/PhpPrinterPathState.md)&gt;

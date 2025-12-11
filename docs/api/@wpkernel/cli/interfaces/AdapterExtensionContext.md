@@ -1,35 +1,45 @@
-[**@wpkernel/cli v0.12.3-beta.0**](../README.md)
+[**@wpkernel/cli v0.12.3-beta.1**](../README.md)
 
----
+***
 
 [@wpkernel/cli](../README.md) / AdapterExtensionContext
 
-# Interface: AdapterExtensionContext
+# Interface: AdapterExtensionContext&lt;TConfigSurface, TIr&gt;
 
 Execution context provided to adapter extensions.
 
 ## Extends
 
-- [`AdapterContext`](AdapterContext.md)
+- [`AdapterContext`](AdapterContext.md)&lt;`TConfigSurface`, `TIr`&gt;
+
+## Type Parameters
+
+### TConfigSurface
+
+`TConfigSurface` = `unknown`
+
+### TIr
+
+`TIr` = `unknown`
 
 ## Properties
 
 ### config
 
 ```ts
-config: WPKernelConfigV1;
+config: TConfigSurface;
 ```
 
 #### Inherited from
 
 [`AdapterContext`](AdapterContext.md).[`config`](AdapterContext.md#config)
 
----
+***
 
 ### formatPhp()
 
 ```ts
-formatPhp: (filePath, contents) => Promise<string>;
+formatPhp: (filePath, contents) =&gt; Promise&lt;string&gt;;
 ```
 
 #### Parameters
@@ -44,14 +54,14 @@ formatPhp: (filePath, contents) => Promise<string>;
 
 #### Returns
 
-`Promise`<`string`>
+`Promise`&lt;`string`&gt;
 
----
+***
 
 ### formatTs()
 
 ```ts
-formatTs: (filePath, contents) => Promise<string>;
+formatTs: (filePath, contents) =&gt; Promise&lt;string&gt;;
 ```
 
 #### Parameters
@@ -66,21 +76,9 @@ formatTs: (filePath, contents) => Promise<string>;
 
 #### Returns
 
-`Promise`<`string`>
+`Promise`&lt;`string`&gt;
 
----
-
-### ir
-
-```ts
-ir: IRv1;
-```
-
-#### Overrides
-
-[`AdapterContext`](AdapterContext.md).[`ir`](AdapterContext.md#ir)
-
----
+***
 
 ### namespace
 
@@ -92,7 +90,7 @@ namespace: string;
 
 [`AdapterContext`](AdapterContext.md).[`namespace`](AdapterContext.md#namespace)
 
----
+***
 
 ### outputDir
 
@@ -100,12 +98,12 @@ namespace: string;
 outputDir: string;
 ```
 
----
+***
 
 ### queueFile()
 
 ```ts
-queueFile: (filePath, contents) => Promise<void>;
+queueFile: (filePath, contents) =&gt; Promise&lt;void&gt;;
 ```
 
 #### Parameters
@@ -120,9 +118,9 @@ queueFile: (filePath, contents) => Promise<void>;
 
 #### Returns
 
-`Promise`<`void`>
+`Promise`&lt;`void`&gt;
 
----
+***
 
 ### reporter
 
@@ -134,7 +132,7 @@ reporter: Reporter;
 
 [`AdapterContext`](AdapterContext.md).[`reporter`](AdapterContext.md#reporter)
 
----
+***
 
 ### tempDir
 
@@ -142,28 +140,40 @@ reporter: Reporter;
 tempDir: string;
 ```
 
----
+***
 
 ### updateIr()
 
 ```ts
-updateIr: (ir) => void;
+updateIr: (ir) =&gt; void;
 ```
 
 #### Parameters
 
 ##### ir
 
-[`IRv1`](IRv1.md)
+`TIr`
 
 #### Returns
 
 `void`
 
----
+***
 
 ### configDirectory?
 
 ```ts
 optional configDirectory: string;
 ```
+
+***
+
+### ir?
+
+```ts
+optional ir: TIr;
+```
+
+#### Inherited from
+
+[`AdapterContext`](AdapterContext.md).[`ir`](AdapterContext.md#ir)

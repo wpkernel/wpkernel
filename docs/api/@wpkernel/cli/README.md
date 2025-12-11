@@ -1,8 +1,8 @@
-**@wpkernel/cli v0.12.3-beta.0**
+**@wpkernel/cli v0.12.3-beta.1**
 
----
+***
 
-# @wpkernel/cli v0.12.3-beta.0
+# @wpkernel/cli v0.12.3-beta.1
 
 Top-level exports for the `@wpkernel/cli` package.
 
@@ -29,20 +29,27 @@ wpk and UI packages.
 ### Config
 
 - [LoadedWPKernelConfig](interfaces/LoadedWPKernelConfig.md)
+- [ResourceRegistry](interfaces/ResourceRegistry.md)
 - [SchemaConfig](interfaces/SchemaConfig.md)
 - [SchemaRegistry](interfaces/SchemaRegistry.md)
 - [WPKernelConfigV1](interfaces/WPKernelConfigV1.md)
 
 ### AST Builders
 
+- [CollatedPhpBlockArtifacts](interfaces/CollatedPhpBlockArtifacts.md)
+- [CollatePhpBlockArtifactsOptions](interfaces/CollatePhpBlockArtifactsOptions.md)
 - [CreatePhpBuilderOptions](interfaces/CreatePhpBuilderOptions.md)
-- [CreateTsBuilderOptions](interfaces/CreateTsBuilderOptions.md)
 - [ResourceDescriptor](interfaces/ResourceDescriptor.md)
+- [ResourceStorageHelperState](interfaces/ResourceStorageHelperState.md)
+- [StageRenderStubsOptions](interfaces/StageRenderStubsOptions.md)
 - [TsBuilderAfterEmitOptions](interfaces/TsBuilderAfterEmitOptions.md)
 - [TsBuilderCreator](interfaces/TsBuilderCreator.md)
 - [TsBuilderCreatorContext](interfaces/TsBuilderCreatorContext.md)
 - [TsBuilderEmitOptions](interfaces/TsBuilderEmitOptions.md)
 - [TsBuilderLifecycleHooks](interfaces/TsBuilderLifecycleHooks.md)
+- [WpOptionStorageHelperArtifacts](interfaces/WpOptionStorageHelperArtifacts.md)
+- [WpPostRouteHelperState](interfaces/WpPostRouteHelperState.md)
+- [WpTaxonomyStorageHelperArtifacts](interfaces/WpTaxonomyStorageHelperArtifacts.md)
 
 ### Adapters
 
@@ -51,10 +58,6 @@ wpk and UI packages.
 - [AdapterExtensionContext](interfaces/AdapterExtensionContext.md)
 - [AdaptersConfig](interfaces/AdaptersConfig.md)
 - [PhpAdapterConfig](interfaces/PhpAdapterConfig.md)
-
-### CLI
-
-- [CapabilityCapabilityDescriptor](interfaces/CapabilityCapabilityDescriptor.md)
 
 ### Workspace
 
@@ -69,8 +72,8 @@ wpk and UI packages.
 
 ### IR
 
-- [BuildIrOptions](interfaces/BuildIrOptions.md)
 - [CreateIrEnvironment](interfaces/CreateIrEnvironment.md)
+- [FragmentIrOptions](interfaces/FragmentIrOptions.md)
 - [IRBlock](interfaces/IRBlock.md)
 - [IRCapabilityDefinition](interfaces/IRCapabilityDefinition.md)
 - [IRCapabilityHint](interfaces/IRCapabilityHint.md)
@@ -112,13 +115,14 @@ wpk and UI packages.
 - [ComposerReadinessState](interfaces/ComposerReadinessState.md)
 - [CreateBackupsOptions](interfaces/CreateBackupsOptions.md)
 - [CreateHelperOptions](interfaces/CreateHelperOptions.md)
+- [CreatePhpProgramWriterHelperOptions](interfaces/CreatePhpProgramWriterHelperOptions.md)
 - [DefaultReadinessHelperOverrides](interfaces/DefaultReadinessHelperOverrides.md)
 - [DxContext](interfaces/DxContext.md)
 - [DxEnvironment](interfaces/DxEnvironment.md)
 - [FileWriteRecord](interfaces/FileWriteRecord.md)
 - [FileWriterSummary](interfaces/FileWriterSummary.md)
 - [GenerationManifest](interfaces/GenerationManifest.md)
-- [GenerationManifestFilePair](interfaces/GenerationManifestFilePair.md)
+- [GenerationManifestFile](interfaces/GenerationManifestFile.md)
 - [GenerationManifestResourceArtifacts](interfaces/GenerationManifestResourceArtifacts.md)
 - [GenerationManifestResourceEntry](interfaces/GenerationManifestResourceEntry.md)
 - [GenerationSummary](interfaces/GenerationSummary.md)
@@ -137,13 +141,18 @@ wpk and UI packages.
 - [PatchManifest](interfaces/PatchManifest.md)
 - [PatchManifestSummary](interfaces/PatchManifestSummary.md)
 - [PatchRecord](interfaces/PatchRecord.md)
+- [PhpBuilderChannel](interfaces/PhpBuilderChannel.md)
 - [PhpCodemodIngestionDependencies](interfaces/PhpCodemodIngestionDependencies.md)
 - [PhpCodemodIngestionState](interfaces/PhpCodemodIngestionState.md)
 - [PhpDriverConfigurationOptions](interfaces/PhpDriverConfigurationOptions.md)
 - [PhpPrinterPathDependencies](interfaces/PhpPrinterPathDependencies.md)
 - [PhpPrinterPathState](interfaces/PhpPrinterPathState.md)
+- [PhpProgramAction](interfaces/PhpProgramAction.md)
 - [PhpRuntimeDependencies](interfaces/PhpRuntimeDependencies.md)
 - [PhpRuntimeState](interfaces/PhpRuntimeState.md)
+- [PluginLoaderUiConfig](interfaces/PluginLoaderUiConfig.md)
+- [PopulateArtifactsBaseOptions](interfaces/PopulateArtifactsBaseOptions.md)
+- [PopulateWpPostRouteBundlesOptions](interfaces/PopulateWpPostRouteBundlesOptions.md)
 - [QuickstartDependencies](interfaces/QuickstartDependencies.md)
 - [QuickstartHelperOptions](interfaces/QuickstartHelperOptions.md)
 - [QuickstartRunResult](interfaces/QuickstartRunResult.md)
@@ -161,19 +170,15 @@ wpk and UI packages.
 - [ReleasePackHelperOptions](interfaces/ReleasePackHelperOptions.md)
 - [ReleasePackManifestEntry](interfaces/ReleasePackManifestEntry.md)
 - [ReleasePackState](interfaces/ReleasePackState.md)
-- [ResourceRegistry](interfaces/ResourceRegistry.md)
+- [ResourceStorageHelperHost](interfaces/ResourceStorageHelperHost.md)
 - [TsxRuntimeDependencies](interfaces/TsxRuntimeDependencies.md)
 - [TsxRuntimeState](interfaces/TsxRuntimeState.md)
 - [WorkspaceGitStatusEntry](interfaces/WorkspaceGitStatusEntry.md)
 - [WorkspaceHygieneDependencies](interfaces/WorkspaceHygieneDependencies.md)
 - [WorkspaceHygieneState](interfaces/WorkspaceHygieneState.md)
+- [WpPostRouteHelperHost](interfaces/WpPostRouteHelperHost.md)
 
 ## Type Aliases
-
-### Capability
-
-- [CapabilityMapDefinition](type-aliases/CapabilityMapDefinition.md)
-- [CapabilityMapEntry](type-aliases/CapabilityMapEntry.md)
 
 ### Commands
 
@@ -186,6 +191,10 @@ wpk and UI packages.
 ### Config
 
 - [ConfigOrigin](type-aliases/ConfigOrigin.md)
+
+### AST Builders
+
+- [WpOptionStorage](type-aliases/WpOptionStorage.md)
 
 ### Adapters
 
@@ -220,25 +229,31 @@ wpk and UI packages.
 - [ApplyCommandConstructor](type-aliases/ApplyCommandConstructor.md)
 - [ApplyCommandInstance](type-aliases/ApplyCommandInstance.md)
 - [ApplyLogStatus](type-aliases/ApplyLogStatus.md)
-- [BuilderHelperOptions](type-aliases/BuilderHelperOptions.md)
-- [CapabilityMapScope](type-aliases/CapabilityMapScope.md)
-- [CliReporter](type-aliases/CliReporter.md)
 - [CommandConstructor](type-aliases/CommandConstructor.md)
+- [ContentModel](type-aliases/ContentModel.md)
 - [FileWriteStatus](type-aliases/FileWriteStatus.md)
-- [FragmentHelperOptions](type-aliases/FragmentHelperOptions.md)
 - [HelperApplyFn](type-aliases/HelperApplyFn.md)
 - [HelperKind](type-aliases/HelperKind.md)
 - [HelperMode](type-aliases/HelperMode.md)
 - [IrFragment](type-aliases/IrFragment.md)
+- [NormalizedMenuConfig](type-aliases/NormalizedMenuConfig.md)
 - [PatchStatus](type-aliases/PatchStatus.md)
+- [PhpBuilderApplyOptions](type-aliases/PhpBuilderApplyOptions.md)
 - [PipelinePhase](type-aliases/PipelinePhase.md)
+- [PluginLoaderUiResourceDescriptor](type-aliases/PluginLoaderUiResourceDescriptor.md)
+- [PostTypesMap](type-aliases/PostTypesMap.md)
 - [ReadinessConfirmationStatus](type-aliases/ReadinessConfirmationStatus.md)
 - [ReadinessHelperFactory](type-aliases/ReadinessHelperFactory.md)
 - [ReadinessKey](type-aliases/ReadinessKey.md)
 - [ReadinessOutcomeStatus](type-aliases/ReadinessOutcomeStatus.md)
 - [ReadinessStatus](type-aliases/ReadinessStatus.md)
+- [Resource](type-aliases/Resource.md)
 - [ScaffoldStatus](type-aliases/ScaffoldStatus.md)
+- [StatusesMap](type-aliases/StatusesMap.md)
+- [TaxonomiesMap](type-aliases/TaxonomiesMap.md)
 - [WorkspaceGitStatus](type-aliases/WorkspaceGitStatus.md)
+- [WpPostStorage](type-aliases/WpPostStorage.md)
+- [WpTaxonomyStorage](type-aliases/WpTaxonomyStorage.md)
 
 ## Variables
 
@@ -248,19 +263,16 @@ wpk and UI packages.
 
 ### IR
 
-- [META_EXTENSION_KEY](variables/META_EXTENSION_KEY.md)
-- [SCHEMA_EXTENSION_KEY](variables/SCHEMA_EXTENSION_KEY.md)
+- [META\_EXTENSION\_KEY](variables/META_EXTENSION_KEY.md)
+- [SCHEMA\_EXTENSION\_KEY](variables/SCHEMA_EXTENSION_KEY.md)
 
 ### Other
 
-- [DEFAULT_READINESS_ORDER](variables/DEFAULT_READINESS_ORDER.md)
+- [DEFAULT\_READINESS\_ORDER](variables/DEFAULT_READINESS_ORDER.md)
+- [resourceAccessors](variables/resourceAccessors.md)
 - [VERSION](variables/VERSION.md)
 
 ## Functions
-
-### Capability
-
-- [defineCapabilityMap](functions/defineCapabilityMap.md)
 
 ### Commands
 
@@ -274,11 +286,26 @@ wpk and UI packages.
 ### AST Builders
 
 - [buildTsFormatter](functions/buildTsFormatter.md)
+- [createAdminScreenBuilder](functions/createAdminScreenBuilder.md)
 - [createApplyPlanBuilder](functions/createApplyPlanBuilder.md)
 - [createJsBlocksBuilder](functions/createJsBlocksBuilder.md)
 - [createPatcher](functions/createPatcher.md)
-- [createPhpBuilder](functions/createPhpBuilder.md)
-- [createTsBuilder](functions/createTsBuilder.md)
+- [createPhpBaseControllerHelper](functions/createPhpBaseControllerHelper.md)
+- [createPhpBlocksHelper](functions/createPhpBlocksHelper.md)
+- [createPhpCapabilityHelper](functions/createPhpCapabilityHelper.md)
+- [createPhpChannelHelper](functions/createPhpChannelHelper.md)
+- [createPhpIndexFileHelper](functions/createPhpIndexFileHelper.md)
+- [createPhpPersistenceRegistryHelper](functions/createPhpPersistenceRegistryHelper.md)
+- [createPhpPluginLoaderHelper](functions/createPhpPluginLoaderHelper.md)
+- [createPhpResourceControllerHelper](functions/createPhpResourceControllerHelper.md)
+- [createPhpTransientStorageHelper](functions/createPhpTransientStorageHelper.md)
+- [createPhpWpOptionStorageHelper](functions/createPhpWpOptionStorageHelper.md)
+- [createPhpWpPostRoutesHelper](functions/createPhpWpPostRoutesHelper.md)
+- [createPhpWpTaxonomyStorageHelper](functions/createPhpWpTaxonomyStorageHelper.md)
+- [createPlanBuilder](functions/createPlanBuilder.md)
+- [createWpProgramWriterHelper](functions/createWpProgramWriterHelper.md)
+- [getWpPostRouteHelperState](functions/getWpPostRouteHelperState.md)
+- [readWpPostRouteBundle](functions/readWpPostRouteBundle.md)
 
 ### CLI
 
@@ -292,16 +319,15 @@ wpk and UI packages.
 
 ### IR
 
-- [buildIr](functions/buildIr.md)
 - [createBlocksFragment](functions/createBlocksFragment.md)
 - [createCapabilitiesFragment](functions/createCapabilitiesFragment.md)
 - [createCapabilityMapFragment](functions/createCapabilityMapFragment.md)
 - [createDiagnosticsFragment](functions/createDiagnosticsFragment.md)
 - [createIr](functions/createIr.md)
+- [createIrWithBuilders](functions/createIrWithBuilders.md)
 - [createMetaFragment](functions/createMetaFragment.md)
 - [createOrderingFragment](functions/createOrderingFragment.md)
 - [createResourcesFragment](functions/createResourcesFragment.md)
-- [createSchemasFragment](functions/createSchemasFragment.md)
 - [createValidationFragment](functions/createValidationFragment.md)
 - [registerCoreBuilders](functions/registerCoreBuilders.md)
 - [registerCoreFragments](functions/registerCoreFragments.md)
@@ -309,34 +335,49 @@ wpk and UI packages.
 ### Runtime
 
 - [createHelper](functions/createHelper.md)
-- [createPipeline](functions/createPipeline.md)
 
 ### Builders
 
 - [createTsCapabilityBuilder](functions/createTsCapabilityBuilder.md)
 - [createTsIndexBuilder](functions/createTsIndexBuilder.md)
+- [createTsResourcesBuilder](functions/createTsResourcesBuilder.md)
+- [createTsTypesBuilder](functions/createTsTypesBuilder.md)
 
 ### Other
 
 - [assertReadinessRun](functions/assertReadinessRun.md)
 - [buildDefaultReadinessRegistry](functions/buildDefaultReadinessRegistry.md)
+- [buildPhpPrettyPrinter](functions/buildPhpPrettyPrinter.md)
+- [createAppConfigBuilder](functions/createAppConfigBuilder.md)
+- [createAppFormBuilder](functions/createAppFormBuilder.md)
 - [createBootstrapperResolutionReadinessHelper](functions/createBootstrapperResolutionReadinessHelper.md)
 - [createBundler](functions/createBundler.md)
 - [createComposerReadinessHelper](functions/createComposerReadinessHelper.md)
+- [createDataViewInteractivityFixtureBuilder](functions/createDataViewInteractivityFixtureBuilder.md)
+- [createDataViewRegistryBuilder](functions/createDataViewRegistryBuilder.md)
 - [createGitReadinessHelper](functions/createGitReadinessHelper.md)
 - [createLayoutFragment](functions/createLayoutFragment.md)
+- [createPhpBuilderConfigHelper](functions/createPhpBuilderConfigHelper.md)
+- [createPhpCodemodIngestionHelper](functions/createPhpCodemodIngestionHelper.md)
 - [createPhpCodemodIngestionReadinessHelper](functions/createPhpCodemodIngestionReadinessHelper.md)
 - [createPhpDriverInstaller](functions/createPhpDriverInstaller.md)
 - [createPhpPrinterPathReadinessHelper](functions/createPhpPrinterPathReadinessHelper.md)
 - [createPhpRuntimeReadinessHelper](functions/createPhpRuntimeReadinessHelper.md)
+- [createPipeline](functions/createPipeline.md)
 - [createQuickstartReadinessHelper](functions/createQuickstartReadinessHelper.md)
 - [createReadinessHelper](functions/createReadinessHelper.md)
 - [createReadinessRegistry](functions/createReadinessRegistry.md)
 - [createReleasePackReadinessHelper](functions/createReleasePackReadinessHelper.md)
+- [createSchemasFragment](functions/createSchemasFragment.md)
+- [createTsConfigBuilder](functions/createTsConfigBuilder.md)
 - [createTsxRuntimeReadinessHelper](functions/createTsxRuntimeReadinessHelper.md)
 - [createUiEntryBuilder](functions/createUiEntryBuilder.md)
 - [createWorkspaceHygieneReadinessHelper](functions/createWorkspaceHygieneReadinessHelper.md)
+- [getPhpBuilderChannel](functions/getPhpBuilderChannel.md)
+- [getPhpBuilderConfigState](functions/getPhpBuilderConfigState.md)
 - [readWorkspaceGitStatus](functions/readWorkspaceGitStatus.md)
 - [registerDefaultReadinessHelpers](functions/registerDefaultReadinessHelpers.md)
 - [registerReadinessHelperFactories](functions/registerReadinessHelperFactories.md)
+- [requireIr](functions/requireIr.md)
+- [resetPhpBuilderChannel](functions/resetPhpBuilderChannel.md)
 - [toWorkspaceRelative](functions/toWorkspaceRelative.md)

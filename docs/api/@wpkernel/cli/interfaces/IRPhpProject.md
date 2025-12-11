@@ -1,6 +1,6 @@
-[**@wpkernel/cli v0.12.3-beta.0**](../README.md)
+[**@wpkernel/cli v0.12.3-beta.1**](../README.md)
 
----
+***
 
 [@wpkernel/cli](../README.md) / IRPhpProject
 
@@ -18,7 +18,7 @@ autoload: string;
 
 The autoload path for the PHP project.
 
----
+***
 
 ### namespace
 
@@ -28,7 +28,7 @@ namespace: string;
 
 The PHP namespace of the project.
 
----
+***
 
 ### outputDir
 

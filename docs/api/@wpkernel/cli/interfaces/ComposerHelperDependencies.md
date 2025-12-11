@@ -1,6 +1,6 @@
-[**@wpkernel/cli v0.12.3-beta.0**](../README.md)
+[**@wpkernel/cli v0.12.3-beta.1**](../README.md)
 
----
+***
 
 [@wpkernel/cli](../README.md) / ComposerHelperDependencies
 
@@ -11,7 +11,7 @@
 ### pathExists()
 
 ```ts
-readonly pathExists: (candidate) => Promise<boolean>;
+readonly pathExists: (candidate) =&gt; Promise&lt;boolean&gt;;
 ```
 
 #### Parameters
@@ -22,4 +22,4 @@ readonly pathExists: (candidate) => Promise<boolean>;
 
 #### Returns
 
-`Promise`<`boolean`>
+`Promise`&lt;`boolean`&gt;

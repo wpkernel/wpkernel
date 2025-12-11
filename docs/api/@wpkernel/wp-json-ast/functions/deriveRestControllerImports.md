@@ -1,13 +1,13 @@
-[**@wpkernel/wp-json-ast v0.12.3-beta.0**](../README.md)
+[**@wpkernel/wp-json-ast v0.12.3-beta.1**](../README.md)
 
----
+***
 
 [@wpkernel/wp-json-ast](../README.md) / deriveRestControllerImports
 
 # Function: deriveRestControllerImports()
 
 ```ts
-function deriveRestControllerImports(routes, options): ReadonlySet<string>;
+function deriveRestControllerImports(routes, options): ReadonlySet&lt;string&gt;;
 ```
 
 ## Parameters
@@ -22,4 +22,4 @@ readonly [`RestRouteConfig`](../interfaces/RestRouteConfig.md)[]
 
 ## Returns
 
-`ReadonlySet`<`string`>
+`ReadonlySet`&lt;`string`&gt;

@@ -1,15 +1,13 @@
-[**@wpkernel/wp-json-ast v0.12.3-beta.0**](../README.md)
+[**@wpkernel/wp-json-ast v0.12.3-beta.1**](../README.md)
 
----
+***
 
 [@wpkernel/wp-json-ast](../README.md) / createWpPhpProgramBuilder
 
 # Function: createWpPhpProgramBuilder()
 
 ```ts
-function createWpPhpProgramBuilder<TContext, TInput, TOutput>(
-	options
-): BuilderHelper<TContext, TInput, TOutput>;
+function createWpPhpProgramBuilder&lt;TContext, TInput, TOutput&gt;(options): BuilderHelper&lt;TContext, TInput, TOutput&gt;;
 ```
 
 Creates a WordPress PHP program builder.
@@ -21,38 +19,34 @@ such as automatic generation of file headers and guards.
 
 ### TContext
 
-`TContext` _extends_ `PipelineContext` = `PipelineContext`
+`TContext` *extends* `PipelineContext` = `PipelineContext`
 
 ### TInput
 
-`TInput` _extends_ `BuilderInput` = `BuilderInput`
+`TInput` *extends* `BuilderInput` = `BuilderInput`
 
 ### TOutput
 
-`TOutput` _extends_ `BuilderOutput` = `BuilderOutput`
+`TOutput` *extends* `BuilderOutput` = `BuilderOutput`
 
 ## Parameters
 
 ### options
 
-[`CreateWpPhpProgramBuilderOptions`](../interfaces/CreateWpPhpProgramBuilderOptions.md)<`TContext`, `TInput`, `TOutput`>
+[`CreateWpPhpProgramBuilderOptions`](../interfaces/CreateWpPhpProgramBuilderOptions.md)&lt;`TContext`, `TInput`, `TOutput`&gt;
 
 Options for creating the builder.
 
 ## Returns
 
-`BuilderHelper`<`TContext`, `TInput`, `TOutput`>
+`BuilderHelper`&lt;`TContext`, `TInput`, `TOutput`&gt;
 
 A builder helper.
 
 ## Example
 
 ```ts
-import {
-	createWpPhpProgramBuilder,
-	buildReturn,
-	buildScalarString,
-} from '@wpkernel/wp-json-ast';
+import { createWpPhpProgramBuilder, buildReturn, buildScalarString } from '@wpkernel/wp-json-ast';
 
 const builder = createWpPhpProgramBuilder({
 	metadata: {
@@ -60,11 +54,13 @@ const builder = createWpPhpProgramBuilder({
 		pluginName: 'my-plugin',
 		description: 'My plugin description.',
 	},
-	build: (builder) => {
+	build: (builder) =&gt; {
 		builder.appendProgramStatement(
-			buildReturn(buildScalarString('Hello from my plugin!'))
+			buildReturn(
+				buildScalarString('Hello from my plugin!')
+			)
 		);
-	},
+	}
 });
 
 const result = await builder.apply(context, input);

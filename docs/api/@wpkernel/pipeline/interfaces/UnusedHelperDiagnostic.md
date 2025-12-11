@@ -1,10 +1,10 @@
-[**@wpkernel/pipeline v0.12.3-beta.0**](../README.md)
+[**@wpkernel/pipeline v0.12.3-beta.1**](../README.md)
 
----
+***
 
 [@wpkernel/pipeline](../README.md) / UnusedHelperDiagnostic
 
-# Interface: UnusedHelperDiagnostic<TKind>
+# Interface: UnusedHelperDiagnostic&lt;TKind&gt;
 
 Diagnostic for unused helpers.
 
@@ -12,7 +12,7 @@ Diagnostic for unused helpers.
 
 ### TKind
 
-`TKind` _extends_ [`HelperKind`](../type-aliases/HelperKind.md) = [`HelperKind`](../type-aliases/HelperKind.md)
+`TKind` *extends* [`HelperKind`](../type-aliases/HelperKind.md) = [`HelperKind`](../type-aliases/HelperKind.md)
 
 ## Properties
 
@@ -22,7 +22,7 @@ Diagnostic for unused helpers.
 readonly key: string;
 ```
 
----
+***
 
 ### message
 
@@ -30,7 +30,7 @@ readonly key: string;
 readonly message: string;
 ```
 
----
+***
 
 ### type
 
@@ -38,7 +38,7 @@ readonly message: string;
 readonly type: "unused-helper";
 ```
 
----
+***
 
 ### dependsOn?
 
@@ -46,7 +46,7 @@ readonly type: "unused-helper";
 readonly optional dependsOn: readonly string[];
 ```
 
----
+***
 
 ### helper?
 
@@ -54,7 +54,7 @@ readonly optional dependsOn: readonly string[];
 readonly optional helper: string;
 ```
 
----
+***
 
 ### kind?
 

@@ -1,6 +1,6 @@
-[**@wpkernel/php-json-ast v0.12.3-beta.0**](../README.md)
+[**@wpkernel/php-json-ast v0.12.3-beta.1**](../README.md)
 
----
+***
 
 [@wpkernel/php-json-ast](../README.md) / PhpStmtClass
 
@@ -20,7 +20,7 @@ Represents a PHP class declaration statement.
 readonly attrGroups: PhpAttrGroup[];
 ```
 
----
+***
 
 ### attributes
 
@@ -32,7 +32,7 @@ readonly attributes: PhpAttributes;
 
 [`PhpStmtBase`](PhpStmtBase.md).[`attributes`](PhpStmtBase.md#attributes)
 
----
+***
 
 ### extends
 
@@ -40,7 +40,7 @@ readonly attributes: PhpAttributes;
 readonly extends: PhpName | null;
 ```
 
----
+***
 
 ### flags
 
@@ -48,7 +48,7 @@ readonly extends: PhpName | null;
 readonly flags: number;
 ```
 
----
+***
 
 ### implements
 
@@ -56,7 +56,7 @@ readonly flags: number;
 readonly implements: PhpName[];
 ```
 
----
+***
 
 ### name
 
@@ -64,7 +64,7 @@ readonly implements: PhpName[];
 readonly name: PhpIdentifier | null;
 ```
 
----
+***
 
 ### namespacedName
 
@@ -72,7 +72,7 @@ readonly name: PhpIdentifier | null;
 readonly namespacedName: PhpName | null;
 ```
 
----
+***
 
 ### nodeType
 
@@ -84,7 +84,7 @@ readonly nodeType: "Stmt_Class";
 
 [`PhpStmtBase`](PhpStmtBase.md).[`nodeType`](PhpStmtBase.md#nodetype)
 
----
+***
 
 ### stmts
 

@@ -1,29 +1,15 @@
-[**@wpkernel/core v0.12.3-beta.0**](../README.md)
+[**@wpkernel/core v0.12.3-beta.1**](../README.md)
 
----
+***
 
 [@wpkernel/core](../README.md) / ResourceAdminUIConfig
 
-# Interface: ResourceAdminUIConfig<TItem, TQuery>
+# Interface: ResourceAdminUIConfig
 
-Admin UI configuration for a resource.
+Shallow admin UI configuration.
 
-Currently models the DataViews-based admin surface; additional admin
-integrations can extend this shape over time.
-
-## Type Parameters
-
-### TItem
-
-`TItem` = `unknown`
-
-Entity shape used in admin views.
-
-### TQuery
-
-`TQuery` = `unknown`
-
-Query shape used by admin list operations.
+Public config does *not* describe DataViews internals or menu wiring.
+Those are inferred from schema/storage/capabilities + layout manifest.
 
 ## Indexable
 
@@ -31,19 +17,9 @@ Query shape used by admin list operations.
 [key: string]: unknown
 ```
 
-Additional fields reserved for future extensions.
+Reserved for future extensions / internal tagging.
 
 ## Properties
-
-### dataviews?
-
-```ts
-optional dataviews: ResourceDataViewsUIConfig<TItem, TQuery>;
-```
-
-DataViews configuration for this resource's admin screen.
-
----
 
 ### view?
 
@@ -51,4 +27,5 @@ DataViews configuration for this resource's admin screen.
 optional view: string;
 ```
 
-Selected admin view implementation. `'dataviews'` is the canonical value.
+Selected admin view implementation.
+'dataviews' is the canonical value; others reserved for future.

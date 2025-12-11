@@ -1,6 +1,6 @@
-[**@wpkernel/cli v0.12.3-beta.0**](../README.md)
+[**@wpkernel/cli v0.12.3-beta.1**](../README.md)
 
----
+***
 
 [@wpkernel/cli](../README.md) / createSchemasFragment
 
@@ -10,13 +10,18 @@
 function createSchemasFragment(): IrFragment;
 ```
 
-Creates an IR fragment that processes and accumulates schema definitions.
+Creates an IR fragment that loads configured JSON Schemas.
 
-This fragment loads schemas configured in the `wpk.config.*` file and makes
-them available in the Intermediate Representation.
+This fragment:
+- Loads schemas declared in `config.schemas` from disk
+- Hashes and normalises them
+- Populates a shared SchemaAccumulator extension
+- Exposes the accumulator entries on `ir.schemas`
+
+It does NOT attach schemas to resources; that is done on demand by the
+resources fragment via resolveResourceSchema, which may also add
+auto/inline schemas to the same accumulator.
 
 ## Returns
 
 [`IrFragment`](../type-aliases/IrFragment.md)
-
-An `IrFragment` instance for schema processing.

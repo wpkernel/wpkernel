@@ -1,13 +1,13 @@
-[**@wpkernel/core v0.12.3-beta.0**](../README.md)
+[**@wpkernel/core v0.12.3-beta.1**](../README.md)
 
----
+***
 
 [@wpkernel/core](../README.md) / ResourceCacheSync
 
-# Type Alias: ResourceCacheSync<TEntity>
+# Type Alias: ResourceCacheSync&lt;TEntity&gt;
 
 ```ts
-type ResourceCacheSync<TEntity> = (snapshot) => void;
+type ResourceCacheSync&lt;TEntity&gt; = (snapshot) =&gt; void;
 ```
 
 Synchronizes a resource cache with a snapshot from server state.
@@ -22,7 +22,7 @@ Synchronizes a resource cache with a snapshot from server state.
 
 ### snapshot
 
-`Partial`<[`ResourceState`](ResourceState.md)<`TEntity`>>
+`Partial`&lt;[`ResourceState`](ResourceState.md)&lt;`TEntity`&gt;&gt;
 
 ## Returns
 

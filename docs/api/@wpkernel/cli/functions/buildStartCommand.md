@@ -1,13 +1,13 @@
-[**@wpkernel/cli v0.12.3-beta.0**](../README.md)
+[**@wpkernel/cli v0.12.3-beta.1**](../README.md)
 
----
+***
 
 [@wpkernel/cli](../README.md) / buildStartCommand
 
 # Function: buildStartCommand()
 
 ```ts
-function buildStartCommand(options): () => Command;
+function buildStartCommand(options): () =&gt; Command;
 ```
 
 Builds the `start` command for the CLI.

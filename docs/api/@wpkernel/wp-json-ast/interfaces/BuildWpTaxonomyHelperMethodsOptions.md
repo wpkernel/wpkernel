@@ -1,6 +1,6 @@
-[**@wpkernel/wp-json-ast v0.12.3-beta.0**](../README.md)
+[**@wpkernel/wp-json-ast v0.12.3-beta.1**](../README.md)
 
----
+***
 
 [@wpkernel/wp-json-ast](../README.md) / BuildWpTaxonomyHelperMethodsOptions
 
@@ -11,7 +11,7 @@
 ### errorCodeFactory()
 
 ```ts
-readonly errorCodeFactory: (suffix) => string;
+readonly errorCodeFactory: (suffix) =&gt; string;
 ```
 
 #### Parameters
@@ -24,7 +24,7 @@ readonly errorCodeFactory: (suffix) => string;
 
 `string`
 
----
+***
 
 ### identity
 
@@ -32,7 +32,7 @@ readonly errorCodeFactory: (suffix) => string;
 readonly identity: ResolvedIdentity;
 ```
 
----
+***
 
 ### pascalName
 
@@ -40,7 +40,7 @@ readonly identity: ResolvedIdentity;
 readonly pascalName: string;
 ```
 
----
+***
 
 ### storage
 

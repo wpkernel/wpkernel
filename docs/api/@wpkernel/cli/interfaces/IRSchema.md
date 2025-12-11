@@ -1,6 +1,6 @@
-[**@wpkernel/cli v0.12.3-beta.0**](../README.md)
+[**@wpkernel/cli v0.12.3-beta.1**](../README.md)
 
----
+***
 
 [@wpkernel/cli](../README.md) / IRSchema
 
@@ -18,7 +18,7 @@ hash: IRHashProvenance;
 
 A hash of the schema content for change detection.
 
----
+***
 
 ### id
 
@@ -28,7 +28,7 @@ id: string;
 
 Stable identifier for the schema entry.
 
----
+***
 
 ### key
 
@@ -38,7 +38,7 @@ key: string;
 
 A unique key for the schema.
 
----
+***
 
 ### provenance
 
@@ -48,7 +48,7 @@ provenance: SchemaProvenance;
 
 The provenance of the schema (manual or auto-generated).
 
----
+***
 
 ### schema
 
@@ -58,7 +58,7 @@ schema: unknown;
 
 The actual schema definition.
 
----
+***
 
 ### sourcePath
 
@@ -68,7 +68,7 @@ sourcePath: string;
 
 The source path of the schema definition.
 
----
+***
 
 ### generatedFrom?
 
@@ -87,5 +87,5 @@ resource: string;
 #### type
 
 ```ts
-type: 'storage';
+type: "storage";
 ```

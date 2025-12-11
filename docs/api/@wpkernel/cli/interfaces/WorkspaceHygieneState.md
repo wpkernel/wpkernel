@@ -1,6 +1,6 @@
-[**@wpkernel/cli v0.12.3-beta.0**](../README.md)
+[**@wpkernel/cli v0.12.3-beta.1**](../README.md)
 
----
+***
 
 [@wpkernel/cli](../README.md) / WorkspaceHygieneState
 
@@ -14,7 +14,7 @@
 readonly allowDirty: boolean;
 ```
 
----
+***
 
 ### gitRepositoryDetected
 
@@ -22,7 +22,7 @@ readonly allowDirty: boolean;
 readonly gitRepositoryDetected: boolean;
 ```
 
----
+***
 
 ### gitStatus
 
@@ -30,7 +30,7 @@ readonly gitRepositoryDetected: boolean;
 readonly gitStatus: WorkspaceGitStatus | null;
 ```
 
----
+***
 
 ### workspace
 
@@ -38,7 +38,7 @@ readonly gitStatus: WorkspaceGitStatus | null;
 readonly workspace: Workspace | null;
 ```
 
----
+***
 
 ### workspaceRoot
 

@@ -1,6 +1,6 @@
-[**@wpkernel/wp-json-ast v0.12.3-beta.0**](../README.md)
+[**@wpkernel/wp-json-ast v0.12.3-beta.1**](../README.md)
 
----
+***
 
 [@wpkernel/wp-json-ast](../README.md) / BuildCapabilityHelperMetadataOptions
 
@@ -14,7 +14,7 @@
 readonly definitions: readonly CapabilityDefinition[];
 ```
 
----
+***
 
 ### fallback
 
@@ -22,7 +22,7 @@ readonly definitions: readonly CapabilityDefinition[];
 readonly fallback: CapabilityFallback;
 ```
 
----
+***
 
 ### missing
 
@@ -30,7 +30,7 @@ readonly fallback: CapabilityFallback;
 readonly missing: readonly string[];
 ```
 
----
+***
 
 ### unused
 
@@ -38,7 +38,7 @@ readonly missing: readonly string[];
 readonly unused: readonly string[];
 ```
 
----
+***
 
 ### warnings
 
@@ -46,7 +46,7 @@ readonly unused: readonly string[];
 readonly warnings: readonly CapabilityMapWarning[];
 ```
 
----
+***
 
 ### sourcePath?
 

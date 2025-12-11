@@ -1,6 +1,6 @@
-[**@wpkernel/php-json-ast v0.12.3-beta.0**](../README.md)
+[**@wpkernel/php-json-ast v0.12.3-beta.1**](../README.md)
 
----
+***
 
 [@wpkernel/php-json-ast](../README.md) / PhpBuilderFactoryUseIntent
 
@@ -14,7 +14,7 @@
 readonly name: string;
 ```
 
----
+***
 
 ### alias?
 
@@ -22,7 +22,7 @@ readonly name: string;
 readonly optional alias: string | null;
 ```
 
----
+***
 
 ### kind?
 

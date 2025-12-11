@@ -1,10 +1,10 @@
-[**@wpkernel/ui v0.12.3-beta.0**](../README.md)
+[**@wpkernel/ui v0.12.3-beta.1**](../README.md)
 
----
+***
 
 [@wpkernel/ui](../README.md) / UseResourceItemResult
 
-# Interface: UseResourceItemResult<T>
+# Interface: UseResourceItemResult&lt;T&gt;
 
 Result shape for single-item resource hooks
 
@@ -26,7 +26,7 @@ data: T | undefined;
 
 The fetched entity, or undefined if not yet loaded
 
----
+***
 
 ### error
 
@@ -36,7 +36,7 @@ error: string | undefined;
 
 Error message if the fetch failed, undefined otherwise
 
----
+***
 
 ### isLoading
 

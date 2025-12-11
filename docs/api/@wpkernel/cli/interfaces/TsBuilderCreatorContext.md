@@ -1,6 +1,6 @@
-[**@wpkernel/cli v0.12.3-beta.0**](../README.md)
+[**@wpkernel/cli v0.12.3-beta.1**](../README.md)
 
----
+***
 
 [@wpkernel/cli](../README.md) / TsBuilderCreatorContext
 
@@ -10,16 +10,6 @@ Context provided to a `TsBuilderCreator` function.
 
 ## Properties
 
-### config
-
-```ts
-readonly config: WPKernelConfigV1;
-```
-
-The full WPKernel configuration.
-
----
-
 ### descriptor
 
 ```ts
@@ -28,12 +18,12 @@ readonly descriptor: ResourceDescriptor;
 
 The resource descriptor for which artifacts are being created.
 
----
+***
 
 ### emit()
 
 ```ts
-readonly emit: (options) => Promise<void>;
+readonly emit: (options) =&gt; Promise&lt;TsBuilderEmitResult&gt;;
 ```
 
 A function to emit a generated TypeScript file.
@@ -46,9 +36,9 @@ A function to emit a generated TypeScript file.
 
 #### Returns
 
-`Promise`<`void`>
+`Promise`&lt;`TsBuilderEmitResult`&gt;
 
----
+***
 
 ### ir
 
@@ -58,7 +48,7 @@ readonly ir: IRv1;
 
 The Intermediate Representation (IR) of the project.
 
----
+***
 
 ### paths
 
@@ -68,25 +58,37 @@ readonly paths: object;
 
 Resolved layout paths required for TS generation.
 
+#### blocksApplied
+
+```ts
+readonly blocksApplied: string;
+```
+
 #### blocksGenerated
 
 ```ts
 readonly blocksGenerated: string;
 ```
 
-#### jsGenerated
+#### runtimeApplied
 
 ```ts
-readonly jsGenerated: string;
+readonly runtimeApplied: string;
 ```
 
-#### uiGenerated
+#### runtimeGenerated
 
 ```ts
-readonly uiGenerated: string;
+readonly runtimeGenerated: string;
 ```
 
----
+#### surfacesApplied
+
+```ts
+readonly surfacesApplied: string;
+```
+
+***
 
 ### project
 
@@ -96,7 +98,7 @@ readonly project: Project;
 
 The `ts-morph` project instance for managing source files.
 
----
+***
 
 ### reporter
 
@@ -106,7 +108,7 @@ readonly reporter: Reporter;
 
 The reporter instance for logging.
 
----
+***
 
 ### sourcePath
 
@@ -116,7 +118,7 @@ readonly sourcePath: string;
 
 The source path of the configuration file.
 
----
+***
 
 ### workspace
 

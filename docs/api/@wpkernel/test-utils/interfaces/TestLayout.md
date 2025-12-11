@@ -1,6 +1,6 @@
-[**@wpkernel/test-utils v0.12.3-beta.0**](../README.md)
+[**@wpkernel/test-utils v0.12.3-beta.1**](../README.md)
 
----
+***
 
 [@wpkernel/test-utils](../README.md) / TestLayout
 
@@ -11,15 +11,15 @@
 ### all
 
 ```ts
-all: Record<string, string>;
+all: Record&lt;string, string&gt;;
 ```
 
----
+***
 
 ### resolve()
 
 ```ts
-resolve: (id) => string;
+resolve: (id) =&gt; string;
 ```
 
 #### Parameters

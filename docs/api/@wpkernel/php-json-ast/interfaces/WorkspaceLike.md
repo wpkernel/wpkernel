@@ -1,6 +1,6 @@
-[**@wpkernel/php-json-ast v0.12.3-beta.0**](../README.md)
+[**@wpkernel/php-json-ast v0.12.3-beta.1**](../README.md)
 
----
+***
 
 [@wpkernel/php-json-ast](../README.md) / WorkspaceLike
 
@@ -11,7 +11,7 @@
 ### exists()
 
 ```ts
-exists: (target) => Promise<boolean>;
+exists: (target) =&gt; Promise&lt;boolean&gt;;
 ```
 
 #### Parameters
@@ -22,14 +22,14 @@ exists: (target) => Promise<boolean>;
 
 #### Returns
 
-`Promise`<`boolean`>
+`Promise`&lt;`boolean`&gt;
 
----
+***
 
 ### resolve()
 
 ```ts
-resolve: (...parts) => string;
+resolve: (...parts) =&gt; string;
 ```
 
 #### Parameters
@@ -42,7 +42,7 @@ resolve: (...parts) => string;
 
 `string`
 
----
+***
 
 ### root
 

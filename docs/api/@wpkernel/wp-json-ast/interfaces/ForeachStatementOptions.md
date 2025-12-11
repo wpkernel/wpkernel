@@ -1,6 +1,6 @@
-[**@wpkernel/wp-json-ast v0.12.3-beta.0**](../README.md)
+[**@wpkernel/wp-json-ast v0.12.3-beta.1**](../README.md)
 
----
+***
 
 [@wpkernel/wp-json-ast](../README.md) / ForeachStatementOptions
 
@@ -14,7 +14,7 @@
 readonly iterable: PhpExpr;
 ```
 
----
+***
 
 ### statements
 
@@ -22,7 +22,7 @@ readonly iterable: PhpExpr;
 readonly statements: readonly PhpStmt[];
 ```
 
----
+***
 
 ### value
 
@@ -30,7 +30,7 @@ readonly statements: readonly PhpStmt[];
 readonly value: string | PhpExpr;
 ```
 
----
+***
 
 ### byRef?
 
@@ -38,7 +38,7 @@ readonly value: string | PhpExpr;
 readonly optional byRef: boolean;
 ```
 
----
+***
 
 ### key?
 

@@ -1,22 +1,21 @@
-[**@wpkernel/cli v0.12.3-beta.0**](../README.md)
+[**@wpkernel/cli v0.12.3-beta.1**](../README.md)
 
----
+***
 
 [@wpkernel/cli](../README.md) / createGitReadinessHelper
 
 # Function: createGitReadinessHelper()
 
 ```ts
-function createGitReadinessHelper(overrides): ReadinessHelper & lt;
-GitReadinessState & gt;
+function createGitReadinessHelper(overrides): ReadinessHelper&lt;GitReadinessState&gt;;
 ```
 
 ## Parameters
 
 ### overrides
 
-`Partial`<[`GitHelperDependencies`](../interfaces/GitHelperDependencies.md)> = `{}`
+`Partial`&lt;[`GitHelperDependencies`](../interfaces/GitHelperDependencies.md)&gt; = `{}`
 
 ## Returns
 
-[`ReadinessHelper`](../interfaces/ReadinessHelper.md)<[`GitReadinessState`](../interfaces/GitReadinessState.md)>
+[`ReadinessHelper`](../interfaces/ReadinessHelper.md)&lt;[`GitReadinessState`](../interfaces/GitReadinessState.md)&gt;

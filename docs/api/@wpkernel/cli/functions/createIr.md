@@ -1,26 +1,26 @@
-[**@wpkernel/cli v0.12.3-beta.0**](../README.md)
+[**@wpkernel/cli v0.12.3-beta.1**](../README.md)
 
----
+***
 
 [@wpkernel/cli](../README.md) / createIr
 
 # Function: createIr()
 
 ```ts
-function createIr(options, environment): Promise & lt;
-IRv1 & gt;
+function createIr(options, environment): Promise&lt;IRv1&gt;;
 ```
 
-Creates an Intermediate Representation (IR) from the given build options.
+Builds the Intermediate Representation (IR) by running only the core IR fragments.
 
-This function sets up a pipeline with core fragments and builders, then runs
-the pipeline to generate the IR based on the provided configuration.
+This variant does not register or execute any builders. It is intended for
+scenarios where you want a deterministic IR to assert against (e.g. tests
+or analysis tooling) without generating any artefacts on disk.
 
 ## Parameters
 
 ### options
 
-[`BuildIrOptions`](../interfaces/BuildIrOptions.md)
+[`FragmentIrOptions`](../interfaces/FragmentIrOptions.md)
 
 Options for building the IR, including configuration and source paths.
 
@@ -32,6 +32,6 @@ Optional environment settings for the IR creation process.
 
 ## Returns
 
-`Promise`<[`IRv1`](../interfaces/IRv1.md)>
+`Promise`&lt;[`IRv1`](../interfaces/IRv1.md)&gt;
 
 A promise that resolves to the generated `IRv1` object.

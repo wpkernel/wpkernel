@@ -1,13 +1,13 @@
-[**@wpkernel/core v0.12.3-beta.0**](../README.md)
+[**@wpkernel/core v0.12.3-beta.1**](../README.md)
 
----
+***
 
 [@wpkernel/core](../README.md) / ResourceStoreOptions
 
-# Type Alias: ResourceStoreOptions<T, TQuery>
+# Type Alias: ResourceStoreOptions&lt;T, TQuery&gt;
 
 ```ts
-type ResourceStoreOptions<T, TQuery> = object;
+type ResourceStoreOptions&lt;T, TQuery&gt; = object;
 ```
 
 Complete resource definition configuration
@@ -15,18 +15,18 @@ Complete resource definition configuration
 ## Example
 
 ```ts
-const thing = defineResource<Thing, { q?: string }>({
-	name: 'thing',
-	routes: {
-		list: { path: '/my-plugin/v1/things', method: 'GET' },
-		get: { path: '/my-plugin/v1/things/:id', method: 'GET' },
-	},
-	cacheKeys: {
-		list: (q) => ['thing', 'list', q?.q],
-		get: (id) => ['thing', 'get', id],
-	},
-	schema: import('./thing.schema.json'),
-});
+const thing = defineResource&lt;Thing, { q?: string }&gt;({
+  name: 'thing',
+  routes: {
+    list: { path: '/my-plugin/v1/things', method: 'GET' },
+    get: { path: '/my-plugin/v1/things/:id', method: 'GET' }
+  },
+  cacheKeys: {
+    list: (q) =&gt; ['thing', 'list', q?.q],
+    get: (id) =&gt; ['thing', 'get', id]
+  },
+  schema: import('./thing.schema.json')
+})
 ```
 
 ## Type Parameters
@@ -48,11 +48,11 @@ Query parameters type for list operations (e.g., { q?: string })
 ### getId()?
 
 ```ts
-optional getId: (item) => string | number;
+optional getId: (item) =&gt; string | number;
 ```
 
 Function to extract ID from an item.
-Defaults to (item) => item.id
+Defaults to (item) =&gt; item.id
 
 #### Parameters
 
@@ -64,12 +64,12 @@ Defaults to (item) => item.id
 
 `string` \| `number`
 
----
+***
 
 ### getQueryKey()?
 
 ```ts
-optional getQueryKey: (query?) => string;
+optional getQueryKey: (query?) =&gt; string;
 ```
 
 Function to generate query key from query params.
@@ -85,12 +85,12 @@ Defaults to JSON.stringify
 
 `string`
 
----
+***
 
 ### initialState?
 
 ```ts
-optional initialState: Partial<ResourceState<T>>;
+optional initialState: Partial&lt;ResourceState&lt;T&gt;&gt;;
 ```
 
 Initial state overrides for the store.

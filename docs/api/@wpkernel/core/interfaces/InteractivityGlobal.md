@@ -1,6 +1,6 @@
-[**@wpkernel/core v0.12.3-beta.0**](../README.md)
+[**@wpkernel/core v0.12.3-beta.1**](../README.md)
 
----
+***
 
 [@wpkernel/core](../README.md) / InteractivityGlobal
 
@@ -16,7 +16,7 @@ Shape of the global object when running inside Jest or a browser.
 optional __WPKernelInteractivityStub: InteractivityModule;
 ```
 
----
+***
 
 ### wp?
 

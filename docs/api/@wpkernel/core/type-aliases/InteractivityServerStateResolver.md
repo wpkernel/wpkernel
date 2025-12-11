@@ -1,15 +1,13 @@
-[**@wpkernel/core v0.12.3-beta.0**](../README.md)
+[**@wpkernel/core v0.12.3-beta.1**](../README.md)
 
----
+***
 
 [@wpkernel/core](../README.md) / InteractivityServerStateResolver
 
 # Type Alias: InteractivityServerStateResolver
 
 ```ts
-type InteractivityServerStateResolver = (
-	namespace
-) => InteractivityServerState & object;
+type InteractivityServerStateResolver = (namespace) =&gt; InteractivityServerState & object;
 ```
 
 Signature for retrieving server state snapshots from the runtime.

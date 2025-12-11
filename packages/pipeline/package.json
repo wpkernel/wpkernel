@@ -1,6 +1,6 @@
 {
 	"name": "@wpkernel/pipeline",
-	"version": "0.12.3-beta.0",
+	"version": "0.12.3-beta.1",
 	"description": "Framework-agnostic pipeline orchestration primitives for WPKernel",
 	"type": "module",
 	"sideEffects": false,

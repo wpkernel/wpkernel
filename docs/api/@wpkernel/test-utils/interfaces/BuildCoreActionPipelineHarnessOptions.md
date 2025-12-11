@@ -1,10 +1,10 @@
-[**@wpkernel/test-utils v0.12.3-beta.0**](../README.md)
+[**@wpkernel/test-utils v0.12.3-beta.1**](../README.md)
 
----
+***
 
 [@wpkernel/test-utils](../README.md) / BuildCoreActionPipelineHarnessOptions
 
-# Interface: BuildCoreActionPipelineHarnessOptions<TArgs, TResult>
+# Interface: BuildCoreActionPipelineHarnessOptions&lt;TArgs, TResult&gt;
 
 Options for building a `CoreActionPipelineHarness`.
 
@@ -28,21 +28,21 @@ readonly optional namespace: string;
 
 The namespace for the reporter.
 
----
+***
 
 ### pipelineFactory()?
 
 ```ts
-readonly optional pipelineFactory: () => ActionPipeline<TArgs, TResult>;
+readonly optional pipelineFactory: () =&gt; ActionPipeline&lt;TArgs, TResult&gt;;
 ```
 
 A factory function to create the action pipeline.
 
 #### Returns
 
-`ActionPipeline`<`TArgs`, `TResult`>
+`ActionPipeline`&lt;`TArgs`, `TResult`&gt;
 
----
+***
 
 ### runtime?
 

@@ -1,6 +1,6 @@
-[**@wpkernel/php-json-ast v0.12.3-beta.0**](../README.md)
+[**@wpkernel/php-json-ast v0.12.3-beta.1**](../README.md)
 
----
+***
 
 [@wpkernel/php-json-ast](../README.md) / PhpStmtGroupUse
 
@@ -24,7 +24,7 @@ readonly attributes: PhpAttributes;
 
 [`PhpStmtBase`](PhpStmtBase.md).[`attributes`](PhpStmtBase.md#attributes)
 
----
+***
 
 ### nodeType
 
@@ -36,7 +36,7 @@ readonly nodeType: "Stmt_GroupUse";
 
 [`PhpStmtBase`](PhpStmtBase.md).[`nodeType`](PhpStmtBase.md#nodetype)
 
----
+***
 
 ### prefix
 
@@ -44,7 +44,7 @@ readonly nodeType: "Stmt_GroupUse";
 readonly prefix: PhpName;
 ```
 
----
+***
 
 ### type
 
@@ -52,7 +52,7 @@ readonly prefix: PhpName;
 readonly type: number;
 ```
 
----
+***
 
 ### uses
 

@@ -1,6 +1,6 @@
-[**@wpkernel/wp-json-ast v0.12.3-beta.0**](../README.md)
+[**@wpkernel/wp-json-ast v0.12.3-beta.1**](../README.md)
 
----
+***
 
 [@wpkernel/wp-json-ast](../README.md) / MutationRouteWithIdentityOptions
 
@@ -18,7 +18,7 @@
 readonly identity: ResolvedIdentity;
 ```
 
----
+***
 
 ### metadataKeys
 
@@ -30,7 +30,7 @@ readonly metadataKeys: MutationMetadataKeys;
 
 [`MutationRouteBaseOptions`](MutationRouteBaseOptions.md).[`metadataKeys`](MutationRouteBaseOptions.md#metadatakeys)
 
----
+***
 
 ### pascalName
 
@@ -42,7 +42,7 @@ readonly pascalName: string;
 
 [`MutationRouteBaseOptions`](MutationRouteBaseOptions.md).[`pascalName`](MutationRouteBaseOptions.md#pascalname)
 
----
+***
 
 ### resource
 

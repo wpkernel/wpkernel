@@ -1,10 +1,12 @@
-[**@wpkernel/wp-json-ast v0.12.3-beta.0**](../README.md)
+[**@wpkernel/wp-json-ast v0.12.3-beta.1**](../README.md)
 
----
+***
 
 [@wpkernel/wp-json-ast](../README.md) / MutationHelperOptions
 
 # Interface: MutationHelperOptions
+
+Shared options for mutation helpers.
 
 ## Properties
 
@@ -14,7 +16,7 @@
 readonly identity: MutationIdentity;
 ```
 
----
+***
 
 ### pascalName
 
@@ -22,7 +24,7 @@ readonly identity: MutationIdentity;
 readonly pascalName: string;
 ```
 
----
+***
 
 ### resource
 

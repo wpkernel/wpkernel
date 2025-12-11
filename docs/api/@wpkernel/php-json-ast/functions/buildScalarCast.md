@@ -1,13 +1,16 @@
-[**@wpkernel/php-json-ast v0.12.3-beta.0**](../README.md)
+[**@wpkernel/php-json-ast v0.12.3-beta.1**](../README.md)
 
----
+***
 
 [@wpkernel/php-json-ast](../README.md) / buildScalarCast
 
 # Function: buildScalarCast()
 
 ```ts
-function buildScalarCast(kind, expr, attributes?): PhpExprCastScalar;
+function buildScalarCast(
+   kind, 
+   expr, 
+   attributes?): PhpExprCastScalar;
 ```
 
 Builds a PHP scalar cast expression node (int, float, string, bool).
@@ -28,7 +31,7 @@ The expression to cast.
 
 ### attributes?
 
-`Readonly`<`Record`<`string`, `unknown`>>
+`Readonly`&lt;`Record`&lt;`string`, `unknown`&gt;&gt;
 
 Optional attributes for the node.
 
