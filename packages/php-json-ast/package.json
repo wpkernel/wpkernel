@@ -1,6 +1,6 @@
 {
 	"name": "@wpkernel/php-json-ast",
-	"version": "0.12.3-beta.1",
+	"version": "0.12.3-beta.2",
 	"description": "Utilities and type definitions for working with PHP-Parser JSON AST output",
 	"license": "EUPL-1.2",
 	"type": "module",

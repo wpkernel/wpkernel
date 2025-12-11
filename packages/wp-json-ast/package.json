@@ -1,6 +1,6 @@
 {
 	"name": "@wpkernel/wp-json-ast",
-	"version": "0.12.3-beta.1",
+	"version": "0.12.3-beta.2",
 	"description": "WordPress-specific extensions for the @wpkernel/php-json-ast toolkit",
 	"license": "EUPL-1.2",
 	"type": "module",
