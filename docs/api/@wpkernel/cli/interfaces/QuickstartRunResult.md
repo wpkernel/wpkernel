@@ -1,6 +1,6 @@
 [**@wpkernel/cli v0.12.3-beta.2**](../README.md)
 
-***
+---
 
 [@wpkernel/cli](../README.md) / QuickstartRunResult
 
@@ -14,7 +14,7 @@
 readonly cliBinaryPath: string;
 ```
 
-***
+---
 
 ### create
 
@@ -22,7 +22,7 @@ readonly cliBinaryPath: string;
 readonly create: CommandRunResult;
 ```
 
-***
+---
 
 ### generate
 
@@ -30,7 +30,7 @@ readonly create: CommandRunResult;
 readonly generate: CommandRunResult;
 ```
 
-***
+---
 
 ### projectRoot
 
@@ -38,7 +38,7 @@ readonly generate: CommandRunResult;
 readonly projectRoot: string;
 ```
 
-***
+---
 
 ### tsxModulePath
 
@@ -46,7 +46,7 @@ readonly projectRoot: string;
 readonly tsxModulePath: string;
 ```
 
-***
+---
 
 ### workspaceRoot
 

@@ -1,13 +1,13 @@
 [**@wpkernel/core v0.12.3-beta.2**](../README.md)
 
-***
+---
 
 [@wpkernel/core](../README.md) / ResourceResponseEvent
 
-# Type Alias: ResourceResponseEvent&lt;T&gt;
+# Type Alias: ResourceResponseEvent<T>
 
 ```ts
-type ResourceResponseEvent&lt;T&gt; = object;
+type ResourceResponseEvent<T> = object;
 ```
 
 Event payload for wpk.resource.response
@@ -28,7 +28,7 @@ data: T;
 
 Response data
 
-***
+---
 
 ### duration
 
@@ -38,7 +38,7 @@ duration: number;
 
 Duration in milliseconds
 
-***
+---
 
 ### method
 
@@ -48,7 +48,7 @@ method: HttpMethod;
 
 HTTP method
 
-***
+---
 
 ### path
 
@@ -58,7 +58,7 @@ path: string;
 
 Request path
 
-***
+---
 
 ### requestId
 
@@ -68,7 +68,7 @@ requestId: string;
 
 Request ID for correlation
 
-***
+---
 
 ### status
 
@@ -78,7 +78,7 @@ status: number;
 
 Response status code
 
-***
+---
 
 ### timestamp
 

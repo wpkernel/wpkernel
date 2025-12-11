@@ -1,6 +1,6 @@
 [**@wpkernel/php-json-ast v0.12.3-beta.2**](../README.md)
 
-***
+---
 
 [@wpkernel/php-json-ast](../README.md) / PhpStmtSwitch
 
@@ -24,7 +24,7 @@ readonly attributes: PhpAttributes;
 
 [`PhpStmtBase`](PhpStmtBase.md).[`attributes`](PhpStmtBase.md#attributes)
 
-***
+---
 
 ### cases
 
@@ -32,7 +32,7 @@ readonly attributes: PhpAttributes;
 readonly cases: PhpStmtCase[];
 ```
 
-***
+---
 
 ### cond
 
@@ -40,7 +40,7 @@ readonly cases: PhpStmtCase[];
 readonly cond: PhpExpr;
 ```
 
-***
+---
 
 ### nodeType
 

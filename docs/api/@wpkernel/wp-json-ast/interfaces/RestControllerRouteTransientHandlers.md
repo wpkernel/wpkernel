@@ -1,6 +1,6 @@
 [**@wpkernel/wp-json-ast v0.12.3-beta.2**](../README.md)
 
-***
+---
 
 [@wpkernel/wp-json-ast](../README.md) / RestControllerRouteTransientHandlers
 
@@ -14,7 +14,7 @@
 readonly optional delete: RestControllerRouteStatementsBuilder;
 ```
 
-***
+---
 
 ### get?
 
@@ -22,7 +22,7 @@ readonly optional delete: RestControllerRouteStatementsBuilder;
 readonly optional get: RestControllerRouteStatementsBuilder;
 ```
 
-***
+---
 
 ### set?
 
@@ -30,7 +30,7 @@ readonly optional get: RestControllerRouteStatementsBuilder;
 readonly optional set: RestControllerRouteStatementsBuilder;
 ```
 
-***
+---
 
 ### unsupported?
 

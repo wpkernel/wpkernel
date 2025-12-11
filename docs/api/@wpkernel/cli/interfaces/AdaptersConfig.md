@@ -1,10 +1,10 @@
 [**@wpkernel/cli v0.12.3-beta.2**](../README.md)
 
-***
+---
 
 [@wpkernel/cli](../README.md) / AdaptersConfig
 
-# Interface: AdaptersConfig&lt;TConfigSurface, TIr&gt;
+# Interface: AdaptersConfig<TConfigSurface, TIr>
 
 Optional adapters configured by a wpk project.
 
@@ -23,18 +23,18 @@ Optional adapters configured by a wpk project.
 ### extensions?
 
 ```ts
-optional extensions: AdapterExtensionFactory&lt;TConfigSurface, TIr&gt;[];
+optional extensions: AdapterExtensionFactory<TConfigSurface, TIr>[];
 ```
 
 Adapter extension factories that run during generation to patch or extend
 the default adapters.
 
-***
+---
 
 ### php?
 
 ```ts
-optional php: PhpAdapterFactory&lt;TConfigSurface, TIr&gt;;
+optional php: PhpAdapterFactory<TConfigSurface, TIr>;
 ```
 
 Factory that returns PHP codegen overrides (for example, changing

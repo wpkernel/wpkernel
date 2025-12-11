@@ -1,6 +1,6 @@
 [**@wpkernel/test-utils v0.12.3-beta.2**](../README.md)
 
-***
+---
 
 [@wpkernel/test-utils](../README.md) / WPKernelUITestHarness
 
@@ -13,7 +13,7 @@ A harness for testing UI components that interact with the WPKernel UI runtime.
 ### createRuntime()
 
 ```ts
-createRuntime: (overrides?) =&gt; WPKernelUIRuntime;
+createRuntime: (overrides?) => WPKernelUIRuntime;
 ```
 
 Creates a new `WPKernelUIRuntime` instance.
@@ -22,19 +22,19 @@ Creates a new `WPKernelUIRuntime` instance.
 
 ##### overrides?
 
-`Partial`&lt;`WPKernelUIRuntime`&gt;
+`Partial`<`WPKernelUIRuntime`>
 
 #### Returns
 
 `WPKernelUIRuntime`
 
-***
+---
 
 ### createWrapper()
 
 ```ts
-createWrapper: (runtime?) =&gt; (__namedParameters) =&gt; ReactElement&lt;{
-}&gt;;
+createWrapper: (runtime?) => (__namedParameters) => ReactElement<{
+}>;
 ```
 
 Creates a React wrapper component for the WPKernel UI runtime.
@@ -48,8 +48,8 @@ Creates a React wrapper component for the WPKernel UI runtime.
 #### Returns
 
 ```ts
-(__namedParameters): ReactElement&lt;{
-}&gt;;
+(__namedParameters): ReactElement<{
+}>;
 ```
 
 ##### Parameters
@@ -62,15 +62,15 @@ Creates a React wrapper component for the WPKernel UI runtime.
 
 ##### Returns
 
-`ReactElement`&lt;\{
-\}&gt;
+`ReactElement`<\{
+\}>
 
-***
+---
 
 ### resetActionStoreRegistration()
 
 ```ts
-resetActionStoreRegistration: () =&gt; void;
+resetActionStoreRegistration: () => void;
 ```
 
 Resets the action store registration.
@@ -79,12 +79,12 @@ Resets the action store registration.
 
 `void`
 
-***
+---
 
 ### restoreConsoleError()
 
 ```ts
-restoreConsoleError: () =&gt; void;
+restoreConsoleError: () => void;
 ```
 
 Restores the original console error function.
@@ -93,12 +93,12 @@ Restores the original console error function.
 
 `void`
 
-***
+---
 
 ### suppressConsoleError()
 
 ```ts
-suppressConsoleError: (predicate) =&gt; void;
+suppressConsoleError: (predicate) => void;
 ```
 
 Suppresses console errors that match a given predicate.
@@ -107,18 +107,18 @@ Suppresses console errors that match a given predicate.
 
 ##### predicate
 
-(`args`) =&gt; `boolean`
+(`args`) => `boolean`
 
 #### Returns
 
 `void`
 
-***
+---
 
 ### teardown()
 
 ```ts
-teardown: () =&gt; void;
+teardown: () => void;
 ```
 
 Tears down the harness, restoring original globals.
@@ -127,7 +127,7 @@ Tears down the harness, restoring original globals.
 
 `void`
 
-***
+---
 
 ### wordpress
 

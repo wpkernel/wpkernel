@@ -1,6 +1,6 @@
 [**@wpkernel/wp-json-ast v0.12.3-beta.2**](../README.md)
 
-***
+---
 
 [@wpkernel/wp-json-ast](../README.md) / CapabilityModuleFile
 
@@ -14,7 +14,7 @@
 readonly docblock: readonly string[];
 ```
 
-***
+---
 
 ### fileName
 
@@ -22,7 +22,7 @@ readonly docblock: readonly string[];
 readonly fileName: string;
 ```
 
-***
+---
 
 ### metadata
 
@@ -30,7 +30,7 @@ readonly fileName: string;
 readonly metadata: CapabilityHelperMetadata;
 ```
 
-***
+---
 
 ### namespace
 
@@ -38,7 +38,7 @@ readonly metadata: CapabilityHelperMetadata;
 readonly namespace: string;
 ```
 
-***
+---
 
 ### program
 
@@ -46,7 +46,7 @@ readonly namespace: string;
 readonly program: PhpProgram;
 ```
 
-***
+---
 
 ### statements
 
@@ -54,7 +54,7 @@ readonly program: PhpProgram;
 readonly statements: readonly string[];
 ```
 
-***
+---
 
 ### uses
 

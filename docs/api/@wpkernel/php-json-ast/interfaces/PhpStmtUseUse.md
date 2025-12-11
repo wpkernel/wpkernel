@@ -1,6 +1,6 @@
 [**@wpkernel/php-json-ast v0.12.3-beta.2**](../README.md)
 
-***
+---
 
 [@wpkernel/php-json-ast](../README.md) / PhpStmtUseUse
 
@@ -20,7 +20,7 @@ Represents an item within a PHP `use` statement.
 readonly alias: PhpIdentifier | null;
 ```
 
-***
+---
 
 ### attributes
 
@@ -32,7 +32,7 @@ readonly attributes: PhpAttributes;
 
 [`PhpStmtBase`](PhpStmtBase.md).[`attributes`](PhpStmtBase.md#attributes)
 
-***
+---
 
 ### name
 
@@ -40,7 +40,7 @@ readonly attributes: PhpAttributes;
 readonly name: PhpName;
 ```
 
-***
+---
 
 ### nodeType
 
@@ -52,7 +52,7 @@ readonly nodeType: "UseItem";
 
 [`PhpStmtBase`](PhpStmtBase.md).[`nodeType`](PhpStmtBase.md#nodetype)
 
-***
+---
 
 ### type
 

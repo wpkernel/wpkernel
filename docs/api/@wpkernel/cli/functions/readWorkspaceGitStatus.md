@@ -1,13 +1,14 @@
 [**@wpkernel/cli v0.12.3-beta.2**](../README.md)
 
-***
+---
 
 [@wpkernel/cli](../README.md) / readWorkspaceGitStatus
 
 # Function: readWorkspaceGitStatus()
 
 ```ts
-function readWorkspaceGitStatus(workspace): Promise&lt;WorkspaceGitStatus | null&gt;;
+function readWorkspaceGitStatus(workspace): Promise & lt;
+WorkspaceGitStatus | (null & gt);
 ```
 
 ## Parameters
@@ -18,4 +19,4 @@ function readWorkspaceGitStatus(workspace): Promise&lt;WorkspaceGitStatus | null
 
 ## Returns
 
-`Promise`&lt;[`WorkspaceGitStatus`](../type-aliases/WorkspaceGitStatus.md) \| `null`&gt;
+`Promise`<[`WorkspaceGitStatus`](../type-aliases/WorkspaceGitStatus.md) \| `null`>

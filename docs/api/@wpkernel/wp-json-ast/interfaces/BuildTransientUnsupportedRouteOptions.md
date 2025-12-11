@@ -1,6 +1,6 @@
 [**@wpkernel/wp-json-ast v0.12.3-beta.2**](../README.md)
 
-***
+---
 
 [@wpkernel/wp-json-ast](../README.md) / BuildTransientUnsupportedRouteOptions
 
@@ -22,12 +22,12 @@ readonly cacheSegments: readonly unknown[];
 
 [`BuildTransientRouteBaseOptions`](BuildTransientRouteBaseOptions.md).[`cacheSegments`](BuildTransientRouteBaseOptions.md#cachesegments)
 
-***
+---
 
 ### errorCodeFactory()
 
 ```ts
-readonly errorCodeFactory: (suffix) =&gt; string;
+readonly errorCodeFactory: (suffix) => string;
 ```
 
 #### Parameters
@@ -40,7 +40,7 @@ readonly errorCodeFactory: (suffix) =&gt; string;
 
 `string`
 
-***
+---
 
 ### metadataHost
 
@@ -52,7 +52,7 @@ readonly metadataHost: ResourceMetadataHost;
 
 [`BuildTransientRouteBaseOptions`](BuildTransientRouteBaseOptions.md).[`metadataHost`](BuildTransientRouteBaseOptions.md#metadatahost)
 
-***
+---
 
 ### pascalName
 
@@ -64,7 +64,7 @@ readonly pascalName: string;
 
 [`BuildTransientRouteBaseOptions`](BuildTransientRouteBaseOptions.md).[`pascalName`](BuildTransientRouteBaseOptions.md#pascalname)
 
-***
+---
 
 ### usesIdentity
 
@@ -76,7 +76,7 @@ readonly usesIdentity: boolean;
 
 [`BuildTransientRouteBaseOptions`](BuildTransientRouteBaseOptions.md).[`usesIdentity`](BuildTransientRouteBaseOptions.md#usesidentity)
 
-***
+---
 
 ### identity?
 

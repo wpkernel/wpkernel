@@ -1,6 +1,6 @@
 [**@wpkernel/wp-json-ast v0.12.3-beta.2**](../README.md)
 
-***
+---
 
 [@wpkernel/wp-json-ast](../README.md) / CapabilityModuleConfig
 
@@ -14,7 +14,7 @@
 readonly capabilityMap: CapabilityMapConfig;
 ```
 
-***
+---
 
 ### namespace
 
@@ -22,7 +22,7 @@ readonly capabilityMap: CapabilityMapConfig;
 readonly namespace: string;
 ```
 
-***
+---
 
 ### origin
 
@@ -30,7 +30,7 @@ readonly namespace: string;
 readonly origin: string;
 ```
 
-***
+---
 
 ### fileName?
 
@@ -38,7 +38,7 @@ readonly origin: string;
 readonly optional fileName: string;
 ```
 
-***
+---
 
 ### hooks?
 

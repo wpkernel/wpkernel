@@ -1,6 +1,6 @@
 [**@wpkernel/wp-json-ast v0.12.3-beta.2**](../README.md)
 
-***
+---
 
 [@wpkernel/wp-json-ast](../README.md) / MutationMetadataKeys
 
@@ -14,7 +14,7 @@
 readonly cachePriming: string;
 ```
 
-***
+---
 
 ### cacheSegment
 
@@ -22,7 +22,7 @@ readonly cachePriming: string;
 readonly cacheSegment: string;
 ```
 
-***
+---
 
 ### channelTag
 
@@ -30,7 +30,7 @@ readonly cacheSegment: string;
 readonly channelTag: string;
 ```
 
-***
+---
 
 ### statusValidation
 
@@ -38,7 +38,7 @@ readonly channelTag: string;
 readonly statusValidation: string;
 ```
 
-***
+---
 
 ### syncMeta
 
@@ -46,7 +46,7 @@ readonly statusValidation: string;
 readonly syncMeta: string;
 ```
 
-***
+---
 
 ### syncTaxonomies
 

@@ -1,6 +1,6 @@
 [**@wpkernel/core v0.12.3-beta.2**](../README.md)
 
-***
+---
 
 [@wpkernel/core](../README.md) / InteractivityModule
 
@@ -10,7 +10,7 @@ Ambient interface exposed by `@wordpress/interactivity`.
 
 ## Extends
 
-- `InteractivityCore`.`Record`&lt;`string`, `unknown`&gt;
+- `InteractivityCore`.`Record`<`string`, `unknown`>
 
 ## Indexable
 
@@ -29,15 +29,15 @@ getServerState: InteractivityServerStateResolver;
 #### Inherited from
 
 ```ts
-InteractivityCore.getServerState
+InteractivityCore.getServerState;
 ```
 
-***
+---
 
 ### store()
 
 ```ts
-store: (namespace, definition?) =&gt; InteractivityStoreResult;
+store: (namespace, definition?) => InteractivityStoreResult;
 ```
 
 #### Parameters
@@ -48,7 +48,7 @@ store: (namespace, definition?) =&gt; InteractivityStoreResult;
 
 ##### definition?
 
-`Record`&lt;`string`, `unknown`&gt;
+`Record`<`string`, `unknown`>
 
 #### Returns
 
@@ -57,5 +57,5 @@ store: (namespace, definition?) =&gt; InteractivityStoreResult;
 #### Inherited from
 
 ```ts
-InteractivityCore.store
+InteractivityCore.store;
 ```

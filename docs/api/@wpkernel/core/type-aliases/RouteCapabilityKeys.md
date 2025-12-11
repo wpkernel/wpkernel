@@ -1,13 +1,13 @@
 [**@wpkernel/core v0.12.3-beta.2**](../README.md)
 
-***
+---
 
 [@wpkernel/core](../README.md) / RouteCapabilityKeys
 
-# Type Alias: RouteCapabilityKeys&lt;TRoutes&gt;
+# Type Alias: RouteCapabilityKeys<TRoutes>
 
 ```ts
-type RouteCapabilityKeys&lt;TRoutes&gt; = Extract&lt;{ [TKey in keyof TRoutes]: ExtractRouteCapability&lt;NonNullable&lt;TRoutes[TKey]&gt;&gt; }[keyof TRoutes], string&gt;;
+type RouteCapabilityKeys<TRoutes> = Extract<{ [TKey in keyof TRoutes]: ExtractRouteCapability<NonNullable<TRoutes[TKey]>> }[keyof TRoutes], string>;
 ```
 
 Capability keys referenced across all configured routes.

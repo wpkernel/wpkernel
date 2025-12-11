@@ -1,13 +1,16 @@
 [**@wpkernel/wp-json-ast v0.12.3-beta.2**](../README.md)
 
-***
+---
 
 [@wpkernel/wp-json-ast](../README.md) / buildResolveTaxonomyTermCall
 
 # Function: buildResolveTaxonomyTermCall()
 
 ```ts
-function buildResolveTaxonomyTermCall(pascalName, identityVariable): PhpExprMethodCall;
+function buildResolveTaxonomyTermCall(
+	pascalName,
+	identityVariable
+): PhpExprMethodCall;
 ```
 
 ## Parameters

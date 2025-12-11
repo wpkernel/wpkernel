@@ -1,6 +1,6 @@
 [**@wpkernel/core v0.12.3-beta.2**](../README.md)
 
-***
+---
 
 [@wpkernel/core](../README.md) / WPKUIConfig
 
@@ -14,7 +14,7 @@
 optional attach: WPKernelUIAttach;
 ```
 
-***
+---
 
 ### enable?
 
@@ -22,7 +22,7 @@ optional attach: WPKernelUIAttach;
 optional enable: boolean;
 ```
 
-***
+---
 
 ### options?
 

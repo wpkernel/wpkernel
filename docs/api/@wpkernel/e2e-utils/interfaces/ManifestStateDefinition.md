@@ -1,6 +1,6 @@
 [**@wpkernel/e2e-utils v0.12.3-beta.2**](../README.md)
 
-***
+---
 
 [@wpkernel/e2e-utils](../README.md) / ManifestStateDefinition
 
@@ -13,10 +13,11 @@ Declarative configuration describing the desired manifest state.
 ### files
 
 ```ts
-files: Record&lt;string, ManifestFileDefinition&gt;;
+files: Record & lt;
+(string, ManifestFileDefinition & gt);
 ```
 
-***
+---
 
 ### ignore?
 

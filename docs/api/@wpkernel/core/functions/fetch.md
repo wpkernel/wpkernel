@@ -1,22 +1,23 @@
 [**@wpkernel/core v0.12.3-beta.2**](../README.md)
 
-***
+---
 
 [@wpkernel/core](../README.md) / fetch
 
 # Function: fetch()
 
 ```ts
-function fetch&lt;T&gt;(request): Promise&lt;TransportResponse&lt;T&gt;&gt;;
+function fetch<T>(request): Promise<TransportResponse<T>>;
 ```
 
 Fetch data from WordPress REST API
 
 Wraps @wordpress/api-fetch with:
+
 - Automatic request ID generation
 - Event emission for observability
 - Error normalization
-- _fields parameter support
+- \_fields parameter support
 
 ## Type Parameters
 
@@ -36,7 +37,7 @@ Request configuration
 
 ## Returns
 
-`Promise`&lt;[`TransportResponse`](../type-aliases/TransportResponse.md)&lt;`T`&gt;&gt;
+`Promise`<[`TransportResponse`](../type-aliases/TransportResponse.md)<`T`>>
 
 Promise resolving to response with data and metadata
 
@@ -49,9 +50,11 @@ WPKernelError on request failure
 ```typescript
 import { fetch } from '@wpkernel/core/http';
 
-const response = await fetch&lt;Thing&gt;({
-  path: '/my-plugin/v1/things/123',
-  method: 'GET'
+const response = (await fetch) & lt;
+Thing & gt;
+({
+	path: '/my-plugin/v1/things/123',
+	method: 'GET',
 });
 
 console.log(response.data); // Thing object

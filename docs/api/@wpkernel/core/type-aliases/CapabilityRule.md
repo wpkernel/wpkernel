@@ -1,18 +1,18 @@
 [**@wpkernel/core v0.12.3-beta.2**](../README.md)
 
-***
+---
 
 [@wpkernel/core](../README.md) / CapabilityRule
 
-# Type Alias: CapabilityRule&lt;P&gt;
+# Type Alias: CapabilityRule<P>
 
 ```ts
-type CapabilityRule&lt;P&gt; = (ctx, params) =&gt; boolean | Promise&lt;boolean&gt;;
+type CapabilityRule<P> = (ctx, params) => boolean | Promise<boolean>;
 ```
 
 Capability rule signature.
 
-Rules can be synchronous (return boolean) or asynchronous (return Promise&lt;boolean&gt;).
+Rules can be synchronous (return boolean) or asynchronous (return Promise<boolean>).
 Use async rules when checking capabilities requires REST API calls or async operations
 (e.g., wp.data.select('core').canUser(), fetch() calls).
 
@@ -39,18 +39,18 @@ Parameters required by the rule. `void` indicates no params needed.
 
 ## Returns
 
-`boolean` \| `Promise`&lt;`boolean`&gt;
+`boolean` \| `Promise`<`boolean`>
 
 ## Example
 
 ```typescript
 // Synchronous rule (no params)
-const viewRule: CapabilityRule&lt;void&gt; = (ctx) =&gt; {
+const viewRule: CapabilityRule<void> = (ctx) => {
   return ctx.adapters.wp?.canUser('read', { kind: 'postType', name: 'post' }) ?? false;
 };
 
 // Async rule with params
-const editRule: CapabilityRule&lt;number&gt; = async (ctx, postId) =&gt; {
+const editRule: CapabilityRule<number> = async (ctx, postId) => {
   const result = await ctx.adapters.wp?.canUser('update', {
     kind: 'postType',
     name: 'post',
@@ -60,12 +60,12 @@ const editRule: CapabilityRule&lt;number&gt; = async (ctx, postId) =&gt; {
 };
 
 // Complex params
-const assignRule: CapabilityRule&lt;{ userId: number; postId: number }&gt; = async (ctx, params) =&gt; {
+const assignRule: CapabilityRule<{ userId: number; postId: number }> = async (ctx, params) => {
   const canEdit = await ctx.adapters.wp?.canUser('update', {
     kind: 'postType',
     name: 'post',
     id: params.postId
   });
-  return canEdit && params.userId &gt; 0;
+  return canEdit && params.userId > 0;
 };
 ```

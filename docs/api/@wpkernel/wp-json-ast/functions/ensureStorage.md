@@ -1,6 +1,6 @@
 [**@wpkernel/wp-json-ast v0.12.3-beta.2**](../README.md)
 
-***
+---
 
 [@wpkernel/wp-json-ast](../README.md) / ensureStorage
 
@@ -25,13 +25,13 @@ Ensures the resource is configured with `wp-post` storage.
 ### mode
 
 ```ts
-mode: "wp-post";
+mode: 'wp-post';
 ```
 
 ### meta?
 
 ```ts
-optional meta: Record&lt;string, ResourcePostMetaDescriptor&gt;;
+optional meta: Record<string, ResourcePostMetaDescriptor>;
 ```
 
 ### postType?
@@ -55,11 +55,11 @@ optional supports: ("title" | "editor" | "excerpt" | "custom-fields")[];
 ### taxonomies?
 
 ```ts
-optional taxonomies: Record&lt;string, {
+optional taxonomies: Record<string, {
   taxonomy: string;
   hierarchical?: boolean;
   register?: boolean;
-}&gt;;
+}>;
 ```
 
 ## Throws

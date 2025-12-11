@@ -1,6 +1,6 @@
 [**@wpkernel/cli v0.12.3-beta.2**](../README.md)
 
-***
+---
 
 [@wpkernel/cli](../README.md) / CollatedPhpBlockArtifacts
 
@@ -16,10 +16,10 @@ from processed block definitions.
 ### manifestEntries
 
 ```ts
-readonly manifestEntries: Record&lt;string, BlockManifestEntry&gt;;
+readonly manifestEntries: Record<string, BlockManifestEntry>;
 ```
 
-***
+---
 
 ### renderStubs
 

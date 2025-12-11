@@ -1,27 +1,27 @@
 [**@wpkernel/wp-json-ast v0.12.3-beta.2**](../README.md)
 
-***
+---
 
 [@wpkernel/wp-json-ast](../README.md) / buildResourceAccessors
 
 # Function: buildResourceAccessors()
 
 ```ts
-function buildResourceAccessors&lt;TStorageKind&gt;(options): ResourceAccessors&lt;TStorageKind&gt;;
+function buildResourceAccessors<TStorageKind>(options): ResourceAccessors<TStorageKind>;
 ```
 
 ## Type Parameters
 
 ### TStorageKind
 
-`TStorageKind` *extends* `string`
+`TStorageKind` _extends_ `string`
 
 ## Parameters
 
 ### options
 
-[`BuildResourceAccessorsOptions`](../interfaces/BuildResourceAccessorsOptions.md)&lt;`TStorageKind`&gt;
+[`BuildResourceAccessorsOptions`](../interfaces/BuildResourceAccessorsOptions.md)<`TStorageKind`>
 
 ## Returns
 
-[`ResourceAccessors`](../interfaces/ResourceAccessors.md)&lt;`TStorageKind`&gt;
+[`ResourceAccessors`](../interfaces/ResourceAccessors.md)<`TStorageKind`>

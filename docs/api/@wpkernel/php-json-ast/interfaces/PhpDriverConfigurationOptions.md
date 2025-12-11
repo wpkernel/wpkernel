@@ -1,6 +1,6 @@
 [**@wpkernel/php-json-ast v0.12.3-beta.2**](../README.md)
 
-***
+---
 
 [@wpkernel/php-json-ast](../README.md) / PhpDriverConfigurationOptions
 
@@ -14,7 +14,7 @@
 readonly optional autoloadPaths: readonly string[];
 ```
 
-***
+---
 
 ### binary?
 
@@ -22,7 +22,7 @@ readonly optional autoloadPaths: readonly string[];
 readonly optional binary: string;
 ```
 
-***
+---
 
 ### importMetaUrl?
 
@@ -30,7 +30,7 @@ readonly optional binary: string;
 readonly optional importMetaUrl: string;
 ```
 
-***
+---
 
 ### scriptPath?
 

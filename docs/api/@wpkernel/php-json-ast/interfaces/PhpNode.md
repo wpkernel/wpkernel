@@ -1,6 +1,6 @@
 [**@wpkernel/php-json-ast v0.12.3-beta.2**](../README.md)
 
-***
+---
 
 [@wpkernel/php-json-ast](../README.md) / PhpNode
 
@@ -36,7 +36,7 @@ Base interface for all PHP AST nodes.
 readonly attributes: PhpAttributes;
 ```
 
-***
+---
 
 ### nodeType
 

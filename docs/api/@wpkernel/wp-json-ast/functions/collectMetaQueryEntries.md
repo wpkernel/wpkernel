@@ -1,17 +1,21 @@
 [**@wpkernel/wp-json-ast v0.12.3-beta.2**](../README.md)
 
-***
+---
 
 [@wpkernel/wp-json-ast](../README.md) / collectMetaQueryEntries
 
 # Function: collectMetaQueryEntries()
 
 ```ts
-function collectMetaQueryEntries(storage): [string, 
-  | {
-  single?: boolean | null;
-}
-  | undefined][];
+function collectMetaQueryEntries(storage): [
+	string,
+	(
+		| {
+				single?: boolean | null;
+		  }
+		| undefined
+	),
+][];
 ```
 
 ## Parameters
@@ -22,8 +26,8 @@ function collectMetaQueryEntries(storage): [string,
 
 ## Returns
 
-\[`string`, 
-  \| \{
-  `single?`: `boolean` \| `null`;
+\[`string`,
+\| \{
+`single?`: `boolean` \| `null`;
 \}
-  \| `undefined`\][]
+\| `undefined`\][]

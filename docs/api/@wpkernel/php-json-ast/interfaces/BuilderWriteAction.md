@@ -1,6 +1,6 @@
 [**@wpkernel/php-json-ast v0.12.3-beta.2**](../README.md)
 
-***
+---
 
 [@wpkernel/php-json-ast](../README.md) / BuilderWriteAction
 
@@ -11,10 +11,10 @@
 ### contents
 
 ```ts
-readonly contents: string | Buffer&lt;ArrayBufferLike&gt;;
+readonly contents: string | Buffer<ArrayBufferLike>;
 ```
 
-***
+---
 
 ### file
 

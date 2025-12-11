@@ -1,6 +1,6 @@
 [**@wpkernel/core v0.12.3-beta.2**](../README.md)
 
-***
+---
 
 [@wpkernel/core](../README.md) / CacheInvalidatedEvent
 
@@ -18,7 +18,7 @@ type CacheInvalidatedEvent = object;
 keys: string[];
 ```
 
-***
+---
 
 ### storeKey?
 

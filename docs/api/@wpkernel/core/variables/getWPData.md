@@ -1,13 +1,13 @@
 [**@wpkernel/core v0.12.3-beta.2**](../README.md)
 
-***
+---
 
 [@wpkernel/core](../README.md) / getWPData
 
 # Variable: getWPData()
 
 ```ts
-const getWPData: () =&gt; __module | undefined = globalThis.getWPData;
+const getWPData: () => __module | undefined = globalThis.getWPData;
 ```
 
 Safe accessor that works in browser & SSR contexts

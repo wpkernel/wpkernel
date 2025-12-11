@@ -1,6 +1,6 @@
 [**@wpkernel/php-json-ast v0.12.3-beta.2**](../README.md)
 
-***
+---
 
 [@wpkernel/php-json-ast](../README.md) / PhpBuilderFactoryMethodIntent
 
@@ -14,7 +14,7 @@
 readonly name: string;
 ```
 
-***
+---
 
 ### body?
 
@@ -22,7 +22,7 @@ readonly name: string;
 readonly optional body: readonly PhpBuilderFactoryMethodStep[];
 ```
 
-***
+---
 
 ### docblock?
 
@@ -30,7 +30,7 @@ readonly optional body: readonly PhpBuilderFactoryMethodStep[];
 readonly optional docblock: readonly string[];
 ```
 
-***
+---
 
 ### isStatic?
 
@@ -38,7 +38,7 @@ readonly optional docblock: readonly string[];
 readonly optional isStatic: boolean;
 ```
 
-***
+---
 
 ### parameters?
 
@@ -46,7 +46,7 @@ readonly optional isStatic: boolean;
 readonly optional parameters: readonly PhpBuilderFactoryParameterIntent[];
 ```
 
-***
+---
 
 ### returnType?
 
@@ -54,7 +54,7 @@ readonly optional parameters: readonly PhpBuilderFactoryParameterIntent[];
 readonly optional returnType: string | null;
 ```
 
-***
+---
 
 ### visibility?
 

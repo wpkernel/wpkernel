@@ -1,6 +1,6 @@
 [**@wpkernel/php-json-ast v0.12.3-beta.2**](../README.md)
 
-***
+---
 
 [@wpkernel/php-json-ast](../README.md) / PhpBuilderFactoryMethodReturnNewStep
 
@@ -14,7 +14,7 @@
 readonly className: string;
 ```
 
-***
+---
 
 ### kind
 
@@ -22,7 +22,7 @@ readonly className: string;
 readonly kind: "returnNew";
 ```
 
-***
+---
 
 ### arguments?
 

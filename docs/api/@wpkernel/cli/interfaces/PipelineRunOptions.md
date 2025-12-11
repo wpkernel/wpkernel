@@ -1,6 +1,6 @@
 [**@wpkernel/cli v0.12.3-beta.2**](../README.md)
 
-***
+---
 
 [@wpkernel/cli](../README.md) / PipelineRunOptions
 
@@ -18,7 +18,7 @@ readonly config: WPKernelConfigV1;
 
 The configuration object for the WPKernel project.
 
-***
+---
 
 ### generationState
 
@@ -28,7 +28,7 @@ readonly generationState: GenerationManifest;
 
 The state of the code generation process.
 
-***
+---
 
 ### namespace
 
@@ -38,7 +38,7 @@ readonly namespace: string;
 
 The namespace of the project.
 
-***
+---
 
 ### origin
 
@@ -48,7 +48,7 @@ readonly origin: string;
 
 The origin of the configuration (e.g., 'project', 'workspace').
 
-***
+---
 
 ### phase
 
@@ -58,7 +58,7 @@ readonly phase: PipelinePhase;
 
 The current phase of the pipeline execution.
 
-***
+---
 
 ### reporter
 
@@ -68,7 +68,7 @@ readonly reporter: Reporter;
 
 The reporter instance for logging.
 
-***
+---
 
 ### sourcePath
 
@@ -78,7 +78,7 @@ readonly sourcePath: string;
 
 The source path of the configuration file.
 
-***
+---
 
 ### workspace
 
