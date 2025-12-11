@@ -24,55 +24,62 @@ pnpm add @wpkernel/pipeline
 
 The package ships pure TypeScript and has no runtime dependencies.
 
-## Quick start
+```ts
+import { makePipeline } from '@wpkernel/pipeline';
+
+// 1. Create a pipeline with your specific runtime behavior
+const pipeline = makePipeline({
+    // Adapters to bridge the generic runner with your domain
+    createContext: (options) => ({ ... }),
+    createFragmentState: () => ({ items: [] }),
+    // ... complete wiring (see Advanced Usage)
+});
+
+// 2. Register helpers (fragments or builders)
+pipeline.use({
+    kind: 'fragment', // Phase 1: Accumulate
+    key: 'source',
+    apply: ({ output }) => output.items.push('data')
+});
+
+pipeline.use({
+    kind: 'builder',  // Phase 2: Persist
+    key: 'sink',
+    apply: ({ input }) => console.log(input.items)
+});
+
+// 3. Execute
+await pipeline.run({});
+```
+
+## Advanced usage
+
+### Anatomy of `makePipeline`
+
+The runner is fully generic. To make it useful, you provide adapters that define your "World" (Context, Artifacts, Drafts).
 
 ```ts
-import { createPipeline, createHelper } from '@wpkernel/pipeline';
+const pipeline = makePipeline({
+	// [Required] Define your execution context
+	createContext: (ops) => ({ reporter: ops.reporter }),
 
-const pipeline = createPipeline({
-	fragmentKind: 'fragment',
-	builderKind: 'builder',
-	createBuildOptions: (options) => options,
-	createContext: (options) => ({ reporter: options.reporter }),
+	// [Required] Define the "Draft" state for Phase 1 (Fragments)
 	createFragmentState: () => ({ items: [] }),
 	createFragmentArgs: ({ context, draft }) => ({
 		context,
-		input: undefined,
-		output: draft,
-		reporter: context.reporter,
+		output: draft, // Fragments write to the draft
 	}),
-	finalizeFragmentState: ({ draft }) => draft,
+	finalizeFragmentState: ({ draft }) => draft, // Turn draft into artifact
+
+	// [Required] Define the "Artifact" for Phase 2 (Builders)
 	createBuilderArgs: ({ context, artifact }) => ({
 		context,
-		input: artifact,
-		output: { result: '' },
-		reporter: context.reporter,
+		input: artifact, // Builders read the artifact
 	}),
+
+	// [Optional] Custom error factories, build options, etc.
+	createBuildOptions: (opts) => opts,
 });
-
-pipeline.ir.use(
-	createHelper({
-		key: 'collect-items',
-		kind: 'fragment',
-		apply: ({ output }) => {
-			output.items.push('item1', 'item2');
-		},
-	})
-);
-
-pipeline.builders.use(
-	createHelper({
-		key: 'format-result',
-		kind: 'builder',
-		dependsOn: ['collect-items'],
-		apply: ({ input, output }) => {
-			output.result = input.items.join(', ');
-		},
-	})
-);
-
-const result = await pipeline.run({ reporter: console });
-console.log(result.artifact.result); // "item1, item2"
 ```
 
 ## Core concepts

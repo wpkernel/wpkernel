@@ -8,12 +8,30 @@
 
 A pipeline assembles fragments, executes builders, and then commits or rolls back work depending on reporter diagnostics. Helpers register dependencies so the scheduler can resolve order, while extensions observe or mutate artefacts during the hook phase before commits fire.
 
+```mermaid
+graph TD
+    subgraph Phase 1: Fragments
+    F1[Helper A] --> F2[Helper B]
+    F2 --> Draft[Draft State]
+    end
+
+    subgraph Phase 2: Builders
+    Draft --> Artifact[Artifact]
+    Artifact --> B1[Helper C]
+    B1 --> B2[Helper D]
+    end
+
+    subgraph Phase 3: Extensions
+    B2 --> H1{Hooks}
+    H1 -- Success --> Commit[Commit]
+    H1 -- Failure --> Rollback[Rollback]
+    end
+```
+
 ## Examples
 
 ```ts
-const resourcePipeline = createPipeline({
-	fragmentKind: 'fragment',
-	builderKind: 'builder',
+const resourcePipeline = makePipeline({
 	createContext: (reporter) => ({
 		reporter,
 		config: loadKernelConfig(),
@@ -27,12 +45,12 @@ const resourcePipeline = createPipeline({
 	},
 });
 
-resourcePipeline.registerFragment(phpOpeningTagHelper);
-resourcePipeline.registerFragment(namespaceHelper);
-resourcePipeline.registerFragment(useStatementsHelper);
-resourcePipeline.registerFragment(classDefinitionHelper);
-resourcePipeline.registerBuilder(writeFileHelper);
-resourcePipeline.registerBuilder(formatCodeHelper);
+resourcePipeline.use(phpOpeningTagHelper);
+resourcePipeline.use(namespaceHelper);
+resourcePipeline.use(useStatementsHelper);
+resourcePipeline.use(classDefinitionHelper);
+resourcePipeline.use(writeFileHelper);
+resourcePipeline.use(formatCodeHelper);
 ```
 
 ## Patterns

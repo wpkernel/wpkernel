@@ -1,5 +1,4 @@
-import { initPipelineRunner } from '../pipeline-runner';
-import { createDependencyGraph } from '../../dependency-graph';
+import { initPipelineRunner } from '../runner';
 import { initDiagnosticManager } from '../diagnostic-manager';
 import type { Helper, PipelineDiagnostic, PipelineReporter } from '../../types';
 import type { RegisteredHelper } from '../../dependency-graph';
@@ -105,27 +104,28 @@ describe('pipeline-runner', () => {
 				createError: (_c: string, m: string) => new Error(m),
 				resolveRunResult: (r) => r,
 				extensionHooks: [],
+				helperRegistries: new Map([
+					['fragment', []],
+					[
+						'builder',
+						[
+							{
+								id: 'builder:b1#0',
+								index: 0,
+								helper: {
+									key: 'b1',
+									kind: 'builder',
+									dependsOn: ['missing'],
+									apply: () => {},
+								} as unknown as TestBuilderHelper,
+							},
+						],
+					],
+				]),
 			});
 
-			const context = runner.prepareContext({} as any);
-
 			try {
-				createDependencyGraph(
-					[
-						{
-							id: 'builder:b1#0',
-							index: 0,
-							helper: {
-								key: 'b1',
-								kind: 'builder',
-								dependsOn: ['missing'],
-								apply: () => {},
-							} as unknown as TestBuilderHelper,
-						},
-					] as RegisteredHelper<TestBuilderHelper>[],
-					context.builderGraphOptions,
-					(_c: string, m: string) => new Error(m)
-				);
+				runner.prepareContext({} as any);
 			} catch (_e) {
 				// Expected to throw
 			}
@@ -160,33 +160,40 @@ describe('pipeline-runner', () => {
 				builderKind: 'builder',
 				diagnosticManager,
 				createError: (_c: string, m: string) => new Error(m),
+				helperRegistries: new Map([
+					['fragment', []],
+					[
+						'builder',
+						[
+							{
+								id: 'builder:A#0',
+								index: 0,
+								helper: {
+									key: 'A',
+									kind: 'builder',
+									dependsOn: ['B'],
+									apply: () => {},
+									priority: 1,
+								} as unknown as TestBuilderHelper,
+							},
+							{
+								id: 'builder:B#1',
+								index: 1,
+								helper: {
+									key: 'B',
+									kind: 'builder',
+									dependsOn: ['A'],
+									apply: () => {},
+									priority: 1,
+								} as unknown as TestBuilderHelper,
+							},
+						],
+					],
+				]),
 			} as any);
 
-			const context = runner.prepareContext({} as any);
-
 			try {
-				const hA = {
-					key: 'A',
-					kind: 'builder',
-					dependsOn: ['B'],
-					apply: () => {},
-					priority: 1,
-				} as unknown as TestBuilderHelper;
-				const hB = {
-					key: 'B',
-					kind: 'builder',
-					dependsOn: ['A'],
-					apply: () => {},
-					priority: 1,
-				} as unknown as TestBuilderHelper;
-				createDependencyGraph(
-					[
-						{ id: 'builder:A#0', index: 0, helper: hA },
-						{ id: 'builder:B#1', index: 1, helper: hB },
-					] as RegisteredHelper<TestBuilderHelper>[],
-					context.builderGraphOptions,
-					(_c: string, m: string) => new Error(m)
-				);
+				runner.prepareContext({} as any);
 			} catch (_e) {
 				// Expected to throw
 			}
@@ -231,6 +238,24 @@ describe('pipeline-runner', () => {
 				createError: (_c: string, m: string) => new Error(m),
 				resolveRunResult: (r) => r,
 				extensionHooks: [],
+				helperRegistries: new Map([
+					[
+						'fragment',
+						[
+							{
+								id: 'fragment:f1#0',
+								index: 0,
+								helper: {
+									key: 'f1',
+									kind: 'fragment',
+									dependsOn: ['missing'],
+									apply: () => {},
+								} as unknown as TestFragmentHelper,
+							},
+						],
+					],
+					['builder', []],
+				]),
 			});
 
 			try {
@@ -296,6 +321,36 @@ describe('pipeline-runner', () => {
 				createError: (_c: string, m: string) => new Error(m),
 				resolveRunResult: (r) => r,
 				extensionHooks: [],
+				helperRegistries: new Map([
+					[
+						'fragment',
+						[
+							{
+								id: 'fragment:A#0',
+								index: 0,
+								helper: {
+									key: 'A',
+									kind: 'fragment',
+									dependsOn: ['B'],
+									apply: () => {},
+									priority: 1,
+								} as unknown as TestFragmentHelper,
+							},
+							{
+								id: 'fragment:B#1',
+								index: 1,
+								helper: {
+									key: 'B',
+									kind: 'fragment',
+									dependsOn: ['A'],
+									apply: () => {},
+									priority: 1,
+								} as unknown as TestFragmentHelper,
+							},
+						],
+					],
+					['builder', []],
+				]),
 			});
 
 			try {
@@ -444,6 +499,28 @@ describe('pipeline-runner', () => {
 				createError: (_c: string, m: string) => new Error(m),
 				resolveRunResult: (state) => state as any,
 				extensionHooks: [],
+				helperRegistries: new Map([
+					[
+						'fragment',
+						[
+							{
+								id: 'fragment:frag#0',
+								index: 0,
+								helper: fragmentHelper,
+							},
+						] as RegisteredHelper<any>[],
+					],
+					[
+						'builder',
+						[
+							{
+								id: 'builder:builder#0',
+								index: 0,
+								helper: builderHelper,
+							},
+						] as RegisteredHelper<any>[],
+					],
+				]),
 			});
 
 			const runContext = runner.prepareContext({} as any);
@@ -519,6 +596,24 @@ describe('pipeline-runner', () => {
 				createError: (_c: string, m: string) => new Error(m),
 				resolveRunResult: (r) => r,
 				extensionHooks: [],
+				helperRegistries: new Map([
+					[
+						'fragment',
+						[
+							{
+								id: 'fragment:one#0',
+								index: 0,
+								helper: fragmentWithRollback,
+							},
+							{
+								id: 'fragment:two#1',
+								index: 1,
+								helper: failingFragment,
+							},
+						] as RegisteredHelper<any>[],
+					],
+					['builder', []],
+				]),
 			});
 
 			const runContext = runner.prepareContext({} as any);
@@ -591,6 +686,24 @@ describe('pipeline-runner', () => {
 				createError: (_c: string, m: string) => new Error(m),
 				resolveRunResult: (r) => r,
 				extensionHooks: [],
+				helperRegistries: new Map([
+					['fragment', []],
+					[
+						'builder',
+						[
+							{
+								id: 'builder:one#0',
+								index: 0,
+								helper: builderWithRollback,
+							},
+							{
+								id: 'builder:two#1',
+								index: 1,
+								helper: failingBuilder,
+							},
+						] as RegisteredHelper<any>[],
+					],
+				]),
 			});
 
 			const runContext = runner.prepareContext({} as any);
@@ -662,6 +775,10 @@ describe('pipeline-runner', () => {
 						hook,
 					},
 				],
+				helperRegistries: new Map([
+					['fragment', []],
+					['builder', []],
+				]),
 			});
 
 			const runContext = runner.prepareContext({} as any);

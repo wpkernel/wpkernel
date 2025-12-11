@@ -6,7 +6,7 @@ Framework contributors extend the pipeline to serve new surfaces. Helpers, exten
 
 ## Workflow
 
-Use `createPipeline()` to describe fragment and builder phases, then register helpers that declare dependencies. When advanced behaviour is required, compose extensions that register additional helpers during setup or run transactional work inside the hook.
+Use `makePipeline()` to describe fragment and builder phases, then register helpers that declare dependencies. When advanced behaviour is required, compose extensions that register additional helpers during setup or run transactional work inside the hook.
 
 ## Examples
 
