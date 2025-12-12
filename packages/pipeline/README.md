@@ -16,7 +16,7 @@ It guarantees:
 
 - **Deterministic Ordering**: Topologically sorts helpers based on `dependsOn`.
 - **Cycle Detection**: Fails fast (halts execution) if dependencies form a loop.
-- **Atomic Rollbacks**: Extensions provide transactional `commit` and `rollback` hooks.
+- **Robust Rollbacks**: Extensions and helpers provide best-effort rollback hooks run LIFO, attempting all cleanup steps and reporting any rollback failures.
 - **Type Safety**: Full TypeScript support for custom contexts, options, and artifacts.
 
 ### Architecture Note
