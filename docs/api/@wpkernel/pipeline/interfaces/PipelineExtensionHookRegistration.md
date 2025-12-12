@@ -1,10 +1,10 @@
 [**@wpkernel/pipeline v0.12.5-beta.0**](../README.md)
 
-***
+---
 
 [@wpkernel/pipeline](../README.md) / PipelineExtensionHookRegistration
 
-# Interface: PipelineExtensionHookRegistration&lt;TContext, TOptions, TArtifact&gt;
+# Interface: PipelineExtensionHookRegistration<TContext, TOptions, TArtifact>
 
 Hook registration returned by an extension.
 
@@ -27,10 +27,10 @@ Hook registration returned by an extension.
 ### hook
 
 ```ts
-readonly hook: PipelineExtensionHook&lt;TContext, TOptions, TArtifact&gt;;
+readonly hook: PipelineExtensionHook<TContext, TOptions, TArtifact>;
 ```
 
-***
+---
 
 ### lifecycle?
 

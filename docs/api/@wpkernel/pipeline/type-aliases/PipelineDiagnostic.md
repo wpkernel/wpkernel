@@ -1,16 +1,16 @@
 [**@wpkernel/pipeline v0.12.5-beta.0**](../README.md)
 
-***
+---
 
 [@wpkernel/pipeline](../README.md) / PipelineDiagnostic
 
-# Type Alias: PipelineDiagnostic&lt;TKind&gt;
+# Type Alias: PipelineDiagnostic<TKind>
 
 ```ts
-type PipelineDiagnostic&lt;TKind&gt; = 
-  | ConflictDiagnostic&lt;TKind&gt;
-  | MissingDependencyDiagnostic&lt;TKind&gt;
-| UnusedHelperDiagnostic&lt;TKind&gt;;
+type PipelineDiagnostic<TKind> =
+  | ConflictDiagnostic<TKind>
+  | MissingDependencyDiagnostic<TKind>
+| UnusedHelperDiagnostic<TKind>;
 ```
 
 Union of all diagnostic types.
@@ -19,4 +19,4 @@ Union of all diagnostic types.
 
 ### TKind
 
-`TKind` *extends* [`HelperKind`](HelperKind.md) = [`HelperKind`](HelperKind.md)
+`TKind` _extends_ [`HelperKind`](HelperKind.md) = [`HelperKind`](HelperKind.md)

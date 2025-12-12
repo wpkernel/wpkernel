@@ -1,10 +1,10 @@
 [**@wpkernel/pipeline v0.12.5-beta.0**](../README.md)
 
-***
+---
 
 [@wpkernel/pipeline](../README.md) / HelperApplyOptions
 
-# Interface: HelperApplyOptions&lt;TContext, TInput, TOutput, TReporter&gt;
+# Interface: HelperApplyOptions<TContext, TInput, TOutput, TReporter>
 
 Options passed to a helper's apply function.
 
@@ -24,7 +24,7 @@ Options passed to a helper's apply function.
 
 ### TReporter
 
-`TReporter` *extends* [`PipelineReporter`](PipelineReporter.md) = [`PipelineReporter`](PipelineReporter.md)
+`TReporter` _extends_ [`PipelineReporter`](PipelineReporter.md) = [`PipelineReporter`](PipelineReporter.md)
 
 ## Properties
 
@@ -34,7 +34,7 @@ Options passed to a helper's apply function.
 readonly context: TContext;
 ```
 
-***
+---
 
 ### input
 
@@ -42,7 +42,7 @@ readonly context: TContext;
 readonly input: TInput;
 ```
 
-***
+---
 
 ### output
 
@@ -50,7 +50,7 @@ readonly input: TInput;
 readonly output: TOutput;
 ```
 
-***
+---
 
 ### reporter
 

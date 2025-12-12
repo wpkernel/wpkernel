@@ -1,20 +1,20 @@
 [**@wpkernel/wp-json-ast v0.12.5-beta.0**](../README.md)
 
-***
+---
 
 [@wpkernel/wp-json-ast](../README.md) / withGeneratedDocComment
 
 # Function: withGeneratedDocComment()
 
 ```ts
-function withGeneratedDocComment&lt;TStatement&gt;(statement, docblock): TStatement;
+function withGeneratedDocComment<TStatement>(statement, docblock): TStatement;
 ```
 
 ## Type Parameters
 
 ### TStatement
 
-`TStatement` *extends* `PhpStmt`
+`TStatement` _extends_ `PhpStmt`
 
 ## Parameters
 

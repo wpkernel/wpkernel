@@ -1,6 +1,6 @@
 [**@wpkernel/php-json-ast v0.12.5-beta.0**](../README.md)
 
-***
+---
 
 [@wpkernel/php-json-ast](../README.md) / BaselineCodemodPackOptions
 
@@ -14,7 +14,7 @@
 readonly optional canonicaliseNames: boolean;
 ```
 
-***
+---
 
 ### caseSensitiveSort?
 
@@ -22,7 +22,7 @@ readonly optional canonicaliseNames: boolean;
 readonly optional caseSensitiveSort: boolean;
 ```
 
-***
+---
 
 ### groupUseStatements?
 
@@ -30,7 +30,7 @@ readonly optional caseSensitiveSort: boolean;
 readonly optional groupUseStatements: boolean;
 ```
 
-***
+---
 
 ### preserveOriginalNames?
 
@@ -38,7 +38,7 @@ readonly optional groupUseStatements: boolean;
 readonly optional preserveOriginalNames: boolean;
 ```
 
-***
+---
 
 ### replaceResolvedNames?
 

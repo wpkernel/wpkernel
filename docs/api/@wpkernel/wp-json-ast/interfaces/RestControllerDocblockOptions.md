@@ -1,6 +1,6 @@
 [**@wpkernel/wp-json-ast v0.12.5-beta.0**](../README.md)
 
-***
+---
 
 [@wpkernel/wp-json-ast](../README.md) / RestControllerDocblockOptions
 
@@ -18,7 +18,7 @@ readonly origin: string;
 
 The origin of the controller.
 
-***
+---
 
 ### resourceName
 
@@ -28,7 +28,7 @@ readonly resourceName: string;
 
 The name of the resource.
 
-***
+---
 
 ### routes
 
@@ -38,7 +38,7 @@ readonly routes: readonly ResourceControllerRouteMetadata[];
 
 The routes of the controller.
 
-***
+---
 
 ### schemaKey
 
@@ -48,7 +48,7 @@ readonly schemaKey: string;
 
 The key of the schema.
 
-***
+---
 
 ### schemaProvenance
 

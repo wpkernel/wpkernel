@@ -1,6 +1,6 @@
 [**@wpkernel/cli v0.12.5-beta.0**](../README.md)
 
-***
+---
 
 [@wpkernel/cli](../README.md) / PatchManifest
 
@@ -14,7 +14,7 @@
 readonly actions: readonly string[];
 ```
 
-***
+---
 
 ### records
 
@@ -22,7 +22,7 @@ readonly actions: readonly string[];
 readonly records: PatchRecord[];
 ```
 
-***
+---
 
 ### summary
 

@@ -1,6 +1,6 @@
 [**@wpkernel/php-json-ast v0.12.5-beta.0**](../README.md)
 
-***
+---
 
 [@wpkernel/php-json-ast](../README.md) / PhpMatchArm
 
@@ -24,7 +24,7 @@ readonly attributes: PhpAttributes;
 
 [`PhpNode`](PhpNode.md).[`attributes`](PhpNode.md#attributes)
 
-***
+---
 
 ### body
 
@@ -32,7 +32,7 @@ readonly attributes: PhpAttributes;
 readonly body: PhpExpr;
 ```
 
-***
+---
 
 ### conds
 
@@ -40,7 +40,7 @@ readonly body: PhpExpr;
 readonly conds: PhpExpr[] | null;
 ```
 
-***
+---
 
 ### nodeType
 

@@ -1,6 +1,6 @@
 [**@wpkernel/cli v0.12.5-beta.0**](../README.md)
 
-***
+---
 
 [@wpkernel/cli](../README.md) / BuildGenerateCommandOptions
 
@@ -13,7 +13,7 @@
 #### buildReporter()?
 
 ```ts
-readonly optional buildReporter: (options) =&gt; Reporter;
+readonly optional buildReporter: (options) => Reporter;
 ```
 
 Create a WPKernel reporter backed by LogLayer transports.
@@ -40,7 +40,7 @@ Reporter instance with child helpers
 #### registerBuilders()?
 
 ```ts
-readonly optional registerBuilders: (pipeline) =&gt; void;
+readonly optional registerBuilders: (pipeline) => void;
 ```
 
 Registers the core builders with the pipeline.
@@ -60,12 +60,12 @@ The pipeline instance to register builders with.
 
 `void`
 
-***
+---
 
 #### registerFragments()?
 
 ```ts
-readonly optional registerFragments: (pipeline) =&gt; void;
+readonly optional registerFragments: (pipeline) => void;
 ```
 
 Registers the core IR fragments with the pipeline.
@@ -90,19 +90,19 @@ The pipeline instance to register fragments with.
 #### buildAdapterExtensionsExtension()?
 
 ```ts
-readonly optional buildAdapterExtensionsExtension: () =&gt; PipelineExtension;
+readonly optional buildAdapterExtensionsExtension: () => PipelineExtension;
 ```
 
 ##### Returns
 
 [`PipelineExtension`](../type-aliases/PipelineExtension.md)
 
-***
+---
 
 #### buildReadinessRegistry()?
 
 ```ts
-readonly optional buildReadinessRegistry: (options?) =&gt; ReadinessRegistry;
+readonly optional buildReadinessRegistry: (options?) => ReadinessRegistry;
 ```
 
 ##### Parameters
@@ -115,12 +115,12 @@ readonly optional buildReadinessRegistry: (options?) =&gt; ReadinessRegistry;
 
 [`ReadinessRegistry`](../classes/ReadinessRegistry.md)
 
-***
+---
 
 #### buildWorkspace()?
 
 ```ts
-readonly optional buildWorkspace: (root) =&gt; Workspace;
+readonly optional buildWorkspace: (root) => Workspace;
 ```
 
 ##### Parameters
@@ -133,30 +133,30 @@ readonly optional buildWorkspace: (root) =&gt; Workspace;
 
 [`Workspace`](Workspace.md)
 
-***
+---
 
 #### createPipeline()?
 
 ```ts
-readonly optional createPipeline: (overrides) =&gt; Pipeline;
+readonly optional createPipeline: (overrides) => Pipeline;
 ```
 
 ##### Parameters
 
 ###### overrides
 
-`Partial`&lt;`CliPipelineOptions`&gt; = `{}`
+`Partial`<`CliPipelineOptions`> = `{}`
 
 ##### Returns
 
 [`Pipeline`](../type-aliases/Pipeline.md)
 
-***
+---
 
 #### loadWPKernelConfig()?
 
 ```ts
-readonly optional loadWPKernelConfig: (options?) =&gt; Promise&lt;LoadedWPKernelConfig&gt;;
+readonly optional loadWPKernelConfig: (options?) => Promise<LoadedWPKernelConfig>;
 ```
 
 Locate and load the project's wpk configuration.
@@ -175,7 +175,7 @@ canonicalised configuration metadata.
 
 ##### Returns
 
-`Promise`&lt;[`LoadedWPKernelConfig`](LoadedWPKernelConfig.md)&gt;
+`Promise`<[`LoadedWPKernelConfig`](LoadedWPKernelConfig.md)>
 
 The validated wpk config and associated metadata.
 
@@ -183,12 +183,12 @@ The validated wpk config and associated metadata.
 
 WPKernelError when discovery, parsing or validation fails.
 
-***
+---
 
 #### renderSummary()?
 
 ```ts
-readonly optional renderSummary: (summary, dryRun, verbose, paths?) =&gt; string;
+readonly optional renderSummary: (summary, dryRun, verbose, paths?) => string;
 ```
 
 ##### Parameters
@@ -227,12 +227,12 @@ readonly optional renderSummary: (summary, dryRun, verbose, paths?) =&gt; string
 
 `string`
 
-***
+---
 
 #### validateGeneratedImports()?
 
 ```ts
-readonly optional validateGeneratedImports: (__namedParameters) =&gt; Promise&lt;void&gt;;
+readonly optional validateGeneratedImports: (__namedParameters) => Promise<void>;
 ```
 
 ##### Parameters
@@ -243,4 +243,4 @@ readonly optional validateGeneratedImports: (__namedParameters) =&gt; Promise&lt
 
 ##### Returns
 
-`Promise`&lt;`void`&gt;
+`Promise`<`void`>

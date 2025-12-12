@@ -1,6 +1,6 @@
 [**@wpkernel/core v0.12.5-beta.0**](../README.md)
 
-***
+---
 
 [@wpkernel/core](../README.md) / ErrorData
 
@@ -30,7 +30,7 @@ optional originalError: Error;
 
 Original error if wrapping
 
-***
+---
 
 ### serverCode?
 
@@ -40,7 +40,7 @@ optional serverCode: string;
 
 Server error details
 
-***
+---
 
 ### serverData?
 
@@ -48,7 +48,7 @@ Server error details
 optional serverData: unknown;
 ```
 
-***
+---
 
 ### serverMessage?
 
@@ -56,7 +56,7 @@ optional serverData: unknown;
 optional serverMessage: string;
 ```
 
-***
+---
 
 ### validationErrors?
 

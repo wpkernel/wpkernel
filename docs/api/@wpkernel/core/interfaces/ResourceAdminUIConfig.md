@@ -1,6 +1,6 @@
 [**@wpkernel/core v0.12.5-beta.0**](../README.md)
 
-***
+---
 
 [@wpkernel/core](../README.md) / ResourceAdminUIConfig
 
@@ -8,7 +8,7 @@
 
 Shallow admin UI configuration.
 
-Public config does *not* describe DataViews internals or menu wiring.
+Public config does _not_ describe DataViews internals or menu wiring.
 Those are inferred from schema/storage/capabilities + layout manifest.
 
 ## Indexable

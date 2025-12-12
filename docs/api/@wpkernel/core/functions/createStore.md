@@ -1,13 +1,13 @@
 [**@wpkernel/core v0.12.5-beta.0**](../README.md)
 
-***
+---
 
 [@wpkernel/core](../README.md) / createStore
 
 # Function: createStore()
 
 ```ts
-function createStore&lt;T, TQuery&gt;(config): ResourceStore&lt;T, TQuery&gt;;
+function createStore<T, TQuery>(config): ResourceStore<T, TQuery>;
 ```
 
 Creates a resource store with selectors, actions, and resolvers.
@@ -30,13 +30,13 @@ The query parameter type for list operations
 
 ### config
 
-[`ResourceStoreConfig`](../type-aliases/ResourceStoreConfig.md)&lt;`T`, `TQuery`&gt;
+[`ResourceStoreConfig`](../type-aliases/ResourceStoreConfig.md)<`T`, `TQuery`>
 
 Store configuration
 
 ## Returns
 
-[`ResourceStore`](../type-aliases/ResourceStore.md)&lt;`T`, `TQuery`&gt;
+[`ResourceStore`](../type-aliases/ResourceStore.md)<`T`, `TQuery`>
 
 Complete store descriptor
 
@@ -48,6 +48,6 @@ import { thing } from './resources/thing';
 
 const thingStore = createStore({
   resource: thing,
-  getId: (item) =&gt; item.id,
+  getId: (item) => item.id,
 });
 ```

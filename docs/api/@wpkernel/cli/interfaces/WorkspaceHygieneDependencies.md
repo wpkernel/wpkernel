@@ -1,6 +1,6 @@
 [**@wpkernel/cli v0.12.5-beta.0**](../README.md)
 
-***
+---
 
 [@wpkernel/cli](../README.md) / WorkspaceHygieneDependencies
 
@@ -11,7 +11,7 @@
 ### readGitStatus()
 
 ```ts
-readonly readGitStatus: (workspace) =&gt; Promise&lt;WorkspaceGitStatus | null&gt;;
+readonly readGitStatus: (workspace) => Promise<WorkspaceGitStatus | null>;
 ```
 
 #### Parameters
@@ -22,4 +22,4 @@ readonly readGitStatus: (workspace) =&gt; Promise&lt;WorkspaceGitStatus | null&g
 
 #### Returns
 
-`Promise`&lt;[`WorkspaceGitStatus`](../type-aliases/WorkspaceGitStatus.md) \| `null`&gt;
+`Promise`<[`WorkspaceGitStatus`](../type-aliases/WorkspaceGitStatus.md) \| `null`>

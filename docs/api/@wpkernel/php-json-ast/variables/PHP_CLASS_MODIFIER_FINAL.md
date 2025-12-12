@@ -1,10 +1,10 @@
 [**@wpkernel/php-json-ast v0.12.5-beta.0**](../README.md)
 
-***
+---
 
-[@wpkernel/php-json-ast](../README.md) / PHP\_CLASS\_MODIFIER\_FINAL
+[@wpkernel/php-json-ast](../README.md) / PHP_CLASS_MODIFIER_FINAL
 
-# Variable: PHP\_CLASS\_MODIFIER\_FINAL
+# Variable: PHP_CLASS_MODIFIER_FINAL
 
 ```ts
 const PHP_CLASS_MODIFIER_FINAL: 32 = 32;

@@ -1,29 +1,29 @@
 [**@wpkernel/wp-json-ast v0.12.5-beta.0**](../README.md)
 
-***
+---
 
 [@wpkernel/wp-json-ast](../README.md) / ResourceAccessors
 
-# Interface: ResourceAccessors&lt;TStorageKind&gt;
+# Interface: ResourceAccessors<TStorageKind>
 
 ## Type Parameters
 
 ### TStorageKind
 
-`TStorageKind` *extends* `string` = `string`
+`TStorageKind` _extends_ `string` = `string`
 
 ## Properties
 
 ### storages
 
 ```ts
-readonly storages: readonly ResourceStorageAccessors&lt;TStorageKind&gt;[];
+readonly storages: readonly ResourceStorageAccessors<TStorageKind>[];
 ```
 
-***
+---
 
 ### storagesByKind
 
 ```ts
-readonly storagesByKind: ReadonlyMap&lt;TStorageKind, ResourceStorageAccessors&lt;TStorageKind&gt;&gt;;
+readonly storagesByKind: ReadonlyMap<TStorageKind, ResourceStorageAccessors<TStorageKind>>;
 ```

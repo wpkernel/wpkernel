@@ -1,6 +1,6 @@
 [**@wpkernel/e2e-utils v0.12.5-beta.0**](../README.md)
 
-***
+---
 
 [@wpkernel/e2e-utils](../README.md) / DataViewHelperOptions
 
@@ -22,7 +22,7 @@ resource: string;
 
 Resource name used to locate the DataView wrapper.
 
-***
+---
 
 ### namespace?
 
@@ -32,7 +32,7 @@ optional namespace: string;
 
 Optional namespace attribute to disambiguate multiple runtimes.
 
-***
+---
 
 ### within?
 

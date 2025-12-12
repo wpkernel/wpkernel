@@ -1,13 +1,13 @@
 [**@wpkernel/wp-json-ast v0.12.5-beta.0**](../README.md)
 
-***
+---
 
 [@wpkernel/wp-json-ast](../README.md) / createWpPhpProgramBuilder
 
 # Function: createWpPhpProgramBuilder()
 
 ```ts
-function createWpPhpProgramBuilder&lt;TContext, TInput, TOutput&gt;(options): BuilderHelper&lt;TContext, TInput, TOutput&gt;;
+function createWpPhpProgramBuilder<TContext, TInput, TOutput>(options): BuilderHelper<TContext, TInput, TOutput>;
 ```
 
 Creates a WordPress PHP program builder.
@@ -19,27 +19,27 @@ such as automatic generation of file headers and guards.
 
 ### TContext
 
-`TContext` *extends* `PipelineContext` = `PipelineContext`
+`TContext` _extends_ `PipelineContext` = `PipelineContext`
 
 ### TInput
 
-`TInput` *extends* `BuilderInput` = `BuilderInput`
+`TInput` _extends_ `BuilderInput` = `BuilderInput`
 
 ### TOutput
 
-`TOutput` *extends* `BuilderOutput` = `BuilderOutput`
+`TOutput` _extends_ `BuilderOutput` = `BuilderOutput`
 
 ## Parameters
 
 ### options
 
-[`CreateWpPhpProgramBuilderOptions`](../interfaces/CreateWpPhpProgramBuilderOptions.md)&lt;`TContext`, `TInput`, `TOutput`&gt;
+[`CreateWpPhpProgramBuilderOptions`](../interfaces/CreateWpPhpProgramBuilderOptions.md)<`TContext`, `TInput`, `TOutput`>
 
 Options for creating the builder.
 
 ## Returns
 
-`BuilderHelper`&lt;`TContext`, `TInput`, `TOutput`&gt;
+`BuilderHelper`<`TContext`, `TInput`, `TOutput`>
 
 A builder helper.
 
@@ -54,7 +54,7 @@ const builder = createWpPhpProgramBuilder({
 		pluginName: 'my-plugin',
 		description: 'My plugin description.',
 	},
-	build: (builder) =&gt; {
+	build: (builder) => {
 		builder.appendProgramStatement(
 			buildReturn(
 				buildScalarString('Hello from my plugin!')

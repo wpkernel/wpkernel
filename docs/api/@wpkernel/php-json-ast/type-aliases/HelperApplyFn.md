@@ -1,13 +1,13 @@
 [**@wpkernel/php-json-ast v0.12.5-beta.0**](../README.md)
 
-***
+---
 
 [@wpkernel/php-json-ast](../README.md) / HelperApplyFn
 
-# Type Alias: HelperApplyFn&lt;TContext, TInput, TOutput, TReporter&gt;
+# Type Alias: HelperApplyFn<TContext, TInput, TOutput, TReporter>
 
 ```ts
-type HelperApplyFn&lt;TContext, TInput, TOutput, TReporter&gt; = (options, next?) =&gt; MaybePromise&lt;HelperApplyResult&lt;TOutput&gt; | void&gt;;
+type HelperApplyFn<TContext, TInput, TOutput, TReporter> = (options, next?) => MaybePromise<HelperApplyResult<TOutput> | void>;
 ```
 
 Function signature for a pipeline helper's apply method.
@@ -40,7 +40,7 @@ The type of the output artifact.
 
 ### TReporter
 
-`TReporter` *extends* `PipelineReporter` = `PipelineReporter`
+`TReporter` _extends_ `PipelineReporter` = `PipelineReporter`
 
 The type of the reporter used for logging.
 
@@ -48,18 +48,18 @@ The type of the reporter used for logging.
 
 ### options
 
-[`HelperApplyOptions`](../interfaces/HelperApplyOptions.md)&lt;`TContext`, `TInput`, `TOutput`, `TReporter`&gt;
+[`HelperApplyOptions`](../interfaces/HelperApplyOptions.md)<`TContext`, `TInput`, `TOutput`, `TReporter`>
 
 Options for the apply function, including context, input, output, and reporter.
 
 ### next?
 
-() =&gt; `MaybePromise`&lt;`void`&gt;
+() => `MaybePromise`<`void`>
 
 Optional function to call the next helper in the pipeline.
 
 ## Returns
 
-`MaybePromise`&lt;`HelperApplyResult`&lt;`TOutput`&gt; \| `void`&gt;
+`MaybePromise`<`HelperApplyResult`<`TOutput`> \| `void`>
 
 A promise that resolves when the helper has finished its work, or a result object with optional output and rollback.

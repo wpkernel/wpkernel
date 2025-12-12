@@ -1,6 +1,6 @@
 [**@wpkernel/wp-json-ast v0.12.5-beta.0**](../README.md)
 
-***
+---
 
 [@wpkernel/wp-json-ast](../README.md) / RequestParamAssignmentOptions
 
@@ -18,7 +18,7 @@ readonly param: string;
 
 The name of the parameter to retrieve.
 
-***
+---
 
 ### requestVariable
 
@@ -28,7 +28,7 @@ readonly requestVariable: string;
 
 The name of the variable holding the `WP_REST_Request` object.
 
-***
+---
 
 ### cast?
 
@@ -38,7 +38,7 @@ readonly optional cast: ScalarCastKind;
 
 An optional scalar cast to apply to the parameter value.
 
-***
+---
 
 ### targetVariable?
 

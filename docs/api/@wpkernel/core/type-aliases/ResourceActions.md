@@ -1,13 +1,13 @@
 [**@wpkernel/core v0.12.5-beta.0**](../README.md)
 
-***
+---
 
 [@wpkernel/core](../README.md) / ResourceActions
 
-# Type Alias: ResourceActions&lt;T&gt;
+# Type Alias: ResourceActions<T>
 
 ```ts
-type ResourceActions&lt;T&gt; = object & Record&lt;string, AnyFn&gt;;
+type ResourceActions<T> = object & Record<string, AnyFn>;
 ```
 
 Actions for a resource store.
@@ -17,7 +17,7 @@ Actions for a resource store.
 ### invalidate()
 
 ```ts
-invalidate: (cacheKeys) =&gt; void;
+invalidate: (cacheKeys) => void;
 ```
 
 Clear cached data for specific cache keys.
@@ -37,7 +37,7 @@ Array of cache keys to invalidate
 ### invalidateAll()
 
 ```ts
-invalidateAll: () =&gt; void;
+invalidateAll: () => void;
 ```
 
 Clear all cached data for this resource.
@@ -49,7 +49,7 @@ Clear all cached data for this resource.
 ### receiveError()
 
 ```ts
-receiveError: (cacheKey, error) =&gt; void;
+receiveError: (cacheKey, error) => void;
 ```
 
 Store an error for a given cache key.
@@ -75,7 +75,7 @@ Error message
 ### receiveItem()
 
 ```ts
-receiveItem: (item) =&gt; void;
+receiveItem: (item) => void;
 ```
 
 Receive a single item.
@@ -95,7 +95,7 @@ The item to store
 ### receiveItems()
 
 ```ts
-receiveItems: (queryKey, items, meta?) =&gt; void;
+receiveItems: (queryKey, items, meta?) => void;
 ```
 
 Receive multiple items from a list query.
@@ -141,7 +141,7 @@ List metadata (total, hasMore, nextCursor)
 ### setListStatus()
 
 ```ts
-setListStatus: (queryKey, status) =&gt; void;
+setListStatus: (queryKey, status) => void;
 ```
 
 Update the status of a list query.

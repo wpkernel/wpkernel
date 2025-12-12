@@ -1,6 +1,6 @@
 [**@wpkernel/cli v0.12.5-beta.0**](../README.md)
 
-***
+---
 
 [@wpkernel/cli](../README.md) / IRResource
 
@@ -48,7 +48,7 @@ optional remove: IRResourceCacheKey;
 optional update: IRResourceCacheKey;
 ```
 
-***
+---
 
 ### controllerClass
 
@@ -58,7 +58,7 @@ controllerClass: string;
 
 Fully-qualified PHP controller class name for this resource.
 
-***
+---
 
 ### hash
 
@@ -68,7 +68,7 @@ hash: IRHashProvenance;
 
 A hash of the resource definition for change detection.
 
-***
+---
 
 ### id
 
@@ -78,7 +78,7 @@ id: string;
 
 Stable identifier for the resource entry.
 
-***
+---
 
 ### name
 
@@ -88,7 +88,7 @@ name: string;
 
 The name of the resource.
 
-***
+---
 
 ### routes
 
@@ -98,7 +98,7 @@ routes: IRRoute[];
 
 An array of routes defined for this resource.
 
-***
+---
 
 ### schemaKey
 
@@ -108,7 +108,7 @@ schemaKey: string;
 
 The key of the schema associated with this resource.
 
-***
+---
 
 ### schemaProvenance
 
@@ -118,7 +118,7 @@ schemaProvenance: SchemaProvenance;
 
 The provenance of the schema.
 
-***
+---
 
 ### warnings
 
@@ -128,7 +128,7 @@ warnings: IRWarning[];
 
 An array of warnings associated with this resource.
 
-***
+---
 
 ### blocks?
 
@@ -138,17 +138,17 @@ optional blocks: IRResourceBlocksConfig;
 
 Optional: Generated block configuration (js-only or SSR).
 
-***
+---
 
 ### capabilities?
 
 ```ts
-optional capabilities: Partial&lt;Record&lt;string, string | ResourceCapabilityDescriptor&gt;&gt;;
+optional capabilities: Partial<Record<string, string | ResourceCapabilityDescriptor>>;
 ```
 
 Optional: Inline capability mappings for the resource.
 
-***
+---
 
 ### identity?
 
@@ -158,7 +158,7 @@ optional identity: ResourceIdentityConfig;
 
 Optional: Identity configuration for the resource.
 
-***
+---
 
 ### queryParams?
 
@@ -168,7 +168,7 @@ optional queryParams: ResourceQueryParams;
 
 Optional: Query parameters configuration for the resource.
 
-***
+---
 
 ### storage?
 
@@ -178,7 +178,7 @@ optional storage: ResourceStorageConfig;
 
 Optional: Storage configuration for the resource.
 
-***
+---
 
 ### ui?
 

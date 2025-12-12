@@ -1,6 +1,6 @@
 [**@wpkernel/cli v0.12.5-beta.0**](../README.md)
 
-***
+---
 
 [@wpkernel/cli](../README.md) / PipelineExtensionHookResult
 
@@ -18,30 +18,30 @@ readonly optional artifact: IRv1;
 
 Optional: A modified IR artifact.
 
-***
+---
 
 ### commit()?
 
 ```ts
-readonly optional commit: () =&gt; Promise&lt;void&gt;;
+readonly optional commit: () => Promise<void>;
 ```
 
 Optional: A function to commit changes made by the hook.
 
 #### Returns
 
-`Promise`&lt;`void`&gt;
+`Promise`<`void`>
 
-***
+---
 
 ### rollback()?
 
 ```ts
-readonly optional rollback: () =&gt; Promise&lt;void&gt;;
+readonly optional rollback: () => Promise<void>;
 ```
 
 Optional: A function to rollback changes made by the hook.
 
 #### Returns
 
-`Promise`&lt;`void`&gt;
+`Promise`<`void`>
