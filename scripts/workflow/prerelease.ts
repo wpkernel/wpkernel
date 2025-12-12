@@ -17,6 +17,7 @@ interface Options {
 	publishTag?: string;
 	version?: string;
 	allowDirty: boolean;
+	help: boolean;
 }
 
 interface ParsedVersion {
@@ -36,6 +37,26 @@ interface ReleaseBranchResolution {
 
 const STATE_FILE = '.release-next-version';
 
+function printHelp(): void {
+	console.log(
+		[
+			'Usage: pnpm exec tsx scripts/workflow/prerelease.ts [options]',
+			'',
+			'Options:',
+			'  --mode <prerelease|patch>   Bump strategy (default: prerelease)',
+			'  --preid <label>             Prerelease identifier (default: beta)',
+			'  --remote <name>             Git remote to fetch/push (default: upstream)',
+			'  --branch <name>             Target branch for the release (default: main)',
+			'  --publish-tag <tag>         npm dist-tag to publish under (default: latest)',
+			'  --version <x.y.z>           Force a specific version',
+			'  --push                      Push commit/tag after creation',
+			'  --publish                   Publish packages (dist-tag defaults to latest)',
+			'  --allow-dirty               Skip stashing local changes',
+			'  -h, --help                  Show this help message',
+		].join('\n')
+	);
+}
+
 function parseArgs(argv: string[]): Options {
 	const options: Options = {
 		mode: 'prerelease',
@@ -45,6 +66,7 @@ function parseArgs(argv: string[]): Options {
 		push: false,
 		publish: false,
 		allowDirty: false,
+		help: false,
 	};
 
 	const expectValue = (flag: string, value: string | undefined): string => {
@@ -80,6 +102,8 @@ function parseArgs(argv: string[]): Options {
 		['--push', () => (options.push = true)],
 		['--publish', () => (options.publish = true)],
 		['--allow-dirty', () => (options.allowDirty = true)],
+		['--help', () => (options.help = true)],
+		['-h', () => (options.help = true)],
 	]);
 
 	for (let index = 0; index < argv.length; index += 1) {
@@ -413,13 +437,18 @@ function publishIfRequested(repoRoot: string, options: Options): void {
 		return;
 	}
 
-	const publishTag = options.publishTag ?? options.preid;
+	// Always default to publishing under "latest" so npm shows the most recent beta.
+	const publishTag = options.publishTag ?? 'latest';
 	console.log(`Publishing packages with npm dist-tag "${publishTag}"...`);
 	publishPackages(repoRoot, publishTag);
 }
 
 function main(): void {
 	const options = parseArgs(process.argv.slice(2));
+	if (options.help) {
+		printHelp();
+		return;
+	}
 	const currentFilePath = fileURLToPath(import.meta.url);
 	const repoRoot = path.resolve(path.dirname(currentFilePath), '..', '..');
 

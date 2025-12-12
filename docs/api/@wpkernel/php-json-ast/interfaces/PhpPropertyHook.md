@@ -1,6 +1,6 @@
 [**@wpkernel/php-json-ast v0.12.3-beta.2**](../README.md)
 
-***
+---
 
 [@wpkernel/php-json-ast](../README.md) / PhpPropertyHook
 
@@ -20,7 +20,7 @@ Represents a PHP property hook (e.g., `__get`, `__set`).
 readonly attrGroups: PhpAttrGroup[];
 ```
 
-***
+---
 
 ### attributes
 
@@ -32,18 +32,18 @@ readonly attributes: PhpAttributes;
 
 [`PhpNode`](PhpNode.md).[`attributes`](PhpNode.md#attributes)
 
-***
+---
 
 ### body
 
 ```ts
-readonly body: 
+readonly body:
   | PhpExpr
   | PhpStmt[]
   | null;
 ```
 
-***
+---
 
 ### byRef
 
@@ -51,7 +51,7 @@ readonly body:
 readonly byRef: boolean;
 ```
 
-***
+---
 
 ### flags
 
@@ -59,7 +59,7 @@ readonly byRef: boolean;
 readonly flags: number;
 ```
 
-***
+---
 
 ### name
 
@@ -67,7 +67,7 @@ readonly flags: number;
 readonly name: PhpIdentifier;
 ```
 
-***
+---
 
 ### nodeType
 
@@ -79,7 +79,7 @@ readonly nodeType: "PropertyHook";
 
 [`PhpNode`](PhpNode.md).[`nodeType`](PhpNode.md#nodetype)
 
-***
+---
 
 ### params
 

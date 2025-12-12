@@ -1,13 +1,14 @@
 [**@wpkernel/php-json-ast v0.12.3-beta.2**](../README.md)
 
-***
+---
 
 [@wpkernel/php-json-ast](../README.md) / runPhpCodemodIngestion
 
 # Function: runPhpCodemodIngestion()
 
 ```ts
-function runPhpCodemodIngestion(options): Promise&lt;PhpCodemodIngestionResult&gt;;
+function runPhpCodemodIngestion(options): Promise & lt;
+PhpCodemodIngestionResult & gt;
 ```
 
 ## Parameters
@@ -18,4 +19,4 @@ function runPhpCodemodIngestion(options): Promise&lt;PhpCodemodIngestionResult&g
 
 ## Returns
 
-`Promise`&lt;[`PhpCodemodIngestionResult`](../interfaces/PhpCodemodIngestionResult.md)&gt;
+`Promise`<[`PhpCodemodIngestionResult`](../interfaces/PhpCodemodIngestionResult.md)>

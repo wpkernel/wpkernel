@@ -1,6 +1,6 @@
 [**@wpkernel/core v0.12.3-beta.2**](../README.md)
 
-***
+---
 
 [@wpkernel/core](../README.md) / SerializedError
 
@@ -20,7 +20,7 @@ Serialized error format (JSON-safe)
 code: ErrorCode;
 ```
 
-***
+---
 
 ### message
 
@@ -28,7 +28,7 @@ code: ErrorCode;
 message: string;
 ```
 
-***
+---
 
 ### name
 
@@ -36,7 +36,7 @@ message: string;
 name: string;
 ```
 
-***
+---
 
 ### context?
 
@@ -44,7 +44,7 @@ name: string;
 optional context: ErrorContext;
 ```
 
-***
+---
 
 ### data?
 
@@ -52,7 +52,7 @@ optional context: ErrorContext;
 optional data: ErrorData;
 ```
 
-***
+---
 
 ### stack?
 

@@ -1,13 +1,15 @@
 [**@wpkernel/wp-json-ast v0.12.3-beta.2**](../README.md)
 
-***
+---
 
 [@wpkernel/wp-json-ast](../README.md) / RestControllerRouteStatementsBuilder
 
 # Type Alias: RestControllerRouteStatementsBuilder
 
 ```ts
-type RestControllerRouteStatementsBuilder = (context) =&gt; readonly PhpStmt[] | null | undefined;
+type RestControllerRouteStatementsBuilder = (
+	context
+) => readonly PhpStmt[] | null | undefined;
 ```
 
 ## Parameters

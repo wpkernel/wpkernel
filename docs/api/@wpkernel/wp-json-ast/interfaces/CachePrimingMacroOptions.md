@@ -1,6 +1,6 @@
 [**@wpkernel/wp-json-ast v0.12.3-beta.2**](../README.md)
 
-***
+---
 
 [@wpkernel/wp-json-ast](../README.md) / CachePrimingMacroOptions
 
@@ -18,7 +18,7 @@
 readonly errorCode: string;
 ```
 
-***
+---
 
 ### failureMessage
 
@@ -26,7 +26,7 @@ readonly errorCode: string;
 readonly failureMessage: string;
 ```
 
-***
+---
 
 ### metadataKeys
 
@@ -37,10 +37,10 @@ readonly metadataKeys: MutationMetadataKeys;
 #### Inherited from
 
 ```ts
-MacroOptionsBase.metadataKeys
+MacroOptionsBase.metadataKeys;
 ```
 
-***
+---
 
 ### pascalName
 
@@ -48,7 +48,7 @@ MacroOptionsBase.metadataKeys
 readonly pascalName: string;
 ```
 
-***
+---
 
 ### postId
 
@@ -56,7 +56,7 @@ readonly pascalName: string;
 readonly postId: MacroExpression;
 ```
 
-***
+---
 
 ### postVariableName?
 
@@ -64,7 +64,7 @@ readonly postId: MacroExpression;
 readonly optional postVariableName: string;
 ```
 
-***
+---
 
 ### requestVariable?
 

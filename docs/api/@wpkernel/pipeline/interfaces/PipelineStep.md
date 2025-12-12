@@ -1,22 +1,22 @@
 [**@wpkernel/pipeline v0.12.3-beta.2**](../README.md)
 
-***
+---
 
 [@wpkernel/pipeline](../README.md) / PipelineStep
 
-# Interface: PipelineStep&lt;TKind&gt;
+# Interface: PipelineStep<TKind>
 
 A pipeline step representing an executed helper.
 
 ## Extends
 
-- [`HelperDescriptor`](HelperDescriptor.md)&lt;`TKind`&gt;
+- [`HelperDescriptor`](HelperDescriptor.md)<`TKind`>
 
 ## Type Parameters
 
 ### TKind
 
-`TKind` *extends* [`HelperKind`](../type-aliases/HelperKind.md) = [`HelperKind`](../type-aliases/HelperKind.md)
+`TKind` _extends_ [`HelperKind`](../type-aliases/HelperKind.md) = [`HelperKind`](../type-aliases/HelperKind.md)
 
 ## Properties
 
@@ -30,7 +30,7 @@ readonly dependsOn: readonly string[];
 
 [`HelperDescriptor`](HelperDescriptor.md).[`dependsOn`](HelperDescriptor.md#dependson)
 
-***
+---
 
 ### id
 
@@ -38,7 +38,7 @@ readonly dependsOn: readonly string[];
 readonly id: string;
 ```
 
-***
+---
 
 ### index
 
@@ -46,7 +46,7 @@ readonly id: string;
 readonly index: number;
 ```
 
-***
+---
 
 ### key
 
@@ -58,7 +58,7 @@ readonly key: string;
 
 [`HelperDescriptor`](HelperDescriptor.md).[`key`](HelperDescriptor.md#key)
 
-***
+---
 
 ### kind
 
@@ -70,7 +70,7 @@ readonly kind: TKind;
 
 [`HelperDescriptor`](HelperDescriptor.md).[`kind`](HelperDescriptor.md#kind)
 
-***
+---
 
 ### mode
 
@@ -82,7 +82,7 @@ readonly mode: HelperMode;
 
 [`HelperDescriptor`](HelperDescriptor.md).[`mode`](HelperDescriptor.md#mode)
 
-***
+---
 
 ### priority
 
@@ -94,7 +94,7 @@ readonly priority: number;
 
 [`HelperDescriptor`](HelperDescriptor.md).[`priority`](HelperDescriptor.md#priority)
 
-***
+---
 
 ### optional?
 
@@ -109,14 +109,14 @@ Useful for conditional/feature-flag helpers.
 #### Default Value
 
 ```ts
-false
+false;
 ```
 
 #### Inherited from
 
 [`HelperDescriptor`](HelperDescriptor.md).[`optional`](HelperDescriptor.md#optional)
 
-***
+---
 
 ### origin?
 

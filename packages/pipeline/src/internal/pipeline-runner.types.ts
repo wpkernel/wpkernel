@@ -2,6 +2,7 @@ import type {
 	CreateDependencyGraphOptions,
 	RegisteredHelper,
 } from '../dependency-graph';
+import type { Program } from '../async-utils';
 import type { ErrorFactory } from '../error-factory';
 import type {
 	CreatePipelineOptions,
@@ -49,6 +50,7 @@ export interface PipelineRunContext<
 	readonly fragmentOrder: RegisteredHelper<TFragmentHelper>[];
 	readonly steps: PipelineStep[];
 	readonly pushStep: (entry: RegisteredHelper<unknown>) => void;
+	readonly helperOrders: Map<string, RegisteredHelper<unknown>[]>;
 	readonly builderGraphOptions: CreateDependencyGraphOptions<TBuilderHelper>;
 	readonly buildHookOptions: (
 		artifact: TArtifact,
@@ -141,6 +143,7 @@ export interface PipelineRunnerDependencies<
 		TFragmentHelper,
 		TBuilderHelper
 	>;
+	readonly helperRegistries: Map<string, RegisteredHelper<unknown>[]>;
 	readonly createError: ErrorFactory;
 	readonly resolveRunResult: (state: {
 		readonly artifact: TArtifact;
@@ -159,8 +162,97 @@ export interface PipelineRunnerDependencies<
 		TRunOptions,
 		TArtifact
 	>[];
+	readonly extensionLifecycles?: string[];
+	readonly stages?: (
+		deps: DefaultStageDeps<
+			PipelineState<
+				TRunOptions,
+				TBuildOptions,
+				TContext,
+				TReporter,
+				TDraft,
+				TArtifact,
+				TDiagnostic,
+				TFragmentInput,
+				TFragmentOutput,
+				TBuilderInput,
+				TBuilderOutput,
+				TFragmentKind,
+				TBuilderKind,
+				TFragmentHelper,
+				TBuilderHelper
+			>,
+			TRunResult,
+			TContext,
+			TRunOptions,
+			TArtifact,
+			TReporter
+		>
+	) => PipelineStage<
+		PipelineState<
+			TRunOptions,
+			TBuildOptions,
+			TContext,
+			TReporter,
+			TDraft,
+			TArtifact,
+			TDiagnostic,
+			TFragmentInput,
+			TFragmentOutput,
+			TBuilderInput,
+			TBuilderOutput,
+			TFragmentKind,
+			TBuilderKind,
+			TFragmentHelper,
+			TBuilderHelper
+		>,
+		Halt<TRunResult>
+	>[];
 }
 
+export type PipelineStage<TState, TResult> = Program<TState | TResult>;
+
+export type DefaultStageDeps<
+	TState,
+	TResult,
+	TContext,
+	TRunOptions,
+	TArtifact,
+	TReporter extends PipelineReporter,
+> = {
+	readonly runnerEnv: StageEnv<
+		TState,
+		TResult,
+		TContext,
+		TRunOptions,
+		TArtifact,
+		TReporter
+	>;
+	readonly fragmentStage: PipelineStage<TState, Halt<TResult>>;
+	readonly builderStage: PipelineStage<TState, Halt<TResult>>;
+	readonly finalizeFragments: PipelineStage<TState, Halt<TResult>>;
+	readonly commitStage: PipelineStage<TState, Halt<TResult>>;
+	readonly finalizeResult: PipelineStage<TState, Halt<TResult>>;
+	readonly makeLifecycleStage: (
+		lifecycle: string
+	) => PipelineStage<TState, Halt<TResult>>;
+	readonly makeHelperStage: (
+		kind: string,
+		spec?: {
+			makeArgs?: (
+				state: TState
+			) => (entry: RegisteredHelper<unknown>) => unknown;
+			onVisited?: (
+				state: TState,
+				visited: Set<string>,
+				rollbacks: unknown[]
+			) => TState;
+		}
+	) => PipelineStage<TState, Halt<TResult>>;
+	readonly extensions?: {
+		readonly lifecycles?: string[];
+	};
+};
 /**
  * Public surface returned by {@link initPipelineRunner}. Downstream consumers receive a helper to
  * prepare the context (building dependency graphs, instantiating drafts) and an executor that runs
@@ -274,12 +366,14 @@ export interface PipelineState<
 	readonly builderOrder: RegisteredHelper<TBuilderHelper>[];
 	readonly fragmentVisited: Set<string>;
 	readonly builderVisited: Set<string>;
+	readonly helperOrders?: Map<string, RegisteredHelper<unknown>[]>;
 	readonly draft: TDraft;
 	readonly artifact: TArtifact | null;
 	readonly steps: PipelineStep[];
 	readonly diagnostics: TDiagnostic[];
 	readonly fragmentExecution?: HelperExecutionSnapshot<TFragmentKind>;
 	readonly builderExecution?: HelperExecutionSnapshot<TBuilderKind>;
+	readonly helperExecution?: Map<string, HelperExecutionSnapshot>;
 	readonly helpers?: PipelineExecutionMetadata<TFragmentKind, TBuilderKind>;
 	readonly fragmentRollbacks?: Array<{
 		readonly helper: TFragmentHelper;
@@ -289,6 +383,13 @@ export interface PipelineState<
 		readonly helper: TBuilderHelper;
 		readonly rollback: PipelineRollback;
 	}>;
+	readonly helperRollbacks?: Map<
+		string,
+		Array<{
+			readonly helper: unknown;
+			readonly rollback: PipelineRollback;
+		}>
+	>;
 	readonly extensionCoordinator?: ExtensionCoordinator<
 		TContext,
 		TRunOptions,
@@ -299,6 +400,18 @@ export interface PipelineState<
 		TRunOptions,
 		TArtifact
 	>;
+	readonly extensionStack?: Array<{
+		readonly coordinator: ExtensionCoordinator<
+			TContext,
+			TRunOptions,
+			TArtifact
+		>;
+		readonly state: ExtensionLifecycleState<
+			TContext,
+			TRunOptions,
+			TArtifact
+		>;
+	}>;
 }
 
 export type { ExtensionHookEntry };
@@ -330,6 +443,14 @@ export type RollbackContext<TContext, TOptions, TArtifact> = {
 		TOptions,
 		TArtifact
 	>;
+	readonly extensionStack?: Array<{
+		readonly coordinator: RollbackCapableCoordinator<
+			TContext,
+			TOptions,
+			TArtifact
+		>;
+		readonly state: ExtensionLifecycleState<TContext, TOptions, TArtifact>;
+	}>;
 };
 export type HelperInvokeOptions<
 	THelper,

@@ -1,6 +1,6 @@
 [**@wpkernel/cli v0.12.3-beta.2**](../README.md)
 
-***
+---
 
 [@wpkernel/cli](../README.md) / ReadinessPlan
 
@@ -16,12 +16,12 @@ Planner returned from the readiness registry when orchestrating units.
 readonly keys: readonly ReadinessKey[];
 ```
 
-***
+---
 
 ### run()
 
 ```ts
-readonly run: (context) =&gt; Promise&lt;ReadinessRunResult&gt;;
+readonly run: (context) => Promise<ReadinessRunResult>;
 ```
 
 #### Parameters
@@ -32,4 +32,4 @@ readonly run: (context) =&gt; Promise&lt;ReadinessRunResult&gt;;
 
 #### Returns
 
-`Promise`&lt;[`ReadinessRunResult`](ReadinessRunResult.md)&gt;
+`Promise`<[`ReadinessRunResult`](ReadinessRunResult.md)>

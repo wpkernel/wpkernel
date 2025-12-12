@@ -1,6 +1,6 @@
 [**@wpkernel/e2e-utils v0.12.3-beta.2**](../README.md)
 
-***
+---
 
 [@wpkernel/e2e-utils](../README.md) / RunNodeSnippetOptions
 
@@ -20,7 +20,7 @@ Options for executing a Node.js snippet through the CLI runner.
 script: string;
 ```
 
-***
+---
 
 ### args?
 
@@ -28,7 +28,7 @@ script: string;
 optional args: string[];
 ```
 
-***
+---
 
 ### cwd?
 
@@ -39,10 +39,10 @@ optional cwd: string;
 #### Inherited from
 
 ```ts
-CliCommandOptions.cwd
+CliCommandOptions.cwd;
 ```
 
-***
+---
 
 ### env?
 
@@ -53,10 +53,10 @@ optional env: ProcessEnv;
 #### Inherited from
 
 ```ts
-CliCommandOptions.env
+CliCommandOptions.env;
 ```
 
-***
+---
 
 ### stdin?
 
@@ -67,10 +67,10 @@ optional stdin: string;
 #### Inherited from
 
 ```ts
-CliCommandOptions.stdin
+CliCommandOptions.stdin;
 ```
 
-***
+---
 
 ### timeoutMs?
 
@@ -81,5 +81,5 @@ optional timeoutMs: number;
 #### Inherited from
 
 ```ts
-CliCommandOptions.timeoutMs
+CliCommandOptions.timeoutMs;
 ```

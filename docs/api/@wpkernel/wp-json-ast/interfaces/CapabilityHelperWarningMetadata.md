@@ -1,6 +1,6 @@
 [**@wpkernel/wp-json-ast v0.12.3-beta.2**](../README.md)
 
-***
+---
 
 [@wpkernel/wp-json-ast](../README.md) / CapabilityHelperWarningMetadata
 
@@ -22,7 +22,7 @@ readonly code: string;
 
 The warning code.
 
-***
+---
 
 ### message
 
@@ -32,12 +32,12 @@ readonly message: string;
 
 The warning message.
 
-***
+---
 
 ### context?
 
 ```ts
-readonly optional context: Record&lt;string, unknown&gt;;
+readonly optional context: Record<string, unknown>;
 ```
 
 The context of the warning.

@@ -1,6 +1,6 @@
 [**@wpkernel/cli v0.12.3-beta.2**](../README.md)
 
-***
+---
 
 [@wpkernel/cli](../README.md) / PhpCodemodIngestionDependencies
 
@@ -11,7 +11,7 @@
 ### access()
 
 ```ts
-readonly access: (path, mode?) =&gt; Promise&lt;void&gt;;
+readonly access: (path, mode?) => Promise<void>;
 ```
 
 Tests a user's permissions for the file or directory specified by `path`.
@@ -29,10 +29,10 @@ written by the current process.
 import { access, constants } from 'node:fs/promises';
 
 try {
-  await access('/etc/passwd', constants.R_OK | constants.W_OK);
-  console.log('can access');
+	await access('/etc/passwd', constants.R_OK | constants.W_OK);
+	console.log('can access');
 } catch {
-  console.error('cannot access');
+	console.error('cannot access');
 }
 ```
 
@@ -54,7 +54,7 @@ the error raised if the file is not accessible.
 
 #### Returns
 
-`Promise`&lt;`void`&gt;
+`Promise`<`void`>
 
 Fulfills with `undefined` upon success.
 
@@ -62,22 +62,22 @@ Fulfills with `undefined` upon success.
 
 v10.0.0
 
-***
+---
 
 ### realpath()
 
 ```ts
 readonly realpath: {
-  (path, options?): Promise&lt;string&gt;;
-  (path, options): Promise&lt;NonSharedBuffer&gt;;
-  (path, options?): Promise&lt;string | NonSharedBuffer&gt;;
+  (path, options?): Promise<string>;
+  (path, options): Promise<NonSharedBuffer>;
+  (path, options?): Promise<string | NonSharedBuffer>;
 };
 ```
 
 #### Call Signature
 
 ```ts
-(path, options?): Promise&lt;string&gt;;
+(path, options?): Promise<string>;
 ```
 
 Determines the actual location of `path` using the same semantics as the `fs.realpath.native()` function.
@@ -105,7 +105,7 @@ this restriction.
 
 ##### Returns
 
-`Promise`&lt;`string`&gt;
+`Promise`<`string`>
 
 Fulfills with the resolved path upon success.
 
@@ -116,7 +116,7 @@ v10.0.0
 #### Call Signature
 
 ```ts
-(path, options): Promise&lt;NonSharedBuffer&gt;;
+(path, options): Promise<NonSharedBuffer>;
 ```
 
 Asynchronous realpath(3) - return the canonicalized absolute pathname.
@@ -137,12 +137,12 @@ The encoding (or an object specifying the encoding), used as the encoding of the
 
 ##### Returns
 
-`Promise`&lt;`NonSharedBuffer`&gt;
+`Promise`<`NonSharedBuffer`>
 
 #### Call Signature
 
 ```ts
-(path, options?): Promise&lt;string | NonSharedBuffer&gt;;
+(path, options?): Promise<string | NonSharedBuffer>;
 ```
 
 Asynchronous realpath(3) - return the canonicalized absolute pathname.
@@ -163,4 +163,4 @@ The encoding (or an object specifying the encoding), used as the encoding of the
 
 ##### Returns
 
-`Promise`&lt;`string` \| `NonSharedBuffer`&gt;
+`Promise`<`string` \| `NonSharedBuffer`>

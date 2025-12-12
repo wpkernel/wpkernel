@@ -576,6 +576,11 @@ export interface Pipeline<
 			>
 		) => unknown | Promise<unknown>;
 	};
-	use: (helper: TFragmentHelper | TBuilderHelper) => void;
+	use: (
+		helper:
+			| TFragmentHelper
+			| TBuilderHelper
+			| Helper<TContext, unknown, unknown, TReporter, HelperKind>
+	) => void;
 	run: (options: TRunOptions) => MaybePromise<TRunResult>;
 }

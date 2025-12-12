@@ -1,6 +1,6 @@
 [**@wpkernel/cli v0.12.3-beta.2**](../README.md)
 
-***
+---
 
 [@wpkernel/cli](../README.md) / IRDiagnostic
 
@@ -18,7 +18,7 @@ code: string;
 
 Canonical diagnostic code.
 
-***
+---
 
 ### message
 
@@ -28,7 +28,7 @@ message: string;
 
 The diagnostic message.
 
-***
+---
 
 ### severity
 
@@ -38,7 +38,7 @@ severity: IRDiagnosticSeverity;
 
 The severity of the diagnostic.
 
-***
+---
 
 ### hint?
 
@@ -48,7 +48,7 @@ optional hint: string;
 
 Optional: Suggested hint for resolving the diagnostic.
 
-***
+---
 
 ### source?
 
@@ -58,7 +58,7 @@ optional source: string;
 
 Optional: Source that emitted the diagnostic (fragment, adapter, etc.).
 
-***
+---
 
 ### target?
 

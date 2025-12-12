@@ -1,6 +1,6 @@
 [**@wpkernel/cli v0.12.3-beta.2**](../README.md)
 
-***
+---
 
 [@wpkernel/cli](../README.md) / FileWriterSummary
 
@@ -17,10 +17,11 @@ Aggregated summary returned by the `FileWriter.summarise` helper.
 ### counts
 
 ```ts
-counts: Record&lt;FileWriteStatus, number&gt;;
+counts: Record & lt;
+(FileWriteStatus, number & gt);
 ```
 
-***
+---
 
 ### entries
 

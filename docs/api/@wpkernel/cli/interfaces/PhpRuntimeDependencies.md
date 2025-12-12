@@ -1,6 +1,6 @@
 [**@wpkernel/cli v0.12.3-beta.2**](../README.md)
 
-***
+---
 
 [@wpkernel/cli](../README.md) / PhpRuntimeDependencies
 
@@ -12,30 +12,30 @@
 
 ```ts
 readonly exec: {
-  (file): PromiseWithChild&lt;{
-}&gt;;
-  (file, args): PromiseWithChild&lt;{
-}&gt;;
-  (file, options): PromiseWithChild&lt;{
-}&gt;;
-  (file, args, options): PromiseWithChild&lt;{
-}&gt;;
-  (file, options): PromiseWithChild&lt;{
-}&gt;;
-  (file, args, options): PromiseWithChild&lt;{
-}&gt;;
-  (file, options): PromiseWithChild&lt;{
-}&gt;;
-  (file, args, options): PromiseWithChild&lt;{
-}&gt;;
+  (file): PromiseWithChild<{
+}>;
+  (file, args): PromiseWithChild<{
+}>;
+  (file, options): PromiseWithChild<{
+}>;
+  (file, args, options): PromiseWithChild<{
+}>;
+  (file, options): PromiseWithChild<{
+}>;
+  (file, args, options): PromiseWithChild<{
+}>;
+  (file, options): PromiseWithChild<{
+}>;
+  (file, args, options): PromiseWithChild<{
+}>;
 };
 ```
 
 #### Call Signature
 
 ```ts
-(file): PromiseWithChild&lt;{
-}&gt;;
+(file): PromiseWithChild<{
+}>;
 ```
 
 ##### Parameters
@@ -46,14 +46,14 @@ readonly exec: {
 
 ##### Returns
 
-`PromiseWithChild`&lt;\{
-\}&gt;
+`PromiseWithChild`<\{
+\}>
 
 #### Call Signature
 
 ```ts
-(file, args): PromiseWithChild&lt;{
-}&gt;;
+(file, args): PromiseWithChild<{
+}>;
 ```
 
 ##### Parameters
@@ -68,14 +68,14 @@ readonly `string`[] | `null` | `undefined`
 
 ##### Returns
 
-`PromiseWithChild`&lt;\{
-\}&gt;
+`PromiseWithChild`<\{
+\}>
 
 #### Call Signature
 
 ```ts
-(file, options): PromiseWithChild&lt;{
-}&gt;;
+(file, options): PromiseWithChild<{
+}>;
 ```
 
 ##### Parameters
@@ -90,17 +90,17 @@ readonly `string`[] | `null` | `undefined`
 
 ##### Returns
 
-`PromiseWithChild`&lt;\{
-\}&gt;
+`PromiseWithChild`<\{
+\}>
 
 #### Call Signature
 
 ```ts
 (
-   file, 
-   args, 
-   options): PromiseWithChild&lt;{
-}&gt;;
+   file,
+   args,
+   options): PromiseWithChild<{
+}>;
 ```
 
 ##### Parameters
@@ -119,14 +119,14 @@ readonly `string`[] | `null` | `undefined`
 
 ##### Returns
 
-`PromiseWithChild`&lt;\{
-\}&gt;
+`PromiseWithChild`<\{
+\}>
 
 #### Call Signature
 
 ```ts
-(file, options): PromiseWithChild&lt;{
-}&gt;;
+(file, options): PromiseWithChild<{
+}>;
 ```
 
 ##### Parameters
@@ -141,17 +141,17 @@ readonly `string`[] | `null` | `undefined`
 
 ##### Returns
 
-`PromiseWithChild`&lt;\{
-\}&gt;
+`PromiseWithChild`<\{
+\}>
 
 #### Call Signature
 
 ```ts
 (
-   file, 
-   args, 
-   options): PromiseWithChild&lt;{
-}&gt;;
+   file,
+   args,
+   options): PromiseWithChild<{
+}>;
 ```
 
 ##### Parameters
@@ -170,14 +170,14 @@ readonly `string`[] | `null` | `undefined`
 
 ##### Returns
 
-`PromiseWithChild`&lt;\{
-\}&gt;
+`PromiseWithChild`<\{
+\}>
 
 #### Call Signature
 
 ```ts
-(file, options): PromiseWithChild&lt;{
-}&gt;;
+(file, options): PromiseWithChild<{
+}>;
 ```
 
 ##### Parameters
@@ -192,17 +192,17 @@ readonly `string`[] | `null` | `undefined`
 
 ##### Returns
 
-`PromiseWithChild`&lt;\{
-\}&gt;
+`PromiseWithChild`<\{
+\}>
 
 #### Call Signature
 
 ```ts
 (
-   file, 
-   args, 
-   options): PromiseWithChild&lt;{
-}&gt;;
+   file,
+   args,
+   options): PromiseWithChild<{
+}>;
 ```
 
 ##### Parameters
@@ -221,5 +221,5 @@ readonly `string`[] | `null` | `undefined`
 
 ##### Returns
 
-`PromiseWithChild`&lt;\{
-\}&gt;
+`PromiseWithChild`<\{
+\}>

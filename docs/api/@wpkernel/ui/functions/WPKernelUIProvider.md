@@ -1,6 +1,6 @@
 [**@wpkernel/ui v0.12.3-beta.2**](../README.md)
 
-***
+---
 
 [@wpkernel/ui](../README.md) / WPKernelUIProvider
 

@@ -1,6 +1,6 @@
 [**@wpkernel/php-json-ast v0.12.3-beta.2**](../README.md)
 
-***
+---
 
 [@wpkernel/php-json-ast](../README.md) / PhpStmtProperty
 
@@ -20,7 +20,7 @@ Represents a PHP class property declaration statement.
 readonly attrGroups: PhpAttrGroup[];
 ```
 
-***
+---
 
 ### attributes
 
@@ -32,7 +32,7 @@ readonly attributes: PhpAttributes;
 
 [`PhpStmtBase`](PhpStmtBase.md).[`attributes`](PhpStmtBase.md#attributes)
 
-***
+---
 
 ### flags
 
@@ -40,7 +40,7 @@ readonly attributes: PhpAttributes;
 readonly flags: number;
 ```
 
-***
+---
 
 ### hooks
 
@@ -48,7 +48,7 @@ readonly flags: number;
 readonly hooks: PhpPropertyHook[];
 ```
 
-***
+---
 
 ### nodeType
 
@@ -60,7 +60,7 @@ readonly nodeType: "Stmt_Property";
 
 [`PhpStmtBase`](PhpStmtBase.md).[`nodeType`](PhpStmtBase.md#nodetype)
 
-***
+---
 
 ### props
 
@@ -68,7 +68,7 @@ readonly nodeType: "Stmt_Property";
 readonly props: PhpStmtPropertyProperty[];
 ```
 
-***
+---
 
 ### type
 

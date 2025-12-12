@@ -1,6 +1,6 @@
 **@wpkernel/cli v0.12.3-beta.2**
 
-***
+---
 
 # @wpkernel/cli v0.12.3-beta.2
 
@@ -263,12 +263,12 @@ wpk and UI packages.
 
 ### IR
 
-- [META\_EXTENSION\_KEY](variables/META_EXTENSION_KEY.md)
-- [SCHEMA\_EXTENSION\_KEY](variables/SCHEMA_EXTENSION_KEY.md)
+- [META_EXTENSION_KEY](variables/META_EXTENSION_KEY.md)
+- [SCHEMA_EXTENSION_KEY](variables/SCHEMA_EXTENSION_KEY.md)
 
 ### Other
 
-- [DEFAULT\_READINESS\_ORDER](variables/DEFAULT_READINESS_ORDER.md)
+- [DEFAULT_READINESS_ORDER](variables/DEFAULT_READINESS_ORDER.md)
 - [resourceAccessors](variables/resourceAccessors.md)
 - [VERSION](variables/VERSION.md)
 

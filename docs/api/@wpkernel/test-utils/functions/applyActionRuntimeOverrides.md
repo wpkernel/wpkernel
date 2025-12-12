@@ -1,6 +1,6 @@
 [**@wpkernel/test-utils v0.12.3-beta.2**](../README.md)
 
-***
+---
 
 [@wpkernel/test-utils](../README.md) / applyActionRuntimeOverrides
 

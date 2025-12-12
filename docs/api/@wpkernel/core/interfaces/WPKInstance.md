@@ -1,6 +1,6 @@
 [**@wpkernel/core v0.12.3-beta.2**](../README.md)
 
-***
+---
 
 [@wpkernel/core](../README.md) / WPKInstance
 
@@ -11,7 +11,7 @@
 ### attachUIBindings()
 
 ```ts
-attachUIBindings: (attach, options?) =&gt; WPKernelUIRuntime;
+attachUIBindings: (attach, options?) => WPKernelUIRuntime;
 ```
 
 #### Parameters
@@ -28,12 +28,12 @@ attachUIBindings: (attach, options?) =&gt; WPKernelUIRuntime;
 
 [`WPKernelUIRuntime`](WPKernelUIRuntime.md)
 
-***
+---
 
 ### defineResource()
 
 ```ts
-defineResource: &lt;T, TQuery&gt;(config) =&gt; ResourceObject&lt;T, TQuery&gt;;
+defineResource: <T, TQuery>(config) => ResourceObject<T, TQuery>;
 ```
 
 #### Type Parameters
@@ -50,18 +50,18 @@ defineResource: &lt;T, TQuery&gt;(config) =&gt; ResourceObject&lt;T, TQuery&gt;;
 
 ##### config
 
-[`ResourceConfig`](../type-aliases/ResourceConfig.md)&lt;`T`, `TQuery`&gt;
+[`ResourceConfig`](../type-aliases/ResourceConfig.md)<`T`, `TQuery`>
 
 #### Returns
 
-[`ResourceObject`](../type-aliases/ResourceObject.md)&lt;`T`, `TQuery`&gt;
+[`ResourceObject`](../type-aliases/ResourceObject.md)<`T`, `TQuery`>
 
-***
+---
 
 ### emit()
 
 ```ts
-emit: (eventName, payload) =&gt; void;
+emit: (eventName, payload) => void;
 ```
 
 #### Parameters
@@ -78,7 +78,7 @@ emit: (eventName, payload) =&gt; void;
 
 `void`
 
-***
+---
 
 ### events
 
@@ -86,72 +86,72 @@ emit: (eventName, payload) =&gt; void;
 events: WPKernelEventBus;
 ```
 
-***
+---
 
 ### getNamespace()
 
 ```ts
-getNamespace: () =&gt; string;
+getNamespace: () => string;
 ```
 
 #### Returns
 
 `string`
 
-***
+---
 
 ### getRegistry()
 
 ```ts
-getRegistry: () =&gt; any;
+getRegistry: () => any;
 ```
 
 #### Returns
 
 `any`
 
-***
+---
 
 ### getReporter()
 
 ```ts
-getReporter: () =&gt; Reporter;
+getReporter: () => Reporter;
 ```
 
 #### Returns
 
 [`Reporter`](../type-aliases/Reporter.md)
 
-***
+---
 
 ### getUIRuntime()
 
 ```ts
-getUIRuntime: () =&gt; WPKernelUIRuntime | undefined;
+getUIRuntime: () => WPKernelUIRuntime | undefined;
 ```
 
 #### Returns
 
 [`WPKernelUIRuntime`](WPKernelUIRuntime.md) \| `undefined`
 
-***
+---
 
 ### hasUIRuntime()
 
 ```ts
-hasUIRuntime: () =&gt; boolean;
+hasUIRuntime: () => boolean;
 ```
 
 #### Returns
 
 `boolean`
 
-***
+---
 
 ### invalidate()
 
 ```ts
-invalidate: (patterns, options?) =&gt; void;
+invalidate: (patterns, options?) => void;
 ```
 
 #### Parameters
@@ -168,19 +168,19 @@ invalidate: (patterns, options?) =&gt; void;
 
 `void`
 
-***
+---
 
 ### teardown()
 
 ```ts
-teardown: () =&gt; void;
+teardown: () => void;
 ```
 
 #### Returns
 
 `void`
 
-***
+---
 
 ### ui
 
@@ -191,7 +191,7 @@ ui: object;
 #### isEnabled()
 
 ```ts
-isEnabled: () =&gt; boolean;
+isEnabled: () => boolean;
 ```
 
 ##### Returns

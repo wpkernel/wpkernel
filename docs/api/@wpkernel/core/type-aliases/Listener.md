@@ -1,13 +1,13 @@
 [**@wpkernel/core v0.12.3-beta.2**](../README.md)
 
-***
+---
 
 [@wpkernel/core](../README.md) / Listener
 
-# Type Alias: Listener&lt;T&gt;
+# Type Alias: Listener<T>
 
 ```ts
-type Listener&lt;T&gt; = (payload) =&gt; void;
+type Listener<T> = (payload) => void;
 ```
 
 A generic event listener function.

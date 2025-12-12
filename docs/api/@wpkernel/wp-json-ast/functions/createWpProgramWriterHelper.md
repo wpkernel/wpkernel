@@ -1,28 +1,30 @@
 [**@wpkernel/wp-json-ast v0.12.3-beta.2**](../README.md)
 
-***
+---
 
 [@wpkernel/wp-json-ast](../README.md) / createWpProgramWriterHelper
 
 # Function: createWpProgramWriterHelper()
 
 ```ts
-function createWpProgramWriterHelper&lt;TContext, TInput, TOutput&gt;(options): BuilderHelper&lt;TContext, TInput, TOutput&gt;;
+function createWpProgramWriterHelper<TContext, TInput, TOutput>(
+	options
+): BuilderHelper<TContext, TInput, TOutput>;
 ```
 
 ## Type Parameters
 
 ### TContext
 
-`TContext` *extends* `PipelineContext` = `PipelineContext`
+`TContext` _extends_ `PipelineContext` = `PipelineContext`
 
 ### TInput
 
-`TInput` *extends* `BuilderInput` = `BuilderInput`
+`TInput` _extends_ `BuilderInput` = `BuilderInput`
 
 ### TOutput
 
-`TOutput` *extends* `BuilderOutput` = `BuilderOutput`
+`TOutput` _extends_ `BuilderOutput` = `BuilderOutput`
 
 ## Parameters
 
@@ -32,4 +34,4 @@ function createWpProgramWriterHelper&lt;TContext, TInput, TOutput&gt;(options): 
 
 ## Returns
 
-`BuilderHelper`&lt;`TContext`, `TInput`, `TOutput`&gt;
+`BuilderHelper`<`TContext`, `TInput`, `TOutput`>

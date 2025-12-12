@@ -1,6 +1,6 @@
 [**@wpkernel/cli v0.12.3-beta.2**](../README.md)
 
-***
+---
 
 [@wpkernel/cli](../README.md) / TsBuilderLifecycleHooks
 
@@ -16,7 +16,7 @@ of the TypeScript artifact generation process.
 ### onAfterCreate()?
 
 ```ts
-readonly optional onAfterCreate: (context) =&gt; Promise&lt;void&gt;;
+readonly optional onAfterCreate: (context) => Promise<void>;
 ```
 
 Hook executed after a creator generates an artifact.
@@ -25,18 +25,18 @@ Hook executed after a creator generates an artifact.
 
 ##### context
 
-`Omit`&lt;[`TsBuilderCreatorContext`](TsBuilderCreatorContext.md), `"hooks"`&gt;
+`Omit`<[`TsBuilderCreatorContext`](TsBuilderCreatorContext.md), `"hooks"`>
 
 #### Returns
 
-`Promise`&lt;`void`&gt;
+`Promise`<`void`>
 
-***
+---
 
 ### onAfterEmit()?
 
 ```ts
-readonly optional onAfterEmit: (options) =&gt; Promise&lt;void&gt;;
+readonly optional onAfterEmit: (options) => Promise<void>;
 ```
 
 Hook executed after all TypeScript files have been emitted.
@@ -49,14 +49,14 @@ Hook executed after all TypeScript files have been emitted.
 
 #### Returns
 
-`Promise`&lt;`void`&gt;
+`Promise`<`void`>
 
-***
+---
 
 ### onBeforeCreate()?
 
 ```ts
-readonly optional onBeforeCreate: (context) =&gt; Promise&lt;void&gt;;
+readonly optional onBeforeCreate: (context) => Promise<void>;
 ```
 
 Hook executed before a creator generates an artifact.
@@ -65,8 +65,8 @@ Hook executed before a creator generates an artifact.
 
 ##### context
 
-`Omit`&lt;[`TsBuilderCreatorContext`](TsBuilderCreatorContext.md), `"hooks"`&gt;
+`Omit`<[`TsBuilderCreatorContext`](TsBuilderCreatorContext.md), `"hooks"`>
 
 #### Returns
 
-`Promise`&lt;`void`&gt;
+`Promise`<`void`>

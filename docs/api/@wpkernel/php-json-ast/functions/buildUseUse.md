@@ -1,16 +1,13 @@
 [**@wpkernel/php-json-ast v0.12.3-beta.2**](../README.md)
 
-***
+---
 
 [@wpkernel/php-json-ast](../README.md) / buildUseUse
 
 # Function: buildUseUse()
 
 ```ts
-function buildUseUse(
-   name, 
-   alias, 
-   options): PhpStmtUseUse;
+function buildUseUse(name, alias, options): PhpStmtUseUse;
 ```
 
 Builds a PHP `use` item node.
@@ -35,7 +32,7 @@ Optional configuration for the use item (type, attributes).
 
 #### attributes?
 
-`Readonly`&lt;`Record`&lt;`string`, `unknown`&gt;&gt;
+`Readonly`<`Record`<`string`, `unknown`>>
 
 #### type?
 

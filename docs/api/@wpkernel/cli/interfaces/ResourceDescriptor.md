@@ -1,6 +1,6 @@
 [**@wpkernel/cli v0.12.3-beta.2**](../README.md)
 
-***
+---
 
 [@wpkernel/cli](../README.md) / ResourceDescriptor
 
@@ -18,7 +18,7 @@ readonly key: string;
 
 The unique key of the resource.
 
-***
+---
 
 ### name
 
@@ -28,7 +28,7 @@ readonly name: string;
 
 The name of the resource.
 
-***
+---
 
 ### resource
 
@@ -38,7 +38,7 @@ readonly resource: IRResource;
 
 The configuration object for the resource.
 
-***
+---
 
 ### adminView?
 
@@ -48,7 +48,7 @@ readonly optional adminView: string;
 
 Selected admin view implementation (e.g., 'dataviews').
 
-***
+---
 
 ### dataviews?
 

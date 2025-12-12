@@ -1,6 +1,6 @@
 **@wpkernel/e2e-utils v0.12.3-beta.2**
 
-***
+---
 
 # @wpkernel/e2e-utils v0.12.3-beta.2
 

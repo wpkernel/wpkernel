@@ -65,6 +65,14 @@ export function registerHelper<
 
 			throw createError('ValidationError', message);
 		}
+
+		// Remove all previous entries with the same key
+		// We iterate backwards to safely splice
+		for (let i = entries.length - 1; i >= 0; i--) {
+			if (entries[i]!.helper.key === helper.key) {
+				entries.splice(i, 1);
+			}
+		}
 	}
 
 	const index = entries.length;

@@ -1,13 +1,13 @@
 [**@wpkernel/e2e-utils v0.12.3-beta.2**](../README.md)
 
-***
+---
 
 [@wpkernel/e2e-utils](../README.md) / StoreUtils
 
-# Type Alias: StoreUtils&lt;T&gt;
+# Type Alias: StoreUtils<T>
 
 ```ts
-type StoreUtils&lt;T&gt; = object;
+type StoreUtils<T> = object;
 ```
 
 Store utilities for waiting on resolvers and state
@@ -23,37 +23,37 @@ Store utilities for waiting on resolvers and state
 ### getState()
 
 ```ts
-getState: () =&gt; Promise&lt;T&gt;;
+getState: () => Promise<T>;
 ```
 
 Get current store state
 
 #### Returns
 
-`Promise`&lt;`T`&gt;
+`Promise`<`T`>
 
 Current state object
 
-***
+---
 
 ### invalidate()
 
 ```ts
-invalidate: () =&gt; Promise&lt;void&gt;;
+invalidate: () => Promise<void>;
 ```
 
 Invalidate store cache to trigger refetch
 
 #### Returns
 
-`Promise`&lt;`void`&gt;
+`Promise`<`void`>
 
-***
+---
 
 ### wait()
 
 ```ts
-wait: &lt;R&gt;(selector, timeout?) =&gt; Promise&lt;R&gt;;
+wait: <R>(selector, timeout?) => Promise<R>;
 ```
 
 Wait for store selector to return truthy value
@@ -68,7 +68,7 @@ Wait for store selector to return truthy value
 
 ##### selector
 
-(`state`) =&gt; `R`
+(`state`) => `R`
 
 Function that receives store state and returns data
 
@@ -80,6 +80,6 @@ Max wait time in ms (default: 5000)
 
 #### Returns
 
-`Promise`&lt;`R`&gt;
+`Promise`<`R`>
 
 Resolved data from selector

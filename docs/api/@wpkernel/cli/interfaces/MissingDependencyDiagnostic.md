@@ -1,6 +1,6 @@
 [**@wpkernel/cli v0.12.3-beta.2**](../README.md)
 
-***
+---
 
 [@wpkernel/cli](../README.md) / MissingDependencyDiagnostic
 
@@ -18,7 +18,7 @@ readonly dependency: string;
 
 Identifier of the missing dependency helper.
 
-***
+---
 
 ### key
 
@@ -28,7 +28,7 @@ readonly key: string;
 
 The key of the helper emitting the diagnostic.
 
-***
+---
 
 ### message
 
@@ -38,7 +38,7 @@ readonly message: string;
 
 A descriptive message about the missing dependency.
 
-***
+---
 
 ### type
 
@@ -48,7 +48,7 @@ readonly type: "missing-dependency";
 
 The type of diagnostic, always 'missing-dependency'.
 
-***
+---
 
 ### helper?
 
@@ -58,7 +58,7 @@ readonly optional helper: string;
 
 Optional helper key associated with the dependency.
 
-***
+---
 
 ### kind?
 

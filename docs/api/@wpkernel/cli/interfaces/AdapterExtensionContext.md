@@ -1,16 +1,16 @@
 [**@wpkernel/cli v0.12.3-beta.2**](../README.md)
 
-***
+---
 
 [@wpkernel/cli](../README.md) / AdapterExtensionContext
 
-# Interface: AdapterExtensionContext&lt;TConfigSurface, TIr&gt;
+# Interface: AdapterExtensionContext<TConfigSurface, TIr>
 
 Execution context provided to adapter extensions.
 
 ## Extends
 
-- [`AdapterContext`](AdapterContext.md)&lt;`TConfigSurface`, `TIr`&gt;
+- [`AdapterContext`](AdapterContext.md)<`TConfigSurface`, `TIr`>
 
 ## Type Parameters
 
@@ -34,12 +34,12 @@ config: TConfigSurface;
 
 [`AdapterContext`](AdapterContext.md).[`config`](AdapterContext.md#config)
 
-***
+---
 
 ### formatPhp()
 
 ```ts
-formatPhp: (filePath, contents) =&gt; Promise&lt;string&gt;;
+formatPhp: (filePath, contents) => Promise<string>;
 ```
 
 #### Parameters
@@ -54,14 +54,14 @@ formatPhp: (filePath, contents) =&gt; Promise&lt;string&gt;;
 
 #### Returns
 
-`Promise`&lt;`string`&gt;
+`Promise`<`string`>
 
-***
+---
 
 ### formatTs()
 
 ```ts
-formatTs: (filePath, contents) =&gt; Promise&lt;string&gt;;
+formatTs: (filePath, contents) => Promise<string>;
 ```
 
 #### Parameters
@@ -76,9 +76,9 @@ formatTs: (filePath, contents) =&gt; Promise&lt;string&gt;;
 
 #### Returns
 
-`Promise`&lt;`string`&gt;
+`Promise`<`string`>
 
-***
+---
 
 ### namespace
 
@@ -90,7 +90,7 @@ namespace: string;
 
 [`AdapterContext`](AdapterContext.md).[`namespace`](AdapterContext.md#namespace)
 
-***
+---
 
 ### outputDir
 
@@ -98,12 +98,12 @@ namespace: string;
 outputDir: string;
 ```
 
-***
+---
 
 ### queueFile()
 
 ```ts
-queueFile: (filePath, contents) =&gt; Promise&lt;void&gt;;
+queueFile: (filePath, contents) => Promise<void>;
 ```
 
 #### Parameters
@@ -118,9 +118,9 @@ queueFile: (filePath, contents) =&gt; Promise&lt;void&gt;;
 
 #### Returns
 
-`Promise`&lt;`void`&gt;
+`Promise`<`void`>
 
-***
+---
 
 ### reporter
 
@@ -132,7 +132,7 @@ reporter: Reporter;
 
 [`AdapterContext`](AdapterContext.md).[`reporter`](AdapterContext.md#reporter)
 
-***
+---
 
 ### tempDir
 
@@ -140,12 +140,12 @@ reporter: Reporter;
 tempDir: string;
 ```
 
-***
+---
 
 ### updateIr()
 
 ```ts
-updateIr: (ir) =&gt; void;
+updateIr: (ir) => void;
 ```
 
 #### Parameters
@@ -158,7 +158,7 @@ updateIr: (ir) =&gt; void;
 
 `void`
 
-***
+---
 
 ### configDirectory?
 
@@ -166,7 +166,7 @@ updateIr: (ir) =&gt; void;
 optional configDirectory: string;
 ```
 
-***
+---
 
 ### ir?
 

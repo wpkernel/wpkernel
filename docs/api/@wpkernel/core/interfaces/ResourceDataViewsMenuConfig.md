@@ -1,6 +1,6 @@
 [**@wpkernel/core v0.12.3-beta.2**](../README.md)
 
-***
+---
 
 [@wpkernel/core](../README.md) / ResourceDataViewsMenuConfig
 
@@ -25,7 +25,7 @@ matching PHP shims to register the screen in the WordPress admin menu.
 slug: string;
 ```
 
-***
+---
 
 ### title
 
@@ -33,7 +33,7 @@ slug: string;
 title: string;
 ```
 
-***
+---
 
 ### capability?
 
@@ -41,7 +41,7 @@ title: string;
 optional capability: string;
 ```
 
-***
+---
 
 ### parent?
 
@@ -49,7 +49,7 @@ optional capability: string;
 optional parent: string;
 ```
 
-***
+---
 
 ### position?
 

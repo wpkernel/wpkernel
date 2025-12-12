@@ -1,6 +1,6 @@
 [**@wpkernel/php-json-ast v0.12.3-beta.2**](../README.md)
 
-***
+---
 
 [@wpkernel/php-json-ast](../README.md) / PhpAstBuilder
 
@@ -15,7 +15,7 @@
 ### addUse()
 
 ```ts
-addUse: (statement) =&gt; void;
+addUse: (statement) => void;
 ```
 
 #### Parameters
@@ -28,12 +28,12 @@ addUse: (statement) =&gt; void;
 
 `void`
 
-***
+---
 
 ### appendDocblock()
 
 ```ts
-appendDocblock: (line) =&gt; void;
+appendDocblock: (line) => void;
 ```
 
 #### Parameters
@@ -46,12 +46,12 @@ appendDocblock: (line) =&gt; void;
 
 `void`
 
-***
+---
 
 ### appendProgramStatement()
 
 ```ts
-appendProgramStatement: (statement) =&gt; void;
+appendProgramStatement: (statement) => void;
 ```
 
 #### Parameters
@@ -64,12 +64,12 @@ appendProgramStatement: (statement) =&gt; void;
 
 `void`
 
-***
+---
 
 ### appendStatement()
 
 ```ts
-appendStatement: (statement) =&gt; void;
+appendStatement: (statement) => void;
 ```
 
 #### Parameters
@@ -82,60 +82,60 @@ appendStatement: (statement) =&gt; void;
 
 `void`
 
-***
+---
 
 ### getMetadata()
 
 ```ts
-getMetadata: () =&gt; PhpFileMetadata;
+getMetadata: () => PhpFileMetadata;
 ```
 
 #### Returns
 
 [`PhpFileMetadata`](../type-aliases/PhpFileMetadata.md)
 
-***
+---
 
 ### getNamespace()
 
 ```ts
-getNamespace: () =&gt; string;
+getNamespace: () => string;
 ```
 
 #### Returns
 
 `string`
 
-***
+---
 
 ### getProgramAst()
 
 ```ts
-getProgramAst: () =&gt; PhpProgram;
+getProgramAst: () => PhpProgram;
 ```
 
 #### Returns
 
 [`PhpProgram`](../type-aliases/PhpProgram.md)
 
-***
+---
 
 ### getStatements()
 
 ```ts
-getStatements: () =&gt; readonly string[];
+getStatements: () => readonly string[];
 ```
 
 #### Returns
 
 readonly `string`[]
 
-***
+---
 
 ### setMetadata()
 
 ```ts
-setMetadata: (metadata) =&gt; void;
+setMetadata: (metadata) => void;
 ```
 
 #### Parameters
@@ -148,12 +148,12 @@ setMetadata: (metadata) =&gt; void;
 
 `void`
 
-***
+---
 
 ### setNamespace()
 
 ```ts
-setNamespace: (namespace) =&gt; void;
+setNamespace: (namespace) => void;
 ```
 
 #### Parameters

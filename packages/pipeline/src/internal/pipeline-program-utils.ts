@@ -286,14 +286,46 @@ export function runHelperRollbackPlan<
 	const { context, rollbackContext, helperRollbacks, onHelperRollbackError } =
 		plan;
 
-	const extensionHandler =
-		rollbackContext.extensionCoordinator && rollbackContext.extensionState
-			? rollbackContext.extensionCoordinator.createRollbackHandler<void>(
-					rollbackContext.extensionState
-				)
-			: (rollbackError: unknown): MaybePromise<void> => {
-					throw rollbackError;
-				};
+	// Build list of handlers to run (LIFO for stack, fallback to singular)
+	const handlers = (rollbackContext.extensionStack ?? []).map(
+		({ coordinator, state }) =>
+			coordinator.createRollbackHandler<void>(state)
+	);
+
+	if (
+		handlers.length === 0 &&
+		rollbackContext.extensionCoordinator &&
+		rollbackContext.extensionState
+	) {
+		handlers.push(
+			rollbackContext.extensionCoordinator.createRollbackHandler<void>(
+				rollbackContext.extensionState
+			)
+		);
+	}
+
+	const extensionHandler = (rollbackError: unknown): MaybePromise<void> => {
+		if (handlers.length === 0) {
+			throw rollbackError;
+		}
+
+		// Run handlers in reverse order (LIFO)
+		const runRemaining = (index: number): MaybePromise<void> => {
+			if (index < 0) {
+				return;
+			}
+			const handler = handlers[index]!;
+			const next = () => runRemaining(index - 1);
+			// Handlers are expected to re-throw the rollback error, but we must continue
+			// to the next handler in the stack regardless of success or failure.
+			return maybeTry(
+				() => maybeThen(handler(rollbackError), next),
+				next
+			);
+		};
+
+		return runRemaining(handlers.length - 1);
+	};
 
 	const runHelperRollbacks = (): MaybePromise<void> =>
 		maybeThen(

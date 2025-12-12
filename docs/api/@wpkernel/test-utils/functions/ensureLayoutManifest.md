@@ -1,13 +1,13 @@
 [**@wpkernel/test-utils v0.12.3-beta.2**](../README.md)
 
-***
+---
 
 [@wpkernel/test-utils](../README.md) / ensureLayoutManifest
 
 # Function: ensureLayoutManifest()
 
 ```ts
-function ensureLayoutManifest(root): Promise&lt;void&gt;;
+function ensureLayoutManifest(root): Promise<void>;
 ```
 
 ## Parameters
@@ -18,4 +18,4 @@ function ensureLayoutManifest(root): Promise&lt;void&gt;;
 
 ## Returns
 
-`Promise`&lt;`void`&gt;
+`Promise`<`void`>

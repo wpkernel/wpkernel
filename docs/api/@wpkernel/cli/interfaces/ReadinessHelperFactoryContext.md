@@ -1,6 +1,6 @@
 [**@wpkernel/cli v0.12.3-beta.2**](../README.md)
 
-***
+---
 
 [@wpkernel/cli](../README.md) / ReadinessHelperFactoryContext
 
@@ -11,7 +11,7 @@
 ### createHelper()
 
 ```ts
-readonly createHelper: &lt;State&gt;(helper) =&gt; ReadinessHelper&lt;State&gt;;
+readonly createHelper: <State>(helper) => ReadinessHelper<State>;
 ```
 
 Creates an immutable readiness helper definition.
@@ -26,18 +26,18 @@ Creates an immutable readiness helper definition.
 
 ##### helper
 
-[`ReadinessHelper`](ReadinessHelper.md)&lt;`State`&gt;
+[`ReadinessHelper`](ReadinessHelper.md)<`State`>
 
 #### Returns
 
-[`ReadinessHelper`](ReadinessHelper.md)&lt;`State`&gt;
+[`ReadinessHelper`](ReadinessHelper.md)<`State`>
 
-***
+---
 
 ### register()
 
 ```ts
-readonly register: (helper) =&gt; void;
+readonly register: (helper) => void;
 ```
 
 #### Parameters
@@ -50,7 +50,7 @@ readonly register: (helper) =&gt; void;
 
 `void`
 
-***
+---
 
 ### registry
 
