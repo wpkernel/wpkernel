@@ -1,4 +1,4 @@
-[**@wpkernel/e2e-utils v0.12.4-beta.0**](../README.md)
+[**@wpkernel/e2e-utils v0.12.5-beta.0**](../README.md)
 
 ***
 

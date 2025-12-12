@@ -1,8 +1,8 @@
-**@wpkernel/php-json-ast v0.12.4-beta.0**
+**@wpkernel/php-json-ast v0.12.5-beta.0**
 
 ***
 
-# @wpkernel/php-json-ast v0.12.4-beta.0
+# @wpkernel/php-json-ast v0.12.5-beta.0
 
 ## Interfaces
 
