@@ -15,9 +15,15 @@ While it powers WPKernel's code generation (assembling fragments into artifacts)
 It guarantees:
 
 - **Deterministic Ordering**: Topologically sorts helpers based on `dependsOn`.
-- **Cycle Detection**: Fails fast if dependencies form a loop.
+- **Cycle Detection**: Fails fast (halts execution) if dependencies form a loop.
 - **Atomic Rollbacks**: Extensions provide transactional `commit` and `rollback` hooks.
 - **Type Safety**: Full TypeScript support for custom contexts, options, and artifacts.
+
+### Architecture Note
+
+The package exports a single entry point `@wpkernel/pipeline`. While the internal structure distinguishes between the "Core" (runner/graph) and the "Standard Pipeline" (implementation), you should import everything from the main package.
+
+Subpath imports (e.g., `@wpkernel/pipeline/core`) are available for advanced usage but not required for standard consumers.
 
 ## Installation
 
@@ -27,11 +33,30 @@ pnpm add @wpkernel/pipeline
 
 The package ships pure TypeScript and has no runtime dependencies.
 
-## Usage
+### Usage
 
-### 1. Define Your World
+#### Standard Pipeline (Recommended)
 
-The pipeline is generic. You define the "Stages" and "State" relevant to your domain.
+Use `createPipeline` for the standard Fragment → Builder workflow used by WPKernel.
+
+```ts
+import { createPipeline } from '@wpkernel/pipeline';
+
+const pipeline = createPipeline({
+	// Configuration
+	createContext: (ops) => ({ db: ops.db }),
+	createBuildOptions: () => ({}),
+	createFragmentState: () => ({}),
+
+	// Argument resolvers
+	createFragmentArgs: ({ context }) => ({ db: context.db }),
+	createBuilderArgs: ({ artifact }) => ({ artifact }),
+});
+```
+
+#### Custom Pipeline (Advanced)
+
+For completely custom architectures (ETL, migrations, etc.), use `makePipeline` to define your own stages.
 
 ```ts
 import { makePipeline } from '@wpkernel/pipeline';
@@ -45,7 +70,6 @@ const pipeline = makePipeline({
 		deps.commitStage,
 		deps.finalizeResult,
 	],
-	// Define how to create your context and state
 	createContext: (ops) => ({ db: ops.db }),
 	// ... logic for resolving args for your helpers ...
 });
@@ -96,7 +120,23 @@ Pipeline creates a dependency graph for _each_ kind of helper. If `Helper B` dep
 
 ### Extensions & Lifecycles
 
-Extensions wrap the execution with hooks like `prepare`, `onSuccess`, and `rollback`. They are crucial for ensuring atomic operations - if any stage fails, the pipeline automatically triggers the rollback chain for all executed extensions.
+Extensions wrap execution with hooks at specific lifecycle stages: `prepare`, `before-fragments`, `after-fragments`, `before-builders`, `after-builders`, and `finalize`.
+
+**Validation**: The pipeline validates extension registrations. If an extension attempts to hook into an unscheduled lifecycle, the pipeline will log a warning instead of silently ignoring it.
+
+**Async Registration**: You can register extensions asynchronously (returned as a Promise). `pipeline.run()` will automatically wait for all pending extensions to settle before starting execution. If a registration fails, the run will reject.
+
+### Rollbacks
+
+The pipeline supports robust rollback for both helper application and extension lifecycle commit phases:
+
+- **Extensions**: Can provide transactional overhead via the `commit` phase. If extensive failure occurs, `rollback` hooks are triggered.
+- **Helpers**: Can return a `rollback` function in their result. These are executed LIFO if a later failure occurs.
+- **Robustness**: The rollback stack continues execution even if individual rollback actions fail (errors are collected and reported).
+
+### Re-run Semantics
+
+Diagnostics are per-run. Calling `pipeline.run()` automatically clears any previous runtime diagnostics to ensure a fresh state. Static diagnostics (e.g., registration conflicts) are preserved and re-emitted for each run.
 
 ## Documentation
 

@@ -2,9 +2,12 @@ import {
 	runExtensionHooks,
 	rollbackExtensionResults,
 	commitExtensionResults,
-	createRollbackErrorMetadata,
-} from '../extensions';
-import type { ExtensionHookEntry, ExtensionHookExecution } from '../extensions';
+} from '../core/extensions';
+import { createRollbackErrorMetadata } from '../core/rollback';
+import type {
+	ExtensionHookEntry,
+	ExtensionHookExecution,
+} from '../core/extensions';
 
 type TestArtifact = { artifact: string };
 type TestContext = Record<string, never>;

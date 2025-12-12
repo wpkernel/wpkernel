@@ -1,12 +1,12 @@
-import { executeHelpers } from '../executor';
+import { executeHelpers } from '../core/executor';
 import type {
 	Helper,
 	HelperKind,
 	PipelineReporter,
 	HelperApplyOptions,
 	MaybePromise,
-} from '../types';
-import type { RegisteredHelper } from '../dependency-graph';
+} from '../core/types';
+import type { RegisteredHelper } from '../core/dependency-graph';
 
 type TestContext = Record<string, never>;
 type TestInput = void;

@@ -1,11 +1,11 @@
-import { isPromiseLike, maybeThen } from './async-utils';
-import { type RegisteredHelper } from './dependency-graph';
-import type { ExtensionHookEntry } from './extensions';
+import { isPromiseLike, maybeThen } from '../core/async-utils';
+import { type RegisteredHelper } from '../core/dependency-graph';
+import type { ExtensionHookEntry } from '../core/extensions';
 import {
 	registerHelper,
 	handleExtensionRegisterResult as handleExtensionRegisterResultUtil,
-} from './registration';
-import type { ErrorFactory } from './error-factory';
+} from '../core/registration';
+import type { ErrorFactory } from '../core/error-factory';
 import type {
 	CreatePipelineOptions,
 	Helper,
@@ -17,21 +17,21 @@ import type {
 	PipelineReporter,
 	PipelineExtension,
 	PipelineRunState,
-} from './types';
-import { initDiagnosticManager } from './internal/diagnostic-manager';
-import { initPipelineRunner } from './internal/runner';
+} from '../core/types';
+import { initDiagnosticManager } from '../core/internal/diagnostic-manager';
+import { initPipelineRunner } from '../core/internal/runner';
 import type {
 	DefaultStageDeps,
 	PipelineRunnerDependencies,
 	PipelineStage,
 	PipelineState,
 	Halt,
-} from './internal/pipeline-runner.types';
+} from '../core/internal/pipeline-runner.types';
 export type {
 	DefaultStageDeps,
 	PipelineStage,
-} from './internal/pipeline-runner.types';
-export { defaultStages } from './internal/runner/program';
+} from '../core/internal/pipeline-runner.types';
+export { defaultStages } from '../core/internal/runner/program';
 
 export type MakePipelineArgs<
 	TRunOptions,
@@ -261,7 +261,7 @@ export function makePipeline<
 		((state) =>
 			({
 				artifact: state.artifact,
-				diagnostics: state.diagnostics,
+				diagnostics: diagnosticManager.readDiagnostics(),
 				steps: state.steps,
 			}) as TRunResult);
 
@@ -418,6 +418,15 @@ export function makePipeline<
 			},
 		},
 		extensions: {
+			/**
+			 * Registers an extension.
+			 *
+			 * @param   extension
+			 * @warning **Lifecycle Safety**: Extensions should be registered during pipeline setup,
+			 * before `run()` is called. Registering extensions dynamically during a run (e.g.,
+			 * from inside a helper) is **not supported** and may lead to race conditions where
+			 * lifecycle hooks are missed.
+			 */
 			use(
 				extension: PipelineExtension<
 					PipelineInstance,
@@ -493,9 +502,26 @@ export function makePipeline<
 				return runner.executeRun(runContext);
 			};
 
-			return maybeThen(waitForPendingExtensionRegistrations(), () =>
-				startRun()
+			const runResult = maybeThen(
+				waitForPendingExtensionRegistrations(),
+				() => startRun()
 			);
+
+			if (isPromiseLike(runResult)) {
+				return runResult.then(
+					(result) => {
+						diagnosticManager.endRun();
+						return result;
+					},
+					(error) => {
+						diagnosticManager.endRun();
+						throw error;
+					}
+				);
+			}
+
+			diagnosticManager.endRun();
+			return runResult;
 		},
 	};
 

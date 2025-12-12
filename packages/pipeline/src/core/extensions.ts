@@ -3,7 +3,6 @@ import type {
 	PipelineExtensionHook,
 	PipelineExtensionHookOptions,
 	PipelineExtensionHookResult,
-	PipelineExtensionRollbackErrorMetadata,
 	PipelineExtensionLifecycle,
 } from './types';
 import {
@@ -57,29 +56,7 @@ export interface RollbackErrorArgs {
  *
  * @internal
  */
-export function createRollbackErrorMetadata(
-	error: unknown
-): PipelineExtensionRollbackErrorMetadata {
-	if (error instanceof Error) {
-		const { name, message, stack } = error;
-		const cause = (error as Error & { cause?: unknown }).cause;
-
-		return {
-			name,
-			message,
-			stack,
-			cause,
-		};
-	}
-
-	if (typeof error === 'string') {
-		return {
-			message: error,
-		};
-	}
-
-	return {};
-}
+// createRollbackErrorMetadata moved to ./rollback.js to avoid circular exports and duplication
 
 /**
  * Runs extension hooks sequentially and accumulates their results.

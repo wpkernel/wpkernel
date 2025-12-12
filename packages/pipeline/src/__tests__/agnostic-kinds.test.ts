@@ -1,5 +1,5 @@
-import { makePipeline } from '../makePipeline';
-import type { PipelineReporter, Helper } from '../types';
+import { makePipeline } from '../standard-pipeline/makePipeline';
+import type { PipelineReporter, Helper } from '../core/types';
 
 describe('Agnostic Kinds (ETL Pipeline)', () => {
 	it('supports Extract-Transform-Load pipeline with custom stages', async () => {

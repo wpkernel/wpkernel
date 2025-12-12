@@ -100,7 +100,10 @@ export function initDiagnosticManager<
 	TFragmentHelper,
 	TBuilderHelper
 > {
-	const diagnostics: TDiagnostic[] = [];
+	const staticDiagnostics: TDiagnostic[] = [];
+	const runDiagnostics: TDiagnostic[] = [];
+	let isInRun = false;
+
 	const loggedDiagnosticsByReporter = new WeakMap<
 		TReporter,
 		Set<TDiagnostic>
@@ -145,7 +148,11 @@ export function initDiagnosticManager<
 	};
 
 	const record = (diagnostic: TDiagnostic): void => {
-		diagnostics.push(diagnostic);
+		if (isInRun) {
+			runDiagnostics.push(diagnostic);
+		} else {
+			staticDiagnostics.push(diagnostic);
+		}
 		logDiagnostic(diagnostic);
 	};
 
@@ -200,6 +207,7 @@ export function initDiagnosticManager<
 				message,
 				kind,
 				helper: helper.origin ?? helper.key,
+				dependsOn: helper.dependsOn,
 			} as unknown as TDiagnostic);
 
 		record(diagnostic);
@@ -254,12 +262,37 @@ export function initDiagnosticManager<
 			return;
 		}
 
-		for (const diagnostic of diagnostics) {
+		// Replay all diagnostics for the new reporter
+		const allDiagnostics = [...staticDiagnostics, ...runDiagnostics];
+		for (const diagnostic of allDiagnostics) {
 			logDiagnostic(diagnostic);
 		}
 	};
 
-	const readDiagnostics = (): readonly TDiagnostic[] => diagnostics;
+	const readDiagnostics = (): TDiagnostic[] => [
+		...staticDiagnostics,
+		...runDiagnostics,
+	];
+
+	const prepareRun = (): void => {
+		isInRun = true;
+		runDiagnostics.length = 0;
+		if (diagnosticReporter) {
+			loggedDiagnosticsByReporter.delete(diagnosticReporter);
+		}
+		// We should re-log static diagnostics to this reporter for this run context,
+		// as it's a "fresh" run for the user.
+		// However, logDiagnostic checks if already logged for this reporter instance.
+		// Since we just cleared the reporter's history in loggedDiagnosticsByReporter,
+		// we should re-emit static diagnostics now?
+		// Yes, because the reporter needs to see them again if they are relevant to context.
+		// The caller usually calls setReporter AFTER prepareRun (in context.ts).
+		// setReporter replays EVERYTHING. So we are good.
+	};
+
+	const endRun = (): void => {
+		isInRun = false;
+	};
 
 	return {
 		describeHelper,
@@ -270,6 +303,8 @@ export function initDiagnosticManager<
 		setReporter,
 		record,
 		readDiagnostics,
+		prepareRun,
+		endRun,
 	} satisfies DiagnosticManager<
 		TRunOptions,
 		TBuildOptions,

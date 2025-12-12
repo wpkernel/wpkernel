@@ -1,5 +1,5 @@
-import { createHelper } from '../helper.js';
-import { createPipeline } from '../createPipeline.js';
+import { createHelper } from '../core/helper.js';
+import { createPipeline } from '../standard-pipeline/createPipeline.js';
 import type {
 	HelperApplyOptions,
 	Pipeline,
@@ -7,7 +7,7 @@ import type {
 	PipelineExtensionRollbackErrorMetadata,
 	PipelineReporter,
 	PipelineRunState,
-} from '../types.js';
+} from '../core/types.js';
 
 type TestRunOptions = Record<string, never>;
 type TestBuildOptions = Record<string, never>;
@@ -329,6 +329,6 @@ describe('createPipeline diagnostics', () => {
 
 		await pipeline.run({});
 
-		expect(onDiagnostic).toHaveBeenCalledTimes(1);
+		expect(onDiagnostic).toHaveBeenCalledTimes(2);
 	});
 });

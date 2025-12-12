@@ -63,6 +63,8 @@ const createDiagnosticManagerStub = (): AnyDiagnosticManager => {
 		setReporter: jest.fn(),
 		record: jest.fn(),
 		readDiagnostics: () => [],
+		prepareRun: jest.fn(),
+		endRun: jest.fn(),
 	} as unknown as AnyDiagnosticManager;
 	return stub;
 };

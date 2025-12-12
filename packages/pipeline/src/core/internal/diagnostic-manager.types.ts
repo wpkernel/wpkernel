@@ -91,9 +91,11 @@ export interface DiagnosticManager<
 		visited: Set<string>,
 		kind: HelperKind
 	) => void;
-	readonly setReporter: (reporter: TReporter | undefined) => void;
-	readonly record: (diagnostic: TDiagnostic) => void;
-	readonly readDiagnostics: () => readonly TDiagnostic[];
+	setReporter: (reporter: TReporter) => void;
+	record: (diagnostic: TDiagnostic) => void;
+	readDiagnostics: () => TDiagnostic[];
+	prepareRun: () => void;
+	endRun: () => void;
 	readonly __types?: {
 		readonly runOptions: TRunOptions;
 		readonly buildOptions: TBuildOptions;

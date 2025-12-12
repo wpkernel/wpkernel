@@ -1,6 +1,6 @@
-import { makePipeline } from '../makePipeline';
-import type { PipelineReporter } from '../types';
-import { isPromiseLike } from '../async-utils';
+import { makePipeline } from '../standard-pipeline/makePipeline';
+import type { PipelineReporter } from '../core/types';
+import { isPromiseLike } from '../core/async-utils';
 
 describe('Synchronous Execution', () => {
 	it('executes synchronously when all helpers and extensions are sync', () => {

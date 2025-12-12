@@ -61,6 +61,9 @@ export function registerHelper<
 
 		if (existingOverride) {
 			const message = `Multiple overrides registered for helper "${helper.key}".`;
+			// NOTE: We flag the conflict for observability via standard reporting channels,
+			// but we also throw immediately because a double-override is a fatal configuration error.
+			// Consumers catching this error should be aware that a diagnostic may also have been recorded.
 			onConflict(helper, existingOverride.helper, message);
 
 			throw createError('ValidationError', message);
@@ -75,7 +78,14 @@ export function registerHelper<
 		}
 	}
 
-	const index = entries.length;
+	// Calculate new index monotonically to ensure stability and creation order
+	// regardless of splicing.
+	const maxIndex =
+		entries.length > 0
+			? entries.reduce((max, e) => Math.max(max, e.index), 0)
+			: -1;
+	const index = maxIndex + 1;
+
 	entries.push({
 		helper,
 		id: createHelperId(helper, index),

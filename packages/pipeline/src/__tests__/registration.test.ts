@@ -1,11 +1,14 @@
-import { registerHelper, handleExtensionRegisterResult } from '../registration';
+import {
+	registerHelper,
+	handleExtensionRegisterResult,
+} from '../core/registration';
 import type {
 	Helper,
 	PipelineReporter,
 	PipelineExtensionHookRegistration,
-} from '../types';
-import type { RegisteredHelper } from '../dependency-graph';
-import type { ExtensionHookEntry } from '../extensions';
+} from '../core/types';
+import type { RegisteredHelper } from '../core/dependency-graph';
+import type { ExtensionHookEntry } from '../core/extensions';
 
 type TestHelper = Helper<
 	unknown,

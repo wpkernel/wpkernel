@@ -1,4 +1,4 @@
-import { createDefaultError, createErrorFactory } from '../error-factory';
+import { createDefaultError, createErrorFactory } from '../core/error-factory';
 
 describe('error-factory', () => {
 	describe('createDefaultError', () => {

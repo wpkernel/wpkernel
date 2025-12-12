@@ -736,6 +736,7 @@ export const createCoreProgram = <
 					return state.helperRollbacks?.get(kind);
 				},
 			};
+
 			return makeStage(
 				spec as unknown as HelperStageSpec<
 					RunnerState,
@@ -749,6 +750,34 @@ export const createCoreProgram = <
 			);
 		},
 	};
+
+	// Validate that all registered extension hooks target scheduled lifecycles
+	if (dependencies.extensionHooks.length > 0) {
+		const scheduledLifecycles = deps.extensions?.lifecycles ?? [];
+		const ignoredHooks = dependencies.extensionHooks.filter(
+			(entry) => !scheduledLifecycles.includes(entry.lifecycle)
+		);
+
+		if (ignoredHooks.length > 0) {
+			const reporter = runContext.context.reporter;
+			if (reporter.warn) {
+				const details = ignoredHooks
+					.map(
+						(h) =>
+							`"${h.lifecycle}" (from extension "${
+								h.key ?? 'anonymous'
+							}")`
+					)
+					.join(', ');
+				reporter.warn(
+					`The following extension hooks will be ignored because their lifecycles are not scheduled to run: ${details}. Scheduled lifecycles: ${scheduledLifecycles.join(
+						', '
+					)}.`
+				);
+			}
+		}
+	}
+
 	// The user proposal for defaultStages signature doesn't INCLUDE runnerEnv, but "stagesOverride" implementation might need it.
 	// The user said: stages?: (deps: { runnerEnv; fragmentStage; ... })
 	// So I should add runnerEnv to DefaultStageDeps or to a separate type extended by it?

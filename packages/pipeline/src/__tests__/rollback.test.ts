@@ -2,8 +2,8 @@ import {
 	createPipelineRollback,
 	runRollbackStack,
 	createRollbackErrorMetadata,
-} from '../rollback';
-import type { PipelineRollback } from '../rollback';
+} from '../core/rollback';
+import type { PipelineRollback } from '../core/rollback';
 
 describe('rollback', () => {
 	describe('createPipelineRollback', () => {
@@ -133,6 +133,26 @@ describe('rollback', () => {
 			});
 
 			// Should have executed rollback1 and rollback3 despite rollback2 failing
+			expect(order).toEqual([3, 1]);
+		});
+
+		it('continues rolling back after an async failure', async () => {
+			const order: number[] = [];
+			const error = new Error('async fail');
+			const rollback1 = createPipelineRollback(() => order.push(1));
+			const rollback2 = createPipelineRollback(async () => {
+				throw error;
+			});
+			const rollback3 = createPipelineRollback(async () => order.push(3));
+
+			const rollbacks = [rollback1, rollback2, rollback3];
+
+			await runRollbackStack(rollbacks, {
+				source: 'helper',
+				onError: jest.fn(),
+			});
+
+			// Should have executed rollback1 and rollback3 despite rollback2 failing asynchronously
 			expect(order).toEqual([3, 1]);
 		});
 

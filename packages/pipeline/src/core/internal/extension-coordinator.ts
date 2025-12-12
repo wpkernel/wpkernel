@@ -1,9 +1,9 @@
 import {
 	commitExtensionResults,
-	createRollbackErrorMetadata,
 	rollbackExtensionResults,
 	runExtensionHooks,
 } from '../extensions';
+import { createRollbackErrorMetadata } from '../rollback';
 import { maybeThen } from '../async-utils';
 import type {
 	ExtensionCoordinator,

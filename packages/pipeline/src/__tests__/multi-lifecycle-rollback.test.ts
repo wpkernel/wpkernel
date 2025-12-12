@@ -1,5 +1,5 @@
-import { makePipeline } from '../makePipeline';
-import type { PipelineReporter } from '../types';
+import { makePipeline } from '../standard-pipeline/makePipeline';
+import type { PipelineReporter } from '../core/types';
 
 describe('Multi-Lifecycle Rollback Bug', () => {
 	const mockReporter: PipelineReporter = { warn: jest.fn() };

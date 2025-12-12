@@ -79,6 +79,7 @@ export const prepareContext = <
 > => {
 	const buildOptions = dependencies.options.createBuildOptions(runOptions);
 	const context = dependencies.options.createContext(runOptions);
+	dependencies.diagnosticManager.prepareRun();
 	dependencies.diagnosticManager.setReporter(context.reporter);
 	const draft = dependencies.options.createFragmentState({
 		options: runOptions,

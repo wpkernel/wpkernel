@@ -1,13 +1,13 @@
-import { createHelper } from '../helper.js';
-import { createPipeline } from '../createPipeline.js';
-import { createPipelineExtension } from '../createExtension.js';
+import { createHelper } from '../core/helper.js';
+import { createPipeline } from '../standard-pipeline/createPipeline.js';
+import { createPipelineExtension } from '../core/createExtension.js';
 import type {
 	HelperApplyOptions,
 	Pipeline,
 	PipelineDiagnostic,
 	PipelineRunState,
 	PipelineReporter,
-} from '../types.js';
+} from '../core/types.js';
 
 type TestRunOptions = Record<string, never>;
 type TestBuildOptions = Record<string, never>;

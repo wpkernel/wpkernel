@@ -1,4 +1,4 @@
-import { processSequentially, maybeTry } from '../async-utils';
+import { processSequentially, maybeTry } from '../core/async-utils';
 
 describe('async-utils', () => {
 	describe('processSequentially', () => {

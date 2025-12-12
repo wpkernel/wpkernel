@@ -1,6 +1,6 @@
-import { registerHelper } from '../registration';
-import type { Helper } from '../types';
-import type { RegisteredHelper } from '../dependency-graph';
+import { registerHelper } from '../core/registration';
+import type { Helper } from '../core/types';
+import type { RegisteredHelper } from '../core/dependency-graph';
 
 describe('registerHelper overrides', () => {
 	const createError = (code: string, message: string) =>

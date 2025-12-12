@@ -6,7 +6,7 @@ import type {
 	PipelineDiagnostic,
 	PipelineReporter,
 	PipelineRunState,
-} from './types';
+} from '../core/types';
 import { makePipeline, type MakePipelineArgs } from './makePipeline';
 
 /**

@@ -1,6 +1,9 @@
-import { createDependencyGraph, compareHelpers } from '../dependency-graph';
-import type { Helper, PipelineReporter } from '../types';
-import type { RegisteredHelper } from '../dependency-graph';
+import {
+	createDependencyGraph,
+	compareHelpers,
+} from '../core/dependency-graph';
+import type { Helper, PipelineReporter } from '../core/types';
+import type { RegisteredHelper } from '../core/dependency-graph';
 
 type TestHelper = Helper<any, any, any, PipelineReporter>;
 

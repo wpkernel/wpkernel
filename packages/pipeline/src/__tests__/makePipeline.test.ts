@@ -1,6 +1,6 @@
-import { makePipeline } from '../makePipeline';
-import type { PipelineStage } from '../internal/pipeline-runner.types';
-import type { PipelineReporter } from '../types';
+import { makePipeline } from '../standard-pipeline/makePipeline';
+import type { PipelineStage } from '../core/internal/pipeline-runner.types';
+import type { PipelineReporter } from '../core/types';
 
 describe('makePipeline', () => {
 	const mockReporter: PipelineReporter = { warn: jest.fn() };
