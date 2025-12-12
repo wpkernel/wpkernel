@@ -1,8 +1,8 @@
-**@wpkernel/pipeline v0.12.3-beta.2**
+**@wpkernel/pipeline v0.12.4-beta.0**
 
----
+***
 
-# @wpkernel/pipeline v0.12.3-beta.2
+# @wpkernel/pipeline v0.12.4-beta.0
 
 ## Interfaces
 
@@ -54,7 +54,7 @@
 
 ### Pipeline
 
-- [OFFICIAL_EXTENSION_BLUEPRINTS](variables/OFFICIAL_EXTENSION_BLUEPRINTS.md)
+- [OFFICIAL\_EXTENSION\_BLUEPRINTS](variables/OFFICIAL_EXTENSION_BLUEPRINTS.md)
 
 ## Functions
 

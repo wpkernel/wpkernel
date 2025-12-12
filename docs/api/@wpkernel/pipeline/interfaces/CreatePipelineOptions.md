@@ -1,10 +1,10 @@
-[**@wpkernel/pipeline v0.12.3-beta.2**](../README.md)
+[**@wpkernel/pipeline v0.12.4-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/pipeline](../README.md) / CreatePipelineOptions
 
-# Interface: CreatePipelineOptions<TRunOptions, TBuildOptions, TContext, TReporter, TDraft, TArtifact, TDiagnostic, TRunResult, TFragmentInput, TFragmentOutput, TBuilderInput, TBuilderOutput, TFragmentKind, TBuilderKind, TFragmentHelper, TBuilderHelper>
+# Interface: CreatePipelineOptions&lt;TRunOptions, TBuildOptions, TContext, TReporter, TDraft, TArtifact, TDiagnostic, TRunResult, TFragmentInput, TFragmentOutput, TBuilderInput, TBuilderOutput, TFragmentKind, TBuilderKind, TFragmentHelper, TBuilderHelper&gt;
 
 Options for creating a pipeline.
 
@@ -20,11 +20,11 @@ Options for creating a pipeline.
 
 ### TContext
 
-`TContext` _extends_ `object`
+`TContext` *extends* `object`
 
 ### TReporter
 
-`TReporter` _extends_ [`PipelineReporter`](PipelineReporter.md) = [`PipelineReporter`](PipelineReporter.md)
+`TReporter` *extends* [`PipelineReporter`](PipelineReporter.md) = [`PipelineReporter`](PipelineReporter.md)
 
 ### TDraft
 
@@ -36,11 +36,11 @@ Options for creating a pipeline.
 
 ### TDiagnostic
 
-`TDiagnostic` _extends_ [`PipelineDiagnostic`](../type-aliases/PipelineDiagnostic.md) = [`PipelineDiagnostic`](../type-aliases/PipelineDiagnostic.md)
+`TDiagnostic` *extends* [`PipelineDiagnostic`](../type-aliases/PipelineDiagnostic.md) = [`PipelineDiagnostic`](../type-aliases/PipelineDiagnostic.md)
 
 ### TRunResult
 
-`TRunResult` = [`PipelineRunState`](PipelineRunState.md)<`TArtifact`, `TDiagnostic`>
+`TRunResult` = [`PipelineRunState`](PipelineRunState.md)&lt;`TArtifact`, `TDiagnostic`&gt;
 
 ### TFragmentInput
 
@@ -60,26 +60,26 @@ Options for creating a pipeline.
 
 ### TFragmentKind
 
-`TFragmentKind` _extends_ [`HelperKind`](../type-aliases/HelperKind.md) = `"fragment"`
+`TFragmentKind` *extends* [`HelperKind`](../type-aliases/HelperKind.md) = `"fragment"`
 
 ### TBuilderKind
 
-`TBuilderKind` _extends_ [`HelperKind`](../type-aliases/HelperKind.md) = `"builder"`
+`TBuilderKind` *extends* [`HelperKind`](../type-aliases/HelperKind.md) = `"builder"`
 
 ### TFragmentHelper
 
-`TFragmentHelper` _extends_ [`Helper`](Helper.md)<`TContext`, `TFragmentInput`, `TFragmentOutput`, `TReporter`, `TFragmentKind`> = [`Helper`](Helper.md)<`TContext`, `TFragmentInput`, `TFragmentOutput`, `TReporter`, `TFragmentKind`>
+`TFragmentHelper` *extends* [`Helper`](Helper.md)&lt;`TContext`, `TFragmentInput`, `TFragmentOutput`, `TReporter`, `TFragmentKind`&gt; = [`Helper`](Helper.md)&lt;`TContext`, `TFragmentInput`, `TFragmentOutput`, `TReporter`, `TFragmentKind`&gt;
 
 ### TBuilderHelper
 
-`TBuilderHelper` _extends_ [`Helper`](Helper.md)<`TContext`, `TBuilderInput`, `TBuilderOutput`, `TReporter`, `TBuilderKind`> = [`Helper`](Helper.md)<`TContext`, `TBuilderInput`, `TBuilderOutput`, `TReporter`, `TBuilderKind`>
+`TBuilderHelper` *extends* [`Helper`](Helper.md)&lt;`TContext`, `TBuilderInput`, `TBuilderOutput`, `TReporter`, `TBuilderKind`&gt; = [`Helper`](Helper.md)&lt;`TContext`, `TBuilderInput`, `TBuilderOutput`, `TReporter`, `TBuilderKind`&gt;
 
 ## Properties
 
 ### createBuilderArgs()
 
 ```ts
-readonly createBuilderArgs: (options) => HelperApplyOptions<TContext, TBuilderInput, TBuilderOutput, TReporter>;
+readonly createBuilderArgs: (options) =&gt; HelperApplyOptions&lt;TContext, TBuilderInput, TBuilderOutput, TReporter&gt;;
 ```
 
 #### Parameters
@@ -108,14 +108,14 @@ readonly createBuilderArgs: (options) => HelperApplyOptions<TContext, TBuilderIn
 
 #### Returns
 
-[`HelperApplyOptions`](HelperApplyOptions.md)<`TContext`, `TBuilderInput`, `TBuilderOutput`, `TReporter`>
+[`HelperApplyOptions`](HelperApplyOptions.md)&lt;`TContext`, `TBuilderInput`, `TBuilderOutput`, `TReporter`&gt;
 
----
+***
 
 ### createBuildOptions()
 
 ```ts
-readonly createBuildOptions: (options) => TBuildOptions;
+readonly createBuildOptions: (options) =&gt; TBuildOptions;
 ```
 
 #### Parameters
@@ -128,12 +128,12 @@ readonly createBuildOptions: (options) => TBuildOptions;
 
 `TBuildOptions`
 
----
+***
 
 ### createContext()
 
 ```ts
-readonly createContext: (options) => TContext;
+readonly createContext: (options) =&gt; TContext;
 ```
 
 #### Parameters
@@ -146,12 +146,12 @@ readonly createContext: (options) => TContext;
 
 `TContext`
 
----
+***
 
 ### createFragmentArgs()
 
 ```ts
-readonly createFragmentArgs: (options) => HelperApplyOptions<TContext, TFragmentInput, TFragmentOutput, TReporter>;
+readonly createFragmentArgs: (options) =&gt; HelperApplyOptions&lt;TContext, TFragmentInput, TFragmentOutput, TReporter&gt;;
 ```
 
 #### Parameters
@@ -180,14 +180,14 @@ readonly createFragmentArgs: (options) => HelperApplyOptions<TContext, TFragment
 
 #### Returns
 
-[`HelperApplyOptions`](HelperApplyOptions.md)<`TContext`, `TFragmentInput`, `TFragmentOutput`, `TReporter`>
+[`HelperApplyOptions`](HelperApplyOptions.md)&lt;`TContext`, `TFragmentInput`, `TFragmentOutput`, `TReporter`&gt;
 
----
+***
 
 ### createFragmentState()
 
 ```ts
-readonly createFragmentState: (options) => TDraft;
+readonly createFragmentState: (options) =&gt; TDraft;
 ```
 
 #### Parameters
@@ -210,12 +210,12 @@ readonly createFragmentState: (options) => TDraft;
 
 `TDraft`
 
----
+***
 
 ### finalizeFragmentState()
 
 ```ts
-readonly finalizeFragmentState: (options) => TArtifact;
+readonly finalizeFragmentState: (options) =&gt; TArtifact;
 ```
 
 #### Parameters
@@ -236,7 +236,7 @@ readonly finalizeFragmentState: (options) => TArtifact;
 
 ###### helpers
 
-[`FragmentFinalizationMetadata`](FragmentFinalizationMetadata.md)<`TFragmentKind`>
+[`FragmentFinalizationMetadata`](FragmentFinalizationMetadata.md)&lt;`TFragmentKind`&gt;
 
 ###### options
 
@@ -246,7 +246,7 @@ readonly finalizeFragmentState: (options) => TArtifact;
 
 `TArtifact`
 
----
+***
 
 ### builderKind?
 
@@ -254,7 +254,7 @@ readonly finalizeFragmentState: (options) => TArtifact;
 readonly optional builderKind: TBuilderKind;
 ```
 
----
+***
 
 ### builderProvidedKeys?
 
@@ -266,12 +266,12 @@ Helper keys that should be treated as “already satisfied” for builder
 dependency resolution (e.g. builders depending on IR helpers that are
 executed in a different pipeline stage).
 
----
+***
 
 ### createConflictDiagnostic()?
 
 ```ts
-readonly optional createConflictDiagnostic: (options) => TDiagnostic;
+readonly optional createConflictDiagnostic: (options) =&gt; TDiagnostic;
 ```
 
 #### Parameters
@@ -294,12 +294,12 @@ readonly optional createConflictDiagnostic: (options) => TDiagnostic;
 
 `TDiagnostic`
 
----
+***
 
 ### createError()?
 
 ```ts
-readonly optional createError: (code, message) => Error;
+readonly optional createError: (code, message) =&gt; Error;
 ```
 
 #### Parameters
@@ -316,12 +316,12 @@ readonly optional createError: (code, message) => Error;
 
 `Error`
 
----
+***
 
 ### createExtensionHookOptions()?
 
 ```ts
-readonly optional createExtensionHookOptions: (options) => PipelineExtensionHookOptions<TContext, TRunOptions, TArtifact>;
+readonly optional createExtensionHookOptions: (options) =&gt; PipelineExtensionHookOptions&lt;TContext, TRunOptions, TArtifact&gt;;
 ```
 
 #### Parameters
@@ -350,14 +350,14 @@ readonly optional createExtensionHookOptions: (options) => PipelineExtensionHook
 
 #### Returns
 
-[`PipelineExtensionHookOptions`](PipelineExtensionHookOptions.md)<`TContext`, `TRunOptions`, `TArtifact`>
+[`PipelineExtensionHookOptions`](PipelineExtensionHookOptions.md)&lt;`TContext`, `TRunOptions`, `TArtifact`&gt;
 
----
+***
 
 ### createMissingDependencyDiagnostic()?
 
 ```ts
-readonly optional createMissingDependencyDiagnostic: (options) => TDiagnostic;
+readonly optional createMissingDependencyDiagnostic: (options) =&gt; TDiagnostic;
 ```
 
 #### Parameters
@@ -380,12 +380,12 @@ readonly optional createMissingDependencyDiagnostic: (options) => TDiagnostic;
 
 `TDiagnostic`
 
----
+***
 
 ### createRunResult()?
 
 ```ts
-readonly optional createRunResult: (options) => TRunResult;
+readonly optional createRunResult: (options) =&gt; TRunResult;
 ```
 
 #### Parameters
@@ -410,7 +410,7 @@ readonly `TDiagnostic`[]
 
 ###### helpers
 
-[`PipelineExecutionMetadata`](PipelineExecutionMetadata.md)<`TFragmentKind`, `TBuilderKind`>
+[`PipelineExecutionMetadata`](PipelineExecutionMetadata.md)&lt;`TFragmentKind`, `TBuilderKind`&gt;
 
 ###### options
 
@@ -418,18 +418,18 @@ readonly `TDiagnostic`[]
 
 ###### steps
 
-readonly [`PipelineStep`](PipelineStep.md)<[`HelperKind`](../type-aliases/HelperKind.md)>[]
+readonly [`PipelineStep`](PipelineStep.md)&lt;[`HelperKind`](../type-aliases/HelperKind.md)&gt;[]
 
 #### Returns
 
 `TRunResult`
 
----
+***
 
 ### createUnusedHelperDiagnostic()?
 
 ```ts
-readonly optional createUnusedHelperDiagnostic: (options) => TDiagnostic;
+readonly optional createUnusedHelperDiagnostic: (options) =&gt; TDiagnostic;
 ```
 
 #### Parameters
@@ -448,7 +448,7 @@ readonly optional createUnusedHelperDiagnostic: (options) => TDiagnostic;
 
 `TDiagnostic`
 
----
+***
 
 ### fragmentKind?
 
@@ -456,7 +456,7 @@ readonly optional createUnusedHelperDiagnostic: (options) => TDiagnostic;
 readonly optional fragmentKind: TFragmentKind;
 ```
 
----
+***
 
 ### fragmentProvidedKeys?
 
@@ -468,12 +468,12 @@ Helper keys that should be treated as "already satisfied" for fragment
 dependency resolution (useful when a run intentionally omits certain
 fragments).
 
----
+***
 
 ### onDiagnostic()?
 
 ```ts
-readonly optional onDiagnostic: (options) => void;
+readonly optional onDiagnostic: (options) =&gt; void;
 ```
 
 Optional hook invoked whenever a diagnostic is emitted during a run.
@@ -497,12 +497,12 @@ pipeline executes instead of waiting for the final run result.
 
 `void`
 
----
+***
 
 ### onExtensionRollbackError()?
 
 ```ts
-readonly optional onExtensionRollbackError: (options) => void;
+readonly optional onExtensionRollbackError: (options) =&gt; void;
 ```
 
 #### Parameters
@@ -533,12 +533,12 @@ readonly `string`[]
 
 `void`
 
----
+***
 
 ### onHelperRollbackError()?
 
 ```ts
-readonly optional onHelperRollbackError: (options) => void;
+readonly optional onHelperRollbackError: (options) =&gt; void;
 ```
 
 #### Parameters

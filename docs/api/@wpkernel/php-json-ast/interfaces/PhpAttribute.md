@@ -1,6 +1,6 @@
-[**@wpkernel/php-json-ast v0.12.3-beta.2**](../README.md)
+[**@wpkernel/php-json-ast v0.12.4-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/php-json-ast](../README.md) / PhpAttribute
 
@@ -20,7 +20,7 @@ Represents a single PHP attribute (e.g., `#[MyAttribute(arg: value)]`).
 readonly args: PhpArg[];
 ```
 
----
+***
 
 ### attributes
 
@@ -32,7 +32,7 @@ readonly attributes: PhpAttributes;
 
 [`PhpNode`](PhpNode.md).[`attributes`](PhpNode.md#attributes)
 
----
+***
 
 ### name
 
@@ -40,7 +40,7 @@ readonly attributes: PhpAttributes;
 readonly name: PhpIdentifier | PhpName;
 ```
 
----
+***
 
 ### nodeType
 

@@ -1,20 +1,20 @@
-[**@wpkernel/php-json-ast v0.12.3-beta.2**](../README.md)
+[**@wpkernel/php-json-ast v0.12.4-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/php-json-ast](../README.md) / resetPhpAstChannel
 
 # Function: resetPhpAstChannel()
 
 ```ts
-function resetPhpAstChannel<TContext>(context): void;
+function resetPhpAstChannel&lt;TContext&gt;(context): void;
 ```
 
 ## Type Parameters
 
 ### TContext
 
-`TContext` _extends_ [`PipelineContext`](../interfaces/PipelineContext.md)
+`TContext` *extends* [`PipelineContext`](../interfaces/PipelineContext.md)
 
 ## Parameters
 

@@ -1,8 +1,8 @@
-**@wpkernel/ui v0.12.3-beta.2**
+**@wpkernel/ui v0.12.4-beta.0**
 
----
+***
 
-# @wpkernel/ui v0.12.3-beta.2
+# @wpkernel/ui v0.12.4-beta.0
 
 WPKernel UI - Component Library Package
 

@@ -1,13 +1,13 @@
-[**@wpkernel/ui v0.12.3-beta.2**](../README.md)
+[**@wpkernel/ui v0.12.4-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/ui](../README.md) / usePrefetcher
 
 # Function: usePrefetcher()
 
 ```ts
-function usePrefetcher<TRecord, TQuery>(resource): Prefetcher<TQuery>;
+function usePrefetcher&lt;TRecord, TQuery&gt;(resource): Prefetcher&lt;TQuery&gt;;
 ```
 
 Exposes stable cache prefetch helpers for a resource.
@@ -30,10 +30,10 @@ re-creating callback instances on every render.
 
 ### resource
 
-`ResourceObject`<`TRecord`, `TQuery`>
+`ResourceObject`&lt;`TRecord`, `TQuery`&gt;
 
 Kernel resource exposing optional prefetch helpers.
 
 ## Returns
 
-[`Prefetcher`](../interfaces/Prefetcher.md)<`TQuery`>
+[`Prefetcher`](../interfaces/Prefetcher.md)&lt;`TQuery`&gt;

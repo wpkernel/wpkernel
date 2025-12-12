@@ -1,13 +1,13 @@
-[**@wpkernel/core v0.12.3-beta.2**](../README.md)
+[**@wpkernel/core v0.12.4-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/core](../README.md) / InteractivityServerState
 
 # Type Alias: InteractivityServerState
 
 ```ts
-type InteractivityServerState = DeepReadonly<Record<string, unknown>>;
+type InteractivityServerState = DeepReadonly&lt;Record&lt;string, unknown&gt;&gt;;
 ```
 
 Immutable snapshot of the WordPress interactivity runtime state.

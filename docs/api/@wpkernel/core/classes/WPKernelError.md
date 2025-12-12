@@ -1,6 +1,6 @@
-[**@wpkernel/core v0.12.3-beta.2**](../README.md)
+[**@wpkernel/core v0.12.4-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/core](../README.md) / WPKernelError
 
@@ -12,8 +12,8 @@ Base error class for WPKernel
 
 ```typescript
 throw new WPKernelError('CapabilityDenied', {
-	message: 'User lacks required capability',
-	context: { capabilityKey: 'things.manage', userId: 123 },
+  message: 'User lacks required capability',
+  context: { capabilityKey: 'things.manage', userId: 123 }
 });
 ```
 
@@ -68,7 +68,7 @@ Error options
 #### Overrides
 
 ```ts
-Error.constructor;
+Error.constructor
 ```
 
 ## Properties
@@ -81,7 +81,7 @@ readonly code: ErrorCode;
 
 Error code - identifies the type of error
 
----
+***
 
 ### context?
 
@@ -91,7 +91,7 @@ readonly optional context: ErrorContext;
 
 Context in which the error occurred
 
----
+***
 
 ### data?
 
@@ -125,7 +125,7 @@ Serialized error object
 
 New WPKernelError instance
 
----
+***
 
 ### isWPKernelError()
 
@@ -149,7 +149,7 @@ Error to check
 
 True if error is a WPKernelError
 
----
+***
 
 ### toJSON()
 
@@ -165,14 +165,14 @@ Serialize error to JSON-safe format
 
 Serialized error object
 
----
+***
 
 ### wrap()
 
 ```ts
 static wrap(
-   error,
-   code,
+   error, 
+   code, 
    context?): WPKernelError;
 ```
 

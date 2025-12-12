@@ -1,6 +1,6 @@
-[**@wpkernel/php-json-ast v0.12.3-beta.2**](../README.md)
+[**@wpkernel/php-json-ast v0.12.4-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/php-json-ast](../README.md) / PhpStmtClassConst
 
@@ -20,7 +20,7 @@ Represents a PHP class constant declaration statement.
 readonly attrGroups: PhpAttrGroup[];
 ```
 
----
+***
 
 ### attributes
 
@@ -32,7 +32,7 @@ readonly attributes: PhpAttributes;
 
 [`PhpStmtBase`](PhpStmtBase.md).[`attributes`](PhpStmtBase.md#attributes)
 
----
+***
 
 ### consts
 
@@ -40,7 +40,7 @@ readonly attributes: PhpAttributes;
 readonly consts: PhpConst[];
 ```
 
----
+***
 
 ### flags
 
@@ -48,7 +48,7 @@ readonly consts: PhpConst[];
 readonly flags: number;
 ```
 
----
+***
 
 ### nodeType
 
@@ -60,7 +60,7 @@ readonly nodeType: "Stmt_ClassConst";
 
 [`PhpStmtBase`](PhpStmtBase.md).[`nodeType`](PhpStmtBase.md#nodetype)
 
----
+***
 
 ### type
 

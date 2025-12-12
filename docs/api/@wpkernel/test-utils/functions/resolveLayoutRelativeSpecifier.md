@@ -1,13 +1,16 @@
-[**@wpkernel/test-utils v0.12.3-beta.2**](../README.md)
+[**@wpkernel/test-utils v0.12.4-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/test-utils](../README.md) / resolveLayoutRelativeSpecifier
 
 # Function: resolveLayoutRelativeSpecifier()
 
 ```ts
-function resolveLayoutRelativeSpecifier(fromId, toId, filename?): string;
+function resolveLayoutRelativeSpecifier(
+   fromId, 
+   toId, 
+   filename?): string;
 ```
 
 Computes a module specifier between two layout ids, optionally appending a filename,

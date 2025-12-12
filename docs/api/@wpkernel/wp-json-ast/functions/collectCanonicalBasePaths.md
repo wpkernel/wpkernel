@@ -1,14 +1,13 @@
-[**@wpkernel/wp-json-ast v0.12.3-beta.2**](../README.md)
+[**@wpkernel/wp-json-ast v0.12.4-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/wp-json-ast](../README.md) / collectCanonicalBasePaths
 
 # Function: collectCanonicalBasePaths()
 
 ```ts
-function collectCanonicalBasePaths(routes, identityParam): Set & lt;
-string & gt;
+function collectCanonicalBasePaths(routes, identityParam): Set&lt;string&gt;;
 ```
 
 ## Parameters
@@ -23,4 +22,4 @@ readonly [`RouteDefinition`](../interfaces/RouteDefinition.md)[]
 
 ## Returns
 
-`Set`<`string`>
+`Set`&lt;`string`&gt;

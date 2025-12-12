@@ -1,6 +1,6 @@
-[**@wpkernel/cli v0.12.3-beta.2**](../README.md)
+[**@wpkernel/cli v0.12.4-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/cli](../README.md) / DxEnvironment
 
@@ -19,7 +19,7 @@ readonly allowDirty: boolean;
 When true, readiness helpers should tolerate dirty workspaces. This
 is controlled by the shared `--allow-dirty` flag.
 
----
+***
 
 ### cwd
 
@@ -29,7 +29,7 @@ readonly cwd: string;
 
 Directory where the CLI process was invoked.
 
----
+***
 
 ### projectRoot
 
@@ -39,7 +39,7 @@ readonly projectRoot: string;
 
 Absolute path to the CLI package root.
 
----
+***
 
 ### workspaceRoot
 

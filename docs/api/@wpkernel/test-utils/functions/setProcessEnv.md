@@ -1,6 +1,6 @@
-[**@wpkernel/test-utils v0.12.3-beta.2**](../README.md)
+[**@wpkernel/test-utils v0.12.4-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/test-utils](../README.md) / setProcessEnv
 
@@ -16,7 +16,7 @@ Set process.env values in a test-safe way.
 
 ### env
 
-`Record`<`string`, `string`>
+`Record`&lt;`string`, `string`&gt;
 
 ## Returns
 

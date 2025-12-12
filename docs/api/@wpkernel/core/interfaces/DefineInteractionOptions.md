@@ -1,10 +1,10 @@
-[**@wpkernel/core v0.12.3-beta.2**](../README.md)
+[**@wpkernel/core v0.12.4-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/core](../README.md) / DefineInteractionOptions
 
-# Interface: DefineInteractionOptions<TEntity, TQuery, TStore, TActions>
+# Interface: DefineInteractionOptions&lt;TEntity, TQuery, TStore, TActions&gt;
 
 Options accepted by `defineInteraction`.
 
@@ -20,11 +20,11 @@ Options accepted by `defineInteraction`.
 
 ### TStore
 
-`TStore` _extends_ `Record`<`string`, `unknown`>
+`TStore` *extends* `Record`&lt;`string`, `unknown`&gt;
 
 ### TActions
 
-`TActions` _extends_ [`InteractionActionsRecord`](../type-aliases/InteractionActionsRecord.md)
+`TActions` *extends* [`InteractionActionsRecord`](../type-aliases/InteractionActionsRecord.md)
 
 ## Properties
 
@@ -34,15 +34,15 @@ Options accepted by `defineInteraction`.
 readonly feature: string;
 ```
 
----
+***
 
 ### resource
 
 ```ts
-readonly resource: ResourceObject<TEntity, TQuery>;
+readonly resource: ResourceObject&lt;TEntity, TQuery&gt;;
 ```
 
----
+***
 
 ### actions?
 
@@ -50,7 +50,7 @@ readonly resource: ResourceObject<TEntity, TQuery>;
 readonly optional actions: TActions;
 ```
 
----
+***
 
 ### autoHydrate?
 
@@ -58,25 +58,25 @@ readonly optional actions: TActions;
 readonly optional autoHydrate: boolean;
 ```
 
----
+***
 
 ### hydrateServerState()?
 
 ```ts
-readonly optional hydrateServerState: (input) => void;
+readonly optional hydrateServerState: (input) =&gt; void;
 ```
 
 #### Parameters
 
 ##### input
 
-[`HydrateServerStateInput`](HydrateServerStateInput.md)<`TEntity`, `TQuery`>
+[`HydrateServerStateInput`](HydrateServerStateInput.md)&lt;`TEntity`, `TQuery`&gt;
 
 #### Returns
 
 `void`
 
----
+***
 
 ### namespace?
 
@@ -84,7 +84,7 @@ readonly optional hydrateServerState: (input) => void;
 readonly optional namespace: string;
 ```
 
----
+***
 
 ### registry?
 
@@ -92,7 +92,7 @@ readonly optional namespace: string;
 readonly optional registry: any;
 ```
 
----
+***
 
 ### store?
 

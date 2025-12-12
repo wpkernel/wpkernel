@@ -1,6 +1,6 @@
-[**@wpkernel/cli v0.12.3-beta.2**](../README.md)
+[**@wpkernel/cli v0.12.4-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/cli](../README.md) / QuickstartHelperOptions
 
@@ -11,5 +11,5 @@
 ### dependencies?
 
 ```ts
-readonly optional dependencies: Partial<QuickstartDependencies>;
+readonly optional dependencies: Partial&lt;QuickstartDependencies&gt;;
 ```

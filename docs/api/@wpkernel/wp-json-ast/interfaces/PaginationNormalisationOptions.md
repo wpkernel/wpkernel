@@ -1,6 +1,6 @@
-[**@wpkernel/wp-json-ast v0.12.3-beta.2**](../README.md)
+[**@wpkernel/wp-json-ast v0.12.4-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/wp-json-ast](../README.md) / PaginationNormalisationOptions
 
@@ -14,7 +14,7 @@
 readonly requestVariable: string;
 ```
 
----
+***
 
 ### targetVariable
 
@@ -22,7 +22,7 @@ readonly requestVariable: string;
 readonly targetVariable: string;
 ```
 
----
+***
 
 ### defaultValue?
 
@@ -30,7 +30,7 @@ readonly targetVariable: string;
 readonly optional defaultValue: number;
 ```
 
----
+***
 
 ### maximum?
 
@@ -38,7 +38,7 @@ readonly optional defaultValue: number;
 readonly optional maximum: number;
 ```
 
----
+***
 
 ### nonPositiveGuard?
 
@@ -46,7 +46,7 @@ readonly optional maximum: number;
 readonly optional nonPositiveGuard: number;
 ```
 
----
+***
 
 ### param?
 

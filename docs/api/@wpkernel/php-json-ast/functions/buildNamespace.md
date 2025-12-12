@@ -1,13 +1,16 @@
-[**@wpkernel/php-json-ast v0.12.3-beta.2**](../README.md)
+[**@wpkernel/php-json-ast v0.12.4-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/php-json-ast](../README.md) / buildNamespace
 
 # Function: buildNamespace()
 
 ```ts
-function buildNamespace(name, stmts, attributes?): PhpStmtNamespace;
+function buildNamespace(
+   name, 
+   stmts, 
+   attributes?): PhpStmtNamespace;
 ```
 
 Builds a PHP namespace statement node.
@@ -28,7 +31,7 @@ An array of `PhpStmt` nodes within the namespace.
 
 ### attributes?
 
-`Readonly`<`Record`<`string`, `unknown`>>
+`Readonly`&lt;`Record`&lt;`string`, `unknown`&gt;&gt;
 
 Optional attributes for the node.
 

@@ -1,6 +1,6 @@
-[**@wpkernel/cli v0.12.3-beta.2**](../README.md)
+[**@wpkernel/cli v0.12.4-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/cli](../README.md) / DxContext
 
@@ -18,7 +18,7 @@ readonly environment: DxEnvironment;
 
 Environment metadata describing cwd, workspace root, and flags.
 
----
+***
 
 ### reporter
 
@@ -28,7 +28,7 @@ readonly reporter: Reporter;
 
 Reporter used to emit DX readiness diagnostics.
 
----
+***
 
 ### workspace
 

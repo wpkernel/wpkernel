@@ -1,13 +1,13 @@
-[**@wpkernel/core v0.12.3-beta.2**](../README.md)
+[**@wpkernel/core v0.12.4-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/core](../README.md) / CapabilityMap
 
-# Type Alias: CapabilityMap<Keys>
+# Type Alias: CapabilityMap&lt;Keys&gt;
 
 ```ts
-type CapabilityMap<Keys> = { [K in keyof Keys]: CapabilityRule<Keys[K]> };
+type CapabilityMap&lt;Keys&gt; = { [K in keyof Keys]: CapabilityRule&lt;Keys[K]&gt; };
 ```
 
 Mapping from capability key to rule implementation.
@@ -16,4 +16,4 @@ Mapping from capability key to rule implementation.
 
 ### Keys
 
-`Keys` _extends_ `Record`<`string`, `unknown`>
+`Keys` *extends* `Record`&lt;`string`, `unknown`&gt;

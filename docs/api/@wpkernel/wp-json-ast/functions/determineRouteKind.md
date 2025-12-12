@@ -1,6 +1,6 @@
-[**@wpkernel/wp-json-ast v0.12.3-beta.2**](../README.md)
+[**@wpkernel/wp-json-ast v0.12.4-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/wp-json-ast](../README.md) / determineRouteKind
 
@@ -8,10 +8,9 @@
 
 ```ts
 function determineRouteKind(
-	route,
-	identityParam,
-	canonicalBasePaths
-): ResourceRouteKind | undefined;
+   route, 
+   identityParam, 
+   canonicalBasePaths): ResourceRouteKind | undefined;
 ```
 
 ## Parameters
@@ -26,7 +25,7 @@ function determineRouteKind(
 
 ### canonicalBasePaths
 
-`ReadonlySet`<`string`>
+`ReadonlySet`&lt;`string`&gt;
 
 ## Returns
 

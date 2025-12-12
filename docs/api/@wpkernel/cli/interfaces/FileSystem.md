@@ -1,6 +1,6 @@
-[**@wpkernel/cli v0.12.3-beta.2**](../README.md)
+[**@wpkernel/cli v0.12.4-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/cli](../README.md) / FileSystem
 
@@ -13,7 +13,7 @@ File system operations interface for start command.
 ### access()
 
 ```ts
-readonly access: (path, mode?) => Promise<void>;
+readonly access: (path, mode?) =&gt; Promise&lt;void&gt;;
 ```
 
 Tests a user's permissions for the file or directory specified by `path`.
@@ -31,10 +31,10 @@ written by the current process.
 import { access, constants } from 'node:fs/promises';
 
 try {
-	await access('/etc/passwd', constants.R_OK | constants.W_OK);
-	console.log('can access');
+  await access('/etc/passwd', constants.R_OK | constants.W_OK);
+  console.log('can access');
 } catch {
-	console.error('cannot access');
+  console.error('cannot access');
 }
 ```
 
@@ -56,7 +56,7 @@ the error raised if the file is not accessible.
 
 #### Returns
 
-`Promise`<`void`>
+`Promise`&lt;`void`&gt;
 
 Fulfills with `undefined` upon success.
 
@@ -64,12 +64,12 @@ Fulfills with `undefined` upon success.
 
 v10.0.0
 
----
+***
 
 ### cp()
 
 ```ts
-readonly cp: (source, destination, opts?) => Promise<void>;
+readonly cp: (source, destination, opts?) =&gt; Promise&lt;void&gt;;
 ```
 
 **`Experimental`**
@@ -96,7 +96,7 @@ behavior is similar to `cp dir1/ dir2/`.
 
 #### Returns
 
-`Promise`<`void`>
+`Promise`&lt;`void`&gt;
 
 Fulfills with `undefined` upon success.
 
@@ -104,22 +104,22 @@ Fulfills with `undefined` upon success.
 
 v16.7.0
 
----
+***
 
 ### mkdir()
 
 ```ts
 readonly mkdir: {
-  (path, options): Promise<string | undefined>;
-  (path, options?): Promise<void>;
-  (path, options?): Promise<string | undefined>;
+  (path, options): Promise&lt;string | undefined&gt;;
+  (path, options?): Promise&lt;void&gt;;
+  (path, options?): Promise&lt;string | undefined&gt;;
 };
 ```
 
 #### Call Signature
 
 ```ts
-(path, options): Promise<string | undefined>;
+(path, options): Promise&lt;string | undefined&gt;;
 ```
 
 Asynchronously creates a directory.
@@ -133,12 +133,12 @@ rejection only when `recursive` is false.
 import { mkdir } from 'node:fs/promises';
 
 try {
-	const projectFolder = new URL('./test/project/', import.meta.url);
-	const createDir = await mkdir(projectFolder, { recursive: true });
+  const projectFolder = new URL('./test/project/', import.meta.url);
+  const createDir = await mkdir(projectFolder, { recursive: true });
 
-	console.log(`created ${createDir}`);
+  console.log(`created ${createDir}`);
 } catch (err) {
-	console.error(err.message);
+  console.error(err.message);
 }
 ```
 
@@ -154,7 +154,7 @@ try {
 
 ##### Returns
 
-`Promise`<`string` \| `undefined`>
+`Promise`&lt;`string` \| `undefined`&gt;
 
 Upon success, fulfills with `undefined` if `recursive` is `false`, or the first directory path created if `recursive` is `true`.
 
@@ -165,7 +165,7 @@ v10.0.0
 #### Call Signature
 
 ```ts
-(path, options?): Promise<void>;
+(path, options?): Promise&lt;void&gt;;
 ```
 
 Asynchronous mkdir(2) - create a directory.
@@ -187,12 +187,12 @@ should be created. If a string is passed, it is parsed as an octal integer. If n
 
 ##### Returns
 
-`Promise`<`void`>
+`Promise`&lt;`void`&gt;
 
 #### Call Signature
 
 ```ts
-(path, options?): Promise<string | undefined>;
+(path, options?): Promise&lt;string | undefined&gt;;
 ```
 
 Asynchronous mkdir(2) - create a directory.
@@ -214,4 +214,4 @@ should be created. If a string is passed, it is parsed as an octal integer. If n
 
 ##### Returns
 
-`Promise`<`string` \| `undefined`>
+`Promise`&lt;`string` \| `undefined`&gt;

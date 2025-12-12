@@ -1,13 +1,16 @@
-[**@wpkernel/php-json-ast v0.12.3-beta.2**](../README.md)
+[**@wpkernel/php-json-ast v0.12.4-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/php-json-ast](../README.md) / buildAssign
 
 # Function: buildAssign()
 
 ```ts
-function buildAssign(variable, expr, attributes?): PhpExprAssign;
+function buildAssign(
+   variable, 
+   expr, 
+   attributes?): PhpExprAssign;
 ```
 
 Builds a PHP assignment expression node.
@@ -28,7 +31,7 @@ The expression whose value is being assigned.
 
 ### attributes?
 
-`Readonly`<`Record`<`string`, `unknown`>>
+`Readonly`&lt;`Record`&lt;`string`, `unknown`&gt;&gt;
 
 Optional attributes for the node.
 

@@ -1,29 +1,29 @@
-[**@wpkernel/wp-json-ast v0.12.3-beta.2**](../README.md)
+[**@wpkernel/wp-json-ast v0.12.4-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/wp-json-ast](../README.md) / ProgramTargetPlanner
 
-# Interface: ProgramTargetPlanner<TFile>
+# Interface: ProgramTargetPlanner&lt;TFile&gt;
 
 ## Type Parameters
 
 ### TFile
 
-`TFile` _extends_ [`ProgramTargetFile`](ProgramTargetFile.md) = [`ProgramTargetFile`](ProgramTargetFile.md)
+`TFile` *extends* [`ProgramTargetFile`](ProgramTargetFile.md) = [`ProgramTargetFile`](ProgramTargetFile.md)
 
 ## Properties
 
 ### queueFile
 
 ```ts
-readonly queueFile: ProgramTargetQueue<TFile>;
+readonly queueFile: ProgramTargetQueue&lt;TFile&gt;;
 ```
 
----
+***
 
 ### queueFiles
 
 ```ts
-readonly queueFiles: ProgramTargetQueueMany<TFile>;
+readonly queueFiles: ProgramTargetQueueMany&lt;TFile&gt;;
 ```

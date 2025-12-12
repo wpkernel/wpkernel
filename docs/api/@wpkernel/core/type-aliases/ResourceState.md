@@ -1,13 +1,13 @@
-[**@wpkernel/core v0.12.3-beta.2**](../README.md)
+[**@wpkernel/core v0.12.4-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/core](../README.md) / ResourceState
 
-# Type Alias: ResourceState<T>
+# Type Alias: ResourceState&lt;T&gt;
 
 ```ts
-type ResourceState<T> = object;
+type ResourceState&lt;T&gt; = object;
 ```
 
 Normalized state shape for a resource store.
@@ -28,47 +28,42 @@ Entity shape stored in the resource.
 ### errors
 
 ```ts
-errors: Record & lt;
-(string, string & gt);
+errors: Record&lt;string, string&gt;;
 ```
 
 Error messages by cache key.
 
----
+***
 
 ### items
 
 ```ts
-items: Record & lt;
-(string | number, T & gt);
+items: Record&lt;string | number, T&gt;;
 ```
 
 Map of items by ID.
 
----
+***
 
 ### listMeta
 
 ```ts
-listMeta: Record<
-	string,
-	{
-		hasMore?: boolean;
-		nextCursor?: string;
-		status?: ResourceListStatus;
-		total?: number;
-	}
->;
+listMeta: Record&lt;string, {
+  hasMore?: boolean;
+  nextCursor?: string;
+  status?: ResourceListStatus;
+  total?: number;
+}&gt;;
 ```
 
 List metadata (total count, pagination, etc).
 
----
+***
 
 ### lists
 
 ```ts
-lists: Record<string, (string | number)[]>;
+lists: Record&lt;string, (string | number)[]&gt;;
 ```
 
 List queries and their results.

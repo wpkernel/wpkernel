@@ -1,6 +1,6 @@
-[**@wpkernel/core v0.12.3-beta.2**](../README.md)
+[**@wpkernel/core v0.12.4-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/core](../README.md) / ActionLifecycleEventBase
 
@@ -14,7 +14,6 @@ Base metadata shared across all action lifecycle events.
 
 This metadata is attached to every lifecycle event (start/complete/error) and
 domain event emitted by actions, enabling:
-
 - Request tracing and correlation
 - Cross-tab event de-duplication
 - PHP bridge integration
@@ -28,7 +27,7 @@ domain event emitted by actions, enabling:
 actionName: string;
 ```
 
----
+***
 
 ### bridged
 
@@ -36,7 +35,7 @@ actionName: string;
 bridged: boolean;
 ```
 
----
+***
 
 ### namespace
 
@@ -44,7 +43,7 @@ bridged: boolean;
 namespace: string;
 ```
 
----
+***
 
 ### requestId
 
@@ -52,15 +51,15 @@ namespace: string;
 requestId: string;
 ```
 
----
+***
 
 ### scope
 
 ```ts
-scope: 'crossTab' | 'tabLocal';
+scope: "crossTab" | "tabLocal";
 ```
 
----
+***
 
 ### timestamp
 

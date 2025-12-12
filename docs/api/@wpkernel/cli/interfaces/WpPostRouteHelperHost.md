@@ -1,6 +1,6 @@
-[**@wpkernel/cli v0.12.3-beta.2**](../README.md)
+[**@wpkernel/cli v0.12.4-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/cli](../README.md) / WpPostRouteHelperHost
 
@@ -8,7 +8,7 @@
 
 ## Properties
 
-### \[WP_POST_ROUTE_HELPER_SYMBOL\]?
+### \[WP\_POST\_ROUTE\_HELPER\_SYMBOL\]?
 
 ```ts
 optional [WP_POST_ROUTE_HELPER_SYMBOL]: WpPostRouteHelperState;

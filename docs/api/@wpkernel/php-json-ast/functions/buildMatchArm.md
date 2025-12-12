@@ -1,13 +1,16 @@
-[**@wpkernel/php-json-ast v0.12.3-beta.2**](../README.md)
+[**@wpkernel/php-json-ast v0.12.4-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/php-json-ast](../README.md) / buildMatchArm
 
 # Function: buildMatchArm()
 
 ```ts
-function buildMatchArm(conds, body, attributes?): PhpMatchArm;
+function buildMatchArm(
+   conds, 
+   body, 
+   attributes?): PhpMatchArm;
 ```
 
 Builds a PHP match arm node.
@@ -28,7 +31,7 @@ The expression to execute if the conditions match.
 
 ### attributes?
 
-`Readonly`<`Record`<`string`, `unknown`>>
+`Readonly`&lt;`Record`&lt;`string`, `unknown`&gt;&gt;
 
 Optional attributes for the node.
 

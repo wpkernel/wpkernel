@@ -1,6 +1,6 @@
-[**@wpkernel/php-json-ast v0.12.3-beta.2**](../README.md)
+[**@wpkernel/php-json-ast v0.12.4-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/php-json-ast](../README.md) / PhpExprTernary
 
@@ -24,7 +24,7 @@ readonly attributes: PhpAttributes;
 
 [`PhpExprBase`](PhpExprBase.md).[`attributes`](PhpExprBase.md#attributes)
 
----
+***
 
 ### cond
 
@@ -32,7 +32,7 @@ readonly attributes: PhpAttributes;
 readonly cond: PhpExpr;
 ```
 
----
+***
 
 ### else
 
@@ -40,7 +40,7 @@ readonly cond: PhpExpr;
 readonly else: PhpExpr;
 ```
 
----
+***
 
 ### if
 
@@ -48,7 +48,7 @@ readonly else: PhpExpr;
 readonly if: PhpExpr | null;
 ```
 
----
+***
 
 ### nodeType
 

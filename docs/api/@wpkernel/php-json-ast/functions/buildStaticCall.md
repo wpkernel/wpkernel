@@ -1,13 +1,17 @@
-[**@wpkernel/php-json-ast v0.12.3-beta.2**](../README.md)
+[**@wpkernel/php-json-ast v0.12.4-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/php-json-ast](../README.md) / buildStaticCall
 
 # Function: buildStaticCall()
 
 ```ts
-function buildStaticCall(className, name, args, attributes?): PhpExprStaticCall;
+function buildStaticCall(
+   className, 
+   name, 
+   args, 
+   attributes?): PhpExprStaticCall;
 ```
 
 Builds a PHP static method call expression node.
@@ -34,7 +38,7 @@ An array of `PhpArg` nodes representing the method arguments.
 
 ### attributes?
 
-`Readonly`<`Record`<`string`, `unknown`>>
+`Readonly`&lt;`Record`&lt;`string`, `unknown`&gt;&gt;
 
 Optional attributes for the node.
 

@@ -1,6 +1,6 @@
-[**@wpkernel/cli v0.12.3-beta.2**](../README.md)
+[**@wpkernel/cli v0.12.4-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/cli](../README.md) / AdapterExtension
 
@@ -13,20 +13,20 @@ Adapter extension contract.
 ### apply()
 
 ```ts
-apply: (context) => void | Promise<void>;
+apply: (context) =&gt; void | Promise&lt;void&gt;;
 ```
 
 #### Parameters
 
 ##### context
 
-[`AdapterExtensionContext`](AdapterExtensionContext.md)<`unknown`, `unknown`>
+[`AdapterExtensionContext`](AdapterExtensionContext.md)&lt;`unknown`, `unknown`&gt;
 
 #### Returns
 
-`void` \| `Promise`<`void`>
+`void` \| `Promise`&lt;`void`&gt;
 
----
+***
 
 ### name
 

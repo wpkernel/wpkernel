@@ -1,6 +1,6 @@
-[**@wpkernel/cli v0.12.3-beta.2**](../README.md)
+[**@wpkernel/cli v0.12.4-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/cli](../README.md) / Workspace
 
@@ -17,7 +17,7 @@ Kernel-aware workspace contract used by CLI generators.
 ### begin()
 
 ```ts
-begin: (label?) => void;
+begin: (label?) =&gt; void;
 ```
 
 #### Parameters
@@ -30,12 +30,12 @@ begin: (label?) => void;
 
 `void`
 
----
+***
 
 ### commit()
 
 ```ts
-commit: (label?) => Promise<FileManifest>;
+commit: (label?) =&gt; Promise&lt;FileManifest&gt;;
 ```
 
 #### Parameters
@@ -46,30 +46,29 @@ commit: (label?) => Promise<FileManifest>;
 
 #### Returns
 
-`Promise`<[`FileManifest`](FileManifest.md)>
+`Promise`&lt;[`FileManifest`](FileManifest.md)&gt;
 
----
+***
 
 ### cwd()
 
 ```ts
-cwd: () => string;
+cwd: () =&gt; string;
 ```
 
 #### Returns
 
 `string`
 
----
+***
 
 ### dryRun()
 
 ```ts
-dryRun: <T>(fn) =>
-	Promise<{
-		manifest: FileManifest;
-		result: T;
-	}>;
+dryRun: &lt;T&gt;(fn) =&gt; Promise&lt;{
+  manifest: FileManifest;
+  result: T;
+}&gt;;
 ```
 
 #### Type Parameters
@@ -82,21 +81,21 @@ dryRun: <T>(fn) =>
 
 ##### fn
 
-() => `Promise`<`T`>
+() =&gt; `Promise`&lt;`T`&gt;
 
 #### Returns
 
-`Promise`<\{
-`manifest`: [`FileManifest`](FileManifest.md);
-`result`: `T`;
-\}>
+`Promise`&lt;\{
+  `manifest`: [`FileManifest`](FileManifest.md);
+  `result`: `T`;
+\}&gt;
 
----
+***
 
 ### exists()
 
 ```ts
-exists: (target) => Promise<boolean>;
+exists: (target) =&gt; Promise&lt;boolean&gt;;
 ```
 
 #### Parameters
@@ -107,20 +106,20 @@ exists: (target) => Promise<boolean>;
 
 #### Returns
 
-`Promise`<`boolean`>
+`Promise`&lt;`boolean`&gt;
 
 #### Inherited from
 
 ```ts
-WorkspaceLike.exists;
+WorkspaceLike.exists
 ```
 
----
+***
 
 ### glob()
 
 ```ts
-glob: (pattern) => Promise<string[]>;
+glob: (pattern) =&gt; Promise&lt;string[]&gt;;
 ```
 
 #### Parameters
@@ -131,14 +130,14 @@ glob: (pattern) => Promise<string[]>;
 
 #### Returns
 
-`Promise`<`string`[]>
+`Promise`&lt;`string`[]&gt;
 
----
+***
 
 ### read()
 
 ```ts
-read: (file) => Promise<Buffer<ArrayBufferLike> | null>;
+read: (file) =&gt; Promise&lt;Buffer&lt;ArrayBufferLike&gt; | null&gt;;
 ```
 
 #### Parameters
@@ -149,14 +148,14 @@ read: (file) => Promise<Buffer<ArrayBufferLike> | null>;
 
 #### Returns
 
-`Promise`<`Buffer`<`ArrayBufferLike`> \| `null`>
+`Promise`&lt;`Buffer`&lt;`ArrayBufferLike`&gt; \| `null`&gt;
 
----
+***
 
 ### readText()
 
 ```ts
-readText: (file) => Promise<string | null>;
+readText: (file) =&gt; Promise&lt;string | null&gt;;
 ```
 
 #### Parameters
@@ -167,14 +166,14 @@ readText: (file) => Promise<string | null>;
 
 #### Returns
 
-`Promise`<`string` \| `null`>
+`Promise`&lt;`string` \| `null`&gt;
 
----
+***
 
 ### resolve()
 
 ```ts
-resolve: (...parts) => string;
+resolve: (...parts) =&gt; string;
 ```
 
 #### Parameters
@@ -190,15 +189,15 @@ resolve: (...parts) => string;
 #### Inherited from
 
 ```ts
-WorkspaceLike.resolve;
+WorkspaceLike.resolve
 ```
 
----
+***
 
 ### rm()
 
 ```ts
-rm: (target, options?) => Promise<void>;
+rm: (target, options?) =&gt; Promise&lt;void&gt;;
 ```
 
 #### Parameters
@@ -213,14 +212,14 @@ rm: (target, options?) => Promise<void>;
 
 #### Returns
 
-`Promise`<`void`>
+`Promise`&lt;`void`&gt;
 
----
+***
 
 ### rollback()
 
 ```ts
-rollback: (label?) => Promise<FileManifest>;
+rollback: (label?) =&gt; Promise&lt;FileManifest&gt;;
 ```
 
 #### Parameters
@@ -231,9 +230,9 @@ rollback: (label?) => Promise<FileManifest>;
 
 #### Returns
 
-`Promise`<[`FileManifest`](FileManifest.md)>
+`Promise`&lt;[`FileManifest`](FileManifest.md)&gt;
 
----
+***
 
 ### root
 
@@ -244,16 +243,15 @@ readonly root: string;
 #### Inherited from
 
 ```ts
-WorkspaceLike.root;
+WorkspaceLike.root
 ```
 
----
+***
 
 ### threeWayMerge()
 
 ```ts
-threeWayMerge: (file, base, current, incoming, options?) =>
-	Promise<'conflict' | 'clean'>;
+threeWayMerge: (file, base, current, incoming, options?) =&gt; Promise&lt;"conflict" | "clean"&gt;;
 ```
 
 #### Parameters
@@ -280,14 +278,14 @@ threeWayMerge: (file, base, current, incoming, options?) =>
 
 #### Returns
 
-`Promise`<`"conflict"` \| `"clean"`>
+`Promise`&lt;`"conflict"` \| `"clean"`&gt;
 
----
+***
 
 ### tmpDir()
 
 ```ts
-tmpDir: (prefix?) => Promise<string>;
+tmpDir: (prefix?) =&gt; Promise&lt;string&gt;;
 ```
 
 #### Parameters
@@ -298,14 +296,14 @@ tmpDir: (prefix?) => Promise<string>;
 
 #### Returns
 
-`Promise`<`string`>
+`Promise`&lt;`string`&gt;
 
----
+***
 
 ### write()
 
 ```ts
-write: (file, data, options?) => Promise<void>;
+write: (file, data, options?) =&gt; Promise&lt;void&gt;;
 ```
 
 #### Parameters
@@ -316,7 +314,7 @@ write: (file, data, options?) => Promise<void>;
 
 ##### data
 
-`string` | `Buffer`<`ArrayBufferLike`>
+`string` | `Buffer`&lt;`ArrayBufferLike`&gt;
 
 ##### options?
 
@@ -324,14 +322,14 @@ write: (file, data, options?) => Promise<void>;
 
 #### Returns
 
-`Promise`<`void`>
+`Promise`&lt;`void`&gt;
 
----
+***
 
 ### writeJson()
 
 ```ts
-writeJson: <T>(file, value, options?) => Promise<void>;
+writeJson: &lt;T&gt;(file, value, options?) =&gt; Promise&lt;void&gt;;
 ```
 
 #### Type Parameters
@@ -356,4 +354,4 @@ writeJson: <T>(file, value, options?) => Promise<void>;
 
 #### Returns
 
-`Promise`<`void`>
+`Promise`&lt;`void`&gt;

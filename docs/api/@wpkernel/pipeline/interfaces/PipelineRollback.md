@@ -1,6 +1,6 @@
-[**@wpkernel/pipeline v0.12.3-beta.2**](../README.md)
+[**@wpkernel/pipeline v0.12.4-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/pipeline](../README.md) / PipelineRollback
 
@@ -16,14 +16,14 @@ if the pipeline encounters a failure, enabling cleanup and state restoration.
 ### run()
 
 ```ts
-readonly run: () => unknown;
+readonly run: () =&gt; unknown;
 ```
 
 #### Returns
 
 `unknown`
 
----
+***
 
 ### key?
 
@@ -31,7 +31,7 @@ readonly run: () => unknown;
 readonly optional key: string;
 ```
 
----
+***
 
 ### label?
 

@@ -1,6 +1,6 @@
-[**@wpkernel/cli v0.12.3-beta.2**](../README.md)
+[**@wpkernel/cli v0.12.4-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/cli](../README.md) / IRv1
 
@@ -18,7 +18,7 @@ artifacts: IRArtifactsPlan;
 
 Planned artifact paths for builders.
 
----
+***
 
 ### blocks
 
@@ -28,7 +28,7 @@ blocks: IRBlock[];
 
 An array of block IRs.
 
----
+***
 
 ### capabilities
 
@@ -38,7 +38,7 @@ capabilities: IRCapabilityHint[];
 
 An array of capability hints.
 
----
+***
 
 ### capabilityMap
 
@@ -48,7 +48,7 @@ capabilityMap: IRCapabilityMap;
 
 The capability map IR.
 
----
+***
 
 ### layout
 
@@ -58,7 +58,7 @@ layout: IRLayout;
 
 Resolved layout map for internal/applied artifacts.
 
----
+***
 
 ### meta
 
@@ -83,31 +83,31 @@ ids: object;
 ##### ids.algorithm
 
 ```ts
-algorithm: 'sha256';
+algorithm: "sha256";
 ```
 
 ##### ids.blockPrefix
 
 ```ts
-blockPrefix: 'blk:';
+blockPrefix: "blk:";
 ```
 
 ##### ids.capabilityPrefix
 
 ```ts
-capabilityPrefix: 'cap:';
+capabilityPrefix: "cap:";
 ```
 
 ##### ids.resourcePrefix
 
 ```ts
-resourcePrefix: 'res:';
+resourcePrefix: "res:";
 ```
 
 ##### ids.schemaPrefix
 
 ```ts
-schemaPrefix: 'sch:';
+schemaPrefix: "sch:";
 ```
 
 #### limits
@@ -131,7 +131,7 @@ maxSchemaKB: number;
 ##### limits.policy
 
 ```ts
-policy: 'truncate' | 'error';
+policy: "truncate" | "error";
 ```
 
 #### namespace
@@ -178,7 +178,7 @@ sourcePath: string;
 version: 1;
 ```
 
----
+***
 
 ### php
 
@@ -188,7 +188,7 @@ php: IRPhpProject;
 
 The PHP project IR.
 
----
+***
 
 ### resources
 
@@ -198,7 +198,7 @@ resources: IRResource[];
 
 An array of resource IRs.
 
----
+***
 
 ### schemas
 
@@ -208,7 +208,7 @@ schemas: IRSchema[];
 
 An array of schema IRs.
 
----
+***
 
 ### adapterAudit?
 
@@ -218,7 +218,7 @@ optional adapterAudit: IRAdapterAudit;
 
 Optional: Adapter change audit trail.
 
----
+***
 
 ### bundler?
 
@@ -228,7 +228,7 @@ optional bundler: IRBundler;
 
 Bundler surface paths for UI assets.
 
----
+***
 
 ### diagnostics?
 
@@ -238,7 +238,7 @@ optional diagnostics: IRDiagnostic[];
 
 Optional: An array of diagnostic messages.
 
----
+***
 
 ### references?
 
@@ -248,7 +248,7 @@ optional references: IRReferenceSummary;
 
 Optional: Cross-reference summary for CI inspection.
 
----
+***
 
 ### ui?
 

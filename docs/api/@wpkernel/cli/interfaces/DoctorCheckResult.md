@@ -1,6 +1,6 @@
-[**@wpkernel/cli v0.12.3-beta.2**](../README.md)
+[**@wpkernel/cli v0.12.4-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/cli](../README.md) / DoctorCheckResult
 
@@ -16,7 +16,7 @@ Result from a doctor check.
 readonly key: string;
 ```
 
----
+***
 
 ### label
 
@@ -24,7 +24,7 @@ readonly key: string;
 readonly label: string;
 ```
 
----
+***
 
 ### message
 
@@ -32,7 +32,7 @@ readonly label: string;
 readonly message: string;
 ```
 
----
+***
 
 ### status
 

@@ -1,6 +1,6 @@
-[**@wpkernel/cli v0.12.3-beta.2**](../README.md)
+[**@wpkernel/cli v0.12.4-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/cli](../README.md) / LoadedWPKernelConfig
 
@@ -16,7 +16,7 @@ Result returned when loading and validating a wpk config file.
 config: WPKernelConfigV1;
 ```
 
----
+***
 
 ### configOrigin
 
@@ -24,7 +24,7 @@ config: WPKernelConfigV1;
 configOrigin: WPKConfigSource;
 ```
 
----
+***
 
 ### namespace
 
@@ -32,7 +32,7 @@ configOrigin: WPKConfigSource;
 namespace: string;
 ```
 
----
+***
 
 ### sourcePath
 

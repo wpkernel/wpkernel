@@ -1,6 +1,6 @@
-[**@wpkernel/wp-json-ast v0.12.3-beta.2**](../README.md)
+[**@wpkernel/wp-json-ast v0.12.4-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/wp-json-ast](../README.md) / buildPluginLoaderProgram
 
@@ -13,7 +13,7 @@ function buildPluginLoaderProgram(config): PhpProgram;
 Build the plugin loader program for a generated plugin.
 
 This orchestrates header, namespace guards, controller registration, UI wiring,
-and bootstrap hooks. Heavy lifting lives in loader/\* modules to keep this file concise.
+and bootstrap hooks. Heavy lifting lives in loader/* modules to keep this file concise.
 
 ## Parameters
 

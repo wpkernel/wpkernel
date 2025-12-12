@@ -1,6 +1,6 @@
-[**@wpkernel/cli v0.12.3-beta.2**](../README.md)
+[**@wpkernel/cli v0.12.4-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/cli](../README.md) / ConfirmPromptOptions
 
@@ -18,7 +18,7 @@ readonly message: string;
 
 The message to display to the user.
 
----
+***
 
 ### defaultValue?
 
@@ -28,7 +28,7 @@ readonly optional defaultValue: boolean;
 
 Optional: The default value if the user just presses Enter.
 
----
+***
 
 ### input?
 
@@ -38,7 +38,7 @@ readonly optional input: ReadableStream;
 
 Optional: The input stream to read from. Defaults to `process.stdin`.
 
----
+***
 
 ### output?
 

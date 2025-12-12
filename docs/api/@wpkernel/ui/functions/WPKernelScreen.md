@@ -1,6 +1,6 @@
-[**@wpkernel/ui v0.12.3-beta.2**](../README.md)
+[**@wpkernel/ui v0.12.4-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/ui](../README.md) / WPKernelScreen
 

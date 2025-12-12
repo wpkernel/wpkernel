@@ -1,6 +1,6 @@
-[**@wpkernel/core v0.12.3-beta.2**](../README.md)
+[**@wpkernel/core v0.12.4-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/core](../README.md) / NamespaceDetectionResult
 
@@ -22,7 +22,7 @@ namespace: string;
 
 The detected/resolved namespace
 
----
+***
 
 ### sanitized
 
@@ -32,12 +32,12 @@ sanitized: boolean;
 
 Whether the namespace was sanitized
 
----
+***
 
 ### source
 
 ```ts
-source:
+source: 
   | "explicit"
   | "build-define"
   | "env-define"
@@ -49,7 +49,7 @@ source:
 
 Source of the namespace
 
----
+***
 
 ### original?
 

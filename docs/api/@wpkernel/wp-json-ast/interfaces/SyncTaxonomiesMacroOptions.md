@@ -1,6 +1,6 @@
-[**@wpkernel/wp-json-ast v0.12.3-beta.2**](../README.md)
+[**@wpkernel/wp-json-ast v0.12.4-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/wp-json-ast](../README.md) / SyncTaxonomiesMacroOptions
 
@@ -21,10 +21,10 @@ readonly metadataKeys: MutationMetadataKeys;
 #### Inherited from
 
 ```ts
-MacroOptionsBase.metadataKeys;
+MacroOptionsBase.metadataKeys
 ```
 
----
+***
 
 ### pascalName
 
@@ -32,7 +32,7 @@ MacroOptionsBase.metadataKeys;
 readonly pascalName: string;
 ```
 
----
+***
 
 ### postId
 
@@ -40,7 +40,7 @@ readonly pascalName: string;
 readonly postId: MacroExpression;
 ```
 
----
+***
 
 ### resultVariable
 
@@ -48,7 +48,7 @@ readonly postId: MacroExpression;
 readonly resultVariable: MacroExpression;
 ```
 
----
+***
 
 ### requestVariable?
 

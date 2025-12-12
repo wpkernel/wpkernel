@@ -1,14 +1,13 @@
-[**@wpkernel/cli v0.12.3-beta.2**](../README.md)
+[**@wpkernel/cli v0.12.4-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/cli](../README.md) / PipelineExtensionHookOptions
 
 # Type Alias: PipelineExtensionHookOptions
 
 ```ts
-type PipelineExtensionHookOptions = CorePipelineExtensionHookOptions & lt;
-(PipelineContext, PipelineRunOptions, IRv1 & gt);
+type PipelineExtensionHookOptions = CorePipelineExtensionHookOptions&lt;PipelineContext, PipelineRunOptions, IRv1&gt;;
 ```
 
 Options passed to a pipeline extension hook.

@@ -1,18 +1,15 @@
-[**@wpkernel/cli v0.12.3-beta.2**](../README.md)
+[**@wpkernel/cli v0.12.4-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/cli](../README.md) / WpOptionStorage
 
 # Type Alias: WpOptionStorage
 
 ```ts
-type WpOptionStorage = Extract<
-	NonNullable<IRResource['storage']>,
-	{
-		mode: 'wp-option';
-	}
->;
+type WpOptionStorage = Extract&lt;NonNullable&lt;IRResource["storage"]&gt;, {
+  mode: "wp-option";
+}&gt;;
 ```
 
 WordPress Options storage configuration type.

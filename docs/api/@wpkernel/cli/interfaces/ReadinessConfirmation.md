@@ -1,10 +1,10 @@
-[**@wpkernel/cli v0.12.3-beta.2**](../README.md)
+[**@wpkernel/cli v0.12.4-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/cli](../README.md) / ReadinessConfirmation
 
-# Interface: ReadinessConfirmation<State>
+# Interface: ReadinessConfirmation&lt;State&gt;
 
 Result emitted by the confirm phase.
 
@@ -22,7 +22,7 @@ Result emitted by the confirm phase.
 readonly state: State;
 ```
 
----
+***
 
 ### status
 
@@ -30,7 +30,7 @@ readonly state: State;
 readonly status: ReadinessConfirmationStatus;
 ```
 
----
+***
 
 ### message?
 

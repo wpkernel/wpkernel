@@ -1,6 +1,6 @@
-[**@wpkernel/php-json-ast v0.12.3-beta.2**](../README.md)
+[**@wpkernel/php-json-ast v0.12.4-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/php-json-ast](../README.md) / PhpBuilderFactoryClassIntent
 
@@ -14,7 +14,7 @@
 readonly name: string;
 ```
 
----
+***
 
 ### docblock?
 
@@ -22,7 +22,7 @@ readonly name: string;
 readonly optional docblock: readonly string[];
 ```
 
----
+***
 
 ### extends?
 
@@ -30,7 +30,7 @@ readonly optional docblock: readonly string[];
 readonly optional extends: string | null;
 ```
 
----
+***
 
 ### implements?
 
@@ -38,7 +38,7 @@ readonly optional extends: string | null;
 readonly optional implements: readonly string[];
 ```
 
----
+***
 
 ### isAbstract?
 
@@ -46,7 +46,7 @@ readonly optional implements: readonly string[];
 readonly optional isAbstract: boolean;
 ```
 
----
+***
 
 ### isFinal?
 
@@ -54,7 +54,7 @@ readonly optional isAbstract: boolean;
 readonly optional isFinal: boolean;
 ```
 
----
+***
 
 ### methods?
 
@@ -62,7 +62,7 @@ readonly optional isFinal: boolean;
 readonly optional methods: readonly PhpBuilderFactoryMethodIntent[];
 ```
 
----
+***
 
 ### properties?
 

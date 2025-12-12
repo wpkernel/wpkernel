@@ -1,6 +1,6 @@
-[**@wpkernel/core v0.12.3-beta.2**](../README.md)
+[**@wpkernel/core v0.12.4-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/core](../README.md) / NamespaceDetectionOptions
 
@@ -22,7 +22,7 @@ optional explicit: string;
 
 Explicit namespace override
 
----
+***
 
 ### fallback?
 
@@ -35,10 +35,10 @@ Fallback namespace if detection fails
 #### Default
 
 ```ts
-'wpk';
+'wpk'
 ```
 
----
+***
 
 ### mode?
 
@@ -51,10 +51,10 @@ Detection mode - controls which methods are used
 #### Default
 
 ```ts
-'wp';
+'wp'
 ```
 
----
+***
 
 ### moduleId?
 
@@ -64,7 +64,7 @@ optional moduleId: string;
 
 Module ID for Script Modules (e.g., 'wpk/my-plugin' → 'my-plugin')
 
----
+***
 
 ### runtime?
 
@@ -77,10 +77,10 @@ Runtime context - affects availability of detection methods
 #### Default
 
 ```ts
-'auto'(detected);
+'auto' (detected)
 ```
 
----
+***
 
 ### validate?
 
@@ -93,5 +93,5 @@ Whether to validate the detected namespace
 #### Default
 
 ```ts
-true;
+true
 ```
