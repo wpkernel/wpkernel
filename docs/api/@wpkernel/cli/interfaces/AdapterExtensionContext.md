@@ -1,16 +1,16 @@
 [**@wpkernel/cli v0.12.5-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/cli](../README.md) / AdapterExtensionContext
 
-# Interface: AdapterExtensionContext<TConfigSurface, TIr>
+# Interface: AdapterExtensionContext&lt;TConfigSurface, TIr&gt;
 
 Execution context provided to adapter extensions.
 
 ## Extends
 
-- [`AdapterContext`](AdapterContext.md)<`TConfigSurface`, `TIr`>
+- [`AdapterContext`](AdapterContext.md)&lt;`TConfigSurface`, `TIr`&gt;
 
 ## Type Parameters
 
@@ -34,12 +34,12 @@ config: TConfigSurface;
 
 [`AdapterContext`](AdapterContext.md).[`config`](AdapterContext.md#config)
 
----
+***
 
 ### formatPhp()
 
 ```ts
-formatPhp: (filePath, contents) => Promise<string>;
+formatPhp: (filePath, contents) =&gt; Promise&lt;string&gt;;
 ```
 
 #### Parameters
@@ -54,14 +54,14 @@ formatPhp: (filePath, contents) => Promise<string>;
 
 #### Returns
 
-`Promise`<`string`>
+`Promise`&lt;`string`&gt;
 
----
+***
 
 ### formatTs()
 
 ```ts
-formatTs: (filePath, contents) => Promise<string>;
+formatTs: (filePath, contents) =&gt; Promise&lt;string&gt;;
 ```
 
 #### Parameters
@@ -76,9 +76,9 @@ formatTs: (filePath, contents) => Promise<string>;
 
 #### Returns
 
-`Promise`<`string`>
+`Promise`&lt;`string`&gt;
 
----
+***
 
 ### namespace
 
@@ -90,7 +90,7 @@ namespace: string;
 
 [`AdapterContext`](AdapterContext.md).[`namespace`](AdapterContext.md#namespace)
 
----
+***
 
 ### outputDir
 
@@ -98,12 +98,12 @@ namespace: string;
 outputDir: string;
 ```
 
----
+***
 
 ### queueFile()
 
 ```ts
-queueFile: (filePath, contents) => Promise<void>;
+queueFile: (filePath, contents) =&gt; Promise&lt;void&gt;;
 ```
 
 #### Parameters
@@ -118,9 +118,9 @@ queueFile: (filePath, contents) => Promise<void>;
 
 #### Returns
 
-`Promise`<`void`>
+`Promise`&lt;`void`&gt;
 
----
+***
 
 ### reporter
 
@@ -132,7 +132,7 @@ reporter: Reporter;
 
 [`AdapterContext`](AdapterContext.md).[`reporter`](AdapterContext.md#reporter)
 
----
+***
 
 ### tempDir
 
@@ -140,12 +140,12 @@ reporter: Reporter;
 tempDir: string;
 ```
 
----
+***
 
 ### updateIr()
 
 ```ts
-updateIr: (ir) => void;
+updateIr: (ir) =&gt; void;
 ```
 
 #### Parameters
@@ -158,7 +158,7 @@ updateIr: (ir) => void;
 
 `void`
 
----
+***
 
 ### configDirectory?
 
@@ -166,7 +166,7 @@ updateIr: (ir) => void;
 optional configDirectory: string;
 ```
 
----
+***
 
 ### ir?
 

@@ -1,10 +1,10 @@
 [**@wpkernel/wp-json-ast v0.12.5-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/wp-json-ast](../README.md) / ResourceStorageAccessors
 
-# Interface: ResourceStorageAccessors<TStorageKind>
+# Interface: ResourceStorageAccessors&lt;TStorageKind&gt;
 
 ## Extends
 
@@ -14,37 +14,37 @@
 
 ### TStorageKind
 
-`TStorageKind` _extends_ `string` = `string`
+`TStorageKind` *extends* `string` = `string`
 
 ## Properties
 
 ### caches
 
 ```ts
-readonly caches: readonly ResourceAccessorDescriptor<unknown>[];
+readonly caches: readonly ResourceAccessorDescriptor&lt;unknown&gt;[];
 ```
 
 #### Inherited from
 
 ```ts
-ResourceAccessorBuckets.caches;
+ResourceAccessorBuckets.caches
 ```
 
----
+***
 
 ### helpers
 
 ```ts
-readonly helpers: readonly ResourceAccessorDescriptor<unknown>[];
+readonly helpers: readonly ResourceAccessorDescriptor&lt;unknown&gt;[];
 ```
 
 #### Inherited from
 
 ```ts
-ResourceAccessorBuckets.helpers;
+ResourceAccessorBuckets.helpers
 ```
 
----
+***
 
 ### kind
 
@@ -52,7 +52,7 @@ ResourceAccessorBuckets.helpers;
 readonly kind: TStorageKind;
 ```
 
----
+***
 
 ### label
 
@@ -60,44 +60,44 @@ readonly kind: TStorageKind;
 readonly label: string;
 ```
 
----
+***
 
 ### mutations
 
 ```ts
-readonly mutations: readonly ResourceAccessorDescriptor<unknown>[];
+readonly mutations: readonly ResourceAccessorDescriptor&lt;unknown&gt;[];
 ```
 
 #### Inherited from
 
 ```ts
-ResourceAccessorBuckets.mutations;
+ResourceAccessorBuckets.mutations
 ```
 
----
+***
 
 ### queries
 
 ```ts
-readonly queries: readonly ResourceAccessorDescriptor<unknown>[];
+readonly queries: readonly ResourceAccessorDescriptor&lt;unknown&gt;[];
 ```
 
 #### Inherited from
 
 ```ts
-ResourceAccessorBuckets.queries;
+ResourceAccessorBuckets.queries
 ```
 
----
+***
 
 ### requests
 
 ```ts
-readonly requests: readonly ResourceAccessorDescriptor<unknown>[];
+readonly requests: readonly ResourceAccessorDescriptor&lt;unknown&gt;[];
 ```
 
 #### Inherited from
 
 ```ts
-ResourceAccessorBuckets.requests;
+ResourceAccessorBuckets.requests
 ```

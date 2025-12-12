@@ -1,13 +1,16 @@
 [**@wpkernel/php-json-ast v0.12.5-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/php-json-ast](../README.md) / buildParam
 
 # Function: buildParam()
 
 ```ts
-function buildParam(variable, options, attributes?): PhpParam;
+function buildParam(
+   variable, 
+   options, 
+   attributes?): PhpParam;
 ```
 
 Builds a PHP parameter node.
@@ -54,7 +57,7 @@ Optional configuration for the parameter (type, by reference, variadic, default 
 
 ### attributes?
 
-`Readonly`<`Record`<`string`, `unknown`>>
+`Readonly`&lt;`Record`&lt;`string`, `unknown`&gt;&gt;
 
 Optional attributes for the node.
 

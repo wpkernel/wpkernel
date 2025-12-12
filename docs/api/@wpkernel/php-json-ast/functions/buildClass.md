@@ -1,13 +1,16 @@
 [**@wpkernel/php-json-ast v0.12.5-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/php-json-ast](../README.md) / buildClass
 
 # Function: buildClass()
 
 ```ts
-function buildClass(name, options, attributes?): PhpStmtClass;
+function buildClass(
+   name, 
+   options, 
+   attributes?): PhpStmtClass;
 ```
 
 Builds a PHP class declaration statement node.
@@ -50,7 +53,7 @@ Optional configuration for the class (flags, extends, implements, statements, at
 
 ### attributes?
 
-`Readonly`<`Record`<`string`, `unknown`>>
+`Readonly`&lt;`Record`&lt;`string`, `unknown`&gt;&gt;
 
 Optional attributes for the node.
 

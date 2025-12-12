@@ -1,10 +1,10 @@
 [**@wpkernel/pipeline v0.12.5-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/pipeline](../README.md) / HelperDescriptor
 
-# Interface: HelperDescriptor<TKind>
+# Interface: HelperDescriptor&lt;TKind&gt;
 
 Base descriptor for a pipeline helper.
 
@@ -17,7 +17,7 @@ Base descriptor for a pipeline helper.
 
 ### TKind
 
-`TKind` _extends_ [`HelperKind`](../type-aliases/HelperKind.md) = [`HelperKind`](../type-aliases/HelperKind.md)
+`TKind` *extends* [`HelperKind`](../type-aliases/HelperKind.md) = [`HelperKind`](../type-aliases/HelperKind.md)
 
 ## Properties
 
@@ -27,7 +27,7 @@ Base descriptor for a pipeline helper.
 readonly dependsOn: readonly string[];
 ```
 
----
+***
 
 ### key
 
@@ -35,7 +35,7 @@ readonly dependsOn: readonly string[];
 readonly key: string;
 ```
 
----
+***
 
 ### kind
 
@@ -43,7 +43,7 @@ readonly key: string;
 readonly kind: TKind;
 ```
 
----
+***
 
 ### mode
 
@@ -51,7 +51,7 @@ readonly kind: TKind;
 readonly mode: HelperMode;
 ```
 
----
+***
 
 ### priority
 
@@ -59,7 +59,7 @@ readonly mode: HelperMode;
 readonly priority: number;
 ```
 
----
+***
 
 ### optional?
 
@@ -74,10 +74,10 @@ Useful for conditional/feature-flag helpers.
 #### Default Value
 
 ```ts
-false;
+false
 ```
 
----
+***
 
 ### origin?
 

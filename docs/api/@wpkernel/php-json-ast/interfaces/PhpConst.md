@@ -1,6 +1,6 @@
 [**@wpkernel/php-json-ast v0.12.5-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/php-json-ast](../README.md) / PhpConst
 
@@ -24,7 +24,7 @@ readonly attributes: PhpAttributes;
 
 [`PhpNode`](PhpNode.md).[`attributes`](PhpNode.md#attributes)
 
----
+***
 
 ### name
 
@@ -32,7 +32,7 @@ readonly attributes: PhpAttributes;
 readonly name: PhpIdentifier;
 ```
 
----
+***
 
 ### nodeType
 
@@ -44,7 +44,7 @@ readonly nodeType: "Const";
 
 [`PhpNode`](PhpNode.md).[`nodeType`](PhpNode.md#nodetype)
 
----
+***
 
 ### value
 

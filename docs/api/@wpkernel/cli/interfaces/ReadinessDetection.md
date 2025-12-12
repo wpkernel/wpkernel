@@ -1,10 +1,10 @@
 [**@wpkernel/cli v0.12.5-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/cli](../README.md) / ReadinessDetection
 
-# Interface: ReadinessDetection<State>
+# Interface: ReadinessDetection&lt;State&gt;
 
 Result produced by the detect phase for a readiness unit.
 
@@ -22,7 +22,7 @@ Result produced by the detect phase for a readiness unit.
 readonly state: State;
 ```
 
----
+***
 
 ### status
 
@@ -30,7 +30,7 @@ readonly state: State;
 readonly status: ReadinessStatus;
 ```
 
----
+***
 
 ### message?
 

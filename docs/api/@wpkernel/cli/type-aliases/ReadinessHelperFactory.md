@@ -1,16 +1,16 @@
 [**@wpkernel/cli v0.12.5-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/cli](../README.md) / ReadinessHelperFactory
 
 # Type Alias: ReadinessHelperFactory
 
 ```ts
-type ReadinessHelperFactory = (context) =>
+type ReadinessHelperFactory = (context) =&gt; 
   | void
   | ReadinessHelper
-| ReadonlyArray<ReadinessHelper>;
+| ReadonlyArray&lt;ReadinessHelper&gt;;
 ```
 
 ## Parameters
@@ -21,6 +21,6 @@ type ReadinessHelperFactory = (context) =>
 
 ## Returns
 
-\| `void`
-\| [`ReadinessHelper`](../interfaces/ReadinessHelper.md)
-\| `ReadonlyArray`<[`ReadinessHelper`](../interfaces/ReadinessHelper.md)>
+  \| `void`
+  \| [`ReadinessHelper`](../interfaces/ReadinessHelper.md)
+  \| `ReadonlyArray`&lt;[`ReadinessHelper`](../interfaces/ReadinessHelper.md)&gt;

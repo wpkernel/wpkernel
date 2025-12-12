@@ -1,6 +1,6 @@
 [**@wpkernel/core v0.12.5-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/core](../README.md) / InvalidateOptions
 
@@ -25,10 +25,10 @@ Whether to emit the cache.invalidated event
 #### Default
 
 ```ts
-true;
+true
 ```
 
----
+***
 
 ### namespace?
 
@@ -38,7 +38,7 @@ optional namespace: string;
 
 Optional namespace for logging context.
 
----
+***
 
 ### registry?
 
@@ -48,7 +48,7 @@ optional registry: WPKernelRegistry;
 
 Registry to operate against instead of relying on global getWPData().
 
----
+***
 
 ### reporter?
 
@@ -58,7 +58,7 @@ optional reporter: Reporter;
 
 Reporter override for cache instrumentation.
 
----
+***
 
 ### resourceName?
 
@@ -68,7 +68,7 @@ optional resourceName: string;
 
 Optional resource name for logging context.
 
----
+***
 
 ### storeKey?
 

@@ -1,15 +1,15 @@
 [**@wpkernel/ui v0.12.5-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/ui](../README.md) / useNextPagePrefetch
 
 # Function: useNextPagePrefetch()
 
 ```ts
-function useNextPagePrefetch<TRecord, TQuery>(
-   resource,
-   currentQuery,
+function useNextPagePrefetch&lt;TRecord, TQuery&gt;(
+   resource, 
+   currentQuery, 
    options): void;
 ```
 
@@ -23,13 +23,13 @@ Prefetches the next page of a paginated resource.
 
 ### TQuery
 
-`TQuery` _extends_ `Record`<`string`, `unknown`>
+`TQuery` *extends* `Record`&lt;`string`, `unknown`&gt;
 
 ## Parameters
 
 ### resource
 
-`ResourceObject`<`TRecord`, `TQuery`>
+`ResourceObject`&lt;`TRecord`, `TQuery`&gt;
 
 The resource to prefetch.
 
@@ -41,7 +41,7 @@ The current query.
 
 ### options
 
-[`NextPagePrefetchOptions`](../interfaces/NextPagePrefetchOptions.md)<`TQuery`> = `{}`
+[`NextPagePrefetchOptions`](../interfaces/NextPagePrefetchOptions.md)&lt;`TQuery`&gt; = `{}`
 
 Options for the hook.
 

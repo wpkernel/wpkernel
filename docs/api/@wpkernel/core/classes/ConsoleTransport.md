@@ -1,6 +1,6 @@
 [**@wpkernel/core v0.12.5-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/core](../README.md) / ConsoleTransport
 
@@ -34,7 +34,7 @@ new ConsoleTransport(level): ConsoleTransport;
 #### Overrides
 
 ```ts
-LoggerlessTransport.constructor;
+LoggerlessTransport.constructor
 ```
 
 ## Methods
@@ -60,5 +60,5 @@ Sends the log data to the logger for transport
 #### Overrides
 
 ```ts
-LoggerlessTransport.shipToLogger;
+LoggerlessTransport.shipToLogger
 ```

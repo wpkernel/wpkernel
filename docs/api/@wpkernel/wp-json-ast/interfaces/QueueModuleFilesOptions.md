@@ -1,16 +1,16 @@
 [**@wpkernel/wp-json-ast v0.12.5-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/wp-json-ast](../README.md) / QueueModuleFilesOptions
 
-# Interface: QueueModuleFilesOptions<TFile>
+# Interface: QueueModuleFilesOptions&lt;TFile&gt;
 
 ## Type Parameters
 
 ### TFile
 
-`TFile` _extends_ [`ProgramTargetFile`](ProgramTargetFile.md) = [`ProgramTargetFile`](ProgramTargetFile.md)
+`TFile` *extends* [`ProgramTargetFile`](ProgramTargetFile.md) = [`ProgramTargetFile`](ProgramTargetFile.md)
 
 ## Properties
 
@@ -20,7 +20,7 @@
 readonly files: readonly TFile[];
 ```
 
----
+***
 
 ### docblockPrefix?
 
@@ -28,12 +28,12 @@ readonly files: readonly TFile[];
 readonly optional docblockPrefix: readonly string[];
 ```
 
----
+***
 
 ### filter()?
 
 ```ts
-readonly optional filter: (file) => boolean;
+readonly optional filter: (file) =&gt; boolean;
 ```
 
 #### Parameters

@@ -1,10 +1,10 @@
 [**@wpkernel/wp-json-ast v0.12.5-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/wp-json-ast](../README.md) / CreateWpPhpProgramBuilderOptions
 
-# Interface: CreateWpPhpProgramBuilderOptions<TContext, TInput, TOutput>
+# Interface: CreateWpPhpProgramBuilderOptions&lt;TContext, TInput, TOutput&gt;
 
 Options for creating a WordPress PHP program builder.
 
@@ -19,7 +19,7 @@ const builder = createWpPhpProgramBuilder({
 		pluginName: 'my-plugin',
 		description: 'My plugin description.',
 	},
-	build: (builder) => {
+	build: (builder) =&gt; {
 		builder.appendProgramStatement(
 			buildReturn(
 				buildScalarString('Hello from my plugin!')
@@ -31,28 +31,28 @@ const builder = createWpPhpProgramBuilder({
 
 ## Extends
 
-- `Omit`<`BaseCreatePhpProgramBuilderOptions`<`TContext`, `TInput`, `TOutput`>, `"metadata"` \| `"build"`>
+- `Omit`&lt;`BaseCreatePhpProgramBuilderOptions`&lt;`TContext`, `TInput`, `TOutput`&gt;, `"metadata"` \| `"build"`&gt;
 
 ## Type Parameters
 
 ### TContext
 
-`TContext` _extends_ `PipelineContext` = `PipelineContext`
+`TContext` *extends* `PipelineContext` = `PipelineContext`
 
 ### TInput
 
-`TInput` _extends_ `BuilderInput` = `BuilderInput`
+`TInput` *extends* `BuilderInput` = `BuilderInput`
 
 ### TOutput
 
-`TOutput` _extends_ `BuilderOutput` = `BuilderOutput`
+`TOutput` *extends* `BuilderOutput` = `BuilderOutput`
 
 ## Properties
 
 ### build()
 
 ```ts
-readonly build: (builder, entry) => void | Promise<void>;
+readonly build: (builder, entry) =&gt; void | Promise&lt;void&gt;;
 ```
 
 The build function that constructs the PHP AST.
@@ -73,9 +73,9 @@ The PHP AST context entry.
 
 #### Returns
 
-`void` \| `Promise`<`void`>
+`void` \| `Promise`&lt;`void`&gt;
 
----
+***
 
 ### filePath
 
@@ -86,10 +86,10 @@ readonly filePath: string;
 #### Inherited from
 
 ```ts
-Omit.filePath;
+Omit.filePath
 ```
 
----
+***
 
 ### key
 
@@ -100,10 +100,10 @@ readonly key: string;
 #### Inherited from
 
 ```ts
-Omit.key;
+Omit.key
 ```
 
----
+***
 
 ### metadata
 
@@ -117,7 +117,7 @@ Metadata for the WordPress PHP file.
 
 WpPhpFileMetadata
 
----
+***
 
 ### namespace
 
@@ -128,10 +128,10 @@ readonly namespace: string;
 #### Inherited from
 
 ```ts
-Omit.namespace;
+Omit.namespace
 ```
 
----
+***
 
 ### dependsOn?
 
@@ -142,10 +142,10 @@ readonly optional dependsOn: readonly string[];
 #### Inherited from
 
 ```ts
-Omit.dependsOn;
+Omit.dependsOn
 ```
 
----
+***
 
 ### mode?
 
@@ -156,10 +156,10 @@ readonly optional mode: HelperMode;
 #### Inherited from
 
 ```ts
-Omit.mode;
+Omit.mode
 ```
 
----
+***
 
 ### origin?
 
@@ -170,10 +170,10 @@ readonly optional origin: string;
 #### Inherited from
 
 ```ts
-Omit.origin;
+Omit.origin
 ```
 
----
+***
 
 ### priority?
 
@@ -184,5 +184,5 @@ readonly optional priority: number;
 #### Inherited from
 
 ```ts
-Omit.priority;
+Omit.priority
 ```

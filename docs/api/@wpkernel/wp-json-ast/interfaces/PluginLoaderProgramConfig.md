@@ -1,6 +1,6 @@
 [**@wpkernel/wp-json-ast v0.12.5-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/wp-json-ast](../README.md) / PluginLoaderProgramConfig
 
@@ -14,7 +14,7 @@
 readonly namespace: string;
 ```
 
----
+***
 
 ### origin
 
@@ -22,7 +22,7 @@ readonly namespace: string;
 readonly origin: string;
 ```
 
----
+***
 
 ### phpGeneratedPath
 
@@ -30,7 +30,7 @@ readonly origin: string;
 readonly phpGeneratedPath: string;
 ```
 
----
+***
 
 ### plugin
 
@@ -38,7 +38,7 @@ readonly phpGeneratedPath: string;
 readonly plugin: PluginLoaderMeta;
 ```
 
----
+***
 
 ### resourceClassNames
 
@@ -46,7 +46,7 @@ readonly plugin: PluginLoaderMeta;
 readonly resourceClassNames: readonly string[];
 ```
 
----
+***
 
 ### sanitizedNamespace
 
@@ -54,7 +54,7 @@ readonly resourceClassNames: readonly string[];
 readonly sanitizedNamespace: string;
 ```
 
----
+***
 
 ### contentModel?
 
@@ -62,7 +62,7 @@ readonly sanitizedNamespace: string;
 readonly optional contentModel: PluginContentModelConfig;
 ```
 
----
+***
 
 ### ui?
 

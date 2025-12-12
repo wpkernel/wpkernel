@@ -1,6 +1,6 @@
 [**@wpkernel/test-utils v0.12.5-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/test-utils](../README.md) / loadTestLayoutSync
 
@@ -19,7 +19,7 @@ Mirrors the CLI test helper API.
 
 #### overrides?
 
-`Record`<`string`, `string`>
+`Record`&lt;`string`, `string`&gt;
 
 ## Returns
 

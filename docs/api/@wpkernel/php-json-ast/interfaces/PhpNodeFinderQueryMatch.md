@@ -1,6 +1,6 @@
 [**@wpkernel/php-json-ast v0.12.5-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/php-json-ast](../README.md) / PhpNodeFinderQueryMatch
 
@@ -11,10 +11,10 @@
 ### attributes
 
 ```ts
-readonly attributes: Readonly<Record<string, unknown>>;
+readonly attributes: Readonly&lt;Record&lt;string, unknown&gt;&gt;;
 ```
 
----
+***
 
 ### excerpt
 
@@ -22,10 +22,10 @@ readonly attributes: Readonly<Record<string, unknown>>;
 readonly excerpt: unknown;
 ```
 
----
+***
 
 ### summary
 
 ```ts
-readonly summary: Readonly<Record<string, unknown>>;
+readonly summary: Readonly&lt;Record&lt;string, unknown&gt;&gt;;
 ```

@@ -1,6 +1,6 @@
 [**@wpkernel/pipeline v0.12.5-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/pipeline](../README.md) / createPipelineRollback
 
@@ -19,7 +19,7 @@ and error handling. It's used by both helpers and extensions to declare cleanup 
 
 ### run
 
-() => `unknown`
+() =&gt; `unknown`
 
 The rollback function to execute
 
@@ -45,7 +45,7 @@ A rollback descriptor with the run function and metadata
 
 ```typescript
 const rollback = createPipelineRollback(
-  () => {
+  () =&gt; {
     cleanup();
   },
   {

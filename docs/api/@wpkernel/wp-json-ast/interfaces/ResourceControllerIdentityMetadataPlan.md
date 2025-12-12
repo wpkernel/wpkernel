@@ -1,6 +1,6 @@
 [**@wpkernel/wp-json-ast v0.12.5-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/wp-json-ast](../README.md) / ResourceControllerIdentityMetadataPlan
 
@@ -22,7 +22,7 @@ readonly param: string;
 
 [`ResourceControllerIdentityPlan`](ResourceControllerIdentityPlan.md).[`param`](ResourceControllerIdentityPlan.md#param)
 
----
+***
 
 ### type
 

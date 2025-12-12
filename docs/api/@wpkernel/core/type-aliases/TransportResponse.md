@@ -1,13 +1,13 @@
 [**@wpkernel/core v0.12.5-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/core](../README.md) / TransportResponse
 
-# Type Alias: TransportResponse<T>
+# Type Alias: TransportResponse&lt;T&gt;
 
 ```ts
-type TransportResponse<T> = object;
+type TransportResponse&lt;T&gt; = object;
 ```
 
 Response from transport.fetch()
@@ -28,18 +28,17 @@ data: T;
 
 Response data
 
----
+***
 
 ### headers
 
 ```ts
-headers: Record & lt;
-(string, string & gt);
+headers: Record&lt;string, string&gt;;
 ```
 
 Response headers
 
----
+***
 
 ### requestId
 
@@ -49,7 +48,7 @@ requestId: string;
 
 Request ID used for this request (for correlation)
 
----
+***
 
 ### status
 

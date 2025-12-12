@@ -1,6 +1,6 @@
 [**@wpkernel/ui v0.12.5-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/ui](../README.md) / useTaxonomyOptions
 
@@ -41,9 +41,9 @@ options: TaxonomyOption[];
 ### refresh()
 
 ```ts
-refresh: () => Promise<void>;
+refresh: () =&gt; Promise&lt;void&gt;;
 ```
 
 #### Returns
 
-`Promise`<`void`>
+`Promise`&lt;`void`&gt;

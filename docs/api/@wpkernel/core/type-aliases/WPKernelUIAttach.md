@@ -1,13 +1,13 @@
 [**@wpkernel/core v0.12.5-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/core](../README.md) / WPKernelUIAttach
 
 # Type Alias: WPKernelUIAttach
 
 ```ts
-type WPKernelUIAttach = (wpk, options?) => WPKernelUIRuntime;
+type WPKernelUIAttach = (wpk, options?) =&gt; WPKernelUIRuntime;
 ```
 
 ## Parameters

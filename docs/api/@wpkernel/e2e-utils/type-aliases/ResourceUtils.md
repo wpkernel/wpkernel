@@ -1,13 +1,13 @@
 [**@wpkernel/e2e-utils v0.12.5-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/e2e-utils](../README.md) / ResourceUtils
 
-# Type Alias: ResourceUtils<T>
+# Type Alias: ResourceUtils&lt;T&gt;
 
 ```ts
-type ResourceUtils<T> = object;
+type ResourceUtils&lt;T&gt; = object;
 ```
 
 Resource utilities for seeding and cleanup
@@ -23,7 +23,7 @@ Resource utilities for seeding and cleanup
 ### deleteAll()
 
 ```ts
-deleteAll: () => Promise<void>;
+deleteAll: () =&gt; Promise&lt;void&gt;;
 ```
 
 Delete all resources (cleanup utility)
@@ -31,14 +31,14 @@ WARNING: This will delete all resources of this type
 
 #### Returns
 
-`Promise`<`void`>
+`Promise`&lt;`void`&gt;
 
----
+***
 
 ### remove()
 
 ```ts
-remove: (id) => Promise<void>;
+remove: (id) =&gt; Promise&lt;void&gt;;
 ```
 
 Remove a single resource by ID
@@ -53,14 +53,14 @@ Resource ID to delete
 
 #### Returns
 
-`Promise`<`void`>
+`Promise`&lt;`void`&gt;
 
----
+***
 
 ### seed()
 
 ```ts
-seed: (data) => Promise<T & object>;
+seed: (data) =&gt; Promise&lt;T & object&gt;;
 ```
 
 Seed a single resource via REST API
@@ -69,22 +69,22 @@ Seed a single resource via REST API
 
 ##### data
 
-`Partial`<`T`>
+`Partial`&lt;`T`&gt;
 
 Resource data to create
 
 #### Returns
 
-`Promise`<`T` & `object`>
+`Promise`&lt;`T` & `object`&gt;
 
 Created resource with ID
 
----
+***
 
 ### seedMany()
 
 ```ts
-seedMany: (items) => Promise<T & object[]>;
+seedMany: (items) =&gt; Promise&lt;T & object[]&gt;;
 ```
 
 Seed multiple resources in bulk
@@ -93,12 +93,12 @@ Seed multiple resources in bulk
 
 ##### items
 
-`Partial`<`T`>[]
+`Partial`&lt;`T`&gt;[]
 
 Array of resource data to create
 
 #### Returns
 
-`Promise`<`T` & `object`[]>
+`Promise`&lt;`T` & `object`[]&gt;
 
 Array of created resources with IDs

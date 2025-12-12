@@ -1,10 +1,10 @@
 [**@wpkernel/pipeline v0.12.5-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/pipeline](../README.md) / ConflictDiagnostic
 
-# Interface: ConflictDiagnostic<TKind>
+# Interface: ConflictDiagnostic&lt;TKind&gt;
 
 Diagnostic for conflicting helper registrations.
 
@@ -12,7 +12,7 @@ Diagnostic for conflicting helper registrations.
 
 ### TKind
 
-`TKind` _extends_ [`HelperKind`](../type-aliases/HelperKind.md) = [`HelperKind`](../type-aliases/HelperKind.md)
+`TKind` *extends* [`HelperKind`](../type-aliases/HelperKind.md) = [`HelperKind`](../type-aliases/HelperKind.md)
 
 ## Properties
 
@@ -22,7 +22,7 @@ Diagnostic for conflicting helper registrations.
 readonly helpers: readonly string[];
 ```
 
----
+***
 
 ### key
 
@@ -30,7 +30,7 @@ readonly helpers: readonly string[];
 readonly key: string;
 ```
 
----
+***
 
 ### message
 
@@ -38,7 +38,7 @@ readonly key: string;
 readonly message: string;
 ```
 
----
+***
 
 ### mode
 
@@ -46,7 +46,7 @@ readonly message: string;
 readonly mode: HelperMode;
 ```
 
----
+***
 
 ### type
 
@@ -54,7 +54,7 @@ readonly mode: HelperMode;
 readonly type: "conflict";
 ```
 
----
+***
 
 ### kind?
 

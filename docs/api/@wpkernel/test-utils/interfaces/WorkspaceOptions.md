@@ -1,6 +1,6 @@
 [**@wpkernel/test-utils v0.12.5-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/test-utils](../README.md) / WorkspaceOptions
 
@@ -18,17 +18,17 @@ optional chdir: boolean;
 
 Whether to change the current working directory to the workspace.
 
----
+***
 
 ### files?
 
 ```ts
-optional files: Record<string, string | Buffer<ArrayBufferLike>>;
+optional files: Record&lt;string, string | Buffer&lt;ArrayBufferLike&gt;&gt;;
 ```
 
 A map of relative file paths to their content (string or Buffer).
 
----
+***
 
 ### prefix?
 
@@ -38,12 +38,12 @@ optional prefix: string;
 
 A prefix for the temporary directory name.
 
----
+***
 
 ### setup()?
 
 ```ts
-optional setup: (workspace) => void | Promise<void>;
+optional setup: (workspace) =&gt; void | Promise&lt;void&gt;;
 ```
 
 A setup function to run before the test.
@@ -56,14 +56,14 @@ A setup function to run before the test.
 
 #### Returns
 
-`void` \| `Promise`<`void`>
+`void` \| `Promise`&lt;`void`&gt;
 
----
+***
 
 ### teardown()?
 
 ```ts
-optional teardown: (workspace) => void | Promise<void>;
+optional teardown: (workspace) =&gt; void | Promise&lt;void&gt;;
 ```
 
 A teardown function to run after the test.
@@ -76,4 +76,4 @@ A teardown function to run after the test.
 
 #### Returns
 
-`void` \| `Promise`<`void`>
+`void` \| `Promise`&lt;`void`&gt;

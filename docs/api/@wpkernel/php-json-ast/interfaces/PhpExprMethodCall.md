@@ -1,12 +1,12 @@
 [**@wpkernel/php-json-ast v0.12.5-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/php-json-ast](../README.md) / PhpExprMethodCall
 
 # Interface: PhpExprMethodCall
 
-Represents a PHP method call expression (e.g., `$object->method()`).
+Represents a PHP method call expression (e.g., `$object-&gt;method()`).
 
 ## Extends
 
@@ -20,7 +20,7 @@ Represents a PHP method call expression (e.g., `$object->method()`).
 readonly args: PhpArg[];
 ```
 
----
+***
 
 ### attributes
 
@@ -32,17 +32,17 @@ readonly attributes: PhpAttributes;
 
 [`PhpExprBase`](PhpExprBase.md).[`attributes`](PhpExprBase.md#attributes)
 
----
+***
 
 ### name
 
 ```ts
-readonly name:
+readonly name: 
   | PhpExpr
   | PhpIdentifier;
 ```
 
----
+***
 
 ### nodeType
 
@@ -54,7 +54,7 @@ readonly nodeType: "Expr_MethodCall";
 
 [`PhpExprBase`](PhpExprBase.md).[`nodeType`](PhpExprBase.md#nodetype)
 
----
+***
 
 ### var
 

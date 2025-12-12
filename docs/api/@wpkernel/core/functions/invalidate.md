@@ -1,6 +1,6 @@
 [**@wpkernel/core v0.12.5-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/core](../README.md) / invalidate
 
@@ -45,8 +45,8 @@ invalidate(['thing', 'list', 'active']);
 
 // Invalidate across multiple resources
 invalidate([
-	['thing', 'list'],
-	['job', 'list'],
+  ['thing', 'list'],
+  ['job', 'list']
 ]);
 
 // Target specific store

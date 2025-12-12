@@ -1,6 +1,6 @@
 [**@wpkernel/cli v0.12.5-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/cli](../README.md) / WpPostRouteHelperState
 
@@ -16,7 +16,7 @@ keyed by resource name.
 ### bundles
 
 ```ts
-readonly bundles: Map<string, WpPostRouteBundle>;
+readonly bundles: Map&lt;string, WpPostRouteBundle&gt;;
 ```
 
 A map of resource names to their WP Post route bundles.

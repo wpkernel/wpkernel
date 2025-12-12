@@ -1,6 +1,6 @@
 [**@wpkernel/wp-json-ast v0.12.5-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/wp-json-ast](../README.md) / BaseIdentityGuardOptions
 
@@ -16,7 +16,7 @@
 ### errorCodeFactory()
 
 ```ts
-readonly errorCodeFactory: (suffix) => string;
+readonly errorCodeFactory: (suffix) =&gt; string;
 ```
 
 #### Parameters
@@ -29,7 +29,7 @@ readonly errorCodeFactory: (suffix) => string;
 
 `string`
 
----
+***
 
 ### pascalName
 

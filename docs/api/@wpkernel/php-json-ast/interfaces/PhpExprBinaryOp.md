@@ -1,6 +1,6 @@
 [**@wpkernel/php-json-ast v0.12.5-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/php-json-ast](../README.md) / PhpExprBinaryOp
 
@@ -24,7 +24,7 @@ readonly attributes: PhpAttributes;
 
 [`PhpExprBase`](PhpExprBase.md).[`attributes`](PhpExprBase.md#attributes)
 
----
+***
 
 ### left
 
@@ -32,7 +32,7 @@ readonly attributes: PhpAttributes;
 readonly left: PhpExpr;
 ```
 
----
+***
 
 ### nodeType
 
@@ -44,7 +44,7 @@ readonly nodeType: `Expr_BinaryOp_${string}`;
 
 [`PhpExprBase`](PhpExprBase.md).[`nodeType`](PhpExprBase.md#nodetype)
 
----
+***
 
 ### right
 

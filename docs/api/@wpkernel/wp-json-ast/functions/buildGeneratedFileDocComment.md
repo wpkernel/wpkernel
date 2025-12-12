@@ -1,6 +1,6 @@
 [**@wpkernel/wp-json-ast v0.12.5-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/wp-json-ast](../README.md) / buildGeneratedFileDocComment
 
@@ -16,7 +16,7 @@ Builds a doc comment for a generated file.
 
 ### extraLines
 
-`Iterable`<`string`>
+`Iterable`&lt;`string`&gt;
 
 Extra lines to add to the doc comment.
 

@@ -1,13 +1,13 @@
 [**@wpkernel/core v0.12.5-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/core](../README.md) / defineAction
 
 # Function: defineAction()
 
 ```ts
-function defineAction<TArgs, TResult>(config): DefinedAction<TArgs, TResult>;
+function defineAction&lt;TArgs, TResult&gt;(config): DefinedAction&lt;TArgs, TResult&gt;;
 ```
 
 Define a WPKernel action with lifecycle instrumentation and side-effect coordination.
@@ -20,7 +20,6 @@ they always route through actions.
 ## What Actions Do
 
 Every action execution automatically handles:
-
 - **Resource calls** - Perform the actual write operation via REST API
 - **Event emission** - Broadcast lifecycle events via `@wordpress/hooks` and BroadcastChannel
 - **Cache invalidation** - Keep UI fresh without manual work
@@ -35,10 +34,10 @@ Every action execution automatically handles:
 import { defineAction } from '@wpkernel/core/actions';
 import { testimonial } from '@/resources/testimonial';
 
-export const CreateTestimonial = defineAction<
+export const CreateTestimonial = defineAction&lt;
   { data: Testimonial },
   Testimonial
->('Testimonial.Create', async (ctx, { data }) => {
+&gt;('Testimonial.Create', async (ctx, { data }) =&gt; {
   // 1. Capability check
   ctx.capability.assert('testimonials.create');
 
@@ -70,7 +69,6 @@ Each invocation automatically emits three lifecycle hooks via `@wordpress/hooks`
 - **`wpk.action.error`** - On failure, includes normalized `WPKernelError` and duration
 
 These events enable:
-
 - Debugging (see exactly what actions ran and when)
 - Analytics (track action performance)
 - Cross-component coordination (react to writes elsewhere)
@@ -82,13 +80,13 @@ By default, actions are **cross-tab** - events broadcast to all open tabs via Br
 
 ```typescript
 // Default: events visible in all tabs
-defineAction('Post.Create', async (ctx, args) => { ... });
+defineAction('Post.Create', async (ctx, args) =&gt; { ... });
 
 // Explicit cross-tab
-defineAction('Post.Create', async (ctx, args) => { ... }, { scope: 'crossTab' });
+defineAction('Post.Create', async (ctx, args) =&gt; { ... }, { scope: 'crossTab' });
 
 // Tab-local: events stay in current tab only
-defineAction('UI.ToggleSidebar', async (ctx, args) => { ... }, { scope: 'tabLocal' });
+defineAction('UI.ToggleSidebar', async (ctx, args) =&gt; { ... }, { scope: 'tabLocal' });
 ```
 
 **Important**: Tab-local actions (`scope: 'tabLocal'`) **never bridge to PHP** even
@@ -100,10 +98,10 @@ Set `bridged: true` (default for cross-tab) to forward events to PHP via REST:
 
 ```typescript
 // Events bridge to PHP (default)
-defineAction('Post.Publish', async (ctx, args) => { ... });
+defineAction('Post.Publish', async (ctx, args) =&gt; { ... });
 
 // Disable PHP bridge
-defineAction('Post.Draft', async (ctx, args) => { ... }, { bridged: false });
+defineAction('Post.Draft', async (ctx, args) =&gt; { ... }, { bridged: false });
 ```
 
 ## Context Surface
@@ -123,14 +121,13 @@ The `ActionContext` (first parameter `ctx`) provides:
 ## Error Handling
 
 All errors are automatically normalized to `WPKernelError` instances with:
-
 - Consistent error codes
 - Action name and request ID in context
 - Preserved stack traces
 - Structured error data
 
 ```typescript
-defineAction('TestAction', async (ctx, args) => {
+defineAction('TestAction', async (ctx, args) =&gt; {
   throw new WPKernelError('DeveloperError', { message: 'Something broke' });
 });
 ```
@@ -155,10 +152,10 @@ Host applications can customize behavior via `global.__WP_KERNEL_ACTION_RUNTIME_
 
 ```typescript
 global.__WP_KERNEL_ACTION_RUNTIME__ = {
-	reporter: customLogger,
-	jobs: customJobRunner,
-	capability: customCapabilityEngine,
-	bridge: customPHPBridge,
+  reporter: customLogger,
+  jobs: customJobRunner,
+  capability: customCapabilityEngine,
+  bridge: customPHPBridge,
 };
 ```
 
@@ -183,13 +180,13 @@ Type of value returned by the action
 
 ### config
 
-[`ActionConfig`](../type-aliases/ActionConfig.md)<`TArgs`, `TResult`>
+[`ActionConfig`](../type-aliases/ActionConfig.md)&lt;`TArgs`, `TResult`&gt;
 
 Configuration describing the action.
 
 ## Returns
 
-[`DefinedAction`](../type-aliases/DefinedAction.md)<`TArgs`, `TResult`>
+[`DefinedAction`](../type-aliases/DefinedAction.md)&lt;`TArgs`, `TResult`&gt;
 
 Callable action function with metadata attached
 
@@ -203,7 +200,7 @@ DeveloperError if actionName is invalid or fn is not a function
 // Basic action
 export const CreatePost = defineAction(
   'Post.Create',
-  async (ctx, { title, content }) => {
+  async (ctx, { title, content }) =&gt; {
     const post = await postResource.create!({ title, content });
     ctx.invalidate(['post', 'list']);
     return post;
@@ -215,7 +212,7 @@ export const CreatePost = defineAction(
 // With full orchestration
 export const PublishPost = defineAction(
   'Post.Publish',
-  async (ctx, { id }) => {
+  async (ctx, { id }) =&gt; {
     ctx.capability.assert('posts.publish');
     const post = await postResource.update!({ id, status: 'publish' });
     ctx.emit(postResource.events.updated, { id, data: post });
@@ -231,7 +228,7 @@ export const PublishPost = defineAction(
 // Tab-local UI action
 export const ToggleSidebar = defineAction({
   name: 'UI.ToggleSidebar',
-  handler: async (ctx, { isOpen }) => {
+  handler: async (ctx, { isOpen }) =&gt; {
     // Events stay in this tab only
     ctx.emit('ui.sidebar.toggled', { isOpen });
     return { isOpen };
@@ -242,5 +239,5 @@ export const ToggleSidebar = defineAction({
 
 ## See
 
-- ActionContext interface for the full context API surface
-- middleware module for Redux integration
+ - ActionContext interface for the full context API surface
+ - middleware module for Redux integration

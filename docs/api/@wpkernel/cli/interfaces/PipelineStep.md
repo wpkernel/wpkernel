@@ -1,6 +1,6 @@
 [**@wpkernel/cli v0.12.5-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/cli](../README.md) / PipelineStep
 
@@ -24,7 +24,7 @@ readonly dependsOn: readonly string[];
 
 [`HelperDescriptor`](HelperDescriptor.md).[`dependsOn`](HelperDescriptor.md#dependson)
 
----
+***
 
 ### id
 
@@ -34,7 +34,7 @@ readonly id: string;
 
 A unique identifier for the step.
 
----
+***
 
 ### index
 
@@ -44,7 +44,7 @@ readonly index: number;
 
 The execution order of the step.
 
----
+***
 
 ### key
 
@@ -56,7 +56,7 @@ readonly key: string;
 
 [`HelperDescriptor`](HelperDescriptor.md).[`key`](HelperDescriptor.md#key)
 
----
+***
 
 ### kind
 
@@ -68,7 +68,7 @@ readonly kind: HelperKind;
 
 [`HelperDescriptor`](HelperDescriptor.md).[`kind`](HelperDescriptor.md#kind)
 
----
+***
 
 ### mode
 
@@ -80,7 +80,7 @@ readonly mode: HelperMode;
 
 [`HelperDescriptor`](HelperDescriptor.md).[`mode`](HelperDescriptor.md#mode)
 
----
+***
 
 ### priority
 
@@ -92,7 +92,7 @@ readonly priority: number;
 
 [`HelperDescriptor`](HelperDescriptor.md).[`priority`](HelperDescriptor.md#priority)
 
----
+***
 
 ### optional?
 
@@ -107,14 +107,14 @@ Useful for conditional/feature-flag helpers.
 #### Default Value
 
 ```ts
-false;
+false
 ```
 
 #### Inherited from
 
 [`HelperDescriptor`](HelperDescriptor.md).[`optional`](HelperDescriptor.md#optional)
 
----
+***
 
 ### origin?
 

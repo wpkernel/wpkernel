@@ -1,6 +1,6 @@
 [**@wpkernel/core v0.12.5-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/core](../README.md) / ResourceRoutes
 
@@ -36,7 +36,7 @@ optional create: ResourceRoute;
 
 Create a new resource
 
----
+***
 
 ### get?
 
@@ -46,7 +46,7 @@ optional get: ResourceRoute;
 
 Fetch a single resource by identifier
 
----
+***
 
 ### list?
 
@@ -56,7 +56,7 @@ optional list: ResourceRoute;
 
 Fetch a list/collection of resources
 
----
+***
 
 ### remove?
 
@@ -66,7 +66,7 @@ optional remove: ResourceRoute;
 
 Delete a resource
 
----
+***
 
 ### update?
 

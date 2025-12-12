@@ -1,6 +1,6 @@
 [**@wpkernel/php-json-ast v0.12.5-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/php-json-ast](../README.md) / PhpFileAst
 
@@ -18,7 +18,7 @@ type PhpFileAst = object;
 docblock: string[];
 ```
 
----
+***
 
 ### namespace
 
@@ -26,7 +26,7 @@ docblock: string[];
 namespace: string;
 ```
 
----
+***
 
 ### statements
 
@@ -34,7 +34,7 @@ namespace: string;
 statements: string[];
 ```
 
----
+***
 
 ### uses
 

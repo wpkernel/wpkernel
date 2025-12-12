@@ -1,6 +1,6 @@
 **@wpkernel/core v0.12.5-beta.0**
 
----
+***
 
 # @wpkernel/core v0.12.5-beta.0
 
@@ -173,15 +173,15 @@ import { fetch, defineResource, WPKernelError } from '@wpkernel/core';
 
 ## Variables
 
-- [ACTION_LIFECYCLE_PHASES](variables/ACTION_LIFECYCLE_PHASES.md)
+- [ACTION\_LIFECYCLE\_PHASES](variables/ACTION_LIFECYCLE_PHASES.md)
 - [getWPData](variables/getWPData.md)
 - [VERSION](variables/VERSION.md)
-- [WPK_CONFIG_SOURCES](variables/WPK_CONFIG_SOURCES.md)
-- [WPK_EVENTS](variables/WPK_EVENTS.md)
-- [WPK_EXIT_CODES](variables/WPK_EXIT_CODES.md)
-- [WPK_INFRASTRUCTURE](variables/WPK_INFRASTRUCTURE.md)
-- [WPK_NAMESPACE](variables/WPK_NAMESPACE.md)
-- [WPK_SUBSYSTEM_NAMESPACES](variables/WPK_SUBSYSTEM_NAMESPACES.md)
+- [WPK\_CONFIG\_SOURCES](variables/WPK_CONFIG_SOURCES.md)
+- [WPK\_EVENTS](variables/WPK_EVENTS.md)
+- [WPK\_EXIT\_CODES](variables/WPK_EXIT_CODES.md)
+- [WPK\_INFRASTRUCTURE](variables/WPK_INFRASTRUCTURE.md)
+- [WPK\_NAMESPACE](variables/WPK_NAMESPACE.md)
+- [WPK\_SUBSYSTEM\_NAMESPACES](variables/WPK_SUBSYSTEM_NAMESPACES.md)
 
 ## Functions
 

@@ -1,6 +1,6 @@
 **@wpkernel/test-utils v0.12.5-beta.0**
 
----
+***
 
 # @wpkernel/test-utils v0.12.5-beta.0
 

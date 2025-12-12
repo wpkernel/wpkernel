@@ -1,6 +1,6 @@
 [**@wpkernel/wp-json-ast v0.12.5-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/wp-json-ast](../README.md) / CapabilityHelperDefinitionMetadata
 
@@ -22,7 +22,7 @@ readonly appliesTo: "object" | "resource";
 
 The scope to which the capability applies.
 
----
+***
 
 ### capability
 
@@ -32,7 +32,7 @@ readonly capability: string;
 
 The name of the capability.
 
----
+***
 
 ### key
 
@@ -42,7 +42,7 @@ readonly key: string;
 
 The key of the capability.
 
----
+***
 
 ### source
 
@@ -52,7 +52,7 @@ readonly source: "map" | "fallback";
 
 The source of the capability definition.
 
----
+***
 
 ### binding?
 

@@ -1,13 +1,16 @@
 [**@wpkernel/php-json-ast v0.12.5-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/php-json-ast](../README.md) / buildDeclare
 
 # Function: buildDeclare()
 
 ```ts
-function buildDeclare(declares, options, attributes?): PhpStmtDeclare;
+function buildDeclare(
+   declares, 
+   options, 
+   attributes?): PhpStmtDeclare;
 ```
 
 Builds a PHP `declare` statement node.
@@ -30,7 +33,7 @@ Optional configuration for the declare statement (statements).
 
 ### attributes?
 
-`Readonly`<`Record`<`string`, `unknown`>>
+`Readonly`&lt;`Record`&lt;`string`, `unknown`&gt;&gt;
 
 Optional attributes for the node.
 

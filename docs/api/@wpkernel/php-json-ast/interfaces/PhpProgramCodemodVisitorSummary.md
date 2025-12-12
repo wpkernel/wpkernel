@@ -1,6 +1,6 @@
 [**@wpkernel/php-json-ast v0.12.5-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/php-json-ast](../README.md) / PhpProgramCodemodVisitorSummary
 
@@ -14,7 +14,7 @@
 readonly class: string;
 ```
 
----
+***
 
 ### key
 
@@ -22,7 +22,7 @@ readonly class: string;
 readonly key: string;
 ```
 
----
+***
 
 ### stackIndex
 
@@ -30,7 +30,7 @@ readonly key: string;
 readonly stackIndex: number;
 ```
 
----
+***
 
 ### stackKey
 
@@ -38,7 +38,7 @@ readonly stackIndex: number;
 readonly stackKey: string;
 ```
 
----
+***
 
 ### visitorIndex
 

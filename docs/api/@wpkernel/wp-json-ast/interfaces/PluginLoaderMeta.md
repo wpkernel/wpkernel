@@ -1,6 +1,6 @@
 [**@wpkernel/wp-json-ast v0.12.5-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/wp-json-ast](../README.md) / PluginLoaderMeta
 
@@ -14,7 +14,7 @@
 readonly author: string;
 ```
 
----
+***
 
 ### description
 
@@ -22,7 +22,7 @@ readonly author: string;
 readonly description: string;
 ```
 
----
+***
 
 ### license
 
@@ -30,7 +30,7 @@ readonly description: string;
 readonly license: string;
 ```
 
----
+***
 
 ### name
 
@@ -38,7 +38,7 @@ readonly license: string;
 readonly name: string;
 ```
 
----
+***
 
 ### requiresAtLeast
 
@@ -46,7 +46,7 @@ readonly name: string;
 readonly requiresAtLeast: string;
 ```
 
----
+***
 
 ### requiresPhp
 
@@ -54,7 +54,7 @@ readonly requiresAtLeast: string;
 readonly requiresPhp: string;
 ```
 
----
+***
 
 ### textDomain
 
@@ -62,7 +62,7 @@ readonly requiresPhp: string;
 readonly textDomain: string;
 ```
 
----
+***
 
 ### version
 
@@ -70,7 +70,7 @@ readonly textDomain: string;
 readonly version: string;
 ```
 
----
+***
 
 ### authorUri?
 
@@ -78,7 +78,7 @@ readonly version: string;
 readonly optional authorUri: string;
 ```
 
----
+***
 
 ### licenseUri?
 
@@ -86,7 +86,7 @@ readonly optional authorUri: string;
 readonly optional licenseUri: string;
 ```
 
----
+***
 
 ### pluginUri?
 

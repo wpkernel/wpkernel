@@ -1,10 +1,10 @@
 [**@wpkernel/cli v0.12.5-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/cli](../README.md) / PhpAdapterConfig
 
-# Interface: PhpAdapterConfig<TConfigSurface, TIr>
+# Interface: PhpAdapterConfig&lt;TConfigSurface, TIr&gt;
 
 Configuration returned by the PHP adapter factory.
 
@@ -26,7 +26,7 @@ Configuration returned by the PHP adapter factory.
 optional autoload: string;
 ```
 
----
+***
 
 ### codemods?
 
@@ -34,12 +34,12 @@ optional autoload: string;
 optional codemods: PhpCodemodAdapterConfig;
 ```
 
----
+***
 
 ### customise()?
 
 ```ts
-optional customise: (builder, context) => void;
+optional customise: (builder, context) =&gt; void;
 ```
 
 #### Parameters
@@ -50,13 +50,13 @@ optional customise: (builder, context) => void;
 
 ##### context
 
-[`AdapterExtensionContext`](AdapterExtensionContext.md)<`TConfigSurface`, `TIr`>
+[`AdapterExtensionContext`](AdapterExtensionContext.md)&lt;`TConfigSurface`, `TIr`&gt;
 
 #### Returns
 
 `void`
 
----
+***
 
 ### driver?
 
@@ -64,7 +64,7 @@ optional customise: (builder, context) => void;
 optional driver: PhpDriverConfigurationOptions;
 ```
 
----
+***
 
 ### namespace?
 

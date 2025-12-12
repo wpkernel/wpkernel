@@ -1,35 +1,35 @@
 [**@wpkernel/php-json-ast v0.12.5-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/php-json-ast](../README.md) / createPhpFileBuilder
 
 # Function: createPhpFileBuilder()
 
 ```ts
-function createPhpFileBuilder<TContext, TInput, TOutput>(options): BuilderHelper<TContext, TInput, TOutput>;
+function createPhpFileBuilder&lt;TContext, TInput, TOutput&gt;(options): BuilderHelper&lt;TContext, TInput, TOutput&gt;;
 ```
 
 ## Type Parameters
 
 ### TContext
 
-`TContext` _extends_ [`PipelineContext`](../interfaces/PipelineContext.md) = [`PipelineContext`](../interfaces/PipelineContext.md)
+`TContext` *extends* [`PipelineContext`](../interfaces/PipelineContext.md) = [`PipelineContext`](../interfaces/PipelineContext.md)
 
 ### TInput
 
-`TInput` _extends_ [`BuilderInput`](../interfaces/BuilderInput.md) = [`BuilderInput`](../interfaces/BuilderInput.md)
+`TInput` *extends* [`BuilderInput`](../interfaces/BuilderInput.md) = [`BuilderInput`](../interfaces/BuilderInput.md)
 
 ### TOutput
 
-`TOutput` _extends_ [`BuilderOutput`](../interfaces/BuilderOutput.md) = [`BuilderOutput`](../interfaces/BuilderOutput.md)
+`TOutput` *extends* [`BuilderOutput`](../interfaces/BuilderOutput.md) = [`BuilderOutput`](../interfaces/BuilderOutput.md)
 
 ## Parameters
 
 ### options
 
-[`CreatePhpFileBuilderOptions`](../interfaces/CreatePhpFileBuilderOptions.md)<`TContext`, `TInput`, `TOutput`>
+[`CreatePhpFileBuilderOptions`](../interfaces/CreatePhpFileBuilderOptions.md)&lt;`TContext`, `TInput`, `TOutput`&gt;
 
 ## Returns
 
-[`BuilderHelper`](../type-aliases/BuilderHelper.md)<`TContext`, `TInput`, `TOutput`>
+[`BuilderHelper`](../type-aliases/BuilderHelper.md)&lt;`TContext`, `TInput`, `TOutput`&gt;

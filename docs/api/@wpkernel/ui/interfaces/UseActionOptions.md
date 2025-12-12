@@ -1,10 +1,10 @@
 [**@wpkernel/ui v0.12.5-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/ui](../README.md) / UseActionOptions
 
-# Interface: UseActionOptions<TInput, TResult>
+# Interface: UseActionOptions&lt;TInput, TResult&gt;
 
 Options for the useAction hook.
 
@@ -23,7 +23,7 @@ Options for the useAction hook.
 ### autoInvalidate()?
 
 ```ts
-optional autoInvalidate: (result, input) => false | CacheKeyPattern[];
+optional autoInvalidate: (result, input) =&gt; false | CacheKeyPattern[];
 ```
 
 A function that returns a list of cache key patterns to invalidate on success.
@@ -48,7 +48,7 @@ The input to the action.
 
 A list of cache key patterns to invalidate, or false to skip invalidation.
 
----
+***
 
 ### concurrency?
 
@@ -63,12 +63,12 @@ The concurrency strategy to use.
 - `queue`: Queues all calls and runs them sequentially.
 - `drop`: Drops all new calls while one is running.
 
----
+***
 
 ### dedupeKey()?
 
 ```ts
-optional dedupeKey: (input) => string;
+optional dedupeKey: (input) =&gt; string;
 ```
 
 A function that returns a string to use for deduplicating requests.

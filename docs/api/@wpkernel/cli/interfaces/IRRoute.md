@@ -1,6 +1,6 @@
 [**@wpkernel/cli v0.12.5-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/cli](../README.md) / IRRoute
 
@@ -18,7 +18,7 @@ hash: IRHashProvenance;
 
 A hash of the route definition for change detection.
 
----
+***
 
 ### method
 
@@ -28,7 +28,7 @@ method: string;
 
 The HTTP method of the route (e.g., 'GET', 'POST').
 
----
+***
 
 ### path
 
@@ -38,7 +38,7 @@ path: string;
 
 The URL path of the route.
 
----
+***
 
 ### transport
 
@@ -48,7 +48,7 @@ transport: IRRouteTransport;
 
 The transport mechanism for the route (local or remote).
 
----
+***
 
 ### capability?
 

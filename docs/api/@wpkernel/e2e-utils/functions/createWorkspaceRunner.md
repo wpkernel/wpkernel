@@ -1,13 +1,13 @@
 [**@wpkernel/e2e-utils v0.12.5-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/e2e-utils](../README.md) / createWorkspaceRunner
 
 # Function: createWorkspaceRunner()
 
 ```ts
-function createWorkspaceRunner(defaultOptions): (run, overrides?) => Promise<void>;
+function createWorkspaceRunner(defaultOptions): (run, overrides?) =&gt; Promise&lt;void&gt;;
 ```
 
 Creates a workspace runner function with default options.
@@ -25,14 +25,14 @@ Default options to apply to all workspaces created by the runner.
 A function that takes a test function and optional overrides, and runs it within a workspace.
 
 ```ts
-(run, overrides?): Promise<void>;
+(run, overrides?): Promise&lt;void&gt;;
 ```
 
 ### Parameters
 
 #### run
 
-(`workspace`) => `Promise`<`void`>
+(`workspace`) =&gt; `Promise`&lt;`void`&gt;
 
 #### overrides?
 
@@ -40,4 +40,4 @@ A function that takes a test function and optional overrides, and runs it within
 
 ### Returns
 
-`Promise`<`void`>
+`Promise`&lt;`void`&gt;

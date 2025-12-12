@@ -1,29 +1,29 @@
 [**@wpkernel/wp-json-ast v0.12.5-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/wp-json-ast](../README.md) / PhpChannelHelpers
 
-# Interface: PhpChannelHelpers<TContext, TInput, TOutput>
+# Interface: PhpChannelHelpers&lt;TContext, TInput, TOutput&gt;
 
 ## Type Parameters
 
 ### TContext
 
-`TContext` _extends_ `PipelineContext` = `PipelineContext`
+`TContext` *extends* `PipelineContext` = `PipelineContext`
 
 ### TInput
 
-`TInput` _extends_ `BuilderInput` = `BuilderInput`
+`TInput` *extends* `BuilderInput` = `BuilderInput`
 
 ### TOutput
 
-`TOutput` _extends_ `BuilderOutput` = `BuilderOutput`
+`TOutput` *extends* `BuilderOutput` = `BuilderOutput`
 
 ## Properties
 
 ### channel
 
 ```ts
-readonly channel: BuilderHelper<TContext, TInput, TOutput>;
+readonly channel: BuilderHelper&lt;TContext, TInput, TOutput&gt;;
 ```

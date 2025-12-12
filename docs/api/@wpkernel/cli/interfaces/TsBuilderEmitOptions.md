@@ -1,6 +1,6 @@
 [**@wpkernel/cli v0.12.5-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/cli](../README.md) / TsBuilderEmitOptions
 
@@ -18,7 +18,7 @@ readonly filePath: string;
 
 The file path where the TypeScript file will be emitted.
 
----
+***
 
 ### sourceFile
 

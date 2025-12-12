@@ -1,13 +1,16 @@
 [**@wpkernel/php-json-ast v0.12.5-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/php-json-ast](../README.md) / buildNew
 
 # Function: buildNew()
 
 ```ts
-function buildNew(className, args, attributes?): PhpExprNew;
+function buildNew(
+   className, 
+   args, 
+   attributes?): PhpExprNew;
 ```
 
 Builds a PHP `new` expression node.
@@ -28,7 +31,7 @@ An array of `PhpArg` nodes representing the constructor arguments.
 
 ### attributes?
 
-`Readonly`<`Record`<`string`, `unknown`>>
+`Readonly`&lt;`Record`&lt;`string`, `unknown`&gt;&gt;
 
 Optional attributes for the node.
 

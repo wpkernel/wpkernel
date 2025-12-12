@@ -1,6 +1,6 @@
 [**@wpkernel/wp-json-ast v0.12.5-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/wp-json-ast](../README.md) / WpPostMetaQueryConfig
 
@@ -11,7 +11,7 @@
 ### meta?
 
 ```ts
-readonly optional meta:
-  | Record<string, WpPostMetaConfigEntry | null | undefined>
+readonly optional meta: 
+  | Record&lt;string, WpPostMetaConfigEntry | null | undefined&gt;
   | null;
 ```

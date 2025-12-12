@@ -1,6 +1,6 @@
 [**@wpkernel/php-json-ast v0.12.5-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/php-json-ast](../README.md) / PipelineContext
 
@@ -14,7 +14,7 @@
 readonly phase: PipelinePhase;
 ```
 
----
+***
 
 ### reporter
 
@@ -22,7 +22,7 @@ readonly phase: PipelinePhase;
 readonly reporter: Reporter;
 ```
 
----
+***
 
 ### workspace
 

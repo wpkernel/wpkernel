@@ -1,6 +1,6 @@
 [**@wpkernel/wp-json-ast v0.12.5-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/wp-json-ast](../README.md) / BuildTransientStorageArtifactsOptions
 
@@ -14,12 +14,12 @@
 readonly cacheSegments: readonly unknown[];
 ```
 
----
+***
 
 ### errorCodeFactory()
 
 ```ts
-readonly errorCodeFactory: (suffix) => string;
+readonly errorCodeFactory: (suffix) =&gt; string;
 ```
 
 #### Parameters
@@ -32,7 +32,7 @@ readonly errorCodeFactory: (suffix) => string;
 
 `string`
 
----
+***
 
 ### identity
 
@@ -40,7 +40,7 @@ readonly errorCodeFactory: (suffix) => string;
 readonly identity: ResolvedIdentity;
 ```
 
----
+***
 
 ### key
 
@@ -48,7 +48,7 @@ readonly identity: ResolvedIdentity;
 readonly key: string;
 ```
 
----
+***
 
 ### pascalName
 

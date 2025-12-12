@@ -1,27 +1,27 @@
 [**@wpkernel/core v0.12.5-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/core](../README.md) / ResourceStorageConfig
 
 # Type Alias: ResourceStorageConfig
 
 ```ts
-type ResourceStorageConfig =
+type ResourceStorageConfig = 
   | {
   mode: "transient";
 }
   | {
   mode: "wp-post";
-  meta?: Record<string, ResourcePostMetaDescriptor>;
+  meta?: Record&lt;string, ResourcePostMetaDescriptor&gt;;
   postType?: string;
   statuses?: string[];
   supports?: ("title" | "editor" | "excerpt" | "custom-fields")[];
-  taxonomies?: Record<string, {
+  taxonomies?: Record&lt;string, {
      taxonomy: string;
      hierarchical?: boolean;
      register?: boolean;
-  }>;
+  }&gt;;
 }
   | {
   mode: "wp-taxonomy";

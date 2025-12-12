@@ -1,13 +1,13 @@
 [**@wpkernel/php-json-ast v0.12.5-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/php-json-ast](../README.md) / consumePhpProgramIngestion
 
 # Function: consumePhpProgramIngestion()
 
 ```ts
-function consumePhpProgramIngestion(options): Promise<void>;
+function consumePhpProgramIngestion(options): Promise&lt;void&gt;;
 ```
 
 ## Parameters
@@ -18,4 +18,4 @@ function consumePhpProgramIngestion(options): Promise<void>;
 
 ## Returns
 
-`Promise`<`void`>
+`Promise`&lt;`void`&gt;

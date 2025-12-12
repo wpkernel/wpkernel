@@ -1,13 +1,16 @@
 [**@wpkernel/php-json-ast v0.12.5-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/php-json-ast](../README.md) / buildClassMethod
 
 # Function: buildClassMethod()
 
 ```ts
-function buildClassMethod(name, options, attributes?): PhpStmtClassMethod;
+function buildClassMethod(
+   name, 
+   options, 
+   attributes?): PhpStmtClassMethod;
 ```
 
 Builds a PHP class method declaration statement node.
@@ -50,7 +53,7 @@ Optional configuration for the method (by reference, flags, parameters, return t
 
 ### attributes?
 
-`Readonly`<`Record`<`string`, `unknown`>>
+`Readonly`&lt;`Record`&lt;`string`, `unknown`&gt;&gt;
 
 Optional attributes for the node.
 

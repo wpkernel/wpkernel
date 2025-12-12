@@ -1,6 +1,6 @@
 [**@wpkernel/core v0.12.5-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/core](../README.md) / ResourceErrorEvent
 
@@ -22,7 +22,7 @@ code: string;
 
 Error code
 
----
+***
 
 ### duration
 
@@ -32,7 +32,7 @@ duration: number;
 
 Duration in milliseconds
 
----
+***
 
 ### message
 
@@ -42,7 +42,7 @@ message: string;
 
 Error message
 
----
+***
 
 ### method
 
@@ -52,7 +52,7 @@ method: HttpMethod;
 
 HTTP method
 
----
+***
 
 ### path
 
@@ -62,7 +62,7 @@ path: string;
 
 Request path
 
----
+***
 
 ### requestId
 
@@ -72,7 +72,7 @@ requestId: string;
 
 Request ID for correlation
 
----
+***
 
 ### timestamp
 
@@ -82,7 +82,7 @@ timestamp: number;
 
 Timestamp when error occurred
 
----
+***
 
 ### status?
 

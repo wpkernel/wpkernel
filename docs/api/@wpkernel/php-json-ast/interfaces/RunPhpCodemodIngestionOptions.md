@@ -1,6 +1,6 @@
 [**@wpkernel/php-json-ast v0.12.5-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/php-json-ast](../README.md) / RunPhpCodemodIngestionOptions
 
@@ -14,7 +14,7 @@
 readonly files: readonly string[];
 ```
 
----
+***
 
 ### workspaceRoot
 
@@ -22,7 +22,7 @@ readonly files: readonly string[];
 readonly workspaceRoot: string;
 ```
 
----
+***
 
 ### autoloadPaths?
 
@@ -30,7 +30,7 @@ readonly workspaceRoot: string;
 readonly optional autoloadPaths: readonly string[];
 ```
 
----
+***
 
 ### configurationPath?
 
@@ -38,7 +38,7 @@ readonly optional autoloadPaths: readonly string[];
 readonly optional configurationPath: string;
 ```
 
----
+***
 
 ### enableDiagnostics?
 
@@ -46,7 +46,7 @@ readonly optional configurationPath: string;
 readonly optional enableDiagnostics: boolean;
 ```
 
----
+***
 
 ### importMetaUrl?
 
@@ -54,7 +54,7 @@ readonly optional enableDiagnostics: boolean;
 readonly optional importMetaUrl: string;
 ```
 
----
+***
 
 ### phpBinary?
 
@@ -62,7 +62,7 @@ readonly optional importMetaUrl: string;
 readonly optional phpBinary: string;
 ```
 
----
+***
 
 ### scriptPath?
 

@@ -1,13 +1,13 @@
 [**@wpkernel/test-utils v0.12.5-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/test-utils](../README.md) / withWorkspace
 
 # Function: withWorkspace()
 
 ```ts
-function withWorkspace(run, options): Promise<void>;
+function withWorkspace(run, options): Promise&lt;void&gt;;
 ```
 
 Creates and manages a temporary workspace for integration tests.
@@ -16,7 +16,7 @@ Creates and manages a temporary workspace for integration tests.
 
 ### run
 
-(`workspace`) => `Promise`<`void`>
+(`workspace`) =&gt; `Promise`&lt;`void`&gt;
 
 The test function to execute within the workspace. It receives the workspace path as an argument.
 
@@ -28,6 +28,6 @@ Configuration options for the workspace.
 
 ## Returns
 
-`Promise`<`void`>
+`Promise`&lt;`void`&gt;
 
 A Promise that resolves when the test and cleanup are complete.
