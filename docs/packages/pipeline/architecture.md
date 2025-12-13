@@ -10,8 +10,8 @@ It is **NOT** opinionated about what your helpers do. It does **NOT** enforce a 
 
 The codebase is organized into two primary modules to separate concerns:
 
-1.  **Core (`src/core`)**: Contains the pure DAG runner, dependency resolution logic (`dependency-graph.ts`), and extension orchestration (`extensions.ts`). It knows nothing about "Fragments" or "Builders" - only generic "Helpers" and "Stages".
-2.  **Standard Pipeline (`src/standard-pipeline`)**: Implements the specific "Fragment → Builder" pattern used by WPKernel CLI. It consumes `core` primitives to build the standard execution program (`createPipeline`, `makePipeline`).
+1.  **Core (`src/core/runner`)**: Contains the pure DAG runner, dependency resolution logic (`src/core/dependency-graph.ts`), and extension orchestration (`src/core/extensions`). It knows nothing about "Fragments" or "Builders" - only generic "Helpers" and "Stages".
+2.  **Standard Pipeline (`src/standard-pipeline`)**: Implements the specific "Fragment → Builder" pattern used by WPKernel CLI. It consumes `core` primitives to build the standard execution program (via `createPipeline`).
 
 ## Core Concepts
 

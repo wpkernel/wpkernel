@@ -3,7 +3,7 @@ export * from './createExtension.js';
 export * from './dependency-graph.js';
 export * from './error-factory.js';
 export * from './executor.js';
-export * from './extensions.js';
+export * from './extensions/index.js';
 export * from './helper.js';
 export * from './registration.js';
 export * from './rollback.js';

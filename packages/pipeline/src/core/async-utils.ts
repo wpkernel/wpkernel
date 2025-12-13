@@ -35,6 +35,10 @@ export function maybeThen<T, TResult>(
 	value: MaybePromise<T>,
 	onFulfilled: (value: T) => MaybePromise<TResult>
 ): MaybePromise<TResult> {
+	if (typeof onFulfilled !== 'function') {
+		throw new TypeError('maybeThen: onFulfilled is not a function');
+	}
+
 	if (isPromiseLike(value)) {
 		return Promise.resolve(value).then(onFulfilled);
 	}

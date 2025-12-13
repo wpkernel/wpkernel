@@ -23,6 +23,7 @@ import type { MaybePromise } from '@wpkernel/pipeline';
 import { resolveNamespaceAndName } from './namespace';
 import { resolveResourceReporter } from './reporter';
 import type { NormalizedResourceConfig } from './buildResourceObject';
+import { validateConfig } from './validation';
 
 function isPromiseLike<T>(value: unknown): value is PromiseLike<T> {
 	return (
@@ -156,6 +157,7 @@ export function defineResource<
 	InferResourceDefinition<Config>['query'],
 	InferResourceDefinition<Config>['routes']
 >;
+
 export function defineResource<
 	T = unknown,
 	TQuery = unknown,
@@ -169,6 +171,8 @@ export function defineResource<
 				'defineResource requires a configuration object with "name" and "routes".',
 		});
 	}
+
+	validateConfig(config);
 
 	if (!config.name || typeof config.name !== 'string') {
 		throw new WPKernelError('DeveloperError', {

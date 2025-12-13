@@ -1,6 +1,8 @@
-# @wpkernel/pipeline for Framework Contributors
+# @wpkernel/pipeline for Framework Contributors (Standard Pipeline)
 
 ## Overview
+
+> **Note**: This guide focuses on the **Standard Pipeline** implementation (Fragments & Builders) used by WPKernel CLI. For custom architectures using the Core Runner, see the [Architecture Guide](../../docs/packages/pipeline/architecture.md).
 
 Framework contributors extend the pipeline along the **standard WPK model**:
 

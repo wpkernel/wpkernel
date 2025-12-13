@@ -29,15 +29,15 @@ import type { MaybePromise } from '../types';
  * @category Pipeline
  * @internal
  */
-export function initExtensionCoordinator<TContext, TOptions, TArtifact>(
+export function initExtensionCoordinator<TContext, TOptions, TUserState>(
 	onRollbackError: (
-		event: ExtensionRollbackEvent<TContext, TOptions, TArtifact>
+		event: ExtensionRollbackEvent<TContext, TOptions, TUserState>
 	) => void
-): ExtensionCoordinator<TContext, TOptions, TArtifact> {
+): ExtensionCoordinator<TContext, TOptions, TUserState> {
 	const runLifecycle: ExtensionCoordinator<
 		TContext,
 		TOptions,
-		TArtifact
+		TUserState
 	>['runLifecycle'] = (lifecycle, { hooks, hookOptions }) => {
 		const lifecycleHooks = hooks.filter(
 			(entry) => entry.lifecycle === lifecycle
@@ -67,7 +67,7 @@ export function initExtensionCoordinator<TContext, TOptions, TArtifact>(
 				}) satisfies ExtensionLifecycleState<
 					TContext,
 					TOptions,
-					TArtifact
+					TUserState
 				>
 		);
 	};
@@ -75,10 +75,10 @@ export function initExtensionCoordinator<TContext, TOptions, TArtifact>(
 	const createRollbackHandler: ExtensionCoordinator<
 		TContext,
 		TOptions,
-		TArtifact
+		TUserState
 	>['createRollbackHandler'] =
 		<TResult>(
-			state: ExtensionLifecycleState<TContext, TOptions, TArtifact>
+			state: ExtensionLifecycleState<TContext, TOptions, TUserState>
 		) =>
 		(error: unknown): MaybePromise<TResult> =>
 			maybeThen(
@@ -103,7 +103,7 @@ export function initExtensionCoordinator<TContext, TOptions, TArtifact>(
 	const commit: ExtensionCoordinator<
 		TContext,
 		TOptions,
-		TArtifact
+		TUserState
 	>['commit'] = (state) => commitExtensionResults(state.results);
 
 	return {
@@ -111,7 +111,7 @@ export function initExtensionCoordinator<TContext, TOptions, TArtifact>(
 		createRollbackHandler,
 		commit,
 		handleRollbackError: onRollbackError,
-	} satisfies ExtensionCoordinator<TContext, TOptions, TArtifact>;
+	} satisfies ExtensionCoordinator<TContext, TOptions, TUserState>;
 }
 
 export type {

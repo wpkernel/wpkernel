@@ -1,10 +1,7 @@
 // Main API exports
 export { createHelper } from './core/helper';
 export { createPipeline } from './standard-pipeline/createPipeline';
-export {
-	makePipeline,
-	type MakePipelineArgs,
-} from './standard-pipeline/makePipeline';
+export { makePipeline } from './core/makePipeline';
 export { createPipelineExtension } from './core/createExtension';
 export type { CreatePipelineExtensionOptions } from './core/createExtension';
 export { executeHelpers } from './core/executor';
@@ -27,8 +24,6 @@ export type {
 // Type exports (all types consumers need)
 export type {
 	// Core pipeline types
-	Pipeline,
-	CreatePipelineOptions,
 	PipelineReporter,
 	PipelineExtension,
 	PipelineExtensionHook,
@@ -56,10 +51,15 @@ export type {
 	PipelineStep,
 	PipelineRunState,
 	HelperExecutionSnapshot,
-	PipelineExecutionMetadata,
-	FragmentFinalizationMetadata,
 	PipelineExtensionRollbackErrorMetadata,
 } from './core/types';
+
+export type {
+	Pipeline,
+	CreatePipelineOptions,
+	PipelineExecutionMetadata,
+	FragmentFinalizationMetadata,
+} from './standard-pipeline/types';
 
 // Re-export dependency graph utilities for advanced use cases
 export type {
@@ -71,10 +71,9 @@ export { createHelperId, compareHelpers } from './core/dependency-graph';
 // Advanced Pipeline construction (for custom architectures)
 export type {
 	PipelineStage,
-	DefaultStageDeps,
 	Halt,
-	PipelineRunContext,
-} from './core/internal/pipeline-runner.types';
+	AgnosticRunContext as PipelineRunContext,
+} from './core/runner/types';
 
 // Re-export async utilities for helper authors
 export {

@@ -1,54 +1,12 @@
 import type {
-	CreatePipelineOptions,
 	Helper,
 	HelperKind,
-	Pipeline,
 	PipelineDiagnostic,
 	PipelineReporter,
 	PipelineRunState,
 } from '../core/types';
-import { makePipeline, type MakePipelineArgs } from './makePipeline';
-
-/**
- * Creates a pipeline orchestrator-the execution engine that powers WPKernel's code generation stack.
- *
- * The pipeline coordinates helper registration, dependency resolution, execution, diagnostics, and
- * extension hooks. Refer to the package README for a full walkthrough and advanced usage examples.
- *
- * @example
- * ```ts
- * const pipeline = createPipeline({
- *   fragmentKind: 'fragment',
- *   builderKind: 'builder',
- *   createContext: () => ({ reporter }),
- *   createFragmentState: () => ({}),
- *   finalizeFragmentState: ({ draft }) => draft,
- *   createRunResult: ({ artifact, diagnostics }) => ({ artifact, diagnostics }),
- *   createBuildOptions: () => ({}),
- *   createFragmentArgs: ({ helper, draft, context }) => ({
- *     helper,
- *     context,
- *     options: {},
- *     buildOptions: {},
- *     draft,
- *   }),
- *   createBuilderArgs: ({ helper, artifact, context }) => ({
- *     helper,
- *     context,
- *     options: {},
- *     buildOptions: {},
- *     artifact,
- *   }),
- * });
- *
- * pipeline.ir.use(createHelper({...}));
- * pipeline.extensions.use(createPipelineExtension({ key: 'acme.audit' }));
- * const result = await pipeline.run({});
- * console.log(result.diagnostics.length);
- * ```
- *
- * @category Pipeline
- */
+import type { CreatePipelineOptions, Pipeline } from './types';
+import { createStandardPipeline } from './runner';
 
 export function createPipeline<
 	TRunOptions,
@@ -127,41 +85,5 @@ export function createPipeline<
 	TFragmentHelper,
 	TBuilderHelper
 > {
-	return makePipeline<
-		TRunOptions,
-		TReporter,
-		TContext,
-		TArtifact,
-		TDiagnostic,
-		TRunResult,
-		TBuildOptions,
-		TDraft,
-		TFragmentInput,
-		TFragmentOutput,
-		TBuilderInput,
-		TBuilderOutput,
-		TFragmentKind,
-		TBuilderKind,
-		TFragmentHelper,
-		TBuilderHelper
-	>(
-		options as MakePipelineArgs<
-			TRunOptions,
-			TReporter,
-			TContext,
-			TArtifact,
-			TDiagnostic,
-			TRunResult,
-			TBuildOptions,
-			TDraft,
-			TFragmentInput,
-			TFragmentOutput,
-			TBuilderInput,
-			TBuilderOutput,
-			TFragmentKind,
-			TBuilderKind,
-			TFragmentHelper,
-			TBuilderHelper
-		>
-	);
+	return createStandardPipeline(options);
 }

@@ -7,10 +7,10 @@ import type { PipelineRollback } from './rollback.js';
 export type MaybePromise<T> = T | Promise<T>;
 
 /**
- * Helper kind identifier - can be 'fragment', 'builder', or any custom string.
+ * Helper kind identifier.
  * @public
  */
-export type HelperKind = 'fragment' | 'builder' | (string & {});
+export type HelperKind = string;
 
 /**
  * Helper execution mode - determines how it integrates with existing helpers.
@@ -239,38 +239,10 @@ export interface HelperExecutionSnapshot<
 }
 
 /**
- * Metadata from fragment helper execution.
- * @public
- */
-export interface FragmentFinalizationMetadata<
-	TFragmentKind extends HelperKind = HelperKind,
-> {
-	readonly fragments: HelperExecutionSnapshot<TFragmentKind>;
-}
-
-/**
- * Complete execution metadata for all helper phases.
- * @public
- */
-export interface PipelineExecutionMetadata<
-	TFragmentKind extends HelperKind = HelperKind,
-	TBuilderKind extends HelperKind = HelperKind,
-> extends FragmentFinalizationMetadata<TFragmentKind> {
-	readonly builders: HelperExecutionSnapshot<TBuilderKind>;
-}
-
-/**
  * Options passed to pipeline extension hooks.
  * @public
  */
-export type PipelineExtensionLifecycle =
-	| 'prepare'
-	| 'before-fragments'
-	| 'after-fragments'
-	| 'before-builders'
-	| 'after-builders'
-	| 'finalize'
-	| (string & {});
+export type PipelineExtensionLifecycle = string;
 
 export interface PipelineExtensionHookOptions<TContext, TOptions, TArtifact> {
 	readonly context: TContext;
@@ -339,123 +311,79 @@ export type PipelineExtensionRegisterOutput<TContext, TOptions, TArtifact> =
 	| void
 	| PipelineExtensionHook<TContext, TOptions, TArtifact>
 	| PipelineExtensionHookRegistration<TContext, TOptions, TArtifact>;
-
 /**
- * Options for creating a pipeline.
+ * Options for creating an agnostic core pipeline.
+ *
+ * Checks strict standard concepts like "fragment" and "builder" at the door,
+ * allowing purely configuration-driven helper kinds.
+ *
  * @public
  */
-export interface CreatePipelineOptions<
+
+export interface AgnosticPipelineOptions<
 	TRunOptions,
-	TBuildOptions,
 	TContext extends { reporter: TReporter },
 	TReporter extends PipelineReporter = PipelineReporter,
-	TDraft = unknown,
-	TArtifact = unknown,
+	TUserState = unknown,
 	TDiagnostic extends PipelineDiagnostic = PipelineDiagnostic,
-	TRunResult = PipelineRunState<TArtifact, TDiagnostic>,
-	TFragmentInput = unknown,
-	TFragmentOutput = unknown,
-	TBuilderInput = unknown,
-	TBuilderOutput = unknown,
-	TFragmentKind extends HelperKind = 'fragment',
-	TBuilderKind extends HelperKind = 'builder',
-	TFragmentHelper extends Helper<
-		TContext,
-		TFragmentInput,
-		TFragmentOutput,
-		TReporter,
-		TFragmentKind
-	> = Helper<
-		TContext,
-		TFragmentInput,
-		TFragmentOutput,
-		TReporter,
-		TFragmentKind
-	>,
-	TBuilderHelper extends Helper<
-		TContext,
-		TBuilderInput,
-		TBuilderOutput,
-		TReporter,
-		TBuilderKind
-	> = Helper<
-		TContext,
-		TBuilderInput,
-		TBuilderOutput,
-		TReporter,
-		TBuilderKind
-	>,
+	TRunResult = PipelineRunState<TUserState, TDiagnostic>,
 > {
-	readonly fragmentKind?: TFragmentKind;
-	readonly builderKind?: TBuilderKind;
-	readonly createError?: (code: string, message: string) => Error;
-	readonly createBuildOptions: (options: TRunOptions) => TBuildOptions;
+	/**
+	 * List of helper kinds to manage registered helpers for.
+	 */
+	readonly helperKinds: readonly string[];
+
+	/**
+	 * Map of helper keys that should be treated as "already satisfied" for dependency resolution.
+	 * Keys are grouped by helper kind.
+	 */
+	readonly providedKeys?: Record<string, readonly string[]>;
+
+	readonly extensions?: {
+		readonly lifecycles?: readonly string[];
+	};
+
 	readonly createContext: (options: TRunOptions) => TContext;
-	readonly createFragmentState: (options: {
-		readonly options: TRunOptions;
+	readonly createError?: (code: string, message: string) => Error;
+
+	/**
+	 * Factory for initial state.
+	 * Consumers can seed the state with arbitrary data needed by their stages.
+	 */
+	readonly createInitialState?: (options: {
 		readonly context: TContext;
-		readonly buildOptions: TBuildOptions;
-	}) => TDraft;
-	readonly createFragmentArgs: (options: {
-		readonly helper: TFragmentHelper;
 		readonly options: TRunOptions;
-		readonly context: TContext;
-		readonly buildOptions: TBuildOptions;
-		readonly draft: TDraft;
-	}) => HelperApplyOptions<
-		TContext,
-		TFragmentInput,
-		TFragmentOutput,
-		TReporter
-	>;
-	readonly finalizeFragmentState: (options: {
-		readonly draft: TDraft;
-		readonly options: TRunOptions;
-		readonly context: TContext;
-		readonly buildOptions: TBuildOptions;
-		readonly helpers: FragmentFinalizationMetadata<TFragmentKind>;
-	}) => TArtifact;
-	readonly createBuilderArgs: (options: {
-		readonly helper: TBuilderHelper;
-		readonly options: TRunOptions;
-		readonly context: TContext;
-		readonly buildOptions: TBuildOptions;
-		readonly artifact: TArtifact;
-	}) => HelperApplyOptions<
-		TContext,
-		TBuilderInput,
-		TBuilderOutput,
-		TReporter
-	>;
+	}) => Record<string, unknown>;
+
+	/**
+	 * Factory for pipeline stages.
+	 * If provided, this overrides the default agnostic stage composition.
+	 * Use this to reinstate standard pipeline behaviors or implement custom flows.
+	 */
+	readonly createStages?: (
+		deps: unknown // We use unknown here to avoid circular imports. Consumers should cast to AgnosticStageDeps.
+	) => unknown[];
+
+	/**
+	 * Adapts the generic run result (state) into the desired TRunResult.
+	 */
 	readonly createRunResult?: (options: {
-		readonly artifact: TArtifact;
+		readonly artifact: TUserState;
 		readonly diagnostics: readonly TDiagnostic[];
 		readonly steps: readonly PipelineStep[];
 		readonly context: TContext;
-		readonly buildOptions: TBuildOptions;
 		readonly options: TRunOptions;
-		readonly helpers: PipelineExecutionMetadata<
-			TFragmentKind,
-			TBuilderKind
-		>;
+		readonly state: Record<string, unknown>; // Access to full state for custom extraction
 	}) => TRunResult;
+
 	/**
-	 * Optional hook invoked whenever a diagnostic is emitted during a run.
-	 *
-	 * Consumers can stream diagnostics to logs or UI shells while the
-	 * pipeline executes instead of waiting for the final run result.
+	 * Callback for observing diagnostics as they are added.
 	 */
 	readonly onDiagnostic?: (options: {
 		readonly reporter: TReporter;
 		readonly diagnostic: TDiagnostic;
 	}) => void;
-	readonly createExtensionHookOptions?: (options: {
-		readonly context: TContext;
-		readonly options: TRunOptions;
-		readonly buildOptions: TBuildOptions;
-		readonly artifact: TArtifact;
-		readonly lifecycle: PipelineExtensionLifecycle;
-	}) => PipelineExtensionHookOptions<TContext, TRunOptions, TArtifact>;
+
 	readonly onExtensionRollbackError?: (options: {
 		readonly error: unknown;
 		readonly extensionKeys: readonly string[];
@@ -463,124 +391,60 @@ export interface CreatePipelineOptions<
 		readonly errorMetadata: PipelineExtensionRollbackErrorMetadata;
 		readonly context: TContext;
 	}) => void;
-	readonly onHelperRollbackError?: (options: {
-		readonly error: unknown;
-		readonly helper: TFragmentHelper | TBuilderHelper;
-		readonly errorMetadata: PipelineExtensionRollbackErrorMetadata;
-		readonly context: TContext;
-	}) => void;
-	/**
-	 * Helper keys that should be treated as "already satisfied" for fragment
-	 * dependency resolution (useful when a run intentionally omits certain
-	 * fragments).
-	 */
-	readonly fragmentProvidedKeys?: readonly string[];
-	/**
-	 * Helper keys that should be treated as “already satisfied” for builder
-	 * dependency resolution (e.g. builders depending on IR helpers that are
-	 * executed in a different pipeline stage).
-	 */
-	readonly builderProvidedKeys?: readonly string[];
+
 	readonly createConflictDiagnostic?: (options: {
-		readonly helper: TFragmentHelper | TBuilderHelper;
-		readonly existing: TFragmentHelper | TBuilderHelper;
+		readonly helper: HelperDescriptor;
+		readonly existing: HelperDescriptor;
 		readonly message: string;
 	}) => TDiagnostic;
 	readonly createMissingDependencyDiagnostic?: (options: {
-		readonly helper: TFragmentHelper | TBuilderHelper;
+		readonly helper: HelperDescriptor;
 		readonly dependency: string;
 		readonly message: string;
 	}) => TDiagnostic;
 	readonly createUnusedHelperDiagnostic?: (options: {
-		readonly helper: TFragmentHelper | TBuilderHelper;
+		readonly helper: HelperDescriptor;
 		readonly message: string;
 	}) => TDiagnostic;
 }
-
 /**
- * A pipeline instance with helper registration and execution methods.
+ * A purely agnostic pipeline instance.
+ *
  * @public
  */
-export interface Pipeline<
+
+export interface AgnosticPipeline<
 	TRunOptions,
 	TRunResult,
 	TContext extends { reporter: TReporter },
 	TReporter extends PipelineReporter = PipelineReporter,
-	TBuildOptions = unknown,
-	TArtifact = unknown,
-	TFragmentInput = unknown,
-	TFragmentOutput = unknown,
-	TBuilderInput = unknown,
-	TBuilderOutput = unknown,
-	TDiagnostic extends PipelineDiagnostic = PipelineDiagnostic,
-	TFragmentKind extends HelperKind = 'fragment',
-	TBuilderKind extends HelperKind = 'builder',
-	TFragmentHelper extends Helper<
-		TContext,
-		TFragmentInput,
-		TFragmentOutput,
-		TReporter,
-		TFragmentKind
-	> = Helper<
-		TContext,
-		TFragmentInput,
-		TFragmentOutput,
-		TReporter,
-		TFragmentKind
-	>,
-	TBuilderHelper extends Helper<
-		TContext,
-		TBuilderInput,
-		TBuilderOutput,
-		TReporter,
-		TBuilderKind
-	> = Helper<
-		TContext,
-		TBuilderInput,
-		TBuilderOutput,
-		TReporter,
-		TBuilderKind
-	>,
 > {
-	readonly fragmentKind: TFragmentKind;
-	readonly builderKind: TBuilderKind;
-	readonly ir: {
-		use: (helper: TFragmentHelper) => void;
-	};
-	readonly builders: {
-		use: (helper: TBuilderHelper) => void;
-	};
 	readonly extensions: {
 		use: (
 			extension: PipelineExtension<
-				Pipeline<
-					TRunOptions,
-					TRunResult,
-					TContext,
-					TReporter,
-					TBuildOptions,
-					TArtifact,
-					TFragmentInput,
-					TFragmentOutput,
-					TBuilderInput,
-					TBuilderOutput,
-					TDiagnostic,
-					TFragmentKind,
-					TBuilderKind,
-					TFragmentHelper,
-					TBuilderHelper
-				>,
+				AgnosticPipeline<TRunOptions, TRunResult, TContext, TReporter>,
 				TContext,
 				TRunOptions,
-				TArtifact
+				unknown
 			>
 		) => unknown | Promise<unknown>;
 	};
+
+	/**
+	 * Map of helper keys that should be treated as "already satisfied" for dependency resolution.
+	 * Keys are grouped by helper kind.
+	 */
+	readonly providedKeys?: Record<string, readonly string[]>;
+
+	/**
+	 * Generic helper registration.
+	 */
 	use: (
-		helper:
-			| TFragmentHelper
-			| TBuilderHelper
-			| Helper<TContext, unknown, unknown, TReporter, HelperKind>
+		helper: Helper<TContext, unknown, unknown, TReporter, HelperKind>
 	) => void;
+
+	/**
+	 * Execute the pipeline.
+	 */
 	run: (options: TRunOptions) => MaybePromise<TRunResult>;
 }

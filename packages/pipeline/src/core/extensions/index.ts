@@ -1,3 +1,4 @@
+export * from './runner';
 export { OFFICIAL_EXTENSION_BLUEPRINTS } from './official';
 export type {
 	OfficialExtensionBlueprint,

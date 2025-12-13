@@ -21,9 +21,14 @@ It guarantees:
 
 ### Architecture Note
 
-The package exports a single entry point `@wpkernel/pipeline`. While the internal structure distinguishes between the "Core" (runner/graph) and the "Standard Pipeline" (implementation), you should import everything from the main package.
+The package exports a single entry point `@wpkernel/pipeline` which provides the "Standard Pipeline" (Fragments & Builders). This is the recommended API for most consumers.
 
-Subpath imports (e.g., `@wpkernel/pipeline/core`) are available for advanced usage but not required for standard consumers.
+Under the hood, the package is split into:
+
+1.  **Standard Pipeline (`src/standard-pipeline`)**: The opinionated implementation used by WPKernel.
+2.  **Core Runner (`src/core/runner`)**: A purely agnostic DAG execution engine.
+
+Subpath imports (e.g., `@wpkernel/pipeline/core`) are available if you need to build a completely custom pipeline architecture using the runner primitives directly.
 
 ## Installation
 
@@ -120,7 +125,12 @@ Pipeline creates a dependency graph for _each_ kind of helper. If `Helper B` dep
 
 ### Extensions & Lifecycles
 
-Extensions wrap execution with hooks at specific lifecycle stages: `prepare`, `before-fragments`, `after-fragments`, `before-builders`, `after-builders`, and `finalize`.
+Extensions wrap execution with hooks at specific lifecycle stages.
+
+**Standard Pipeline Lifecycles**:
+`prepare` → `before-fragments` → `after-fragments` → `before-builders` → `after-builders` → `finalize`
+
+> **Note**: Custom pipelines (using `makePipeline`) can define arbitrary lifecycle stages. Extensions can hook into any stage, standard or custom, as long as it exists in the pipeline's execution plan.
 
 **Validation**: The pipeline validates extension registrations. If an extension attempts to hook into an unscheduled lifecycle, the pipeline will log a warning instead of silently ignoring it.
 
