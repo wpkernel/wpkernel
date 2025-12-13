@@ -13,7 +13,7 @@ describe('Synchronous Execution', () => {
 			helperKinds: ['fragment'],
 			createContext: () => ({ reporter }),
 			createError: (code, message) => new Error(`[${code}] ${message}`),
-			createInitialState: () => ({ count: 0 }),
+			createState: () => ({ count: 0 }),
 			createStages: (deps: any) => [
 				deps.makeHelperStage('fragment', {
 					makeArgs: (state: any) => () => ({
@@ -52,7 +52,7 @@ describe('Synchronous Execution', () => {
 			helperKinds: ['fragment'],
 			createContext: () => ({ reporter: { warn: jest.fn() } }),
 			createError: (code, message) => new Error(`[${code}] ${message}`),
-			createInitialState: () => ({ count: 0 }),
+			createState: () => ({ count: 0 }),
 			createStages: (deps: any) => [
 				deps.makeHelperStage('fragment', {
 					makeArgs: (state: any) => () => ({

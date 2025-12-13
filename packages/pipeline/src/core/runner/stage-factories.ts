@@ -317,9 +317,17 @@ export function makeHelperStageFactory<
 			}
 
 			// Initialize helper execution snapshot
-			let snapshot = (
-				state as unknown as StateWithExecution
-			).helperExecution?.get(kind);
+			// Initialize helper execution snapshot
+			let executionMap = (state as unknown as StateWithExecution)
+				.helperExecution;
+
+			if (!executionMap) {
+				executionMap = new Map();
+				(state as unknown as StateWithExecution).helperExecution =
+					executionMap;
+			}
+
+			let snapshot = executionMap.get(kind);
 
 			if (!snapshot) {
 				snapshot = {
@@ -328,10 +336,7 @@ export function makeHelperStageFactory<
 					missing: [],
 					registered: [], // Registered populated by getOrder result?
 				};
-				(state as unknown as StateWithExecution).helperExecution?.set(
-					kind,
-					snapshot
-				);
+				executionMap.set(kind, snapshot);
 			}
 
 			const recordStep = (entry: RegisteredHelper<unknown>) => {

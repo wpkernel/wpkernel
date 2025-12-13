@@ -174,13 +174,6 @@ export function defineResource<
 
 	validateConfig(config);
 
-	if (!config.name || typeof config.name !== 'string') {
-		throw new WPKernelError('DeveloperError', {
-			message:
-				'defineResource requires a non-empty string "name" property.',
-		});
-	}
-
 	const { namespace, resourceName } = resolveNamespaceAndName(config);
 	const reporter = resolveResourceReporter({
 		namespace,

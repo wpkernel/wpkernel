@@ -148,3 +148,20 @@ export const composeK =
 			(acc, fn) => maybeThen(acc, fn),
 			initial as MaybePromise<S>
 		);
+
+/**
+ * Sync-friendly Probise.all equivalent.
+ *
+ * @param values
+ * @returns
+ *
+ * @internal
+ */
+export function maybeAll<T>(
+	values: readonly MaybePromise<T>[]
+): MaybePromise<T[]> {
+	if (values.some(isPromiseLike)) {
+		return Promise.all(values);
+	}
+	return values as T[];
+}

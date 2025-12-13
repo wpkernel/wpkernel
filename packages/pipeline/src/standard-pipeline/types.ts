@@ -210,6 +210,69 @@ export interface CreatePipelineOptions<
 	}) => TDiagnostic;
 }
 
+export type StandardPipelineExtension<
+	TRunOptions,
+	TRunResult,
+	TContext extends { reporter: TReporter },
+	TReporter extends PipelineReporter = PipelineReporter,
+	TBuildOptions = unknown,
+	TArtifact = unknown,
+	TFragmentInput = unknown,
+	TFragmentOutput = unknown,
+	TBuilderInput = unknown,
+	TBuilderOutput = unknown,
+	TDiagnostic extends PipelineDiagnostic = PipelineDiagnostic,
+	TFragmentKind extends HelperKind = 'fragment',
+	TBuilderKind extends HelperKind = 'builder',
+	TFragmentHelper extends Helper<
+		TContext,
+		TFragmentInput,
+		TFragmentOutput,
+		TReporter,
+		TFragmentKind
+	> = Helper<
+		TContext,
+		TFragmentInput,
+		TFragmentOutput,
+		TReporter,
+		TFragmentKind
+	>,
+	TBuilderHelper extends Helper<
+		TContext,
+		TBuilderInput,
+		TBuilderOutput,
+		TReporter,
+		TBuilderKind
+	> = Helper<
+		TContext,
+		TBuilderInput,
+		TBuilderOutput,
+		TReporter,
+		TBuilderKind
+	>,
+> = PipelineExtension<
+	Pipeline<
+		TRunOptions,
+		TRunResult,
+		TContext,
+		TReporter,
+		TBuildOptions,
+		TArtifact,
+		TFragmentInput,
+		TFragmentOutput,
+		TBuilderInput,
+		TBuilderOutput,
+		TDiagnostic,
+		TFragmentKind,
+		TBuilderKind,
+		TFragmentHelper,
+		TBuilderHelper
+	>,
+	TContext,
+	TRunOptions,
+	TArtifact
+>;
+
 /**
  * A pipeline instance with helper registration and execution methods.
  * @public
@@ -265,27 +328,22 @@ export interface Pipeline<
 	};
 	readonly extensions: {
 		use: (
-			extension: PipelineExtension<
-				Pipeline<
-					TRunOptions,
-					TRunResult,
-					TContext,
-					TReporter,
-					TBuildOptions,
-					TArtifact,
-					TFragmentInput,
-					TFragmentOutput,
-					TBuilderInput,
-					TBuilderOutput,
-					TDiagnostic,
-					TFragmentKind,
-					TBuilderKind,
-					TFragmentHelper,
-					TBuilderHelper
-				>,
-				TContext,
+			extension: StandardPipelineExtension<
 				TRunOptions,
-				TArtifact
+				TRunResult,
+				TContext,
+				TReporter,
+				TBuildOptions,
+				TArtifact,
+				TFragmentInput,
+				TFragmentOutput,
+				TBuilderInput,
+				TBuilderOutput,
+				TDiagnostic,
+				TFragmentKind,
+				TBuilderKind,
+				TFragmentHelper,
+				TBuilderHelper
 			>
 		) => unknown | Promise<unknown>;
 	};

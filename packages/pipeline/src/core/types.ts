@@ -350,7 +350,7 @@ export interface AgnosticPipelineOptions<
 	 * Factory for initial state.
 	 * Consumers can seed the state with arbitrary data needed by their stages.
 	 */
-	readonly createInitialState?: (options: {
+	readonly createState?: (options: {
 		readonly context: TContext;
 		readonly options: TRunOptions;
 	}) => Record<string, unknown>;

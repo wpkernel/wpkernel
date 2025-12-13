@@ -1,39 +1,28 @@
 import { createHelper } from '../helper.js';
-import { createPipeline } from '../../standard-pipeline/createPipeline.js';
+import { makePipeline } from '../makePipeline.js';
 import { createPipelineRollback } from '../rollback.js';
-import type { Pipeline } from '../../standard-pipeline/types.js';
 import type {
-	HelperApplyOptions,
-	// Pipeline, // Moved to standard-pipeline/types
+	AgnosticPipeline,
 	PipelineDiagnostic,
-	PipelineExtensionRollbackErrorMetadata,
 	PipelineReporter,
 	PipelineRunState,
 } from '../types.js';
 
 type TestRunOptions = Record<string, never>;
-type TestBuildOptions = Record<string, never>;
 type TestDiagnostic = PipelineDiagnostic;
 type TestReporter = Required<PipelineReporter> & {
 	readonly info: jest.Mock;
 	readonly child: jest.Mock<TestReporter, []>;
 };
 type TestContext = { readonly reporter: TestReporter };
-type TestDraft = string[];
-type TestArtifact = string[];
-type TestRunResult = PipelineRunState<TestArtifact, TestDiagnostic>;
-type TestPipeline = Pipeline<
+type TestUserState = unknown;
+type TestRunResult = PipelineRunState<TestUserState, TestDiagnostic>;
+
+type TestPipeline = AgnosticPipeline<
 	TestRunOptions,
 	TestRunResult,
 	TestContext,
-	TestReporter,
-	TestBuildOptions,
-	TestArtifact,
-	void,
-	string[],
-	void,
-	string[],
-	TestDiagnostic
+	TestReporter
 >;
 
 function createTestReporter(): TestReporter {
@@ -48,118 +37,28 @@ function createTestReporter(): TestReporter {
 	return reporter;
 }
 
-function createTestPipeline(options?: {
-	readonly onHelperRollbackError?: ({
-		error,
-		helper,
-		errorMetadata,
-		context,
-	}: {
-		readonly error: unknown;
-		readonly helper: any;
-		readonly errorMetadata: PipelineExtensionRollbackErrorMetadata;
-		readonly context: TestContext;
-	}) => void;
-}): {
+function createTestPipeline(): {
 	pipeline: TestPipeline;
 	reporter: TestReporter;
 } {
 	const reporter = createTestReporter();
 
-	const pipeline = createPipeline<
+	const pipeline = makePipeline<
 		TestRunOptions,
-		TestBuildOptions,
 		TestContext,
 		TestReporter,
-		TestDraft,
-		TestArtifact,
+		TestUserState,
 		TestDiagnostic,
-		TestRunResult,
-		void,
-		string[],
-		void,
-		string[]
+		TestRunResult
 	>({
+		helperKinds: ['builder'],
 		createError(code, message) {
 			throw new Error(`[${code}] ${message}`);
-		},
-		createBuildOptions() {
-			return {};
 		},
 		createContext() {
 			return { reporter } satisfies TestContext;
 		},
-		createFragmentState() {
-			return [] as TestDraft;
-		},
-		createFragmentArgs({ context, draft }) {
-			return {
-				context,
-				input: undefined,
-				output: draft,
-				reporter: context.reporter,
-			} satisfies HelperApplyOptions<
-				TestContext,
-				void,
-				string[],
-				TestReporter
-			>;
-		},
-		finalizeFragmentState({ draft }) {
-			return draft.slice();
-		},
-		createBuilderArgs({ context, artifact }) {
-			return {
-				context,
-				input: undefined,
-				output: artifact,
-				reporter: context.reporter,
-			} satisfies HelperApplyOptions<
-				TestContext,
-				void,
-				string[],
-				TestReporter
-			>;
-		},
-		createRunResult({ artifact, diagnostics, steps }) {
-			return { artifact, diagnostics, steps } satisfies TestRunResult;
-		},
-		onHelperRollbackError: options?.onHelperRollbackError,
 	});
-
-	// Register dummy fragment helper
-	pipeline.ir.use(
-		createHelper<
-			TestContext,
-			void,
-			string[],
-			TestReporter,
-			typeof pipeline.fragmentKind
-		>({
-			key: 'fragment.dummy',
-			kind: pipeline.fragmentKind,
-			apply({ output }) {
-				output.push('fragment');
-			},
-		})
-	);
-
-	// Register dummy builder helper
-	pipeline.builders.use(
-		createHelper<
-			TestContext,
-			void,
-			string[],
-			TestReporter,
-			typeof pipeline.builderKind
-		>({
-			key: 'builder.dummy',
-			kind: pipeline.builderKind,
-			apply({ output }) {
-				output.push('builder');
-			},
-		})
-	);
 
 	return { pipeline, reporter };
 }
@@ -174,19 +73,12 @@ function runPipeline(
 describe('Helper Rollback', () => {
 	it('executes helper rollback when builder fails', async () => {
 		const rollback = jest.fn();
-		const onHelperRollbackError = jest.fn();
-		const { pipeline } = createTestPipeline({ onHelperRollbackError });
+		const { pipeline } = createTestPipeline();
 
-		pipeline.builders.use(
-			createHelper<
-				TestContext,
-				void,
-				string[],
-				TestReporter,
-				typeof pipeline.builderKind
-			>({
+		pipeline.use(
+			createHelper({
 				key: 'builder.with-rollback',
-				kind: pipeline.builderKind,
+				kind: 'builder',
 				priority: 1,
 				apply() {
 					return {
@@ -196,16 +88,10 @@ describe('Helper Rollback', () => {
 			})
 		);
 
-		pipeline.builders.use(
-			createHelper<
-				TestContext,
-				void,
-				string[],
-				TestReporter,
-				typeof pipeline.builderKind
-			>({
+		pipeline.use(
+			createHelper({
 				key: 'builder.failure',
-				kind: pipeline.builderKind,
+				kind: 'builder',
 				priority: 0,
 				apply() {
 					throw new Error('builder failed');
@@ -222,16 +108,10 @@ describe('Helper Rollback', () => {
 		const rollbackOrder: string[] = [];
 		const { pipeline } = createTestPipeline();
 
-		pipeline.builders.use(
-			createHelper<
-				TestContext,
-				void,
-				string[],
-				TestReporter,
-				typeof pipeline.builderKind
-			>({
+		pipeline.use(
+			createHelper({
 				key: 'builder.first',
-				kind: pipeline.builderKind,
+				kind: 'builder',
 				priority: 2,
 				apply() {
 					return {
@@ -243,16 +123,10 @@ describe('Helper Rollback', () => {
 			})
 		);
 
-		pipeline.builders.use(
-			createHelper<
-				TestContext,
-				void,
-				string[],
-				TestReporter,
-				typeof pipeline.builderKind
-			>({
+		pipeline.use(
+			createHelper({
 				key: 'builder.second',
-				kind: pipeline.builderKind,
+				kind: 'builder',
 				priority: 1,
 				apply() {
 					return {
@@ -264,16 +138,10 @@ describe('Helper Rollback', () => {
 			})
 		);
 
-		pipeline.builders.use(
-			createHelper<
-				TestContext,
-				void,
-				string[],
-				TestReporter,
-				typeof pipeline.builderKind
-			>({
+		pipeline.use(
+			createHelper({
 				key: 'builder.failure',
-				kind: pipeline.builderKind,
+				kind: 'builder',
 				priority: 0,
 				apply() {
 					throw new Error('builder failed');
@@ -290,16 +158,10 @@ describe('Helper Rollback', () => {
 		const rollbackOrder: string[] = [];
 		const { pipeline } = createTestPipeline();
 
-		pipeline.builders.use(
-			createHelper<
-				TestContext,
-				void,
-				string[],
-				TestReporter,
-				typeof pipeline.builderKind
-			>({
+		pipeline.use(
+			createHelper({
 				key: 'builder.dependency',
-				kind: pipeline.builderKind,
+				kind: 'builder',
 				priority: 0,
 				apply() {
 					return {
@@ -311,16 +173,10 @@ describe('Helper Rollback', () => {
 			})
 		);
 
-		pipeline.builders.use(
-			createHelper<
-				TestContext,
-				void,
-				string[],
-				TestReporter,
-				typeof pipeline.builderKind
-			>({
+		pipeline.use(
+			createHelper({
 				key: 'builder.dependant',
-				kind: pipeline.builderKind,
+				kind: 'builder',
 				priority: 5,
 				dependsOn: ['builder.dependency'],
 				apply() {
@@ -333,16 +189,10 @@ describe('Helper Rollback', () => {
 			})
 		);
 
-		pipeline.builders.use(
-			createHelper<
-				TestContext,
-				void,
-				string[],
-				TestReporter,
-				typeof pipeline.builderKind
-			>({
+		pipeline.use(
+			createHelper({
 				key: 'builder.failure-dep',
-				kind: pipeline.builderKind,
+				kind: 'builder',
 				priority: 10,
 				dependsOn: ['builder.dependant'],
 				apply() {
@@ -360,16 +210,10 @@ describe('Helper Rollback', () => {
 		const rollbackCalls: string[] = [];
 		const { pipeline } = createTestPipeline();
 
-		pipeline.builders.use(
-			createHelper<
-				TestContext,
-				void,
-				string[],
-				TestReporter,
-				typeof pipeline.builderKind
-			>({
+		pipeline.use(
+			createHelper({
 				key: 'builder.first',
-				kind: pipeline.builderKind,
+				kind: 'builder',
 				priority: 2,
 				apply() {
 					return {
@@ -381,16 +225,10 @@ describe('Helper Rollback', () => {
 			})
 		);
 
-		pipeline.builders.use(
-			createHelper<
-				TestContext,
-				void,
-				string[],
-				TestReporter,
-				typeof pipeline.builderKind
-			>({
+		pipeline.use(
+			createHelper({
 				key: 'builder.second',
-				kind: pipeline.builderKind,
+				kind: 'builder',
 				priority: 1,
 				apply() {
 					return {
@@ -403,16 +241,10 @@ describe('Helper Rollback', () => {
 			})
 		);
 
-		pipeline.builders.use(
-			createHelper<
-				TestContext,
-				void,
-				string[],
-				TestReporter,
-				typeof pipeline.builderKind
-			>({
+		pipeline.use(
+			createHelper({
 				key: 'builder.failure',
-				kind: pipeline.builderKind,
+				kind: 'builder',
 				priority: 0,
 				apply() {
 					throw new Error('builder failed');
@@ -431,16 +263,10 @@ describe('Helper Rollback', () => {
 		});
 		const { pipeline } = createTestPipeline();
 
-		pipeline.builders.use(
-			createHelper<
-				TestContext,
-				void,
-				string[],
-				TestReporter,
-				typeof pipeline.builderKind
-			>({
+		pipeline.use(
+			createHelper({
 				key: 'builder.async-rollback',
-				kind: pipeline.builderKind,
+				kind: 'builder',
 				priority: 1,
 				apply() {
 					return {
@@ -450,16 +276,10 @@ describe('Helper Rollback', () => {
 			})
 		);
 
-		pipeline.builders.use(
-			createHelper<
-				TestContext,
-				void,
-				string[],
-				TestReporter,
-				typeof pipeline.builderKind
-			>({
+		pipeline.use(
+			createHelper({
 				key: 'builder.failure',
-				kind: pipeline.builderKind,
+				kind: 'builder',
 				priority: 0,
 				apply() {
 					throw new Error('builder failed');
@@ -475,16 +295,10 @@ describe('Helper Rollback', () => {
 	it('helper can return undefined rollback', async () => {
 		const { pipeline } = createTestPipeline();
 
-		pipeline.builders.use(
-			createHelper<
-				TestContext,
-				void,
-				string[],
-				TestReporter,
-				typeof pipeline.builderKind
-			>({
+		pipeline.use(
+			createHelper({
 				key: 'builder.no-rollback',
-				kind: pipeline.builderKind,
+				kind: 'builder',
 				priority: 1,
 				apply() {
 					return {};
@@ -492,16 +306,10 @@ describe('Helper Rollback', () => {
 			})
 		);
 
-		pipeline.builders.use(
-			createHelper<
-				TestContext,
-				void,
-				string[],
-				TestReporter,
-				typeof pipeline.builderKind
-			>({
+		pipeline.use(
+			createHelper({
 				key: 'builder.failure',
-				kind: pipeline.builderKind,
+				kind: 'builder',
 				priority: 0,
 				apply() {
 					throw new Error('builder failed');

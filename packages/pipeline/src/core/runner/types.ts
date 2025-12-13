@@ -15,7 +15,7 @@ import type {
 	PipelineStep,
 } from '../types';
 
-export { HelperExecutionSnapshot };
+export type { HelperExecutionSnapshot };
 import type { PipelineRollback } from '../rollback';
 import type {
 	ExtensionCoordinator,
@@ -273,7 +273,7 @@ export type AgnosticStageDeps<
 	) => PipelineStage<TState, Halt<TResult>>;
 
 	readonly extensions: {
-		readonly lifecycles?: string[];
+		readonly lifecycles?: readonly string[];
 	};
 
 	readonly diagnosticManager: AgnosticDiagnosticManager<
@@ -311,7 +311,6 @@ export interface AgnosticRunnerDependencies<
 		TDiagnostic
 	>;
 
-	readonly createError: ErrorFactory;
 	readonly resolveRunResult: (state: {
 		readonly diagnostics: readonly TDiagnostic[];
 		readonly steps: readonly PipelineStep[];
@@ -334,7 +333,7 @@ export interface AgnosticRunnerDependencies<
 		TUserState
 	>[];
 
-	readonly extensionLifecycles?: string[];
+	readonly extensionLifecycles?: readonly string[];
 
 	readonly stages?: (
 		deps: AgnosticStageDeps<

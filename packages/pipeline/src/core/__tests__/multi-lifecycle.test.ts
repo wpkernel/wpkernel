@@ -6,7 +6,7 @@ describe('Multi-Lifecycle Extension Bug', () => {
 	const mockContext = { reporter: mockReporter };
 	const baseOptions = {
 		createContext: () => mockContext,
-		createInitialState: () => ({}),
+		createState: () => ({}),
 	};
 
 	it('commits extension hooks from all configured lifecycles', async () => {

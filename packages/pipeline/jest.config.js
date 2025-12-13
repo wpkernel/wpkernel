@@ -11,5 +11,7 @@ export default createWPKJestConfig({
 		'<rootDir>/packages/pipeline/src/**/*.{ts,tsx}',
 		'!<rootDir>/packages/pipeline/src/index.ts',
 		'!<rootDir>/packages/pipeline/src/extensions/index.ts',
+		'!<rootDir>/packages/pipeline/src/core/index.ts',
+		'!<rootDir>/packages/pipeline/src/core/extensions/index.ts',
 	],
 });

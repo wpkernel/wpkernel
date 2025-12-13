@@ -72,19 +72,17 @@ export const executeRun = <
 	> = runContext.state;
 
 	if (!dependencies.stages) {
-		return Promise.resolve(
-			dependencies.resolveRunResult({
-				diagnostics: [],
-				steps: [],
-				context,
-				userState: initialState.userState,
-				options: runOptions,
-				helpers: {
-					builders: createEmptySnapshot('dummy-builder'),
-				},
-				state: initialState,
-			})
-		);
+		return dependencies.resolveRunResult({
+			diagnostics: [],
+			steps: [],
+			context,
+			userState: initialState.userState,
+			options: runOptions,
+			helpers: {
+				builders: createEmptySnapshot('dummy-builder'),
+			},
+			state: initialState,
+		});
 	}
 
 	const program = createAgnosticProgram(dependencies, runContext);
@@ -164,5 +162,5 @@ export const executeRun = <
 				})
 			);
 		}
-	) as Promise<TRunResult>;
+	);
 };

@@ -76,4 +76,5 @@ The generic runner ensures:
 
 - **Cycle Detection**: `A -> B -> A` halts execution (fails fast).
 - **Missing Dependencies**: `A` depends on `C` (which doesn't exist) throws an error.
-- **Atomic Rollback**: If _any_ stage throws, the pipeline halts and executes the rollback chain for all extensions and helpers.
+- **Best-Effort Rollback**: If _any_ stage throws, the pipeline halts and executes the rollback chain for all extensions and helpers.
+  > **Note**: Rollbacks attempt to revert completed steps but are not guaranteed to be fully atomic (e.g. if a network call in a rollback fails). They may leave partial effects. Design compensating actions to be idempotent.

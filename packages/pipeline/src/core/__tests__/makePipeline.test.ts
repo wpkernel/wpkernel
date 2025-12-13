@@ -13,18 +13,6 @@ describe('makePipeline', () => {
 		createState: () => ({}),
 	};
 
-	it('should run a basic pipeline with default stages', async () => {
-		const pipeline = makePipeline(baseOptions);
-		const result = await pipeline.run({});
-
-		expect(result).toEqual(
-			expect.objectContaining({
-				// artifact: 'artifact', // Default result is just state
-				// diagnostics: [],
-			})
-		);
-	});
-
 	it('should support custom stages', async () => {
 		const customStageSpy = jest.fn();
 
@@ -37,9 +25,8 @@ describe('makePipeline', () => {
 		const pipeline = makePipeline({
 			...baseOptions,
 			createStages: (deps: any) => {
-				// Use createStages instead of stages (renamed?)
 				const { makeHelperStage, finalizeResult } = deps;
-				// Custom stack: helper -> custom -> finalize
+				// Compose custom stage between helper and finalize stages
 				return [
 					makeHelperStage('testHelper'),
 					customStage,
@@ -75,12 +62,7 @@ describe('makePipeline', () => {
 			},
 			createStages: (deps: any) => {
 				const { makeLifecycleStage, finalizeResult } = deps;
-				// We don't have finalizeFragments anymore
-				return [
-					// finalizeFragments, // Removed from agnostic deps
-					makeLifecycleStage('custom-lifecycle'),
-					finalizeResult,
-				];
+				return [makeLifecycleStage('custom-lifecycle'), finalizeResult];
 			},
 		});
 

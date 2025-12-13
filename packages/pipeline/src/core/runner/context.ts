@@ -7,7 +7,11 @@ import type {
 	AgnosticRunnerDependencies,
 	AgnosticState,
 } from './types';
-import type { PipelineReporter, PipelineDiagnostic } from '../types';
+import type {
+	PipelineReporter,
+	PipelineDiagnostic,
+	PipelineExtensionRollbackErrorMetadata,
+} from '../types';
 import { initExtensionCoordinator } from '../internal/extension-coordinator';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -45,8 +49,8 @@ export const prepareContext = <
 	const context = dependencies.options.createContext(runOptions);
 
 	// Setup diagnostics for this run
-	dependencies.diagnosticManager.setReporter(context.reporter);
 	dependencies.diagnosticManager.prepareRun();
+	dependencies.diagnosticManager.setReporter(context.reporter);
 
 	// Generic graph resolution for all registries
 	const helperOrders = new Map<string, RegisteredHelper<unknown>[]>();
@@ -80,7 +84,7 @@ export const prepareContext = <
 				},
 				providedKeys: dependencies.options.providedKeys?.[kind],
 			},
-			dependencies.createError
+			dependencies.options.createError
 		);
 		helperOrders.set(kind, graph.order as any);
 	}
@@ -97,7 +101,7 @@ export const prepareContext = <
 		readonly error: unknown;
 		readonly extensionKeys: readonly string[];
 		readonly hookSequence: readonly string[];
-		readonly errorMetadata: any;
+		readonly errorMetadata: PipelineExtensionRollbackErrorMetadata;
 		readonly context: TContext;
 	}) => {
 		if (dependencies.options.onExtensionRollbackError) {
@@ -133,7 +137,9 @@ export const prepareContext = <
 		runOptions,
 		userState,
 		steps,
-		diagnostics: [], // Diagnostics managed by manager, but state mirrors them? Or strictly manager?
+
+		diagnostics:
+			dependencies.diagnosticManager.getDiagnostics() as TDiagnostic[], // Live reference
 		// AgnosticState definition has diagnostics: TDiagnostic[]. Programs read it from here.
 		// finalizeResultStage updates it from manager.
 

@@ -46,6 +46,7 @@ export interface AgnosticDiagnosticManager<
 	record: (diagnostic: TDiagnostic) => void;
 	setReporter: (reporter: TReporter) => void;
 	readDiagnostics: () => readonly TDiagnostic[];
+	getDiagnostics: () => readonly TDiagnostic[];
 
 	// Helper-centric utilities
 	flagConflict: (
@@ -135,13 +136,14 @@ export function createAgnosticDiagnosticManager<
 		},
 
 		readDiagnostics: () => [...staticDiagnostics, ...runDiagnostics],
+		getDiagnostics: () => runDiagnostics,
 
 		prepareRun() {
 			isInRun = true;
 			runDiagnostics.length = 0;
 			// We do NOT clear usage of static diagnostics, they persist across runs
 			// but we might need to re-emit them if a NEW reporter is attached.
-			// The logic in setReplorter handles re-emission.
+			// The logic in setReporter handles re-emission.
 		},
 
 		endRun() {

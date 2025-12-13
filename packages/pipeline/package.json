@@ -24,7 +24,7 @@
 			"default": "./dist/core/index.js"
 		},
 		"./extensions": {
-			"types": "./dist/extensions/index.d.ts",
+			"types": "./dist/core/extensions/index.d.ts",
 			"import": "./dist/extensions/index.js",
 			"default": "./dist/extensions/index.js"
 		},

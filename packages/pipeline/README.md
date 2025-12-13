@@ -68,7 +68,7 @@ import { makePipeline } from '@wpkernel/pipeline';
 
 const pipeline = makePipeline({
 	// Define the "Stages" of your pipeline
-	stages: (deps) => [
+	createStages: (deps) => [
 		deps.makeLifecycleStage('extract'),
 		deps.makeLifecycleStage('transform'),
 		deps.makeLifecycleStage('load'),

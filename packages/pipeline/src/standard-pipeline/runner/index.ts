@@ -157,7 +157,7 @@ export function createStandardPipeline<
 		createError: options.createError,
 		onExtensionRollbackError: options.onExtensionRollbackError,
 
-		createInitialState: ({ options: runOpts, context }) => {
+		createState: ({ options: runOpts, context }) => {
 			const buildOptions = options.createBuildOptions(runOpts);
 			const draft = options.createFragmentState({
 				options: runOpts,
@@ -173,32 +173,32 @@ export function createStandardPipeline<
 		onDiagnostic: options.onDiagnostic,
 		createConflictDiagnostic: options.createConflictDiagnostic
 			? (opts) =>
-				options.createConflictDiagnostic!(
-					opts as unknown as Parameters<
-						NonNullable<typeof options.createConflictDiagnostic>
-					>[0]
-				)
+					options.createConflictDiagnostic!(
+						opts as unknown as Parameters<
+							NonNullable<typeof options.createConflictDiagnostic>
+						>[0]
+					)
 			: undefined,
 		createMissingDependencyDiagnostic:
 			options.createMissingDependencyDiagnostic
 				? (opts) =>
-					options.createMissingDependencyDiagnostic!(
-						opts as unknown as Parameters<
-							NonNullable<
-								typeof options.createMissingDependencyDiagnostic
-							>
-						>[0]
-					)
+						options.createMissingDependencyDiagnostic!(
+							opts as unknown as Parameters<
+								NonNullable<
+									typeof options.createMissingDependencyDiagnostic
+								>
+							>[0]
+						)
 				: undefined,
 		createUnusedHelperDiagnostic: options.createUnusedHelperDiagnostic
 			? (opts) =>
-				options.createUnusedHelperDiagnostic!(
-					opts as unknown as Parameters<
-						NonNullable<
-							typeof options.createUnusedHelperDiagnostic
-						>
-					>[0]
-				)
+					options.createUnusedHelperDiagnostic!(
+						opts as unknown as Parameters<
+							NonNullable<
+								typeof options.createUnusedHelperDiagnostic
+							>
+						>[0]
+					)
 			: undefined,
 		providedKeys: {
 			[fragmentKind]: options.fragmentProvidedKeys ?? [],
@@ -231,31 +231,31 @@ export function createStandardPipeline<
 
 			const onVisited =
 				(kind: string) =>
-					(
-						state: AgnosticState<
-							TRunOptions,
-							StandardState,
-							TContext,
-							TReporter,
-							TDiagnostic
-						>,
-						visited: Set<string>
-					) => {
-						const registered = state.helperOrders?.get(kind) ?? [];
-						for (const entry of registered) {
-							if (!visited.has(entry.id)) {
-								diagnosticManager.flagUnusedHelper(
-									entry.helper as unknown as
+				(
+					state: AgnosticState<
+						TRunOptions,
+						StandardState,
+						TContext,
+						TReporter,
+						TDiagnostic
+					>,
+					visited: Set<string>
+				) => {
+					const registered = state.helperOrders?.get(kind) ?? [];
+					for (const entry of registered) {
+						if (!visited.has(entry.id)) {
+							diagnosticManager.flagUnusedHelper(
+								entry.helper as unknown as
 									| TFragmentHelper
 									| TBuilderHelper,
-									kind,
-									'was registered but never executed',
-									(entry.helper as HelperWithKey).dependsOn ?? []
-								);
-							}
+								kind,
+								'was registered but never executed',
+								(entry.helper as HelperWithKey).dependsOn ?? []
+							);
 						}
-						return state;
-					};
+					}
+					return state;
+				};
 
 			const fragmentStage = makeHelperStage(fragmentKind, {
 				makeArgs:
@@ -268,15 +268,15 @@ export function createStandardPipeline<
 							TDiagnostic
 						>
 					) =>
-						(entry) => {
-							return options.createFragmentArgs({
-								helper: entry.helper as TFragmentHelper,
-								options: state.runOptions,
-								context: state.context,
-								buildOptions: state.userState.buildOptions,
-								draft: state.userState.draft!,
-							});
-						},
+					(entry) => {
+						return options.createFragmentArgs({
+							helper: entry.helper as TFragmentHelper,
+							options: state.runOptions,
+							context: state.context,
+							buildOptions: state.userState.buildOptions,
+							draft: state.userState.draft!,
+						});
+					},
 				onVisited: onVisited(fragmentKind),
 			});
 
@@ -348,14 +348,14 @@ export function createStandardPipeline<
 								TDiagnostic
 							>
 						) =>
-							(entry) =>
-								options.createBuilderArgs({
-									helper: entry.helper as TBuilderHelper,
-									options: state.runOptions,
-									context: state.context,
-									buildOptions: state.userState.buildOptions,
-									artifact: state.userState.artifact!,
-								}),
+						(entry) =>
+							options.createBuilderArgs({
+								helper: entry.helper as TBuilderHelper,
+								options: state.runOptions,
+								context: state.context,
+								buildOptions: state.userState.buildOptions,
+								artifact: state.userState.artifact!,
+							}),
 					onVisited: onVisited(builderKind),
 				}),
 				makeLifecycleStage('after-builders'),
@@ -454,10 +454,13 @@ export function createStandardPipeline<
 		ir: {
 			use: (helper: TFragmentHelper) => {
 				if (helper.kind && helper.kind !== fragmentKind) {
-					throw options.createError!(
-						'ValidationError',
-						`Attempted to register helper of kind "${helper.kind}" via ir.use() (expected "${fragmentKind}")`
-					);
+					const message = `Attempted to register helper of kind "${helper.kind}" via ir.use() (expected "${fragmentKind}")`;
+					if (options.createError) {
+						throw options.createError('ValidationError', message);
+					}
+					const error = new Error(message);
+					error.name = 'ValidationError';
+					throw error;
 				}
 				pipeline.use({
 					...helper,
@@ -474,10 +477,13 @@ export function createStandardPipeline<
 		builders: {
 			use: (helper: TBuilderHelper) => {
 				if (helper.kind && helper.kind !== builderKind) {
-					throw options.createError!(
-						'ValidationError',
-						`Attempted to register helper of kind "${helper.kind}" via builders.use() (expected "${builderKind}")`
-					);
+					const message = `Attempted to register helper of kind "${helper.kind}" via builders.use() (expected "${builderKind}")`;
+					if (options.createError) {
+						throw options.createError('ValidationError', message);
+					}
+					const error = new Error(message);
+					error.name = 'ValidationError';
+					throw error;
 				}
 				pipeline.use({
 					...helper,

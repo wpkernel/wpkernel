@@ -149,7 +149,7 @@ function createTestPipeline(): {
 }
 
 describe('createPipelineExtension', () => {
-	it('registers setup helpers and hook outputs', async () => {
+	it('registers setup helpers and hook outputs synchronously', async () => {
 		const { pipeline } = createTestPipeline();
 		const commit = jest.fn();
 		const extensionBuilder = createHelper<
@@ -185,8 +185,13 @@ describe('createPipelineExtension', () => {
 			},
 		});
 
-		await pipeline.extensions.use(extension);
+		// Explicitly NOT awaited to demonstrate sync execution
+		const resultMaybePromise = pipeline.extensions.use(extension);
 
+		// Assert that it returned synchronously (void/undefined, not a Promise)
+		expect(resultMaybePromise).toBeUndefined();
+
+		// We assume pipeline.run CAN be async, so we await that
 		const result = await pipeline.run({});
 
 		expect(result.artifact).toEqual([
@@ -202,6 +207,7 @@ describe('createPipelineExtension', () => {
 		const { pipeline } = createTestPipeline();
 		const hookSpy = jest.fn();
 
+		// Explicitly awaited
 		await pipeline.extensions.use(
 			createPipelineExtension<
 				TestPipeline,

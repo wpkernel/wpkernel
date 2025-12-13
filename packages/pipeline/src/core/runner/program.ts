@@ -154,23 +154,34 @@ export const createAgnosticProgram = <
 				args: unknown;
 				next: () => MaybePromise<void>;
 			}) => {
-				// We don't have enough generic info here to fully type this,
-				// but at runtime `makeStage` handles it.
-				// For mapped arguments, we trust `createHelperArgs`.
-
 				// Handle both Helper objects (with apply method) and direct functions
-				// eslint-disable-next-line @typescript-eslint/no-explicit-any
-				const h = helper as any;
-				if (typeof h === 'function') {
-					return h(args, next);
+				if (typeof helper === 'function') {
+					return (
+						helper as (
+							options: unknown,
+							next: () => MaybePromise<void>
+						) => unknown
+					)(args, next);
 				}
-				if (h && typeof h.apply === 'function') {
-					return h.apply(args, next);
+
+				if (
+					typeof helper === 'object' &&
+					helper !== null &&
+					'apply' in helper &&
+					typeof (helper as Record<string, unknown>).apply ===
+						'function'
+				) {
+					return (
+						(helper as Record<string, unknown>).apply as (
+							options: unknown,
+							next: () => MaybePromise<void>
+						) => unknown
+					)(args, next);
 				}
 
 				// Should be unreachable if registry validates helpers
 				throw new Error(
-					`Invalid helper: expected function or object with .apply method. Got: ${typeof h}`
+					`Invalid helper: expected function or object with .apply method. Got: ${typeof helper}`
 				);
 			},
 			...spec,
@@ -189,7 +200,8 @@ export const createAgnosticProgram = <
 						context: state.context,
 					});
 		}
-
+		// Type assertion required because stageSpec is built dynamically and
+		// TypeScript cannot infer the full generic relationship at compile time.
 		return makeStage(
 			kind,
 			stageSpec as unknown as HelperStageSpec<

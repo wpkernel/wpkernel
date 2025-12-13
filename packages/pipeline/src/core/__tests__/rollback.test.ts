@@ -146,14 +146,22 @@ describe('rollback', () => {
 			const rollback3 = createPipelineRollback(async () => order.push(3));
 
 			const rollbacks = [rollback1, rollback2, rollback3];
-
+			const onError = jest.fn();
 			await runRollbackStack(rollbacks, {
 				source: 'helper',
-				onError: jest.fn(),
+				onError,
 			});
 
 			// Should have executed rollback1 and rollback3 despite rollback2 failing asynchronously
 			expect(order).toEqual([3, 1]);
+			expect(onError).toHaveBeenCalledWith(
+				expect.objectContaining({
+					error,
+					metadata: expect.objectContaining({
+						message: 'async fail',
+					}),
+				})
+			);
 		});
 
 		it('handles empty rollback stack', async () => {

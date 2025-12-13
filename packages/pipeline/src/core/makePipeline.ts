@@ -1,4 +1,4 @@
-import { isPromiseLike, maybeThen } from './async-utils';
+import { isPromiseLike, maybeThen, maybeAll } from './async-utils';
 import { type RegisteredHelper } from './dependency-graph';
 import type { ExtensionHookEntry } from './extensions';
 import {
@@ -47,7 +47,7 @@ export function makePipeline<
 ): AgnosticPipeline<TRunOptions, TRunResult, TContext, TReporter> {
 	const createError: ErrorFactory =
 		options.createError ??
-		((code, message) => new Error(`[${code}] ${message}`));
+		((code, message) => new Error(`[${code}] ${message} `));
 
 	const helperRegistries = new Map<string, RegisteredHelper<unknown>[]>();
 	const ensureRegistry = (kind: string) => {
@@ -153,13 +153,12 @@ export function makePipeline<
 				readonly context: TContext;
 				readonly options: TRunOptions;
 			}) => {
-				if (options.createInitialState) {
-					return options.createInitialState(args) as Record<
+				if (options.createState) {
+					return options.createState(args) as Record<
 						string,
 						unknown
 					> as unknown as TUserState;
 				}
-				// Default empty state
 				return {} as unknown as TUserState;
 			},
 			createError,
@@ -201,7 +200,7 @@ export function makePipeline<
 		},
 		helperRegistries,
 		diagnosticManager,
-		createError,
+
 		resolveRunResult: (runState) => {
 			const {
 				userState: artifact,
@@ -231,7 +230,7 @@ export function makePipeline<
 			} as unknown as TRunResult;
 		},
 		extensionHooks,
-		extensionLifecycles: options.extensions?.lifecycles as string[],
+		extensionLifecycles: options.extensions?.lifecycles,
 		stages: (options.createStages ?? defaultStages) as unknown as (
 			deps: AgnosticStageDeps<
 				AgnosticState<
@@ -271,20 +270,28 @@ export function makePipeline<
 	const trackPendingExtensionRegistration = <T>(
 		maybePending: MaybePromise<T>
 	): MaybePromise<T> => {
-		if (maybePending && isPromiseLike(maybePending)) {
-			void Promise.resolve(maybePending).catch(() => { });
-			const pending = Promise.resolve(maybePending).then(() => undefined);
-			void pending.catch(() => { });
+		if (isPromiseLike(maybePending)) {
+			// Map success to undefined, but allow errors to propagate so maybeAll catches them later
+			const pending = maybeThen(
+				maybePending,
+				() => undefined
+			) as Promise<void>;
+
+			// Suppress unhandled rejections during the "gap" before we await them
+			void pending.catch(() => {});
+
 			pendingExtensionRegistrations.push(pending);
-			pending
-				.finally(() => {
-					const index =
-						pendingExtensionRegistrations.indexOf(pending);
-					if (index !== -1) {
-						pendingExtensionRegistrations.splice(index, 1);
-					}
-				})
-				.catch(() => { });
+
+			// Cleanup when done (success or failure)
+			const cleanup = () => {
+				const index = pendingExtensionRegistrations.indexOf(pending);
+				if (index !== -1) {
+					pendingExtensionRegistrations.splice(index, 1);
+				}
+			};
+
+			// Use finally-like behavior via then/catch
+			void pending.then(cleanup, cleanup);
 		}
 
 		return maybePending;
@@ -295,7 +302,8 @@ export function makePipeline<
 			return;
 		}
 
-		return Promise.all([...pendingExtensionRegistrations]).then(
+		return maybeThen(
+			maybeAll([...pendingExtensionRegistrations]),
 			() => undefined
 		);
 	};
@@ -310,7 +318,7 @@ export function makePipeline<
 			use(extension) {
 				const registrationResult = extension.register(pipeline);
 				if (registrationResult && isPromiseLike(registrationResult)) {
-					void Promise.resolve(registrationResult).catch(() => { });
+					void Promise.resolve(registrationResult).catch(() => {});
 				}
 				const handled = maybeThen(registrationResult, (resolved) =>
 					handleExtensionResult(extension.key, resolved)

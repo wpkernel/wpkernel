@@ -28,7 +28,7 @@ describe('Agnostic Kinds (ETL Pipeline)', () => {
 			helperKinds: ['extract', 'transform', 'load'],
 
 			createContext: () => ({ reporter, data: [] }),
-			createInitialState: ({ options }) => ({
+			createState: ({ options }) => ({
 				draft: [...options.input],
 			}),
 
