@@ -1,6 +1,6 @@
 [**@wpkernel/wp-json-ast v0.12.5-beta.0**](../README.md)
 
-***
+---
 
 [@wpkernel/wp-json-ast](../README.md) / RestControllerRoutePlan
 
@@ -14,7 +14,7 @@
 readonly buildStatements: BuildRestControllerRouteStatements;
 ```
 
-***
+---
 
 ### definition
 
@@ -22,7 +22,7 @@ readonly buildStatements: BuildRestControllerRouteStatements;
 readonly definition: RestControllerRouteDefinition;
 ```
 
-***
+---
 
 ### methodName
 
@@ -30,7 +30,7 @@ readonly definition: RestControllerRouteDefinition;
 readonly methodName: string;
 ```
 
-***
+---
 
 ### buildFallbackStatements?
 
@@ -38,7 +38,7 @@ readonly methodName: string;
 readonly optional buildFallbackStatements: BuildRestControllerRouteFallbackStatements;
 ```
 
-***
+---
 
 ### docblockSummary?
 

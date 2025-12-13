@@ -1,6 +1,6 @@
 [**@wpkernel/php-json-ast v0.12.5-beta.0**](../README.md)
 
-***
+---
 
 [@wpkernel/php-json-ast](../README.md) / PhpBuilderFactoryMethodAssignPropertyStep
 
@@ -14,7 +14,7 @@
 readonly kind: "assignPropertyFromParameter";
 ```
 
-***
+---
 
 ### parameter
 
@@ -22,7 +22,7 @@ readonly kind: "assignPropertyFromParameter";
 readonly parameter: string;
 ```
 
-***
+---
 
 ### property
 

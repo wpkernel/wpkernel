@@ -1,13 +1,14 @@
 [**@wpkernel/cli v0.12.5-beta.0**](../README.md)
 
-***
+---
 
 [@wpkernel/cli](../README.md) / createIrWithBuilders
 
 # Function: createIrWithBuilders()
 
 ```ts
-function createIrWithBuilders(options, environment): Promise&lt;IRv1&gt;;
+function createIrWithBuilders(options, environment): Promise & lt;
+IRv1 & gt;
 ```
 
 Runs the full generation pipeline (IR + builders) from the given build options.
@@ -33,6 +34,6 @@ Optional environment settings for the IR creation process.
 
 ## Returns
 
-`Promise`&lt;[`IRv1`](../interfaces/IRv1.md)&gt;
+`Promise`<[`IRv1`](../interfaces/IRv1.md)>
 
 A promise that resolves to the generated `IRv1` object.

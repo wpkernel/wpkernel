@@ -1,6 +1,6 @@
 [**@wpkernel/php-json-ast v0.12.5-beta.0**](../README.md)
 
-***
+---
 
 [@wpkernel/php-json-ast](../README.md) / PhpStmtUse
 
@@ -24,7 +24,7 @@ readonly attributes: PhpAttributes;
 
 [`PhpStmtBase`](PhpStmtBase.md).[`attributes`](PhpStmtBase.md#attributes)
 
-***
+---
 
 ### nodeType
 
@@ -36,7 +36,7 @@ readonly nodeType: "Stmt_Use";
 
 [`PhpStmtBase`](PhpStmtBase.md).[`nodeType`](PhpStmtBase.md#nodetype)
 
-***
+---
 
 ### type
 
@@ -44,7 +44,7 @@ readonly nodeType: "Stmt_Use";
 readonly type: number;
 ```
 
-***
+---
 
 ### uses
 

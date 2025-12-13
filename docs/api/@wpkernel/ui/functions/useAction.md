@@ -1,13 +1,16 @@
 [**@wpkernel/ui v0.12.5-beta.0**](../README.md)
 
-***
+---
 
 [@wpkernel/ui](../README.md) / useAction
 
 # Function: useAction()
 
 ```ts
-function useAction&lt;TInput, TResult&gt;(action, options): UseActionResult&lt;TInput, TResult&gt;;
+function useAction<TInput, TResult>(
+	action,
+	options
+): UseActionResult<TInput, TResult>;
 ```
 
 React hook for invoking a wpk action.
@@ -34,18 +37,18 @@ The type of the result returned by the action.
 
 ### action
 
-`DefinedAction`&lt;`TInput`, `TResult`&gt;
+`DefinedAction`<`TInput`, `TResult`>
 
 The `DefinedAction` to be invoked.
 
 ### options
 
-[`UseActionOptions`](../interfaces/UseActionOptions.md)&lt;`TInput`, `TResult`&gt; = `{}`
+[`UseActionOptions`](../interfaces/UseActionOptions.md)<`TInput`, `TResult`> = `{}`
 
 Configuration options for the action invocation, including concurrency and invalidation.
 
 ## Returns
 
-[`UseActionResult`](../interfaces/UseActionResult.md)&lt;`TInput`, `TResult`&gt;
+[`UseActionResult`](../interfaces/UseActionResult.md)<`TInput`, `TResult`>
 
 An object containing the action's current state (`status`, `error`, `result`, `inFlight`) and control functions (`run`, `cancel`, `reset`).

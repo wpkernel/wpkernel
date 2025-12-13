@@ -1,6 +1,6 @@
 [**@wpkernel/php-json-ast v0.12.5-beta.0**](../README.md)
 
-***
+---
 
 [@wpkernel/php-json-ast](../README.md) / PhpExprArrayDimFetch
 
@@ -24,7 +24,7 @@ readonly attributes: PhpAttributes;
 
 [`PhpExprBase`](PhpExprBase.md).[`attributes`](PhpExprBase.md#attributes)
 
-***
+---
 
 ### dim
 
@@ -32,7 +32,7 @@ readonly attributes: PhpAttributes;
 readonly dim: PhpExpr | null;
 ```
 
-***
+---
 
 ### nodeType
 
@@ -44,7 +44,7 @@ readonly nodeType: "Expr_ArrayDimFetch";
 
 [`PhpExprBase`](PhpExprBase.md).[`nodeType`](PhpExprBase.md#nodetype)
 
-***
+---
 
 ### var
 

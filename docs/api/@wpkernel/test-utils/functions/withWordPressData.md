@@ -1,13 +1,16 @@
 [**@wpkernel/test-utils v0.12.5-beta.0**](../README.md)
 
-***
+---
 
 [@wpkernel/test-utils](../README.md) / withWordPressData
 
 # Function: withWordPressData()
 
 ```ts
-function withWordPressData&lt;ReturnType&gt;(overrides, callback): Promise&lt;ReturnType&gt;;
+function withWordPressData<ReturnType>(
+	overrides,
+	callback
+): Promise<ReturnType>;
 ```
 
 Executes a callback with a modified `window.wp` global, restoring the original afterwards.
@@ -28,12 +31,12 @@ Options to temporarily override parts of the `window.wp` global.
 
 ### callback
 
-() =&gt; `ReturnType` \| `Promise`&lt;`ReturnType`&gt;
+() => `ReturnType` \| `Promise`<`ReturnType`>
 
 The function to execute with the modified global.
 
 ## Returns
 
-`Promise`&lt;`ReturnType`&gt;
+`Promise`<`ReturnType`>
 
 The return value of the callback.

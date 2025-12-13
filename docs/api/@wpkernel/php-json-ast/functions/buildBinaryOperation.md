@@ -1,6 +1,6 @@
 [**@wpkernel/php-json-ast v0.12.5-beta.0**](../README.md)
 
-***
+---
 
 [@wpkernel/php-json-ast](../README.md) / buildBinaryOperation
 
@@ -8,10 +8,11 @@
 
 ```ts
 function buildBinaryOperation(
-   operator, 
-   left, 
-   right, 
-   attributes?): PhpExprBinaryOp;
+	operator,
+	left,
+	right,
+	attributes?
+): PhpExprBinaryOp;
 ```
 
 Builds a PHP binary operation expression node.
@@ -38,7 +39,7 @@ The right-hand side expression.
 
 ### attributes?
 
-`Readonly`&lt;`Record`&lt;`string`, `unknown`&gt;&gt;
+`Readonly`<`Record`<`string`, `unknown`>>
 
 Optional attributes for the node.
 

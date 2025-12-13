@@ -1,6 +1,6 @@
 [**@wpkernel/wp-json-ast v0.12.5-beta.0**](../README.md)
 
-***
+---
 
 [@wpkernel/wp-json-ast](../README.md) / BlockManifestValidationError
 
@@ -22,12 +22,12 @@ readonly block: string;
 
 The name of the block.
 
-***
+---
 
 ### code
 
 ```ts
-readonly code: 
+readonly code:
   | "block-manifest/missing-directory"
   | "block-manifest/invalid-directory"
   | "block-manifest/missing-manifest"
@@ -37,7 +37,7 @@ readonly code:
 
 The error code.
 
-***
+---
 
 ### field
 
@@ -47,7 +47,7 @@ readonly field: "directory" | "manifest" | "render";
 
 The field that failed validation.
 
-***
+---
 
 ### message
 
@@ -57,7 +57,7 @@ readonly message: string;
 
 The error message.
 
-***
+---
 
 ### value?
 
