@@ -1,6 +1,6 @@
-[**@wpkernel/wp-json-ast v0.12.5-beta.0**](../README.md)
+[**@wpkernel/wp-json-ast v0.12.6-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/wp-json-ast](../README.md) / ExecuteWpQueryOptions
 
@@ -14,7 +14,7 @@
 readonly argsVariable: string;
 ```
 
----
+***
 
 ### target
 
@@ -22,7 +22,7 @@ readonly argsVariable: string;
 readonly target: string;
 ```
 
----
+***
 
 ### cache?
 
@@ -60,7 +60,7 @@ readonly segments: readonly unknown[];
 readonly optional description: string;
 ```
 
----
+***
 
 ### indentLevel?
 

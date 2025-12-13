@@ -1,6 +1,6 @@
-[**@wpkernel/cli v0.12.5-beta.0**](../README.md)
+[**@wpkernel/cli v0.12.6-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/cli](../README.md) / PluginLoaderUiConfig
 
@@ -14,7 +14,7 @@
 readonly assetPath: string;
 ```
 
----
+***
 
 ### handle
 
@@ -22,7 +22,7 @@ readonly assetPath: string;
 readonly handle: string;
 ```
 
----
+***
 
 ### localizationObject
 
@@ -30,7 +30,7 @@ readonly handle: string;
 readonly localizationObject: string;
 ```
 
----
+***
 
 ### namespace
 
@@ -38,7 +38,7 @@ readonly localizationObject: string;
 readonly namespace: string;
 ```
 
----
+***
 
 ### resources
 
@@ -46,7 +46,7 @@ readonly namespace: string;
 readonly resources: readonly PluginLoaderUiResourceDescriptor[];
 ```
 
----
+***
 
 ### scriptPath
 

@@ -1,20 +1,13 @@
-[**@wpkernel/pipeline v0.12.5-beta.0**](../README.md)
+[**@wpkernel/pipeline v0.12.6-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/pipeline](../README.md) / makePipeline
 
 # Function: makePipeline()
 
 ```ts
-function makePipeline<
-	TRunOptions,
-	TContext,
-	TReporter,
-	TUserState,
-	TDiagnostic,
-	TRunResult,
->(options): AgnosticPipeline<TRunOptions, TRunResult, TContext, TReporter>;
+function makePipeline&lt;TRunOptions, TContext, TReporter, TUserState, TDiagnostic, TRunResult&gt;(options): AgnosticPipeline&lt;TRunOptions, TRunResult, TContext, TReporter&gt;;
 ```
 
 ## Type Parameters
@@ -25,11 +18,11 @@ function makePipeline<
 
 ### TContext
 
-`TContext` _extends_ `object`
+`TContext` *extends* `object`
 
 ### TReporter
 
-`TReporter` _extends_ [`PipelineReporter`](../interfaces/PipelineReporter.md) = [`PipelineReporter`](../interfaces/PipelineReporter.md)
+`TReporter` *extends* [`PipelineReporter`](../interfaces/PipelineReporter.md) = [`PipelineReporter`](../interfaces/PipelineReporter.md)
 
 ### TUserState
 
@@ -37,18 +30,18 @@ function makePipeline<
 
 ### TDiagnostic
 
-`TDiagnostic` _extends_ [`PipelineDiagnostic`](../type-aliases/PipelineDiagnostic.md) = [`PipelineDiagnostic`](../type-aliases/PipelineDiagnostic.md)
+`TDiagnostic` *extends* [`PipelineDiagnostic`](../type-aliases/PipelineDiagnostic.md) = [`PipelineDiagnostic`](../type-aliases/PipelineDiagnostic.md)
 
 ### TRunResult
 
-`TRunResult` = [`PipelineRunState`](../interfaces/PipelineRunState.md)<`TUserState`, `TDiagnostic`>
+`TRunResult` = [`PipelineRunState`](../interfaces/PipelineRunState.md)&lt;`TUserState`, `TDiagnostic`&gt;
 
 ## Parameters
 
 ### options
 
-`AgnosticPipelineOptions`<`TRunOptions`, `TContext`, `TReporter`, `TUserState`, `TDiagnostic`, `TRunResult`>
+`AgnosticPipelineOptions`&lt;`TRunOptions`, `TContext`, `TReporter`, `TUserState`, `TDiagnostic`, `TRunResult`&gt;
 
 ## Returns
 
-`AgnosticPipeline`<`TRunOptions`, `TRunResult`, `TContext`, `TReporter`>
+`AgnosticPipeline`&lt;`TRunOptions`, `TRunResult`, `TContext`, `TReporter`&gt;

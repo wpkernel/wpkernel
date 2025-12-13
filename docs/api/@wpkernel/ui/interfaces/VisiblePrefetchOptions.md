@@ -1,6 +1,6 @@
-[**@wpkernel/ui v0.12.5-beta.0**](../README.md)
+[**@wpkernel/ui v0.12.6-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/ui](../README.md) / VisiblePrefetchOptions
 
@@ -21,10 +21,10 @@ If true, the prefetch will only be triggered once.
 #### Default
 
 ```ts
-true;
+true
 ```
 
----
+***
 
 ### rootMargin?
 
@@ -41,5 +41,5 @@ https://developer.mozilla.org/en-US/docs/Web/API/IntersectionObserver/rootMargin
 #### Default
 
 ```ts
-'200px';
+'200px'
 ```

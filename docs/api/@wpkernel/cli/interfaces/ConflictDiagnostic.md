@@ -1,6 +1,6 @@
-[**@wpkernel/cli v0.12.5-beta.0**](../README.md)
+[**@wpkernel/cli v0.12.6-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/cli](../README.md) / ConflictDiagnostic
 
@@ -24,7 +24,7 @@ readonly helpers: readonly string[];
 
 A list of helpers involved in the conflict.
 
----
+***
 
 ### key
 
@@ -34,7 +34,7 @@ readonly key: string;
 
 The key of the helper that caused the conflict.
 
----
+***
 
 ### message
 
@@ -44,7 +44,7 @@ readonly message: string;
 
 A descriptive message about the conflict.
 
----
+***
 
 ### mode
 
@@ -54,7 +54,7 @@ readonly mode: HelperMode;
 
 The conflict resolution mode (e.g., 'override').
 
----
+***
 
 ### type
 
@@ -64,7 +64,7 @@ readonly type: "conflict";
 
 The type of diagnostic, always 'conflict'.
 
----
+***
 
 ### kind?
 

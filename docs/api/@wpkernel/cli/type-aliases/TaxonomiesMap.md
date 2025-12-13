@@ -1,20 +1,17 @@
-[**@wpkernel/cli v0.12.5-beta.0**](../README.md)
+[**@wpkernel/cli v0.12.6-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/cli](../README.md) / TaxonomiesMap
 
 # Type Alias: TaxonomiesMap
 
 ```ts
-type TaxonomiesMap = Map<
-	string,
-	{
-		labels: Record<string, string>;
-		objectTypes: Set<string>;
-		showAdminColumn: boolean;
-		showUi: boolean;
-		hierarchical?: boolean;
-	}
->;
+type TaxonomiesMap = Map&lt;string, {
+  labels: Record&lt;string, string&gt;;
+  objectTypes: Set&lt;string&gt;;
+  showAdminColumn: boolean;
+  showUi: boolean;
+  hierarchical?: boolean;
+}&gt;;
 ```

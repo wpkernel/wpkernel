@@ -1,16 +1,16 @@
-[**@wpkernel/php-json-ast v0.12.5-beta.0**](../README.md)
+[**@wpkernel/php-json-ast v0.12.6-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/php-json-ast](../README.md) / Helper
 
-# Interface: Helper<TContext, TInput, TOutput, TReporter, TKind>
+# Interface: Helper&lt;TContext, TInput, TOutput, TReporter, TKind&gt;
 
 A complete pipeline helper with descriptor and apply function.
 
 ## Extends
 
-- [`HelperDescriptor`](HelperDescriptor.md)<`TKind`>
+- [`HelperDescriptor`](HelperDescriptor.md)&lt;`TKind`&gt;
 
 ## Type Parameters
 
@@ -28,21 +28,21 @@ A complete pipeline helper with descriptor and apply function.
 
 ### TReporter
 
-`TReporter` _extends_ `PipelineReporter` = `PipelineReporter`
+`TReporter` *extends* `PipelineReporter` = `PipelineReporter`
 
 ### TKind
 
-`TKind` _extends_ [`HelperKind`](../type-aliases/HelperKind.md) = [`HelperKind`](../type-aliases/HelperKind.md)
+`TKind` *extends* [`HelperKind`](../type-aliases/HelperKind.md) = [`HelperKind`](../type-aliases/HelperKind.md)
 
 ## Properties
 
 ### apply
 
 ```ts
-readonly apply: HelperApplyFn<TContext, TInput, TOutput, TReporter>;
+readonly apply: HelperApplyFn&lt;TContext, TInput, TOutput, TReporter&gt;;
 ```
 
----
+***
 
 ### dependsOn
 
@@ -54,7 +54,7 @@ readonly dependsOn: readonly string[];
 
 [`HelperDescriptor`](HelperDescriptor.md).[`dependsOn`](HelperDescriptor.md#dependson)
 
----
+***
 
 ### key
 
@@ -66,7 +66,7 @@ readonly key: string;
 
 [`HelperDescriptor`](HelperDescriptor.md).[`key`](HelperDescriptor.md#key)
 
----
+***
 
 ### kind
 
@@ -78,7 +78,7 @@ readonly kind: TKind;
 
 [`HelperDescriptor`](HelperDescriptor.md).[`kind`](HelperDescriptor.md#kind)
 
----
+***
 
 ### mode
 
@@ -90,7 +90,7 @@ readonly mode: HelperMode;
 
 [`HelperDescriptor`](HelperDescriptor.md).[`mode`](HelperDescriptor.md#mode)
 
----
+***
 
 ### priority
 
@@ -102,7 +102,7 @@ readonly priority: number;
 
 [`HelperDescriptor`](HelperDescriptor.md).[`priority`](HelperDescriptor.md#priority)
 
----
+***
 
 ### optional?
 
@@ -117,14 +117,14 @@ Useful for conditional/feature-flag helpers.
 #### Default Value
 
 ```ts
-false;
+false
 ```
 
 #### Inherited from
 
 [`HelperDescriptor`](HelperDescriptor.md).[`optional`](HelperDescriptor.md#optional)
 
----
+***
 
 ### origin?
 

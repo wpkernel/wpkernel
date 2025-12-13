@@ -1,13 +1,13 @@
-[**@wpkernel/php-json-ast v0.12.5-beta.0**](../README.md)
+[**@wpkernel/php-json-ast v0.12.6-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/php-json-ast](../README.md) / HelperMode
 
 # Type Alias: HelperMode
 
 ```ts
-type HelperMode = 'extend' | 'override' | 'merge';
+type HelperMode = "extend" | "override" | "merge";
 ```
 
 Helper execution mode - determines how it integrates with existing helpers.

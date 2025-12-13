@@ -1,12 +1,11 @@
-[**@wpkernel/cli v0.12.5-beta.0**](../README.md)
+[**@wpkernel/cli v0.12.6-beta.0**](../README.md)
 
----
+***
 
-[@wpkernel/cli](../README.md) / DEFAULT_READINESS_ORDER
+[@wpkernel/cli](../README.md) / DEFAULT\_READINESS\_ORDER
 
-# Variable: DEFAULT_READINESS_ORDER
+# Variable: DEFAULT\_READINESS\_ORDER
 
 ```ts
-const DEFAULT_READINESS_ORDER: ReadonlyArray & lt;
-ReadinessKey & gt;
+const DEFAULT_READINESS_ORDER: ReadonlyArray&lt;ReadinessKey&gt;;
 ```

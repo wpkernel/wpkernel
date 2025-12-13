@@ -1,13 +1,16 @@
-[**@wpkernel/ui v0.12.5-beta.0**](../README.md)
+[**@wpkernel/ui v0.12.6-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/ui](../README.md) / useVisiblePrefetch
 
 # Function: useVisiblePrefetch()
 
 ```ts
-function useVisiblePrefetch(ref, fn, options): void;
+function useVisiblePrefetch(
+   ref, 
+   fn, 
+   options): void;
 ```
 
 Triggers a prefetch when an element becomes visible in the viewport.
@@ -19,13 +22,13 @@ a scroll and resize listener.
 
 ### ref
 
-`RefObject`<`Element`>
+`RefObject`&lt;`Element`&gt;
 
 A React ref to the element to monitor.
 
 ### fn
 
-() => `void`
+() =&gt; `void`
 
 The function to call to trigger the prefetch.
 

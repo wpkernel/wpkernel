@@ -1,13 +1,13 @@
-[**@wpkernel/wp-json-ast v0.12.5-beta.0**](../README.md)
+[**@wpkernel/wp-json-ast v0.12.6-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/wp-json-ast](../README.md) / buildGeneratedModuleProgram
 
 # Function: buildGeneratedModuleProgram()
 
 ```ts
-function buildGeneratedModuleProgram<TMetadata>(program): PhpProgram;
+function buildGeneratedModuleProgram&lt;TMetadata&gt;(program): PhpProgram;
 ```
 
 ## Type Parameters
@@ -20,7 +20,7 @@ function buildGeneratedModuleProgram<TMetadata>(program): PhpProgram;
 
 ### program
 
-[`ModuleProgramFile`](../interfaces/ModuleProgramFile.md)<`TMetadata`>
+[`ModuleProgramFile`](../interfaces/ModuleProgramFile.md)&lt;`TMetadata`&gt;
 
 ## Returns
 

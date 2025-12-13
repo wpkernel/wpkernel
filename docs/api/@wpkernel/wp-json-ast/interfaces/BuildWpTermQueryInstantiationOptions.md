@@ -1,6 +1,6 @@
-[**@wpkernel/wp-json-ast v0.12.5-beta.0**](../README.md)
+[**@wpkernel/wp-json-ast v0.12.6-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/wp-json-ast](../README.md) / BuildWpTermQueryInstantiationOptions
 
@@ -27,7 +27,7 @@ readonly target: string;
 
 The name of the variable to which the `WP_Term_Query` instance will be assigned.
 
----
+***
 
 ### argsVariable?
 

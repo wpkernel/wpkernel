@@ -1,13 +1,16 @@
-[**@wpkernel/php-json-ast v0.12.5-beta.0**](../README.md)
+[**@wpkernel/php-json-ast v0.12.6-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/php-json-ast](../README.md) / buildFuncCall
 
 # Function: buildFuncCall()
 
 ```ts
-function buildFuncCall(name, args, attributes?): PhpExprFuncCall;
+function buildFuncCall(
+   name, 
+   args, 
+   attributes?): PhpExprFuncCall;
 ```
 
 Builds a PHP function call expression node.
@@ -28,7 +31,7 @@ An array of `PhpArg` nodes representing the function arguments.
 
 ### attributes?
 
-`Readonly`<`Record`<`string`, `unknown`>>
+`Readonly`&lt;`Record`&lt;`string`, `unknown`&gt;&gt;
 
 Optional attributes for the node.
 

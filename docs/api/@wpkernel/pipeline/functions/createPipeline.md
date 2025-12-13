@@ -1,48 +1,13 @@
-[**@wpkernel/pipeline v0.12.5-beta.0**](../README.md)
+[**@wpkernel/pipeline v0.12.6-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/pipeline](../README.md) / createPipeline
 
 # Function: createPipeline()
 
 ```ts
-function createPipeline<
-	TRunOptions,
-	TBuildOptions,
-	TContext,
-	TReporter,
-	TDraft,
-	TArtifact,
-	TDiagnostic,
-	TRunResult,
-	TFragmentInput,
-	TFragmentOutput,
-	TBuilderInput,
-	TBuilderOutput,
-	TFragmentKind,
-	TBuilderKind,
-	TFragmentHelper,
-	TBuilderHelper,
->(
-	options
-): Pipeline<
-	TRunOptions,
-	TRunResult,
-	TContext,
-	TReporter,
-	TBuildOptions,
-	TArtifact,
-	TFragmentInput,
-	TFragmentOutput,
-	TBuilderInput,
-	TBuilderOutput,
-	TDiagnostic,
-	TFragmentKind,
-	TBuilderKind,
-	TFragmentHelper,
-	TBuilderHelper
->;
+function createPipeline&lt;TRunOptions, TBuildOptions, TContext, TReporter, TDraft, TArtifact, TDiagnostic, TRunResult, TFragmentInput, TFragmentOutput, TBuilderInput, TBuilderOutput, TFragmentKind, TBuilderKind, TFragmentHelper, TBuilderHelper&gt;(options): Pipeline&lt;TRunOptions, TRunResult, TContext, TReporter, TBuildOptions, TArtifact, TFragmentInput, TFragmentOutput, TBuilderInput, TBuilderOutput, TDiagnostic, TFragmentKind, TBuilderKind, TFragmentHelper, TBuilderHelper&gt;;
 ```
 
 ## Type Parameters
@@ -57,11 +22,11 @@ function createPipeline<
 
 ### TContext
 
-`TContext` _extends_ `object`
+`TContext` *extends* `object`
 
 ### TReporter
 
-`TReporter` _extends_ [`PipelineReporter`](../interfaces/PipelineReporter.md) = [`PipelineReporter`](../interfaces/PipelineReporter.md)
+`TReporter` *extends* [`PipelineReporter`](../interfaces/PipelineReporter.md) = [`PipelineReporter`](../interfaces/PipelineReporter.md)
 
 ### TDraft
 
@@ -73,11 +38,11 @@ function createPipeline<
 
 ### TDiagnostic
 
-`TDiagnostic` _extends_ [`PipelineDiagnostic`](../type-aliases/PipelineDiagnostic.md) = [`PipelineDiagnostic`](../type-aliases/PipelineDiagnostic.md)
+`TDiagnostic` *extends* [`PipelineDiagnostic`](../type-aliases/PipelineDiagnostic.md) = [`PipelineDiagnostic`](../type-aliases/PipelineDiagnostic.md)
 
 ### TRunResult
 
-`TRunResult` = [`PipelineRunState`](../interfaces/PipelineRunState.md)<`TArtifact`, `TDiagnostic`>
+`TRunResult` = [`PipelineRunState`](../interfaces/PipelineRunState.md)&lt;`TArtifact`, `TDiagnostic`&gt;
 
 ### TFragmentInput
 
@@ -97,26 +62,26 @@ function createPipeline<
 
 ### TFragmentKind
 
-`TFragmentKind` _extends_ `string` = `"fragment"`
+`TFragmentKind` *extends* `string` = `"fragment"`
 
 ### TBuilderKind
 
-`TBuilderKind` _extends_ `string` = `"builder"`
+`TBuilderKind` *extends* `string` = `"builder"`
 
 ### TFragmentHelper
 
-`TFragmentHelper` _extends_ [`Helper`](../interfaces/Helper.md)<`TContext`, `TFragmentInput`, `TFragmentOutput`, `TReporter`, `TFragmentKind`> = [`Helper`](../interfaces/Helper.md)<`TContext`, `TFragmentInput`, `TFragmentOutput`, `TReporter`, `TFragmentKind`>
+`TFragmentHelper` *extends* [`Helper`](../interfaces/Helper.md)&lt;`TContext`, `TFragmentInput`, `TFragmentOutput`, `TReporter`, `TFragmentKind`&gt; = [`Helper`](../interfaces/Helper.md)&lt;`TContext`, `TFragmentInput`, `TFragmentOutput`, `TReporter`, `TFragmentKind`&gt;
 
 ### TBuilderHelper
 
-`TBuilderHelper` _extends_ [`Helper`](../interfaces/Helper.md)<`TContext`, `TBuilderInput`, `TBuilderOutput`, `TReporter`, `TBuilderKind`> = [`Helper`](../interfaces/Helper.md)<`TContext`, `TBuilderInput`, `TBuilderOutput`, `TReporter`, `TBuilderKind`>
+`TBuilderHelper` *extends* [`Helper`](../interfaces/Helper.md)&lt;`TContext`, `TBuilderInput`, `TBuilderOutput`, `TReporter`, `TBuilderKind`&gt; = [`Helper`](../interfaces/Helper.md)&lt;`TContext`, `TBuilderInput`, `TBuilderOutput`, `TReporter`, `TBuilderKind`&gt;
 
 ## Parameters
 
 ### options
 
-[`CreatePipelineOptions`](../interfaces/CreatePipelineOptions.md)<`TRunOptions`, `TBuildOptions`, `TContext`, `TReporter`, `TDraft`, `TArtifact`, `TDiagnostic`, `TRunResult`, `TFragmentInput`, `TFragmentOutput`, `TBuilderInput`, `TBuilderOutput`, `TFragmentKind`, `TBuilderKind`, `TFragmentHelper`, `TBuilderHelper`>
+[`CreatePipelineOptions`](../interfaces/CreatePipelineOptions.md)&lt;`TRunOptions`, `TBuildOptions`, `TContext`, `TReporter`, `TDraft`, `TArtifact`, `TDiagnostic`, `TRunResult`, `TFragmentInput`, `TFragmentOutput`, `TBuilderInput`, `TBuilderOutput`, `TFragmentKind`, `TBuilderKind`, `TFragmentHelper`, `TBuilderHelper`&gt;
 
 ## Returns
 
-[`Pipeline`](../interfaces/Pipeline.md)<`TRunOptions`, `TRunResult`, `TContext`, `TReporter`, `TBuildOptions`, `TArtifact`, `TFragmentInput`, `TFragmentOutput`, `TBuilderInput`, `TBuilderOutput`, `TDiagnostic`, `TFragmentKind`, `TBuilderKind`, `TFragmentHelper`, `TBuilderHelper`>
+[`Pipeline`](../interfaces/Pipeline.md)&lt;`TRunOptions`, `TRunResult`, `TContext`, `TReporter`, `TBuildOptions`, `TArtifact`, `TFragmentInput`, `TFragmentOutput`, `TBuilderInput`, `TBuilderOutput`, `TDiagnostic`, `TFragmentKind`, `TBuilderKind`, `TFragmentHelper`, `TBuilderHelper`&gt;

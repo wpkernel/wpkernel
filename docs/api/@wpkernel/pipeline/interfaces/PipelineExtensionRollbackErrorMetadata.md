@@ -1,6 +1,6 @@
-[**@wpkernel/pipeline v0.12.5-beta.0**](../README.md)
+[**@wpkernel/pipeline v0.12.6-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/pipeline](../README.md) / PipelineExtensionRollbackErrorMetadata
 
@@ -16,7 +16,7 @@ Metadata about an error during extension rollback.
 readonly optional cause: unknown;
 ```
 
----
+***
 
 ### message?
 
@@ -24,7 +24,7 @@ readonly optional cause: unknown;
 readonly optional message: string;
 ```
 
----
+***
 
 ### name?
 
@@ -32,7 +32,7 @@ readonly optional message: string;
 readonly optional name: string;
 ```
 
----
+***
 
 ### stack?
 

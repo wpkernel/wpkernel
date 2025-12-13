@@ -1,6 +1,6 @@
-[**@wpkernel/wp-json-ast v0.12.5-beta.0**](../README.md)
+[**@wpkernel/wp-json-ast v0.12.6-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/wp-json-ast](../README.md) / ResourceAccessorRegistry
 
@@ -11,7 +11,7 @@
 ### addCache()
 
 ```ts
-addCache: (descriptor) => void;
+addCache: (descriptor) =&gt; void;
 ```
 
 #### Parameters
@@ -24,12 +24,12 @@ addCache: (descriptor) => void;
 
 `void`
 
----
+***
 
 ### addHelper()
 
 ```ts
-addHelper: (descriptor) => void;
+addHelper: (descriptor) =&gt; void;
 ```
 
 #### Parameters
@@ -42,12 +42,12 @@ addHelper: (descriptor) => void;
 
 `void`
 
----
+***
 
 ### addMutation()
 
 ```ts
-addMutation: (descriptor) => void;
+addMutation: (descriptor) =&gt; void;
 ```
 
 #### Parameters
@@ -60,12 +60,12 @@ addMutation: (descriptor) => void;
 
 `void`
 
----
+***
 
 ### addQuery()
 
 ```ts
-addQuery: (descriptor) => void;
+addQuery: (descriptor) =&gt; void;
 ```
 
 #### Parameters
@@ -78,12 +78,12 @@ addQuery: (descriptor) => void;
 
 `void`
 
----
+***
 
 ### addRequest()
 
 ```ts
-addRequest: (descriptor) => void;
+addRequest: (descriptor) =&gt; void;
 ```
 
 #### Parameters

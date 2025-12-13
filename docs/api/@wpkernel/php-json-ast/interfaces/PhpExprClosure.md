@@ -1,6 +1,6 @@
-[**@wpkernel/php-json-ast v0.12.5-beta.0**](../README.md)
+[**@wpkernel/php-json-ast v0.12.6-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/php-json-ast](../README.md) / PhpExprClosure
 
@@ -20,7 +20,7 @@ Represents a PHP closure expression (anonymous function).
 readonly attrGroups: PhpAttrGroup[];
 ```
 
----
+***
 
 ### attributes
 
@@ -32,7 +32,7 @@ readonly attributes: PhpAttributes;
 
 [`PhpExprBase`](PhpExprBase.md).[`attributes`](PhpExprBase.md#attributes)
 
----
+***
 
 ### byRef
 
@@ -40,7 +40,7 @@ readonly attributes: PhpAttributes;
 readonly byRef: boolean;
 ```
 
----
+***
 
 ### nodeType
 
@@ -52,7 +52,7 @@ readonly nodeType: "Expr_Closure";
 
 [`PhpExprBase`](PhpExprBase.md).[`nodeType`](PhpExprBase.md#nodetype)
 
----
+***
 
 ### params
 
@@ -60,7 +60,7 @@ readonly nodeType: "Expr_Closure";
 readonly params: PhpParam[];
 ```
 
----
+***
 
 ### returnType
 
@@ -68,7 +68,7 @@ readonly params: PhpParam[];
 readonly returnType: PhpType | null;
 ```
 
----
+***
 
 ### static
 
@@ -76,7 +76,7 @@ readonly returnType: PhpType | null;
 readonly static: boolean;
 ```
 
----
+***
 
 ### stmts
 
@@ -84,7 +84,7 @@ readonly static: boolean;
 readonly stmts: PhpStmt[];
 ```
 
----
+***
 
 ### uses
 

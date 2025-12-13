@@ -1,13 +1,13 @@
-[**@wpkernel/core v0.12.5-beta.0**](../README.md)
+[**@wpkernel/core v0.12.6-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/core](../README.md) / ResourceSelectors
 
-# Type Alias: ResourceSelectors<T, TQuery>
+# Type Alias: ResourceSelectors&lt;T, TQuery&gt;
 
 ```ts
-type ResourceSelectors<T, TQuery> = object;
+type ResourceSelectors&lt;T, TQuery&gt; = object;
 ```
 
 Selectors for a resource store.
@@ -31,7 +31,7 @@ The query parameter type for list operations
 ### getError()
 
 ```ts
-getError: (state, cacheKey) => string | undefined;
+getError: (state, cacheKey) =&gt; string | undefined;
 ```
 
 Get error for a cache key.
@@ -40,7 +40,7 @@ Get error for a cache key.
 
 ##### state
 
-[`ResourceState`](ResourceState.md)<`T`>
+[`ResourceState`](ResourceState.md)&lt;`T`&gt;
 
 Store state
 
@@ -56,12 +56,12 @@ The cache key
 
 Error message or undefined
 
----
+***
 
 ### getItem()
 
 ```ts
-getItem: (state, id) => T | undefined;
+getItem: (state, id) =&gt; T | undefined;
 ```
 
 Get a single item by ID.
@@ -70,7 +70,7 @@ Get a single item by ID.
 
 ##### state
 
-[`ResourceState`](ResourceState.md)<`T`>
+[`ResourceState`](ResourceState.md)&lt;`T`&gt;
 
 Store state
 
@@ -86,12 +86,12 @@ Item ID
 
 The item or undefined if not found
 
----
+***
 
 ### getItems()
 
 ```ts
-getItems: (state, query?) => T[];
+getItems: (state, query?) =&gt; T[];
 ```
 
 Get items from a list query.
@@ -100,7 +100,7 @@ Get items from a list query.
 
 ##### state
 
-[`ResourceState`](ResourceState.md)<`T`>
+[`ResourceState`](ResourceState.md)&lt;`T`&gt;
 
 Store state
 
@@ -116,12 +116,12 @@ Query parameters
 
 Array of items
 
----
+***
 
 ### getList()
 
 ```ts
-getList: (state, query?) => ListResponse<T>;
+getList: (state, query?) =&gt; ListResponse&lt;T&gt;;
 ```
 
 Get list response with metadata.
@@ -130,7 +130,7 @@ Get list response with metadata.
 
 ##### state
 
-[`ResourceState`](ResourceState.md)<`T`>
+[`ResourceState`](ResourceState.md)&lt;`T`&gt;
 
 Store state
 
@@ -142,16 +142,16 @@ Query parameters
 
 #### Returns
 
-[`ListResponse`](ListResponse.md)<`T`>
+[`ListResponse`](ListResponse.md)&lt;`T`&gt;
 
 List response with items and metadata
 
----
+***
 
 ### getListError()
 
 ```ts
-getListError: (state, query?) => string | undefined;
+getListError: (state, query?) =&gt; string | undefined;
 ```
 
 Get the error message for a list query, if any.
@@ -160,7 +160,7 @@ Get the error message for a list query, if any.
 
 ##### state
 
-[`ResourceState`](ResourceState.md)<`T`>
+[`ResourceState`](ResourceState.md)&lt;`T`&gt;
 
 Store state
 
@@ -176,12 +176,12 @@ Query parameters
 
 Error message or undefined
 
----
+***
 
 ### getListStatus()
 
 ```ts
-getListStatus: (state, query?) => ResourceListStatus;
+getListStatus: (state, query?) =&gt; ResourceListStatus;
 ```
 
 Get the status for a list query.
@@ -190,7 +190,7 @@ Get the status for a list query.
 
 ##### state
 
-[`ResourceState`](ResourceState.md)<`T`>
+[`ResourceState`](ResourceState.md)&lt;`T`&gt;
 
 Store state
 
@@ -206,12 +206,12 @@ Query parameters
 
 List status
 
----
+***
 
 ### hasFinishedResolution()
 
 ```ts
-hasFinishedResolution: (state, selectorName, args?) => boolean;
+hasFinishedResolution: (state, selectorName, args?) =&gt; boolean;
 ```
 
 Check if a selector has finished resolution.
@@ -223,7 +223,7 @@ We include it here for type completeness.
 
 ##### state
 
-[`ResourceState`](ResourceState.md)<`T`>
+[`ResourceState`](ResourceState.md)&lt;`T`&gt;
 
 Store state
 
@@ -245,12 +245,12 @@ Arguments passed to the selector
 
 True if resolution has finished
 
----
+***
 
 ### hasStartedResolution()
 
 ```ts
-hasStartedResolution: (state, selectorName, args?) => boolean;
+hasStartedResolution: (state, selectorName, args?) =&gt; boolean;
 ```
 
 Check if a selector has started resolution.
@@ -262,7 +262,7 @@ We include it here for type completeness.
 
 ##### state
 
-[`ResourceState`](ResourceState.md)<`T`>
+[`ResourceState`](ResourceState.md)&lt;`T`&gt;
 
 Store state
 
@@ -284,12 +284,12 @@ Arguments passed to the selector
 
 True if resolution has started
 
----
+***
 
 ### isResolving()
 
 ```ts
-isResolving: (state, selectorName, args?) => boolean;
+isResolving: (state, selectorName, args?) =&gt; boolean;
 ```
 
 Check if a selector is currently resolving.
@@ -301,7 +301,7 @@ We include it here for type completeness.
 
 ##### state
 
-[`ResourceState`](ResourceState.md)<`T`>
+[`ResourceState`](ResourceState.md)&lt;`T`&gt;
 
 Store state
 

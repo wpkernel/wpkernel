@@ -1,6 +1,6 @@
-[**@wpkernel/wp-json-ast v0.12.5-beta.0**](../README.md)
+[**@wpkernel/wp-json-ast v0.12.6-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/wp-json-ast](../README.md) / RestControllerRouteFallbackContext
 
@@ -14,7 +14,7 @@
 readonly optional hint: string;
 ```
 
----
+***
 
 ### kind?
 
@@ -22,7 +22,7 @@ readonly optional hint: string;
 readonly optional kind: "list" | "get" | "create" | "update" | "remove" | "custom";
 ```
 
----
+***
 
 ### reason?
 
@@ -30,7 +30,7 @@ readonly optional kind: "list" | "get" | "create" | "update" | "remove" | "custo
 readonly optional reason: string;
 ```
 
----
+***
 
 ### resource?
 
@@ -38,7 +38,7 @@ readonly optional reason: string;
 readonly optional resource: string;
 ```
 
----
+***
 
 ### storageMode?
 
@@ -46,7 +46,7 @@ readonly optional resource: string;
 readonly optional storageMode: string;
 ```
 
----
+***
 
 ### transport?
 

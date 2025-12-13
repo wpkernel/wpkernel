@@ -1,6 +1,6 @@
-[**@wpkernel/php-json-ast v0.12.5-beta.0**](../README.md)
+[**@wpkernel/php-json-ast v0.12.6-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/php-json-ast](../README.md) / PhpClosureUse
 
@@ -24,7 +24,7 @@ readonly attributes: PhpAttributes;
 
 [`PhpNode`](PhpNode.md).[`attributes`](PhpNode.md#attributes)
 
----
+***
 
 ### byRef
 
@@ -32,7 +32,7 @@ readonly attributes: PhpAttributes;
 readonly byRef: boolean;
 ```
 
----
+***
 
 ### nodeType
 
@@ -44,7 +44,7 @@ readonly nodeType: "ClosureUse" | "Expr_ClosureUse";
 
 [`PhpNode`](PhpNode.md).[`nodeType`](PhpNode.md#nodetype)
 
----
+***
 
 ### var
 

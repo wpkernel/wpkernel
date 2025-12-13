@@ -1,15 +1,13 @@
-[**@wpkernel/core v0.12.5-beta.0**](../README.md)
+[**@wpkernel/core v0.12.6-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/core](../README.md) / defineInteraction
 
 # Function: defineInteraction()
 
 ```ts
-function defineInteraction<TEntity, TQuery, TStore, TActions>(
-	options
-): DefinedInteraction<InteractivityStoreResult>;
+function defineInteraction&lt;TEntity, TQuery, TStore, TActions&gt;(options): DefinedInteraction&lt;InteractivityStoreResult&gt;;
 ```
 
 Define an interactivity store that bridges a resource and optional actions to
@@ -25,11 +23,11 @@ import { testimonial } from '@/resources/testimonial';
 import { ApproveTestimonial } from '@/actions/ApproveTestimonial';
 
 const TestimonialReview = defineInteraction({
-	resource: testimonial,
-	feature: 'review',
-	actions: {
-		approve: ApproveTestimonial,
-	},
+  resource: testimonial,
+  feature: 'review',
+  actions: {
+    approve: ApproveTestimonial,
+  },
 });
 
 await TestimonialReview.store.actions.approve({ id: 101 });
@@ -47,18 +45,18 @@ await TestimonialReview.store.actions.approve({ id: 101 });
 
 ### TStore
 
-`TStore` _extends_ `Record`<`string`, `unknown`> = `Record`<`string`, `unknown`>
+`TStore` *extends* `Record`&lt;`string`, `unknown`&gt; = `Record`&lt;`string`, `unknown`&gt;
 
 ### TActions
 
-`TActions` _extends_ [`InteractionActionsRecord`](../type-aliases/InteractionActionsRecord.md) = [`InteractionActionsRecord`](../type-aliases/InteractionActionsRecord.md)
+`TActions` *extends* [`InteractionActionsRecord`](../type-aliases/InteractionActionsRecord.md) = [`InteractionActionsRecord`](../type-aliases/InteractionActionsRecord.md)
 
 ## Parameters
 
 ### options
 
-[`DefineInteractionOptions`](../interfaces/DefineInteractionOptions.md)<`TEntity`, `TQuery`, `TStore`, `TActions`>
+[`DefineInteractionOptions`](../interfaces/DefineInteractionOptions.md)&lt;`TEntity`, `TQuery`, `TStore`, `TActions`&gt;
 
 ## Returns
 
-[`DefinedInteraction`](../interfaces/DefinedInteraction.md)<[`InteractivityStoreResult`](../type-aliases/InteractivityStoreResult.md)>
+[`DefinedInteraction`](../interfaces/DefinedInteraction.md)&lt;[`InteractivityStoreResult`](../type-aliases/InteractivityStoreResult.md)&gt;

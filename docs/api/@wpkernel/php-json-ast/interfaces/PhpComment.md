@@ -1,6 +1,6 @@
-[**@wpkernel/php-json-ast v0.12.5-beta.0**](../README.md)
+[**@wpkernel/php-json-ast v0.12.6-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/php-json-ast](../README.md) / PhpComment
 
@@ -20,7 +20,7 @@ Represents a generic PHP comment.
 readonly nodeType: "Comment" | `Comment_${string}`;
 ```
 
----
+***
 
 ### text
 
@@ -28,7 +28,7 @@ readonly nodeType: "Comment" | `Comment_${string}`;
 readonly text: string;
 ```
 
----
+***
 
 ### endFilePos?
 
@@ -40,7 +40,7 @@ readonly optional endFilePos: number;
 
 [`PhpCommentLocation`](PhpCommentLocation.md).[`endFilePos`](PhpCommentLocation.md#endfilepos)
 
----
+***
 
 ### endLine?
 
@@ -52,7 +52,7 @@ readonly optional endLine: number;
 
 [`PhpCommentLocation`](PhpCommentLocation.md).[`endLine`](PhpCommentLocation.md#endline)
 
----
+***
 
 ### endTokenPos?
 
@@ -64,7 +64,7 @@ readonly optional endTokenPos: number;
 
 [`PhpCommentLocation`](PhpCommentLocation.md).[`endTokenPos`](PhpCommentLocation.md#endtokenpos)
 
----
+***
 
 ### filePos?
 
@@ -76,7 +76,7 @@ readonly optional filePos: number;
 
 [`PhpCommentLocation`](PhpCommentLocation.md).[`filePos`](PhpCommentLocation.md#filepos)
 
----
+***
 
 ### line?
 
@@ -88,7 +88,7 @@ readonly optional line: number;
 
 [`PhpCommentLocation`](PhpCommentLocation.md).[`line`](PhpCommentLocation.md#line)
 
----
+***
 
 ### tokenPos?
 

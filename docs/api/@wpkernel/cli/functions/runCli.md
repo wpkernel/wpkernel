@@ -1,13 +1,13 @@
-[**@wpkernel/cli v0.12.5-beta.0**](../README.md)
+[**@wpkernel/cli v0.12.6-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/cli](../README.md) / runCli
 
 # Function: runCli()
 
 ```ts
-function runCli(argv): Promise<void>;
+function runCli(argv): Promise&lt;void&gt;;
 ```
 
 Run the WPKernel CLI programmatically.
@@ -27,7 +27,7 @@ Command-line arguments (without the node and script path)
 
 ## Returns
 
-`Promise`<`void`>
+`Promise`&lt;`void`&gt;
 
 A promise that resolves when the CLI invocation completes.
 

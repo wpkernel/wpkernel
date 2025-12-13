@@ -1,10 +1,10 @@
-[**@wpkernel/cli v0.12.5-beta.0**](../README.md)
+[**@wpkernel/cli v0.12.6-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/cli](../README.md) / AdapterContext
 
-# Interface: AdapterContext<TConfigSurface, TIr>
+# Interface: AdapterContext&lt;TConfigSurface, TIr&gt;
 
 Context shared with adapter factories while generating artifacts.
 
@@ -30,7 +30,7 @@ Context shared with adapter factories while generating artifacts.
 config: TConfigSurface;
 ```
 
----
+***
 
 ### namespace
 
@@ -38,7 +38,7 @@ config: TConfigSurface;
 namespace: string;
 ```
 
----
+***
 
 ### reporter
 
@@ -46,7 +46,7 @@ namespace: string;
 reporter: Reporter;
 ```
 
----
+***
 
 ### ir?
 

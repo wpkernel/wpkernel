@@ -1,6 +1,6 @@
-[**@wpkernel/wp-json-ast v0.12.5-beta.0**](../README.md)
+[**@wpkernel/wp-json-ast v0.12.6-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/wp-json-ast](../README.md) / RestControllerModuleConfig
 
@@ -14,7 +14,7 @@
 readonly controllers: readonly RestControllerModuleControllerConfig[];
 ```
 
----
+***
 
 ### namespace
 
@@ -22,7 +22,7 @@ readonly controllers: readonly RestControllerModuleControllerConfig[];
 readonly namespace: string;
 ```
 
----
+***
 
 ### origin
 
@@ -30,7 +30,7 @@ readonly namespace: string;
 readonly origin: string;
 ```
 
----
+***
 
 ### sanitizedNamespace
 
@@ -38,7 +38,7 @@ readonly origin: string;
 readonly sanitizedNamespace: string;
 ```
 
----
+***
 
 ### additionalIndexEntries?
 
@@ -46,7 +46,7 @@ readonly sanitizedNamespace: string;
 readonly optional additionalIndexEntries: readonly ModuleIndexEntry[];
 ```
 
----
+***
 
 ### baseControllerFileName?
 
@@ -54,7 +54,7 @@ readonly optional additionalIndexEntries: readonly ModuleIndexEntry[];
 readonly optional baseControllerFileName: string;
 ```
 
----
+***
 
 ### includeBaseController?
 

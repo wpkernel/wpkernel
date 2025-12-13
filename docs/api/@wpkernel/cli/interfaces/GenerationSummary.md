@@ -1,6 +1,6 @@
-[**@wpkernel/cli v0.12.5-beta.0**](../README.md)
+[**@wpkernel/cli v0.12.6-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/cli](../README.md) / GenerationSummary
 
@@ -17,15 +17,14 @@ Aggregated summary returned by the `FileWriter.summarise` helper.
 ### counts
 
 ```ts
-counts: Record & lt;
-(FileWriteStatus, number & gt);
+counts: Record&lt;FileWriteStatus, number&gt;;
 ```
 
 #### Inherited from
 
 [`FileWriterSummary`](FileWriterSummary.md).[`counts`](FileWriterSummary.md#counts)
 
----
+***
 
 ### dryRun
 
@@ -33,7 +32,7 @@ counts: Record & lt;
 dryRun: boolean;
 ```
 
----
+***
 
 ### entries
 

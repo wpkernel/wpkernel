@@ -1,6 +1,6 @@
-[**@wpkernel/cli v0.12.5-beta.0**](../README.md)
+[**@wpkernel/cli v0.12.6-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/cli](../README.md) / WpTaxonomyStorageHelperArtifacts
 
@@ -18,7 +18,7 @@ readonly helperMethods: readonly PhpStmtClassMethod[];
 
 The helper methods generated for WP Taxonomy storage.
 
----
+***
 
 ### helperSignatures
 
@@ -28,7 +28,7 @@ readonly helperSignatures: readonly string[];
 
 The helper signatures generated for WP Taxonomy storage.
 
----
+***
 
 ### routeHandlers
 

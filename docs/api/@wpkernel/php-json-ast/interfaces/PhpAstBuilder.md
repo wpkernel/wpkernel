@@ -1,6 +1,6 @@
-[**@wpkernel/php-json-ast v0.12.5-beta.0**](../README.md)
+[**@wpkernel/php-json-ast v0.12.6-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/php-json-ast](../README.md) / PhpAstBuilder
 
@@ -15,7 +15,7 @@
 ### addUse()
 
 ```ts
-addUse: (statement) => void;
+addUse: (statement) =&gt; void;
 ```
 
 #### Parameters
@@ -28,12 +28,12 @@ addUse: (statement) => void;
 
 `void`
 
----
+***
 
 ### appendDocblock()
 
 ```ts
-appendDocblock: (line) => void;
+appendDocblock: (line) =&gt; void;
 ```
 
 #### Parameters
@@ -46,12 +46,12 @@ appendDocblock: (line) => void;
 
 `void`
 
----
+***
 
 ### appendProgramStatement()
 
 ```ts
-appendProgramStatement: (statement) => void;
+appendProgramStatement: (statement) =&gt; void;
 ```
 
 #### Parameters
@@ -64,12 +64,12 @@ appendProgramStatement: (statement) => void;
 
 `void`
 
----
+***
 
 ### appendStatement()
 
 ```ts
-appendStatement: (statement) => void;
+appendStatement: (statement) =&gt; void;
 ```
 
 #### Parameters
@@ -82,60 +82,60 @@ appendStatement: (statement) => void;
 
 `void`
 
----
+***
 
 ### getMetadata()
 
 ```ts
-getMetadata: () => PhpFileMetadata;
+getMetadata: () =&gt; PhpFileMetadata;
 ```
 
 #### Returns
 
 [`PhpFileMetadata`](../type-aliases/PhpFileMetadata.md)
 
----
+***
 
 ### getNamespace()
 
 ```ts
-getNamespace: () => string;
+getNamespace: () =&gt; string;
 ```
 
 #### Returns
 
 `string`
 
----
+***
 
 ### getProgramAst()
 
 ```ts
-getProgramAst: () => PhpProgram;
+getProgramAst: () =&gt; PhpProgram;
 ```
 
 #### Returns
 
 [`PhpProgram`](../type-aliases/PhpProgram.md)
 
----
+***
 
 ### getStatements()
 
 ```ts
-getStatements: () => readonly string[];
+getStatements: () =&gt; readonly string[];
 ```
 
 #### Returns
 
 readonly `string`[]
 
----
+***
 
 ### setMetadata()
 
 ```ts
-setMetadata: (metadata) => void;
+setMetadata: (metadata) =&gt; void;
 ```
 
 #### Parameters
@@ -148,12 +148,12 @@ setMetadata: (metadata) => void;
 
 `void`
 
----
+***
 
 ### setNamespace()
 
 ```ts
-setNamespace: (namespace) => void;
+setNamespace: (namespace) =&gt; void;
 ```
 
 #### Parameters

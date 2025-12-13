@@ -1,15 +1,13 @@
-[**@wpkernel/wp-json-ast v0.12.5-beta.0**](../README.md)
+[**@wpkernel/wp-json-ast v0.12.6-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/wp-json-ast](../README.md) / buildDocCommentAttributes
 
 # Function: buildDocCommentAttributes()
 
 ```ts
-function buildDocCommentAttributes(
-	lines
-): Readonly<Record<string, unknown>> | undefined;
+function buildDocCommentAttributes(lines): Readonly&lt;Record&lt;string, unknown&gt;&gt; | undefined;
 ```
 
 Builds doc comment attributes from a list of lines.
@@ -24,6 +22,6 @@ The lines to add to the doc comment.
 
 ## Returns
 
-`Readonly`<`Record`<`string`, `unknown`>> \| `undefined`
+`Readonly`&lt;`Record`&lt;`string`, `unknown`&gt;&gt; \| `undefined`
 
 PHP attributes, or undefined if there are no lines.

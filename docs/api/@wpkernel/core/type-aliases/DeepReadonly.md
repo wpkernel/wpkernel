@@ -1,17 +1,13 @@
-[**@wpkernel/core v0.12.5-beta.0**](../README.md)
+[**@wpkernel/core v0.12.6-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/core](../README.md) / DeepReadonly
 
-# Type Alias: DeepReadonly<T>
+# Type Alias: DeepReadonly&lt;T&gt;
 
 ```ts
-type DeepReadonly<T> = T extends (...args) => infer TResult
-	? (...args) => TResult
-	: T extends object
-		? { readonly [Key in keyof T]: DeepReadonly<T[Key]> }
-		: T;
+type DeepReadonly&lt;T&gt; = T extends (...args) =&gt; infer TResult ? (...args) =&gt; TResult : T extends object ? { readonly [Key in keyof T]: DeepReadonly&lt;T[Key]&gt; } : T;
 ```
 
 Recursively marks an object as read-only.

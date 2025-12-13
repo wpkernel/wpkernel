@@ -1,13 +1,13 @@
-[**@wpkernel/core v0.12.5-beta.0**](../README.md)
+[**@wpkernel/core v0.12.6-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/core](../README.md) / ReduxMiddleware
 
-# Type Alias: ReduxMiddleware<TState>
+# Type Alias: ReduxMiddleware&lt;TState&gt;
 
 ```ts
-type ReduxMiddleware<TState> = (api) => (next) => (action) => unknown;
+type ReduxMiddleware&lt;TState&gt; = (api) =&gt; (next) =&gt; (action) =&gt; unknown;
 ```
 
 Redux compatible middleware type without depending on redux package.
@@ -22,12 +22,12 @@ Redux compatible middleware type without depending on redux package.
 
 ### api
 
-[`ReduxMiddlewareAPI`](ReduxMiddlewareAPI.md)<`TState`>
+[`ReduxMiddlewareAPI`](ReduxMiddlewareAPI.md)&lt;`TState`&gt;
 
 ## Returns
 
 ```ts
-(next): (action) => unknown;
+(next): (action) =&gt; unknown;
 ```
 
 ### Parameters

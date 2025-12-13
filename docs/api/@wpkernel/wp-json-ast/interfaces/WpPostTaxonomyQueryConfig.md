@@ -1,6 +1,6 @@
-[**@wpkernel/wp-json-ast v0.12.5-beta.0**](../README.md)
+[**@wpkernel/wp-json-ast v0.12.6-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/wp-json-ast](../README.md) / WpPostTaxonomyQueryConfig
 
@@ -11,10 +11,10 @@
 ### taxonomies?
 
 ```ts
-readonly optional taxonomies:
-  | Record<string,
+readonly optional taxonomies: 
+  | Record&lt;string, 
   | WpPostTaxonomyConfigEntry
   | null
-  | undefined>
+  | undefined&gt;
   | null;
 ```

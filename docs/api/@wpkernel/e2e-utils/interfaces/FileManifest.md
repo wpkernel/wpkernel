@@ -1,6 +1,6 @@
-[**@wpkernel/e2e-utils v0.12.5-beta.0**](../README.md)
+[**@wpkernel/e2e-utils v0.12.6-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/e2e-utils](../README.md) / FileManifest
 
@@ -11,11 +11,10 @@
 ### files
 
 ```ts
-files: Record & lt;
-(string, FileHashEntry & gt);
+files: Record&lt;string, FileHashEntry&gt;;
 ```
 
----
+***
 
 ### generatedAt
 

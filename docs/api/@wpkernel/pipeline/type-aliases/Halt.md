@@ -1,13 +1,13 @@
-[**@wpkernel/pipeline v0.12.5-beta.0**](../README.md)
+[**@wpkernel/pipeline v0.12.6-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/pipeline](../README.md) / Halt
 
-# Type Alias: Halt<TRunResult>
+# Type Alias: Halt&lt;TRunResult&gt;
 
 ```ts
-type Halt<TRunResult> = object;
+type Halt&lt;TRunResult&gt; = object;
 ```
 
 ## Type Parameters
@@ -24,7 +24,7 @@ type Halt<TRunResult> = object;
 readonly __halt: true;
 ```
 
----
+***
 
 ### error?
 
@@ -32,7 +32,7 @@ readonly __halt: true;
 readonly optional error: unknown;
 ```
 
----
+***
 
 ### result?
 

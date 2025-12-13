@@ -1,6 +1,6 @@
-[**@wpkernel/core v0.12.5-beta.0**](../README.md)
+[**@wpkernel/core v0.12.6-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/core](../README.md) / WPKernelEventBus
 
@@ -30,7 +30,7 @@ new WPKernelEventBus(): WPKernelEventBus;
 ### emit()
 
 ```ts
-emit<K>(event, payload): void;
+emit&lt;K&gt;(event, payload): void;
 ```
 
 Emit the specified event and execute every registered listener. Any
@@ -41,7 +41,7 @@ outside of production.
 
 ##### K
 
-`K` _extends_ keyof [`WPKernelEventMap`](../type-aliases/WPKernelEventMap.md)
+`K` *extends* keyof [`WPKernelEventMap`](../type-aliases/WPKernelEventMap.md)
 
 #### Parameters
 
@@ -57,12 +57,12 @@ outside of production.
 
 `void`
 
----
+***
 
 ### off()
 
 ```ts
-off<K>(event, listener): void;
+off&lt;K&gt;(event, listener): void;
 ```
 
 Remove a previously registered listener. Calling this method for a
@@ -72,7 +72,7 @@ listener that was never registered is a no-op.
 
 ##### K
 
-`K` _extends_ keyof [`WPKernelEventMap`](../type-aliases/WPKernelEventMap.md)
+`K` *extends* keyof [`WPKernelEventMap`](../type-aliases/WPKernelEventMap.md)
 
 #### Parameters
 
@@ -82,18 +82,18 @@ listener that was never registered is a no-op.
 
 ##### listener
 
-[`Listener`](../type-aliases/Listener.md)<[`WPKernelEventMap`](../type-aliases/WPKernelEventMap.md)\[`K`\]>
+[`Listener`](../type-aliases/Listener.md)&lt;[`WPKernelEventMap`](../type-aliases/WPKernelEventMap.md)\[`K`\]&gt;
 
 #### Returns
 
 `void`
 
----
+***
 
 ### on()
 
 ```ts
-on<K>(event, listener): () => void;
+on&lt;K&gt;(event, listener): () =&gt; void;
 ```
 
 Register a listener that remains active until the returned teardown
@@ -103,7 +103,7 @@ function is called.
 
 ##### K
 
-`K` _extends_ keyof [`WPKernelEventMap`](../type-aliases/WPKernelEventMap.md)
+`K` *extends* keyof [`WPKernelEventMap`](../type-aliases/WPKernelEventMap.md)
 
 #### Parameters
 
@@ -113,7 +113,7 @@ function is called.
 
 ##### listener
 
-[`Listener`](../type-aliases/Listener.md)<[`WPKernelEventMap`](../type-aliases/WPKernelEventMap.md)\[`K`\]>
+[`Listener`](../type-aliases/Listener.md)&lt;[`WPKernelEventMap`](../type-aliases/WPKernelEventMap.md)\[`K`\]&gt;
 
 #### Returns
 
@@ -125,12 +125,12 @@ function is called.
 
 `void`
 
----
+***
 
 ### once()
 
 ```ts
-once<K>(event, listener): () => void;
+once&lt;K&gt;(event, listener): () =&gt; void;
 ```
 
 Register a listener that runs only once for the next occurrence of
@@ -140,7 +140,7 @@ the event and then tears itself down.
 
 ##### K
 
-`K` _extends_ keyof [`WPKernelEventMap`](../type-aliases/WPKernelEventMap.md)
+`K` *extends* keyof [`WPKernelEventMap`](../type-aliases/WPKernelEventMap.md)
 
 #### Parameters
 
@@ -150,7 +150,7 @@ the event and then tears itself down.
 
 ##### listener
 
-[`Listener`](../type-aliases/Listener.md)<[`WPKernelEventMap`](../type-aliases/WPKernelEventMap.md)\[`K`\]>
+[`Listener`](../type-aliases/Listener.md)&lt;[`WPKernelEventMap`](../type-aliases/WPKernelEventMap.md)\[`K`\]&gt;
 
 #### Returns
 

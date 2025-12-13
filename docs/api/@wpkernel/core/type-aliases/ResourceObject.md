@@ -1,13 +1,13 @@
-[**@wpkernel/core v0.12.5-beta.0**](../README.md)
+[**@wpkernel/core v0.12.6-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/core](../README.md) / ResourceObject
 
-# Type Alias: ResourceObject<T, TQuery, TRoutes>
+# Type Alias: ResourceObject&lt;T, TQuery, TRoutes&gt;
 
 ```ts
-type ResourceObject<T, TQuery, TRoutes> = object & ResourceClient<T, TQuery>;
+type ResourceObject&lt;T, TQuery, TRoutes&gt; = object & ResourceClient&lt;T, TQuery&gt;;
 ```
 
 Complete resource object returned by defineResource
@@ -38,7 +38,7 @@ Cache invalidation operations
 #### cache.invalidate.all()
 
 ```ts
-all: () => void;
+all: () =&gt; void;
 ```
 
 Invalidate all cached data for this resource
@@ -50,7 +50,7 @@ Invalidate all cached data for this resource
 #### cache.invalidate.item()
 
 ```ts
-item: (id) => void;
+item: (id) =&gt; void;
 ```
 
 Invalidate cached item by ID
@@ -68,7 +68,7 @@ Invalidate cached item by ID
 #### cache.invalidate.list()
 
 ```ts
-list: (query?) => void;
+list: (query?) =&gt; void;
 ```
 
 Invalidate cached list by query
@@ -86,7 +86,7 @@ Invalidate cached list by query
 #### cache.key()
 
 ```ts
-key: (operation, params?) => (string | number | boolean)[];
+key: (operation, params?) =&gt; (string | number | boolean)[];
 ```
 
 Generate cache key
@@ -99,7 +99,7 @@ Generate cache key
 
 ###### params?
 
-`TQuery` | `string` | `number` | `Partial`<`T`>
+`TQuery` | `string` | `number` | `Partial`&lt;`T`&gt;
 
 ##### Returns
 
@@ -116,7 +116,7 @@ Prefetch operations (eager loading)
 #### cache.prefetch.item()
 
 ```ts
-item: (id) => Promise<void>;
+item: (id) =&gt; Promise&lt;void&gt;;
 ```
 
 Prefetch single item into cache
@@ -129,12 +129,12 @@ Prefetch single item into cache
 
 ##### Returns
 
-`Promise`<`void`>
+`Promise`&lt;`void`&gt;
 
 #### cache.prefetch.list()
 
 ```ts
-list: (query?) => Promise<void>;
+list: (query?) =&gt; Promise&lt;void&gt;;
 ```
 
 Prefetch list into cache
@@ -147,12 +147,12 @@ Prefetch list into cache
 
 ##### Returns
 
-`Promise`<`void`>
+`Promise`&lt;`void`&gt;
 
 ### cacheKeys
 
 ```ts
-cacheKeys: Required<CacheKeys<TQuery>>;
+cacheKeys: Required&lt;CacheKeys&lt;TQuery&gt;&gt;;
 ```
 
 Cache key generators for all operations
@@ -162,7 +162,7 @@ Use these to generate cache keys for invalidation
 ### invalidate()
 
 ```ts
-invalidate: (patterns) => void;
+invalidate: (patterns) =&gt; void;
 ```
 
 Invalidate cached data for this resource
@@ -198,7 +198,7 @@ thing.invalidate([['thing', 'list']]); // Also invalidate lists
 ### key()
 
 ```ts
-key: (operation, params?) => (string | number | boolean)[];
+key: (operation, params?) =&gt; (string | number | boolean)[];
 ```
 
 Generate a cache key for this resource
@@ -217,7 +217,7 @@ Operation name ('list', 'get', etc.)
 
 Parameters for the operation
 
-`TQuery` | `string` | `number` | `Partial`<`T`>
+`TQuery` | `string` | `number` | `Partial`&lt;`T`&gt;
 
 #### Returns
 
@@ -229,10 +229,10 @@ Cache key array
 
 ```ts
 const key = thing.key('list', { status: 'active' });
-// => ['thing', 'list', '{"status":"active"}']
+// =&gt; ['thing', 'list', '{"status":"active"}']
 
 const key2 = thing.key('get', 123);
-// => ['thing', 'get', 123]
+// =&gt; ['thing', 'get', 123]
 ```
 
 ### name
@@ -361,7 +361,7 @@ Useful for refresh actions or real-time data requirements.
 #### get.item()
 
 ```ts
-item: (id) => Promise<T>;
+item: (id) =&gt; Promise&lt;T&gt;;
 ```
 
 Get item from server (bypass cache)
@@ -379,14 +379,14 @@ Item identifier
 
 ##### Returns
 
-`Promise`<`T`>
+`Promise`&lt;`T`&gt;
 
 Promise resolving to the item
 
 #### get.list()
 
 ```ts
-list: (query?) => Promise<ListResponse<T>>;
+list: (query?) =&gt; Promise&lt;ListResponse&lt;T&gt;&gt;;
 ```
 
 Get list from server (bypass cache)
@@ -404,7 +404,7 @@ Optional query parameters
 
 ##### Returns
 
-`Promise`<[`ListResponse`](ListResponse.md)<`T`>>
+`Promise`&lt;[`ListResponse`](ListResponse.md)&lt;`T`&gt;&gt;
 
 Promise resolving to list response
 
@@ -421,7 +421,7 @@ Write operations that modify server state.
 #### mutate.create()
 
 ```ts
-create: (data) => Promise<T>;
+create: (data) =&gt; Promise&lt;T&gt;;
 ```
 
 Create new item
@@ -430,16 +430,16 @@ Create new item
 
 ###### data
 
-`Partial`<`T`>
+`Partial`&lt;`T`&gt;
 
 ##### Returns
 
-`Promise`<`T`>
+`Promise`&lt;`T`&gt;
 
 #### mutate.remove()
 
 ```ts
-remove: (id) => Promise<void>;
+remove: (id) =&gt; Promise&lt;void&gt;;
 ```
 
 Delete item
@@ -452,12 +452,12 @@ Delete item
 
 ##### Returns
 
-`Promise`<`void`>
+`Promise`&lt;`void`&gt;
 
 #### mutate.update()
 
 ```ts
-update: (id, data) => Promise<T>;
+update: (id, data) =&gt; Promise&lt;T&gt;;
 ```
 
 Update existing item
@@ -470,16 +470,16 @@ Update existing item
 
 ###### data
 
-`Partial`<`T`>
+`Partial`&lt;`T`&gt;
 
 ##### Returns
 
-`Promise`<`T`>
+`Promise`&lt;`T`&gt;
 
 ### prefetchGet()?
 
 ```ts
-optional prefetchGet: (id) => Promise<void>;
+optional prefetchGet: (id) =&gt; Promise&lt;void&gt;;
 ```
 
 Prefetch a single item into the cache
@@ -497,7 +497,7 @@ Item identifier
 
 #### Returns
 
-`Promise`<`void`>
+`Promise`&lt;`void`&gt;
 
 Promise resolving when prefetch completes
 
@@ -505,15 +505,15 @@ Promise resolving when prefetch completes
 
 ```ts
 // Prefetch on hover
-<Link onMouseEnter={() => thing.prefetchGet(123)}>
+&lt;Link onMouseEnter={() =&gt; thing.prefetchGet(123)}&gt;
   View Thing
-</Link>
+&lt;/Link&gt;
 ```
 
 ### prefetchList()?
 
 ```ts
-optional prefetchList: (query?) => Promise<void>;
+optional prefetchList: (query?) =&gt; Promise&lt;void&gt;;
 ```
 
 Prefetch a list of items into the cache
@@ -531,7 +531,7 @@ Query parameters
 
 #### Returns
 
-`Promise`<`void`>
+`Promise`&lt;`void`&gt;
 
 Promise resolving when prefetch completes
 
@@ -539,8 +539,8 @@ Promise resolving when prefetch completes
 
 ```ts
 // Prefetch on app mount
-useEffect(() => {
-	thing.prefetchList({ status: 'active' });
+useEffect(() =&gt; {
+  thing.prefetchList({ status: 'active' });
 }, []);
 ```
 
@@ -558,7 +558,7 @@ Ideal for computed values and derived state.
 #### select.item()
 
 ```ts
-item: (id) => T | undefined;
+item: (id) =&gt; T | undefined;
 ```
 
 Get cached item by ID (no fetch)
@@ -580,7 +580,7 @@ Cached item or undefined
 #### select.items()
 
 ```ts
-items: () => T[];
+items: () =&gt; T[];
 ```
 
 Get all cached items (no fetch)
@@ -594,7 +594,7 @@ Array of all cached items
 #### select.list()
 
 ```ts
-list: (query?) => T[];
+list: (query?) =&gt; T[];
 ```
 
 Get cached list by query (no fetch)
@@ -616,7 +616,7 @@ Array of items matching query or empty array
 ### useGet()?
 
 ```ts
-optional useGet: (id) => object;
+optional useGet: (id) =&gt; object;
 ```
 
 React hook to fetch a single item
@@ -662,15 +662,15 @@ isLoading: boolean;
 ```ts
 function ThingView({ id }: { id: number }) {
   const { data: thing, isLoading } = thing.useGet(id);
-  if (isLoading) return <Spinner />;
-  return <div>{thing.title}</div>;
+  if (isLoading) return &lt;Spinner /&gt;;
+  return &lt;div&gt;{thing.title}&lt;/div&gt;;
 }
 ```
 
 ### useList()?
 
 ```ts
-optional useList: (query?) => object;
+optional useList: (query?) =&gt; object;
 ```
 
 React hook to fetch a list of items
@@ -696,7 +696,7 @@ Hook result with data, isLoading, error
 ##### data
 
 ```ts
-data: ListResponse<T> | undefined;
+data: ListResponse&lt;T&gt; | undefined;
 ```
 
 ##### error
@@ -716,8 +716,8 @@ isLoading: boolean;
 ```ts
 function ThingList({ status }: { status: string }) {
   const { data, isLoading } = thing.useList({ status });
-  if (isLoading) return <Spinner />;
-  return <List items={data?.items} />;
+  if (isLoading) return &lt;Spinner /&gt;;
+  return &lt;List items={data?.items} /&gt;;
 }
 ```
 
@@ -737,12 +737,12 @@ Query parameters type for list operations
 
 ### TRoutes
 
-`TRoutes` _extends_ [`ResourceRoutes`](ResourceRoutes.md) = [`ResourceRoutes`](ResourceRoutes.md)
+`TRoutes` *extends* [`ResourceRoutes`](ResourceRoutes.md) = [`ResourceRoutes`](ResourceRoutes.md)
 
 ## Example
 
 ```ts
-const thing = defineResource<Thing, { q?: string }>({ ... });
+const thing = defineResource&lt;Thing, { q?: string }&gt;({ ... });
 
 // Use client methods (thin-flat API)
 const items = await thing.fetchList({ q: 'search' });

@@ -1,13 +1,13 @@
-[**@wpkernel/ui v0.12.5-beta.0**](../README.md)
+[**@wpkernel/ui v0.12.6-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/ui](../README.md) / useCapability
 
 # Function: useCapability()
 
 ```ts
-function useCapability<K>(): UseCapabilityResult<K>;
+function useCapability&lt;K&gt;(): UseCapabilityResult&lt;K&gt;;
 ```
 
 React hook that exposes the wpk capability runtime to UI components.
@@ -22,8 +22,8 @@ developer error so plugin authors remember to bootstrap via `defineCapability()`
 
 ### K
 
-`K` _extends_ `Record`<`string`, `unknown`>
+`K` *extends* `Record`&lt;`string`, `unknown`&gt;
 
 ## Returns
 
-`UseCapabilityResult`<`K`>
+`UseCapabilityResult`&lt;`K`&gt;

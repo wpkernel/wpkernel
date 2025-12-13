@@ -1,6 +1,6 @@
-[**@wpkernel/core v0.12.5-beta.0**](../README.md)
+[**@wpkernel/core v0.12.6-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/core](../README.md) / CacheKeyPattern
 
@@ -16,5 +16,7 @@ Null and undefined values are filtered out during normalization.
 ## Example
 
 ```ts
-['thing', 'list'][('thing', 'list', 'active')][('thing', 'get', 123)]; // Matches all 'thing' lists // Matches lists filtered by 'active' // Matches get query for item 123
+['thing', 'list']                    // Matches all 'thing' lists
+['thing', 'list', 'active']          // Matches lists filtered by 'active'
+['thing', 'get', 123]                // Matches get query for item 123
 ```

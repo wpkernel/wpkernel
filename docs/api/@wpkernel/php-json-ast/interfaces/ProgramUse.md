@@ -1,6 +1,6 @@
-[**@wpkernel/php-json-ast v0.12.5-beta.0**](../README.md)
+[**@wpkernel/php-json-ast v0.12.6-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/php-json-ast](../README.md) / ProgramUse
 
@@ -14,7 +14,7 @@
 readonly alias: string | null;
 ```
 
----
+***
 
 ### fullyQualified
 
@@ -22,7 +22,7 @@ readonly alias: string | null;
 readonly fullyQualified: boolean;
 ```
 
----
+***
 
 ### key
 
@@ -30,7 +30,7 @@ readonly fullyQualified: boolean;
 readonly key: string;
 ```
 
----
+***
 
 ### parts
 
@@ -38,7 +38,7 @@ readonly key: string;
 readonly parts: readonly string[];
 ```
 
----
+***
 
 ### type
 

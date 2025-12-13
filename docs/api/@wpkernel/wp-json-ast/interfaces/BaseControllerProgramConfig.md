@@ -1,6 +1,6 @@
-[**@wpkernel/wp-json-ast v0.12.5-beta.0**](../README.md)
+[**@wpkernel/wp-json-ast v0.12.6-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/wp-json-ast](../README.md) / BaseControllerProgramConfig
 
@@ -14,7 +14,7 @@
 readonly namespace: ModuleNamespaceConfig;
 ```
 
----
+***
 
 ### origin
 
@@ -22,7 +22,7 @@ readonly namespace: ModuleNamespaceConfig;
 readonly origin: string;
 ```
 
----
+***
 
 ### metadataName?
 

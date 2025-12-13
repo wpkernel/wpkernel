@@ -1,16 +1,16 @@
-[**@wpkernel/wp-json-ast v0.12.5-beta.0**](../README.md)
+[**@wpkernel/wp-json-ast v0.12.6-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/wp-json-ast](../README.md) / ResolveFilePathStrategyContext
 
-# Interface: ResolveFilePathStrategyContext<TFile>
+# Interface: ResolveFilePathStrategyContext&lt;TFile&gt;
 
 ## Type Parameters
 
 ### TFile
 
-`TFile` _extends_ [`ProgramTargetFile`](ProgramTargetFile.md) = [`ProgramTargetFile`](ProgramTargetFile.md)
+`TFile` *extends* [`ProgramTargetFile`](ProgramTargetFile.md) = [`ProgramTargetFile`](ProgramTargetFile.md)
 
 ## Properties
 
@@ -20,7 +20,7 @@
 readonly file: TFile;
 ```
 
----
+***
 
 ### outputDir
 
@@ -28,7 +28,7 @@ readonly file: TFile;
 readonly outputDir: string;
 ```
 
----
+***
 
 ### workspace
 
@@ -36,7 +36,7 @@ readonly outputDir: string;
 readonly workspace: Workspace;
 ```
 
----
+***
 
 ### overrides?
 

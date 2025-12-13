@@ -1,6 +1,6 @@
-[**@wpkernel/core v0.12.5-beta.0**](../README.md)
+[**@wpkernel/core v0.12.6-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/core](../README.md) / WPKUICapabilityRuntime
 
@@ -11,7 +11,7 @@
 ### capability?
 
 ```ts
-optional capability: Partial<CapabilityHelpers<Record<string, unknown>>> & object;
+optional capability: Partial&lt;CapabilityHelpers&lt;Record&lt;string, unknown&gt;&gt;&gt; & object;
 ```
 
 #### Type Declaration

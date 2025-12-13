@@ -1,6 +1,6 @@
-[**@wpkernel/cli v0.12.5-beta.0**](../README.md)
+[**@wpkernel/cli v0.12.6-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/cli](../README.md) / IRCapabilityDefinition
 
@@ -18,7 +18,7 @@ appliesTo: IRCapabilityScope;
 
 The scope to which the capability applies.
 
----
+***
 
 ### capability
 
@@ -28,7 +28,7 @@ capability: string;
 
 The underlying capability string.
 
----
+***
 
 ### id
 
@@ -38,7 +38,7 @@ id: string;
 
 Stable identifier for the capability definition.
 
----
+***
 
 ### key
 
@@ -48,17 +48,17 @@ key: string;
 
 The key of the capability.
 
----
+***
 
 ### source
 
 ```ts
-source: 'map' | 'fallback';
+source: "map" | "fallback";
 ```
 
 The source of the capability definition (map or fallback).
 
----
+***
 
 ### binding?
 

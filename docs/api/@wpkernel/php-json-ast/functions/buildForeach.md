@@ -1,13 +1,16 @@
-[**@wpkernel/php-json-ast v0.12.5-beta.0**](../README.md)
+[**@wpkernel/php-json-ast v0.12.6-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/php-json-ast](../README.md) / buildForeach
 
 # Function: buildForeach()
 
 ```ts
-function buildForeach(expr, options, attributes?): PhpStmtForeach;
+function buildForeach(
+   expr, 
+   options, 
+   attributes?): PhpStmtForeach;
 ```
 
 Builds a PHP `foreach` loop statement node.
@@ -42,7 +45,7 @@ Configuration for the `foreach` loop (value variable, optional key variable, by 
 
 ### attributes?
 
-`Readonly`<`Record`<`string`, `unknown`>>
+`Readonly`&lt;`Record`&lt;`string`, `unknown`&gt;&gt;
 
 Optional attributes for the node.
 

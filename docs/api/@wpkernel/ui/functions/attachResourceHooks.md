@@ -1,16 +1,13 @@
-[**@wpkernel/ui v0.12.5-beta.0**](../README.md)
+[**@wpkernel/ui v0.12.6-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/ui](../README.md) / attachResourceHooks
 
 # Function: attachResourceHooks()
 
 ```ts
-function attachResourceHooks<T, TQuery>(
-	resource,
-	_runtime?
-): ResourceObject<T, TQuery>;
+function attachResourceHooks&lt;T, TQuery&gt;(resource, _runtime?): ResourceObject&lt;T, TQuery&gt;;
 ```
 
 Attach `useGet` and `useList` React helpers to a resource definition.
@@ -38,7 +35,7 @@ Query parameter type
 
 ### resource
 
-`ResourceObject`<`T`, `TQuery`>
+`ResourceObject`&lt;`T`, `TQuery`&gt;
 
 Resource definition to augment with hooks
 
@@ -50,6 +47,6 @@ Active Kernel UI runtime (unused placeholder for API symmetry)
 
 ## Returns
 
-`ResourceObject`<`T`, `TQuery`>
+`ResourceObject`&lt;`T`, `TQuery`&gt;
 
 The same resource object with hooks attached

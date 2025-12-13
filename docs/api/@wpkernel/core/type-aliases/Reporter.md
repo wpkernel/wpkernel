@@ -1,6 +1,6 @@
-[**@wpkernel/core v0.12.5-beta.0**](../README.md)
+[**@wpkernel/core v0.12.6-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/core](../README.md) / Reporter
 
@@ -15,7 +15,7 @@ type Reporter = object;
 ### child()
 
 ```ts
-child: (namespace) => Reporter;
+child: (namespace) =&gt; Reporter;
 ```
 
 #### Parameters
@@ -28,12 +28,12 @@ child: (namespace) => Reporter;
 
 `Reporter`
 
----
+***
 
 ### debug()
 
 ```ts
-debug: (message, context?) => void;
+debug: (message, context?) =&gt; void;
 ```
 
 #### Parameters
@@ -50,12 +50,12 @@ debug: (message, context?) => void;
 
 `void`
 
----
+***
 
 ### error()
 
 ```ts
-error: (message, context?) => void;
+error: (message, context?) =&gt; void;
 ```
 
 #### Parameters
@@ -72,12 +72,12 @@ error: (message, context?) => void;
 
 `void`
 
----
+***
 
 ### info()
 
 ```ts
-info: (message, context?) => void;
+info: (message, context?) =&gt; void;
 ```
 
 #### Parameters
@@ -94,12 +94,12 @@ info: (message, context?) => void;
 
 `void`
 
----
+***
 
 ### warn()
 
 ```ts
-warn: (message, context?) => void;
+warn: (message, context?) =&gt; void;
 ```
 
 #### Parameters

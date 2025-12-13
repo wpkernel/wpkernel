@@ -1,6 +1,6 @@
-[**@wpkernel/cli v0.12.5-beta.0**](../README.md)
+[**@wpkernel/cli v0.12.6-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/cli](../README.md) / IRCapabilityHint
 
@@ -18,7 +18,7 @@ key: string;
 
 The key of the capability.
 
----
+***
 
 ### references
 
@@ -46,12 +46,12 @@ route: string;
 transport: IRRouteTransport;
 ```
 
----
+***
 
 ### source
 
 ```ts
-source: 'resource' | 'config';
+source: "resource" | "config";
 ```
 
 The source of the capability hint (resource or config).

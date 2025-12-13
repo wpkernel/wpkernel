@@ -1,6 +1,6 @@
-[**@wpkernel/cli v0.12.5-beta.0**](../README.md)
+[**@wpkernel/cli v0.12.6-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/cli](../README.md) / IRResourceCacheKey
 
@@ -18,12 +18,12 @@ segments: readonly unknown[];
 
 The segments that make up the cache key.
 
----
+***
 
 ### source
 
 ```ts
-source: 'config' | 'default';
+source: "config" | "default";
 ```
 
 The source of the cache key definition (default or config).

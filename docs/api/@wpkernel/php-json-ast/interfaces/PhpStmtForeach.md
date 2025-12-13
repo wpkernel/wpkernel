@@ -1,6 +1,6 @@
-[**@wpkernel/php-json-ast v0.12.5-beta.0**](../README.md)
+[**@wpkernel/php-json-ast v0.12.6-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/php-json-ast](../README.md) / PhpStmtForeach
 
@@ -24,7 +24,7 @@ readonly attributes: PhpAttributes;
 
 [`PhpStmtBase`](PhpStmtBase.md).[`attributes`](PhpStmtBase.md#attributes)
 
----
+***
 
 ### byRef
 
@@ -32,7 +32,7 @@ readonly attributes: PhpAttributes;
 readonly byRef: boolean;
 ```
 
----
+***
 
 ### expr
 
@@ -40,7 +40,7 @@ readonly byRef: boolean;
 readonly expr: PhpExpr;
 ```
 
----
+***
 
 ### keyVar
 
@@ -48,7 +48,7 @@ readonly expr: PhpExpr;
 readonly keyVar: PhpExpr | null;
 ```
 
----
+***
 
 ### nodeType
 
@@ -60,7 +60,7 @@ readonly nodeType: "Stmt_Foreach";
 
 [`PhpStmtBase`](PhpStmtBase.md).[`nodeType`](PhpStmtBase.md#nodetype)
 
----
+***
 
 ### stmts
 
@@ -68,7 +68,7 @@ readonly nodeType: "Stmt_Foreach";
 readonly stmts: PhpStmt[];
 ```
 
----
+***
 
 ### valueVar
 

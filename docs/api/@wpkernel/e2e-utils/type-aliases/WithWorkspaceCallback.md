@@ -1,13 +1,13 @@
-[**@wpkernel/e2e-utils v0.12.5-beta.0**](../README.md)
+[**@wpkernel/e2e-utils v0.12.6-beta.0**](../README.md)
 
----
+***
 
 [@wpkernel/e2e-utils](../README.md) / WithWorkspaceCallback
 
-# Type Alias: WithWorkspaceCallback<TResult>
+# Type Alias: WithWorkspaceCallback&lt;TResult&gt;
 
 ```ts
-type WithWorkspaceCallback<TResult> = (workspace) => Promise<TResult> | TResult;
+type WithWorkspaceCallback&lt;TResult&gt; = (workspace) =&gt; Promise&lt;TResult&gt; | TResult;
 ```
 
 Callback executed with an isolated workspace instance.
@@ -26,4 +26,4 @@ Callback executed with an isolated workspace instance.
 
 ## Returns
 
-`Promise`<`TResult`> \| `TResult`
+`Promise`&lt;`TResult`&gt; \| `TResult`
