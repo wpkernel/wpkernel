@@ -68,6 +68,7 @@ import { makePipeline } from '@wpkernel/pipeline';
 
 const pipeline = makePipeline({
 	// Define the "Stages" of your pipeline
+	helperKinds: ['extract', 'transform', 'load'] as const,
 	createStages: (deps) => [
 		deps.makeLifecycleStage('extract'),
 		deps.makeLifecycleStage('transform'),
@@ -134,7 +135,17 @@ Extensions wrap execution with hooks at specific lifecycle stages.
 
 **Validation**: The pipeline validates extension registrations. If an extension attempts to hook into an unscheduled lifecycle, the pipeline will log a warning instead of silently ignoring it.
 
-**Async Registration**: You can register extensions asynchronously (returned as a Promise). `pipeline.run()` will automatically wait for all pending extensions to settle before starting execution. If a registration fails, the run will reject.
+**Extension Registration (Sync & Async)**: `extensions.use()` returns `MaybePromise<unknown>`. It returns a Promise only if the extension's `register` method is asynchronous.
+
+```ts
+// Sync registration (e.g. simple helper bundles)
+extensions.use(mySyncExtension);
+
+// Async registration (e.g. database connections)
+await extensions.use(myAsyncExtension);
+```
+
+> **Recommendation**: We recommend `await`ing registration when possible for consistency, but you may omit it if you are certain the extension initializes synchronously. `pipeline.run()` will automatically wait for any pending async registrations.
 
 ### Rollbacks
 

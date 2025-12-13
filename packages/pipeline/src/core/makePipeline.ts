@@ -362,32 +362,28 @@ export function makePipeline<
 			);
 		},
 		run(runOptions: TRunOptions) {
-			const startRun = () => {
-				const runContext = runner.prepareContext(runOptions);
-				return runner.executeRun(runContext);
-			};
+			try {
+				const startRun = () => {
+					const runContext = runner.prepareContext(runOptions);
+					return runner.executeRun(runContext);
+				};
 
-			const pendingCheck = waitForPendingExtensionRegistrations();
+				const pendingCheck = waitForPendingExtensionRegistrations();
 
-			const runResult = maybeThen(pendingCheck, () => {
-				return startRun();
-			});
+				const runResult = maybeThen(pendingCheck, () => startRun());
 
-			if (isPromiseLike(runResult)) {
-				return runResult.then(
-					(result) => {
+				if (isPromiseLike(runResult)) {
+					return Promise.resolve(runResult).finally(() => {
 						diagnosticManager.endRun();
-						return result;
-					},
-					(error) => {
-						diagnosticManager.endRun();
-						throw error;
-					}
-				);
+					});
+				}
+
+				diagnosticManager.endRun();
+				return runResult;
+			} catch (error) {
+				diagnosticManager.endRun();
+				throw error;
 			}
-
-			diagnosticManager.endRun();
-			return runResult;
 		},
 	};
 

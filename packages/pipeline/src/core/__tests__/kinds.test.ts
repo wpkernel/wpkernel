@@ -21,7 +21,7 @@ describe('Agnostic Kinds (ETL Pipeline)', () => {
 			{ input: string[] }, // RunOptions
 			Context,
 			PipelineReporter,
-			string[], // Artifact (final result)
+			{ draft: string[] }, // Artifact (final result)
 			any, // Diags
 			any // RunResult
 		>({

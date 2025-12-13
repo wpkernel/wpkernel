@@ -317,7 +317,6 @@ export function makeHelperStageFactory<
 			}
 
 			// Initialize helper execution snapshot
-			// Initialize helper execution snapshot
 			let executionMap = (state as unknown as StateWithExecution)
 				.helperExecution;
 

@@ -150,7 +150,7 @@ export const composeK =
 		);
 
 /**
- * Sync-friendly Probise.all equivalent.
+ * Sync-friendly Promise.all equivalent.
  *
  * @param values
  * @returns

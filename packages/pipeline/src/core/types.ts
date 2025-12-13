@@ -427,7 +427,7 @@ export interface AgnosticPipeline<
 				TRunOptions,
 				unknown
 			>
-		) => unknown | Promise<unknown>;
+		) => MaybePromise<unknown>;
 	};
 
 	/**

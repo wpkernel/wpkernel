@@ -53,7 +53,7 @@ function createTestPipeline(): {
 	>({
 		helperKinds: ['builder'],
 		createError(code, message) {
-			throw new Error(`[${code}] ${message}`);
+			return new Error(`[${code}] ${message}`);
 		},
 		createContext() {
 			return { reporter } satisfies TestContext;

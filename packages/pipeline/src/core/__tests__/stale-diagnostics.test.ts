@@ -1,7 +1,7 @@
 import { makePipeline } from '../makePipeline';
 
 describe('Stale Diagnostics Reproduction', () => {
-	it('accumulates diagnostics across runs if not cleared', async () => {
+	it('clears run diagnostics between runs (no stale accumulation)', async () => {
 		const onDiagnostic = jest.fn();
 		const pipeline = makePipeline({
 			helperKinds: ['fragment'],

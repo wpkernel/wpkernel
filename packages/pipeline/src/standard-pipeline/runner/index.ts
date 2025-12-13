@@ -148,7 +148,7 @@ export function createStandardPipeline<
 		TRunOptions,
 		TContext,
 		TReporter,
-		TArtifact,
+		StandardState,
 		TDiagnostic,
 		TRunResult
 	> = {
@@ -168,7 +168,7 @@ export function createStandardPipeline<
 				buildOptions,
 				draft,
 				artifact: null,
-			} as unknown as Record<string, unknown>;
+			};
 		},
 		onDiagnostic: options.onDiagnostic,
 		createConflictDiagnostic: options.createConflictDiagnostic
@@ -330,7 +330,7 @@ export function createStandardPipeline<
 			});
 
 			return [
-				makeLifecycleStage('init'),
+				makeLifecycleStage('prepare'),
 				makeLifecycleStage('before-fragments'),
 				fragmentStage,
 				makeLifecycleStage('after-fragments'),
