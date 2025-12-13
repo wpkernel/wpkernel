@@ -1,20 +1,20 @@
 [**@wpkernel/php-json-ast v0.12.5-beta.0**](../README.md)
 
-***
+---
 
 [@wpkernel/php-json-ast](../README.md) / getPhpAstChannel
 
 # Function: getPhpAstChannel()
 
 ```ts
-function getPhpAstChannel&lt;TContext&gt;(context): PhpAstChannel;
+function getPhpAstChannel<TContext>(context): PhpAstChannel;
 ```
 
 ## Type Parameters
 
 ### TContext
 
-`TContext` *extends* [`PipelineContext`](../interfaces/PipelineContext.md)
+`TContext` _extends_ [`PipelineContext`](../interfaces/PipelineContext.md)
 
 ## Parameters
 

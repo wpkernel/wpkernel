@@ -6,6 +6,13 @@ The pipeline is designed as a **Directed Acyclic Graph (DAG) Execution Engine**.
 
 It is **NOT** opinionated about what your helpers do. It does **NOT** enforce a specific "Fragment/Builder" pattern, though that is a common use case.
 
+## Internal Structure
+
+The codebase is organized into two primary modules to separate concerns:
+
+1.  **Core (`src/core/runner`)**: Contains the pure DAG runner, dependency resolution logic (`src/core/dependency-graph.ts`), and extension orchestration (`src/core/extensions`). It knows nothing about "Fragments" or "Builders" - only generic "Helpers" and "Stages".
+2.  **Standard Pipeline (`src/standard-pipeline`)**: Implements the specific "Fragment → Builder" pattern used by WPKernel CLI. It consumes `core` primitives to build the standard execution program (via `createPipeline`).
+
 ## Core Concepts
 
 ### 1. Helpers & Kinds
@@ -48,11 +55,11 @@ While generic, WPKernel's main use case (code generation) uses a specific config
 1.  **Phase 1: Fragments (`kind: 'fragment'`)**
     - Helpers generate partial ASTs or code snippets.
     - They write to a shared "Draft" (e.g., a list of PHP blocks).
-    - Executed by `makeLifecycleStage('fragment')`.
+    - Executed by `makeLifecycleStage` (internal primitive).
 
 2.  **Phase 2: Builders (`kind: 'builder'`)**
     - Helpers take the finalized "Artifact" (merged fragments) and write files to disk.
-    - Executed by `makeLifecycleStage('builder')`.
+    - Executed by `makeLifecycleStage` (internal primitive).
 
 3.  **Extensions**
     - Manage file system writes (committing files only if generation succeeds).
@@ -67,6 +74,7 @@ You can build entirely different architectures using `makePipeline`:
 
 The generic runner ensures:
 
-- **Cycle Detection**: `A -> B -> A` throws a diagnostic error.
+- **Cycle Detection**: `A -> B -> A` halts execution (fails fast).
 - **Missing Dependencies**: `A` depends on `C` (which doesn't exist) throws an error.
-- **Atomic Rollback**: If _any_ stage throws, the pipeline halts and executes the rollback chain for all extensions and helpers.
+- **Best-Effort Rollback**: If _any_ stage throws, the pipeline halts and executes the rollback chain for all extensions and helpers.
+    > **Note**: Rollbacks attempt to revert completed steps but are not guaranteed to be fully atomic (e.g. if a network call in a rollback fails). They may leave partial effects. Design compensating actions to be idempotent.

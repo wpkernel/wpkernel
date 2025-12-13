@@ -1,20 +1,20 @@
 [**@wpkernel/wp-json-ast v0.12.5-beta.0**](../README.md)
 
-***
+---
 
 [@wpkernel/wp-json-ast](../README.md) / ProgramTargetPlannerOptions
 
-# Type Alias: ProgramTargetPlannerOptions&lt;TFile&gt;
+# Type Alias: ProgramTargetPlannerOptions<TFile>
 
 ```ts
-type ProgramTargetPlannerOptions&lt;TFile&gt; = object;
+type ProgramTargetPlannerOptions<TFile> = object;
 ```
 
 ## Type Parameters
 
 ### TFile
 
-`TFile` *extends* [`ProgramTargetFile`](../interfaces/ProgramTargetFile.md) = [`ProgramTargetFile`](../interfaces/ProgramTargetFile.md)
+`TFile` _extends_ [`ProgramTargetFile`](../interfaces/ProgramTargetFile.md) = [`ProgramTargetFile`](../interfaces/ProgramTargetFile.md)
 
 ## Properties
 
@@ -24,7 +24,7 @@ type ProgramTargetPlannerOptions&lt;TFile&gt; = object;
 readonly channel: PhpBuilderChannel;
 ```
 
-***
+---
 
 ### outputDir
 
@@ -32,7 +32,7 @@ readonly channel: PhpBuilderChannel;
 readonly outputDir: string;
 ```
 
-***
+---
 
 ### workspace
 
@@ -40,7 +40,7 @@ readonly outputDir: string;
 readonly workspace: PipelineContext["workspace"];
 ```
 
-***
+---
 
 ### docblockPrefix?
 
@@ -48,10 +48,10 @@ readonly workspace: PipelineContext["workspace"];
 readonly optional docblockPrefix: readonly string[];
 ```
 
-***
+---
 
 ### strategy?
 
 ```ts
-readonly optional strategy: ProgramTargetPlannerStrategy&lt;TFile&gt;;
+readonly optional strategy: ProgramTargetPlannerStrategy<TFile>;
 ```

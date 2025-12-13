@@ -1,16 +1,16 @@
 [**@wpkernel/wp-json-ast v0.12.5-beta.0**](../README.md)
 
-***
+---
 
 [@wpkernel/wp-json-ast](../README.md) / ProgramTargetFile
 
-# Interface: ProgramTargetFile&lt;TMetadata&gt;
+# Interface: ProgramTargetFile<TMetadata>
 
 ## Type Parameters
 
 ### TMetadata
 
-`TMetadata` *extends* `PhpFileMetadata` = `PhpFileMetadata`
+`TMetadata` _extends_ `PhpFileMetadata` = `PhpFileMetadata`
 
 ## Properties
 
@@ -20,7 +20,7 @@
 readonly fileName: string;
 ```
 
-***
+---
 
 ### metadata
 
@@ -28,7 +28,7 @@ readonly fileName: string;
 readonly metadata: TMetadata;
 ```
 
-***
+---
 
 ### program
 
@@ -36,7 +36,7 @@ readonly metadata: TMetadata;
 readonly program: PhpProgram;
 ```
 
-***
+---
 
 ### docblock?
 
@@ -44,7 +44,7 @@ readonly program: PhpProgram;
 readonly optional docblock: readonly string[];
 ```
 
-***
+---
 
 ### statements?
 
@@ -52,7 +52,7 @@ readonly optional docblock: readonly string[];
 readonly optional statements: readonly string[];
 ```
 
-***
+---
 
 ### uses?
 

@@ -1,6 +1,6 @@
 [**@wpkernel/e2e-utils v0.12.5-beta.0**](../README.md)
 
-***
+---
 
 [@wpkernel/e2e-utils](../README.md) / withIsolatedWorkspace
 
@@ -14,7 +14,7 @@ do not interfere with each other's file system state.
 ## Call Signature
 
 ```ts
-function withIsolatedWorkspace&lt;TResult&gt;(options, callback): Promise&lt;TResult&gt;;
+function withIsolatedWorkspace<TResult>(options, callback): Promise<TResult>;
 ```
 
 Run a callback against a disposable workspace rooted on disk.
@@ -33,16 +33,16 @@ Run a callback against a disposable workspace rooted on disk.
 
 #### callback
 
-[`WithWorkspaceCallback`](../type-aliases/WithWorkspaceCallback.md)&lt;`TResult`&gt;
+[`WithWorkspaceCallback`](../type-aliases/WithWorkspaceCallback.md)<`TResult`>
 
 ### Returns
 
-`Promise`&lt;`TResult`&gt;
+`Promise`<`TResult`>
 
 ## Call Signature
 
 ```ts
-function withIsolatedWorkspace&lt;TResult&gt;(callback): Promise&lt;TResult&gt;;
+function withIsolatedWorkspace<TResult>(callback): Promise<TResult>;
 ```
 
 Run a callback against a disposable workspace rooted on disk.
@@ -57,8 +57,8 @@ Run a callback against a disposable workspace rooted on disk.
 
 #### callback
 
-[`WithWorkspaceCallback`](../type-aliases/WithWorkspaceCallback.md)&lt;`TResult`&gt;
+[`WithWorkspaceCallback`](../type-aliases/WithWorkspaceCallback.md)<`TResult`>
 
 ### Returns
 
-`Promise`&lt;`TResult`&gt;
+`Promise`<`TResult`>

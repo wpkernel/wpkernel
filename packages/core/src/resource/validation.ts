@@ -84,9 +84,9 @@ function validateName<T, TQuery>(config: ResourceConfig<T, TQuery>): string {
 		);
 	}
 
-	if (!/^[a-z][a-z0-9-]*$/.test(config.name)) {
+	if (!/^[a-z][a-z0-9-]*(:[a-z][a-z0-9-]*)?$/.test(config.name)) {
 		failValidation(
-			`Resource name "${config.name}" must be lowercase with hyphens only (kebab-case)`,
+			`Resource name "${config.name}" must be lowercase with hyphens only (kebab-case), optionally namespaced (namespace:resource)`,
 			'name'
 		);
 	}

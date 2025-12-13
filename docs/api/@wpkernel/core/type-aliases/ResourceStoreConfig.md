@@ -1,13 +1,13 @@
 [**@wpkernel/core v0.12.5-beta.0**](../README.md)
 
-***
+---
 
 [@wpkernel/core](../README.md) / ResourceStoreConfig
 
-# Type Alias: ResourceStoreConfig&lt;T, TQuery&gt;
+# Type Alias: ResourceStoreConfig<T, TQuery>
 
 ```ts
-type ResourceStoreConfig&lt;T, TQuery&gt; = object & ResourceStoreOptions&lt;T, TQuery&gt;;
+type ResourceStoreConfig<T, TQuery> = object & ResourceStoreOptions<T, TQuery>;
 ```
 
 Store configuration for a resource.
@@ -17,7 +17,8 @@ Store configuration for a resource.
 ### resource
 
 ```ts
-resource: ResourceObject&lt;T, TQuery&gt;;
+resource: ResourceObject & lt;
+(T, TQuery & gt);
 ```
 
 The resource object this store is for.

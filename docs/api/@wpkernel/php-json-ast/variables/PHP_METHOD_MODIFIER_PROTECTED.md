@@ -1,10 +1,10 @@
 [**@wpkernel/php-json-ast v0.12.5-beta.0**](../README.md)
 
-***
+---
 
-[@wpkernel/php-json-ast](../README.md) / PHP\_METHOD\_MODIFIER\_PROTECTED
+[@wpkernel/php-json-ast](../README.md) / PHP_METHOD_MODIFIER_PROTECTED
 
-# Variable: PHP\_METHOD\_MODIFIER\_PROTECTED
+# Variable: PHP_METHOD_MODIFIER_PROTECTED
 
 ```ts
 const PHP_METHOD_MODIFIER_PROTECTED: 2 = 2;

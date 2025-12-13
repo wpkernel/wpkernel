@@ -1,30 +1,29 @@
 // Main API exports
-export { createHelper } from './helper';
-export { createPipeline } from './createPipeline';
-export { createPipelineExtension } from './createExtension';
-export type { CreatePipelineExtensionOptions } from './createExtension';
-export { executeHelpers } from './executor';
-export type { ErrorFactory } from './error-factory';
-export { createDefaultError, createErrorFactory } from './error-factory';
+export { createHelper } from './core/helper';
+export { createPipeline } from './standard-pipeline/createPipeline';
+export { makePipeline } from './core/makePipeline';
+export { createPipelineExtension } from './core/createExtension';
+export type { CreatePipelineExtensionOptions } from './core/createExtension';
+export { executeHelpers } from './core/executor';
+export type { ErrorFactory } from './core/error-factory';
+export { createDefaultError, createErrorFactory } from './core/error-factory';
 export {
 	registerHelper,
 	registerExtensionHook,
 	handleExtensionRegisterResult,
-} from './registration';
+} from './core/registration';
 
 // Rollback utilities
-export { createPipelineRollback, runRollbackStack } from './rollback';
+export { createPipelineRollback, runRollbackStack } from './core/rollback';
 export type {
 	PipelineRollback,
 	PipelineRollbackErrorMetadata,
 	RunRollbackStackOptions,
-} from './rollback';
+} from './core/rollback';
 
 // Type exports (all types consumers need)
 export type {
 	// Core pipeline types
-	Pipeline,
-	CreatePipelineOptions,
 	PipelineReporter,
 	PipelineExtension,
 	PipelineExtensionHook,
@@ -52,17 +51,29 @@ export type {
 	PipelineStep,
 	PipelineRunState,
 	HelperExecutionSnapshot,
+	PipelineExtensionRollbackErrorMetadata,
+} from './core/types';
+
+export type {
+	Pipeline,
+	CreatePipelineOptions,
 	PipelineExecutionMetadata,
 	FragmentFinalizationMetadata,
-	PipelineExtensionRollbackErrorMetadata,
-} from './types';
+} from './standard-pipeline/types';
 
 // Re-export dependency graph utilities for advanced use cases
 export type {
 	RegisteredHelper,
 	MissingDependencyIssue,
-} from './dependency-graph';
-export { createHelperId, compareHelpers } from './dependency-graph';
+} from './core/dependency-graph';
+export { createHelperId, compareHelpers } from './core/dependency-graph';
+
+// Advanced Pipeline construction (for custom architectures)
+export type {
+	PipelineStage,
+	Halt,
+	AgnosticRunContext as PipelineRunContext,
+} from './core/runner/types';
 
 // Re-export async utilities for helper authors
 export {
@@ -70,15 +81,15 @@ export {
 	maybeThen,
 	maybeTry,
 	processSequentially,
-} from './async-utils';
+} from './core/async-utils';
 
 // Re-export extension utilities for extension authors
 export type {
 	ExtensionHookEntry,
 	ExtensionHookExecution,
 	RollbackErrorArgs,
-} from './extensions';
+} from './core/extensions';
 
 // Blueprint exports for official extensions
-export { OFFICIAL_EXTENSION_BLUEPRINTS } from './extensions/official';
-export type { OfficialExtensionBlueprint } from './extensions/official';
+export { OFFICIAL_EXTENSION_BLUEPRINTS } from './core/extensions/official';
+export type { OfficialExtensionBlueprint } from './core/extensions/official';

@@ -1,5 +1,5 @@
 import { createPipeline, createHelper } from '@wpkernel/pipeline';
-import { reportPipelineDiagnostic } from '../reporting';
+
 import { WPKernelError } from '../../error';
 import type { Reporter } from '../../reporter/types';
 import type {
@@ -130,12 +130,6 @@ describe('createPipeline.run', () => {
 			},
 			createRunResult({ artifact, diagnostics, steps }) {
 				return { artifact, diagnostics, steps } satisfies TestRunResult;
-			},
-			onDiagnostic({ reporter: activeReporter, diagnostic }) {
-				reportPipelineDiagnostic({
-					reporter: activeReporter,
-					diagnostic,
-				});
 			},
 		});
 

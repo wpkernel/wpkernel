@@ -1,13 +1,13 @@
 [**@wpkernel/core v0.12.5-beta.0**](../README.md)
 
-***
+---
 
 [@wpkernel/core](../README.md) / ResourceClient
 
-# Type Alias: ResourceClient&lt;T, TQuery&gt;
+# Type Alias: ResourceClient<T, TQuery>
 
 ```ts
-type ResourceClient&lt;T, TQuery&gt; = object;
+type ResourceClient<T, TQuery> = object;
 ```
 
 Client methods for REST operations
@@ -34,7 +34,7 @@ Query parameters type for list operations
 ### create()?
 
 ```ts
-optional create: (data) =&gt; Promise&lt;T&gt;;
+optional create: (data) => Promise<T>;
 ```
 
 Create a new resource
@@ -43,13 +43,13 @@ Create a new resource
 
 ##### data
 
-`Partial`&lt;`T`&gt;
+`Partial`<`T`>
 
 Resource data to create
 
 #### Returns
 
-`Promise`&lt;`T`&gt;
+`Promise`<`T`>
 
 Promise resolving to created resource
 
@@ -61,12 +61,12 @@ TransportError on network failure
 
 ServerError on REST API error (including validation errors)
 
-***
+---
 
 ### fetch()?
 
 ```ts
-optional fetch: (id) =&gt; Promise&lt;T&gt;;
+optional fetch: (id) => Promise<T>;
 ```
 
 Fetch a single resource by ID
@@ -81,7 +81,7 @@ Resource identifier
 
 #### Returns
 
-`Promise`&lt;`T`&gt;
+`Promise`<`T`>
 
 Promise resolving to resource entity
 
@@ -93,12 +93,12 @@ TransportError on network failure
 
 ServerError on REST API error (including 404)
 
-***
+---
 
 ### fetchList()?
 
 ```ts
-optional fetchList: (query?) =&gt; Promise&lt;ListResponse&lt;T&gt;&gt;;
+optional fetchList: (query?) => Promise<ListResponse<T>>;
 ```
 
 Fetch a list of resources
@@ -113,7 +113,7 @@ Query parameters (filters, pagination, etc.)
 
 #### Returns
 
-`Promise`&lt;[`ListResponse`](ListResponse.md)&lt;`T`&gt;&gt;
+`Promise`<[`ListResponse`](ListResponse.md)<`T`>>
 
 Promise resolving to list response
 
@@ -125,12 +125,12 @@ TransportError on network failure
 
 ServerError on REST API error
 
-***
+---
 
 ### remove()?
 
 ```ts
-optional remove: (id) =&gt; Promise&lt;void | T&gt;;
+optional remove: (id) => Promise<void | T>;
 ```
 
 Delete a resource
@@ -145,7 +145,7 @@ Resource identifier
 
 #### Returns
 
-`Promise`&lt;`void` \| `T`&gt;
+`Promise`<`void` \| `T`>
 
 Promise resolving to void or deleted resource
 
@@ -157,7 +157,7 @@ TransportError on network failure
 
 ServerError on REST API error (including 404)
 
-***
+---
 
 ### ui?
 
@@ -167,12 +167,12 @@ optional ui: ResourceUIConfig;
 
 Optional UI metadata carried over from ResourceConfig.ui.
 
-***
+---
 
 ### update()?
 
 ```ts
-optional update: (id, data) =&gt; Promise&lt;T&gt;;
+optional update: (id, data) => Promise<T>;
 ```
 
 Update an existing resource
@@ -187,13 +187,13 @@ Resource identifier
 
 ##### data
 
-`Partial`&lt;`T`&gt;
+`Partial`<`T`>
 
 Partial resource data to update
 
 #### Returns
 
-`Promise`&lt;`T`&gt;
+`Promise`<`T`>
 
 Promise resolving to updated resource
 

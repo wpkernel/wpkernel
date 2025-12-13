@@ -1,6 +1,8 @@
-# @wpkernel/pipeline for Framework Contributors
+# @wpkernel/pipeline for Framework Contributors (Standard Pipeline)
 
 ## Overview
+
+> **Note**: This guide focuses on the **Standard Pipeline** implementation (Fragments & Builders) used by WPKernel CLI. For custom architectures using the Core Runner, see the [Architecture Guide](./architecture.md).
 
 Framework contributors extend the pipeline along the **standard WPK model**:
 
@@ -76,9 +78,11 @@ Always keep `commit` and `rollback` **idempotent**, and route logs through the s
 
 Expose new helper families through dedicated registration functions that wrap `registerHelper()` with shared defaults. Common examples:
 
-- `registerFragmentHelper()` – annotates fragment helpers with IR metadata and default priorities
-- `registerBuilderHelper()` – locks helpers into the builder lifecycle with correct diagnostics wiring
+- `registerFragmentHelper()` – annotates fragment helpers with IR metadata and default priorities (wraps core `registerHelper`)
+- `registerBuilderHelper()` – locks helpers into the builder lifecycle with correct diagnostics wiring (wraps core `registerHelper`)
 - `registerCodemodHelper()` – targets PHP AST visitors for `php-json-ast` and codemod plans
+
+These functions internally use the agnostic `registerHelper` from `@wpkernel/pipeline/core` but strictly type the `kind` field.
 
 When widening extension payloads (`PipelineExtensionHookOptions`), update:
 

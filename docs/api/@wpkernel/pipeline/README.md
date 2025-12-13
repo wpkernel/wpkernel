@@ -1,6 +1,6 @@
 **@wpkernel/pipeline v0.12.5-beta.0**
 
-***
+---
 
 # @wpkernel/pipeline v0.12.5-beta.0
 
@@ -41,6 +41,7 @@
 
 - [CreatePipelineExtensionOptions](type-aliases/CreatePipelineExtensionOptions.md)
 - [ErrorFactory](type-aliases/ErrorFactory.md)
+- [Halt](type-aliases/Halt.md)
 - [HelperApplyFn](type-aliases/HelperApplyFn.md)
 - [HelperKind](type-aliases/HelperKind.md)
 - [HelperMode](type-aliases/HelperMode.md)
@@ -49,23 +50,25 @@
 - [PipelineExtensionHook](type-aliases/PipelineExtensionHook.md)
 - [PipelineExtensionLifecycle](type-aliases/PipelineExtensionLifecycle.md)
 - [PipelineExtensionRegisterOutput](type-aliases/PipelineExtensionRegisterOutput.md)
+- [PipelineStage](type-aliases/PipelineStage.md)
 
 ## Variables
 
 ### Pipeline
 
-- [OFFICIAL\_EXTENSION\_BLUEPRINTS](variables/OFFICIAL_EXTENSION_BLUEPRINTS.md)
+- [OFFICIAL_EXTENSION_BLUEPRINTS](variables/OFFICIAL_EXTENSION_BLUEPRINTS.md)
 
 ## Functions
 
 ### Pipeline
 
 - [createHelper](functions/createHelper.md)
-- [createPipeline](functions/createPipeline.md)
 - [createPipelineExtension](functions/createPipelineExtension.md)
 
 ### Other
 
 - [createDefaultError](functions/createDefaultError.md)
 - [createErrorFactory](functions/createErrorFactory.md)
+- [createPipeline](functions/createPipeline.md)
 - [createPipelineRollback](functions/createPipelineRollback.md)
+- [makePipeline](functions/makePipeline.md)

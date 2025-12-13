@@ -15,9 +15,20 @@ While it powers WPKernel's code generation (assembling fragments into artifacts)
 It guarantees:
 
 - **Deterministic Ordering**: Topologically sorts helpers based on `dependsOn`.
-- **Cycle Detection**: Fails fast if dependencies form a loop.
-- **Atomic Rollbacks**: Extensions provide transactional `commit` and `rollback` hooks.
+- **Cycle Detection**: Fails fast (halts execution) if dependencies form a loop.
+- **Robust Rollbacks**: Extensions and helpers provide best-effort rollback hooks run LIFO, attempting all cleanup steps and reporting any rollback failures.
 - **Type Safety**: Full TypeScript support for custom contexts, options, and artifacts.
+
+### Architecture Note
+
+The package exports a single entry point `@wpkernel/pipeline` which provides the "Standard Pipeline" (Fragments & Builders). This is the recommended API for most consumers.
+
+Under the hood, the package is split into:
+
+1.  **Standard Pipeline (`src/standard-pipeline`)**: The opinionated implementation used by WPKernel.
+2.  **Core Runner (`src/core/runner`)**: A purely agnostic DAG execution engine.
+
+Subpath imports (e.g., `@wpkernel/pipeline/core`) are available if you need to build a completely custom pipeline architecture using the runner primitives directly.
 
 ## Installation
 
@@ -27,25 +38,44 @@ pnpm add @wpkernel/pipeline
 
 The package ships pure TypeScript and has no runtime dependencies.
 
-## Usage
+### Usage
 
-### 1. Define Your World
+#### Standard Pipeline (Recommended)
 
-The pipeline is generic. You define the "Stages" and "State" relevant to your domain.
+Use `createPipeline` for the standard Fragment → Builder workflow used by WPKernel.
+
+```ts
+import { createPipeline } from '@wpkernel/pipeline';
+
+const pipeline = createPipeline({
+	// Configuration
+	createContext: (ops) => ({ db: ops.db }),
+	createBuildOptions: () => ({}),
+	createFragmentState: () => ({}),
+
+	// Argument resolvers
+	createFragmentArgs: ({ context }) => ({ db: context.db }),
+	createBuilderArgs: ({ artifact }) => ({ artifact }),
+});
+```
+
+#### Custom Pipeline (Advanced)
+
+For completely custom architectures (ETL, migrations, etc.), use `makePipeline` to define your own stages.
 
 ```ts
 import { makePipeline } from '@wpkernel/pipeline';
 
 const pipeline = makePipeline({
 	// Define the "Stages" of your pipeline
-	stages: (deps) => [
+	helperKinds: ['extract', 'transform', 'load'] as const,
+	createStages: (deps) => [
 		deps.makeLifecycleStage('extract'),
 		deps.makeLifecycleStage('transform'),
 		deps.makeLifecycleStage('load'),
 		deps.commitStage,
 		deps.finalizeResult,
 	],
-	// Define how to create your context and state
 	createContext: (ops) => ({ db: ops.db }),
 	// ... logic for resolving args for your helpers ...
 });
@@ -96,7 +126,38 @@ Pipeline creates a dependency graph for _each_ kind of helper. If `Helper B` dep
 
 ### Extensions & Lifecycles
 
-Extensions wrap the execution with hooks like `prepare`, `onSuccess`, and `rollback`. They are crucial for ensuring atomic operations - if any stage fails, the pipeline automatically triggers the rollback chain for all executed extensions.
+Extensions wrap execution with hooks at specific lifecycle stages.
+
+**Standard Pipeline Lifecycles**:
+`prepare` → `before-fragments` → `after-fragments` → `before-builders` → `after-builders` → `finalize`
+
+> **Note**: Custom pipelines (using `makePipeline`) can define arbitrary lifecycle stages. Extensions can hook into any stage, standard or custom, as long as it exists in the pipeline's execution plan.
+
+**Validation**: The pipeline validates extension registrations. If an extension attempts to hook into an unscheduled lifecycle, the pipeline will log a warning instead of silently ignoring it.
+
+**Extension Registration (Sync & Async)**: `extensions.use()` returns `MaybePromise<unknown>`. It returns a Promise only if the extension's `register` method is asynchronous.
+
+```ts
+// Sync registration (e.g. simple helper bundles)
+extensions.use(mySyncExtension);
+
+// Async registration (e.g. database connections)
+await extensions.use(myAsyncExtension);
+```
+
+> **Recommendation**: We recommend `await`ing registration when possible for consistency, but you may omit it if you are certain the extension initializes synchronously. `pipeline.run()` will automatically wait for any pending async registrations.
+
+### Rollbacks
+
+The pipeline supports robust rollback for both helper application and extension lifecycle commit phases:
+
+- **Extensions**: Can provide transactional overhead via the `commit` phase. If extensive failure occurs, `rollback` hooks are triggered.
+- **Helpers**: Can return a `rollback` function in their result. These are executed LIFO if a later failure occurs.
+- **Robustness**: The rollback stack continues execution even if individual rollback actions fail (errors are collected and reported).
+
+### Re-run Semantics
+
+Diagnostics are per-run. Calling `pipeline.run()` automatically clears any previous runtime diagnostics to ensure a fresh state. Static diagnostics (e.g., registration conflicts) are preserved and re-emitted for each run.
 
 ## Documentation
 
