@@ -1,6 +1,6 @@
 {
 	"name": "@wpkernel/cli",
-	"version": "0.12.6-beta.0",
+	"version": "0.12.6-beta.2",
 	"description": "CLI for scaffolding and managing WPKernel projects",
 	"license": "EUPL-1.2",
 	"type": "module",

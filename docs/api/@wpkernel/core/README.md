@@ -1,8 +1,8 @@
-**@wpkernel/core v0.12.6-beta.0**
+**@wpkernel/core v0.12.6-beta.2**
 
 ***
 
-# @wpkernel/core v0.12.6-beta.0
+# @wpkernel/core v0.12.6-beta.2
 
 WPKernel - Core Framework Package
 

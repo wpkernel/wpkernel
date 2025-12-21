@@ -1,4 +1,4 @@
-[**@wpkernel/cli v0.12.6-beta.0**](../README.md)
+[**@wpkernel/cli v0.12.6-beta.2**](../README.md)
 
 ***
 
@@ -173,12 +173,12 @@ readText: (file) =&gt; Promise&lt;string | null&gt;;
 ### resolve()
 
 ```ts
-resolve: (...parts) =&gt; string;
+resolve: (...segments) =&gt; string;
 ```
 
 #### Parameters
 
-##### parts
+##### segments
 
 ...`string`[]
 
@@ -186,7 +186,7 @@ resolve: (...parts) =&gt; string;
 
 `string`
 
-#### Inherited from
+#### Overrides
 
 ```ts
 WorkspaceLike.resolve
@@ -237,10 +237,10 @@ rollback: (label?) =&gt; Promise&lt;FileManifest&gt;;
 ### root
 
 ```ts
-readonly root: string;
+root: string;
 ```
 
-#### Inherited from
+#### Overrides
 
 ```ts
 WorkspaceLike.root

@@ -192,19 +192,19 @@ export function createReporterCLI(options: ReporterOptions = {}): Reporter {
 	};
 
 	const reporter: Reporter = {
-		info(message, context) {
+		info(message: string, context?: unknown) {
 			emit('info', message, context);
 		},
-		warn(message, context) {
+		warn(message: string, context?: unknown) {
 			emit('warn', message, context);
 		},
-		error(message, context) {
+		error(message: string, context?: unknown) {
 			emit('error', message, context);
 		},
-		debug(message, context) {
+		debug(message: string, context?: unknown) {
 			emit('debug', message, context);
 		},
-		child(childNamespace) {
+		child(childNamespace: string) {
 			return createReporterCLI({
 				...options,
 				namespace: `${namespace}.${childNamespace}`,

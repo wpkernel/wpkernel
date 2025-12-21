@@ -1,6 +1,6 @@
 {
 	"name": "@wpkernel/core",
-	"version": "0.12.6-beta.0",
+	"version": "0.12.6-beta.2",
 	"description": "Rails-like framework for building modern WordPress products",
 	"license": "EUPL-1.2",
 	"type": "module",
