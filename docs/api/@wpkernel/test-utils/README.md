@@ -1,8 +1,8 @@
-**@wpkernel/test-utils v0.12.6-beta.0**
+**@wpkernel/test-utils v0.12.6-beta.2**
 
 ***
 
-# @wpkernel/test-utils v0.12.6-beta.0
+# @wpkernel/test-utils v0.12.6-beta.2
 
 ## Interfaces
 
