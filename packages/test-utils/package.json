@@ -1,6 +1,6 @@
 {
 	"name": "@wpkernel/test-utils",
-	"version": "0.12.6-beta.2",
+	"version": "0.12.6-beta.3",
 	"description": "Shared testing utilities for WPKernel packages",
 	"license": "EUPL-1.2",
 	"type": "module",
