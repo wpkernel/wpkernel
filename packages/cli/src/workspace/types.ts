@@ -71,6 +71,8 @@ export interface MergeOptions {
  * @public
  */
 export interface Workspace extends WorkspaceLike {
+	root: string;
+	resolve: (...segments: string[]) => string;
 	cwd: () => string;
 	read: (file: string) => Promise<Buffer | null>;
 	readText: (file: string) => Promise<string | null>;
