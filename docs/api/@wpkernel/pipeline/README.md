@@ -1,8 +1,8 @@
-**@wpkernel/pipeline v0.12.6-beta.0**
+**@wpkernel/pipeline v0.12.6-beta.3**
 
 ***
 
-# @wpkernel/pipeline v0.12.6-beta.0
+# @wpkernel/pipeline v0.12.6-beta.3
 
 ## Interfaces
 
