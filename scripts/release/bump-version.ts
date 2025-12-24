@@ -138,6 +138,13 @@ function main(): void {
 
 	const workspaceManifests = gatherWorkspacePackageJsonFiles(repoRoot);
 	for (const manifestPath of workspaceManifests) {
+		const manifest = readJsonFile<PackageJson>(manifestPath);
+		if (manifest.name === '@wpkernel/pipeline') {
+			console.log(`Skipping independent package: ${manifest.name}`);
+			continue;
+		}
+
+		// Re-read inside updatePackageVersion, but that's fine for safety
 		if (updatePackageVersion(manifestPath, currentVersion, nextVersion)) {
 			updatedFiles.push(path.relative(repoRoot, manifestPath));
 		}
