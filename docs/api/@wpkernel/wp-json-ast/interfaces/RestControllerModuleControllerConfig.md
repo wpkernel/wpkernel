@@ -1,6 +1,6 @@
 [**@wpkernel/wp-json-ast v0.12.6-beta.3**](../README.md)
 
-***
+---
 
 [@wpkernel/wp-json-ast](../README.md) / RestControllerModuleControllerConfig
 
@@ -22,7 +22,7 @@ readonly className: string;
 
 [`RestControllerClassConfig`](RestControllerClassConfig.md).[`className`](RestControllerClassConfig.md#classname)
 
-***
+---
 
 ### fileName
 
@@ -30,7 +30,7 @@ readonly className: string;
 readonly fileName: string;
 ```
 
-***
+---
 
 ### identity
 
@@ -42,7 +42,7 @@ readonly identity: RestControllerIdentity;
 
 [`RestControllerClassConfig`](RestControllerClassConfig.md).[`identity`](RestControllerClassConfig.md#identity)
 
-***
+---
 
 ### resourceName
 
@@ -54,7 +54,7 @@ readonly resourceName: string;
 
 [`RestControllerClassConfig`](RestControllerClassConfig.md).[`resourceName`](RestControllerClassConfig.md#resourcename)
 
-***
+---
 
 ### restArgsExpression
 
@@ -66,7 +66,7 @@ readonly restArgsExpression: PhpExpr;
 
 [`RestControllerClassConfig`](RestControllerClassConfig.md).[`restArgsExpression`](RestControllerClassConfig.md#restargsexpression)
 
-***
+---
 
 ### routes
 
@@ -78,7 +78,7 @@ readonly routes: readonly RestRouteConfig[];
 
 [`RestControllerClassConfig`](RestControllerClassConfig.md).[`routes`](RestControllerClassConfig.md#routes)
 
-***
+---
 
 ### schemaKey
 
@@ -90,7 +90,7 @@ readonly schemaKey: string;
 
 [`RestControllerClassConfig`](RestControllerClassConfig.md).[`schemaKey`](RestControllerClassConfig.md#schemakey)
 
-***
+---
 
 ### schemaProvenance
 
@@ -98,7 +98,7 @@ readonly schemaKey: string;
 readonly schemaProvenance: string;
 ```
 
-***
+---
 
 ### capabilityClass?
 
@@ -110,7 +110,7 @@ readonly optional capabilityClass: string;
 
 [`RestControllerClassConfig`](RestControllerClassConfig.md).[`capabilityClass`](RestControllerClassConfig.md#capabilityclass)
 
-***
+---
 
 ### helperMethods?
 
@@ -122,7 +122,7 @@ readonly optional helperMethods: readonly PhpStmtClassMethod[];
 
 [`RestControllerClassConfig`](RestControllerClassConfig.md).[`helperMethods`](RestControllerClassConfig.md#helpermethods)
 
-***
+---
 
 ### metadata?
 

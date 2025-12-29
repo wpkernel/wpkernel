@@ -1,6 +1,6 @@
 [**@wpkernel/wp-json-ast v0.12.6-beta.3**](../README.md)
 
-***
+---
 
 [@wpkernel/wp-json-ast](../README.md) / ResourceControllerCacheEvent
 
@@ -22,7 +22,7 @@ readonly operation: ResourceControllerCacheOperation;
 
 The operation of the cache event.
 
-***
+---
 
 ### scope
 
@@ -32,7 +32,7 @@ readonly scope: "list" | "get" | "create" | "update" | "remove" | "custom";
 
 The scope of the cache event.
 
-***
+---
 
 ### segments
 
@@ -42,7 +42,7 @@ readonly segments: readonly string[];
 
 The cache segments for the event.
 
-***
+---
 
 ### description?
 

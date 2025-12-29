@@ -1,6 +1,6 @@
 [**@wpkernel/wp-json-ast v0.12.6-beta.3**](../README.md)
 
-***
+---
 
 [@wpkernel/wp-json-ast](../README.md) / appendGeneratedFileDocblock
 
@@ -22,7 +22,7 @@ The AST builder.
 
 ### extraLines
 
-`Iterable`&lt;`string`&gt;
+`Iterable`<`string`>
 
 Extra lines to add to the docblock.
 

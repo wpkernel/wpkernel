@@ -1,6 +1,6 @@
 [**@wpkernel/cli v0.12.6-beta.3**](../README.md)
 
-***
+---
 
 [@wpkernel/cli](../README.md) / FragmentIrOptions
 
@@ -20,7 +20,7 @@ Normalised configuration surface available to IR builders.
 
 Builders must not depend on raw WPKernelConfigV1 to avoid leaking config shape changes.
 
-***
+---
 
 ### namespace
 
@@ -30,7 +30,7 @@ namespace: string;
 
 The namespace of the project.
 
-***
+---
 
 ### origin
 
@@ -40,7 +40,7 @@ origin: string;
 
 The origin of the configuration.
 
-***
+---
 
 ### sourcePath
 
@@ -50,7 +50,7 @@ sourcePath: string;
 
 The source path of the configuration file.
 
-***
+---
 
 ### pipeline?
 

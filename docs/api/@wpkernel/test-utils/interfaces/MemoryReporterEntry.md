@@ -1,6 +1,6 @@
 [**@wpkernel/test-utils v0.12.6-beta.3**](../README.md)
 
-***
+---
 
 [@wpkernel/test-utils](../README.md) / MemoryReporterEntry
 
@@ -18,7 +18,7 @@ readonly level: ReporterLevel;
 
 The logging level of the entry.
 
-***
+---
 
 ### message
 
@@ -28,7 +28,7 @@ readonly message: string;
 
 The log message.
 
-***
+---
 
 ### namespace
 
@@ -38,7 +38,7 @@ readonly namespace: string;
 
 The namespace of the reporter that created the entry.
 
-***
+---
 
 ### context?
 

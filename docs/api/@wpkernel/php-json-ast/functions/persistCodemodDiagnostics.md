@@ -1,6 +1,6 @@
 [**@wpkernel/php-json-ast v0.12.6-beta.3**](../README.md)
 
-***
+---
 
 [@wpkernel/php-json-ast](../README.md) / persistCodemodDiagnostics
 
@@ -8,11 +8,12 @@
 
 ```ts
 function persistCodemodDiagnostics(
-   context, 
-   output, 
-   filePath, 
-   codemod, 
-options): Promise&lt;void&gt;;
+	context,
+	output,
+	filePath,
+	codemod,
+	options
+): Promise<void>;
 ```
 
 ## Parameters
@@ -39,4 +40,4 @@ options): Promise&lt;void&gt;;
 
 ## Returns
 
-`Promise`&lt;`void`&gt;
+`Promise`<`void`>

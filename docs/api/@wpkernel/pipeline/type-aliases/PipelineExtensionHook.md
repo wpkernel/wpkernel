@@ -1,15 +1,15 @@
 [**@wpkernel/pipeline v0.12.6-beta.3**](../README.md)
 
-***
+---
 
 [@wpkernel/pipeline](../README.md) / PipelineExtensionHook
 
-# Type Alias: PipelineExtensionHook&lt;TContext, TOptions, TArtifact&gt;
+# Type Alias: PipelineExtensionHook<TContext, TOptions, TArtifact>
 
 ```ts
-type PipelineExtensionHook&lt;TContext, TOptions, TArtifact&gt; = (options) =&gt; MaybePromise&lt;
-  | PipelineExtensionHookResult&lt;TArtifact&gt;
-| void&gt;;
+type PipelineExtensionHook<TContext, TOptions, TArtifact> = (
+	options
+) => MaybePromise<PipelineExtensionHookResult<TArtifact> | void>;
 ```
 
 A pipeline extension hook function.
@@ -32,10 +32,10 @@ A pipeline extension hook function.
 
 ### options
 
-[`PipelineExtensionHookOptions`](../interfaces/PipelineExtensionHookOptions.md)&lt;`TContext`, `TOptions`, `TArtifact`&gt;
+[`PipelineExtensionHookOptions`](../interfaces/PipelineExtensionHookOptions.md)<`TContext`, `TOptions`, `TArtifact`>
 
 ## Returns
 
-[`MaybePromise`](MaybePromise.md)&lt;
-  \| [`PipelineExtensionHookResult`](../interfaces/PipelineExtensionHookResult.md)&lt;`TArtifact`&gt;
-  \| `void`&gt;
+[`MaybePromise`](MaybePromise.md)<
+\| [`PipelineExtensionHookResult`](../interfaces/PipelineExtensionHookResult.md)<`TArtifact`>
+\| `void`>

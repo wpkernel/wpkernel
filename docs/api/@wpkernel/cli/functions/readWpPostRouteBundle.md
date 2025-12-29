@@ -1,13 +1,16 @@
 [**@wpkernel/cli v0.12.6-beta.3**](../README.md)
 
-***
+---
 
 [@wpkernel/cli](../README.md) / readWpPostRouteBundle
 
 # Function: readWpPostRouteBundle()
 
 ```ts
-function readWpPostRouteBundle(state, resourceName): WpPostRouteBundle | undefined;
+function readWpPostRouteBundle(
+	state,
+	resourceName
+): WpPostRouteBundle | undefined;
 ```
 
 Reads a WP Post route bundle for a given resource name from the helper state.

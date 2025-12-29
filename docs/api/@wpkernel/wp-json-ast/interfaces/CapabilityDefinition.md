@@ -1,6 +1,6 @@
 [**@wpkernel/wp-json-ast v0.12.6-beta.3**](../README.md)
 
-***
+---
 
 [@wpkernel/wp-json-ast](../README.md) / CapabilityDefinition
 
@@ -14,7 +14,7 @@
 readonly appliesTo: CapabilityScope;
 ```
 
-***
+---
 
 ### capability
 
@@ -22,7 +22,7 @@ readonly appliesTo: CapabilityScope;
 readonly capability: string;
 ```
 
-***
+---
 
 ### key
 
@@ -30,7 +30,7 @@ readonly capability: string;
 readonly key: string;
 ```
 
-***
+---
 
 ### source
 
@@ -38,7 +38,7 @@ readonly key: string;
 readonly source: "map" | "fallback";
 ```
 
-***
+---
 
 ### binding?
 

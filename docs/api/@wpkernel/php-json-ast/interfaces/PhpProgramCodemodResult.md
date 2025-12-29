@@ -1,6 +1,6 @@
 [**@wpkernel/php-json-ast v0.12.6-beta.3**](../README.md)
 
-***
+---
 
 [@wpkernel/php-json-ast](../README.md) / PhpProgramCodemodResult
 
@@ -14,7 +14,7 @@
 readonly after: PhpProgram;
 ```
 
-***
+---
 
 ### before
 
@@ -22,7 +22,7 @@ readonly after: PhpProgram;
 readonly before: PhpProgram;
 ```
 
-***
+---
 
 ### visitors
 
@@ -30,7 +30,7 @@ readonly before: PhpProgram;
 readonly visitors: readonly PhpProgramCodemodVisitorSummary[];
 ```
 
-***
+---
 
 ### diagnostics?
 

@@ -1,6 +1,6 @@
 [**@wpkernel/core v0.12.6-beta.3**](../README.md)
 
-***
+---
 
 [@wpkernel/core](../README.md) / ResourceCapabilityDescriptor
 
@@ -17,12 +17,12 @@ Capability descriptor for object-level or resource-level checks.
 ### appliesTo
 
 ```ts
-appliesTo: "resource" | "object";
+appliesTo: 'resource' | 'object';
 ```
 
 Whether this applies to the resource collection or individual objects
 
-***
+---
 
 ### capability
 
@@ -32,7 +32,7 @@ capability: string;
 
 WordPress capability to check (e.g., 'edit_posts')
 
-***
+---
 
 ### binding?
 

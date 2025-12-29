@@ -1,6 +1,6 @@
 [**@wpkernel/pipeline v0.12.6-beta.3**](../README.md)
 
-***
+---
 
 [@wpkernel/pipeline](../README.md) / OfficialExtensionBlueprint
 
@@ -16,7 +16,7 @@ Documentation-first blueprint for an extension incubated in this package.
 readonly behaviours: readonly ExtensionBehaviour[];
 ```
 
-***
+---
 
 ### id
 
@@ -24,7 +24,7 @@ readonly behaviours: readonly ExtensionBehaviour[];
 readonly id: string;
 ```
 
-***
+---
 
 ### pipelineTouchPoints
 
@@ -32,7 +32,7 @@ readonly id: string;
 readonly pipelineTouchPoints: readonly string[];
 ```
 
-***
+---
 
 ### rolloutNotes
 
@@ -40,7 +40,7 @@ readonly pipelineTouchPoints: readonly string[];
 readonly rolloutNotes: readonly string[];
 ```
 
-***
+---
 
 ### status
 
@@ -48,7 +48,7 @@ readonly rolloutNotes: readonly string[];
 readonly status: "planned" | "in-development";
 ```
 
-***
+---
 
 ### summary
 
@@ -56,10 +56,10 @@ readonly status: "planned" | "in-development";
 readonly summary: string;
 ```
 
-***
+---
 
 ### factory?
 
 ```ts
-readonly optional factory: ExtensionFactorySignature&lt;unknown&gt;;
+readonly optional factory: ExtensionFactorySignature<unknown>;
 ```

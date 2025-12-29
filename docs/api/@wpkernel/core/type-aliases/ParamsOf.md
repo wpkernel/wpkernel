@@ -1,13 +1,13 @@
 [**@wpkernel/core v0.12.6-beta.3**](../README.md)
 
-***
+---
 
 [@wpkernel/core](../README.md) / ParamsOf
 
-# Type Alias: ParamsOf&lt;K, Key&gt;
+# Type Alias: ParamsOf<K, Key>
 
 ```ts
-type ParamsOf&lt;K, Key&gt; = K[Key] extends void ? [] : [K[Key]];
+type ParamsOf<K, Key> = K[Key] extends void ? [] : [K[Key]];
 ```
 
 Extract the tuple type used for params in `can`/`assert` helpers.
@@ -21,4 +21,4 @@ Ensures that void params are optional while others remain required.
 
 ### Key
 
-`Key` *extends* keyof `K`
+`Key` _extends_ keyof `K`

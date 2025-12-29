@@ -1,13 +1,20 @@
 [**@wpkernel/pipeline v0.12.6-beta.3**](../README.md)
 
-***
+---
 
 [@wpkernel/pipeline](../README.md) / makePipeline
 
 # Function: makePipeline()
 
 ```ts
-function makePipeline&lt;TRunOptions, TContext, TReporter, TUserState, TDiagnostic, TRunResult&gt;(options): AgnosticPipeline&lt;TRunOptions, TRunResult, TContext, TReporter&gt;;
+function makePipeline<
+	TRunOptions,
+	TContext,
+	TReporter,
+	TUserState,
+	TDiagnostic,
+	TRunResult,
+>(options): AgnosticPipeline<TRunOptions, TRunResult, TContext, TReporter>;
 ```
 
 ## Type Parameters
@@ -18,11 +25,11 @@ function makePipeline&lt;TRunOptions, TContext, TReporter, TUserState, TDiagnost
 
 ### TContext
 
-`TContext` *extends* `object`
+`TContext` _extends_ `object`
 
 ### TReporter
 
-`TReporter` *extends* [`PipelineReporter`](../interfaces/PipelineReporter.md) = [`PipelineReporter`](../interfaces/PipelineReporter.md)
+`TReporter` _extends_ [`PipelineReporter`](../interfaces/PipelineReporter.md) = [`PipelineReporter`](../interfaces/PipelineReporter.md)
 
 ### TUserState
 
@@ -30,18 +37,18 @@ function makePipeline&lt;TRunOptions, TContext, TReporter, TUserState, TDiagnost
 
 ### TDiagnostic
 
-`TDiagnostic` *extends* [`PipelineDiagnostic`](../type-aliases/PipelineDiagnostic.md) = [`PipelineDiagnostic`](../type-aliases/PipelineDiagnostic.md)
+`TDiagnostic` _extends_ [`PipelineDiagnostic`](../type-aliases/PipelineDiagnostic.md) = [`PipelineDiagnostic`](../type-aliases/PipelineDiagnostic.md)
 
 ### TRunResult
 
-`TRunResult` = [`PipelineRunState`](../interfaces/PipelineRunState.md)&lt;`TUserState`, `TDiagnostic`&gt;
+`TRunResult` = [`PipelineRunState`](../interfaces/PipelineRunState.md)<`TUserState`, `TDiagnostic`>
 
 ## Parameters
 
 ### options
 
-`AgnosticPipelineOptions`&lt;`TRunOptions`, `TContext`, `TReporter`, `TUserState`, `TDiagnostic`, `TRunResult`&gt;
+`AgnosticPipelineOptions`<`TRunOptions`, `TContext`, `TReporter`, `TUserState`, `TDiagnostic`, `TRunResult`>
 
 ## Returns
 
-`AgnosticPipeline`&lt;`TRunOptions`, `TRunResult`, `TContext`, `TReporter`&gt;
+`AgnosticPipeline`<`TRunOptions`, `TRunResult`, `TContext`, `TReporter`>

@@ -1,41 +1,41 @@
 [**@wpkernel/pipeline v0.12.6-beta.3**](../README.md)
 
-***
+---
 
 [@wpkernel/pipeline](../README.md) / PipelineExecutionMetadata
 
-# Interface: PipelineExecutionMetadata&lt;TFragmentKind, TBuilderKind&gt;
+# Interface: PipelineExecutionMetadata<TFragmentKind, TBuilderKind>
 
 Complete execution metadata for all helper phases.
 
 ## Extends
 
-- [`FragmentFinalizationMetadata`](FragmentFinalizationMetadata.md)&lt;`TFragmentKind`&gt;
+- [`FragmentFinalizationMetadata`](FragmentFinalizationMetadata.md)<`TFragmentKind`>
 
 ## Type Parameters
 
 ### TFragmentKind
 
-`TFragmentKind` *extends* [`HelperKind`](../type-aliases/HelperKind.md) = [`HelperKind`](../type-aliases/HelperKind.md)
+`TFragmentKind` _extends_ [`HelperKind`](../type-aliases/HelperKind.md) = [`HelperKind`](../type-aliases/HelperKind.md)
 
 ### TBuilderKind
 
-`TBuilderKind` *extends* [`HelperKind`](../type-aliases/HelperKind.md) = [`HelperKind`](../type-aliases/HelperKind.md)
+`TBuilderKind` _extends_ [`HelperKind`](../type-aliases/HelperKind.md) = [`HelperKind`](../type-aliases/HelperKind.md)
 
 ## Properties
 
 ### builders
 
 ```ts
-readonly builders: HelperExecutionSnapshot&lt;TBuilderKind&gt;;
+readonly builders: HelperExecutionSnapshot<TBuilderKind>;
 ```
 
-***
+---
 
 ### fragments
 
 ```ts
-readonly fragments: HelperExecutionSnapshot&lt;TFragmentKind&gt;;
+readonly fragments: HelperExecutionSnapshot<TFragmentKind>;
 ```
 
 #### Inherited from

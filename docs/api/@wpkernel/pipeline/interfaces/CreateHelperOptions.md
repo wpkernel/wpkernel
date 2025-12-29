@@ -1,10 +1,10 @@
 [**@wpkernel/pipeline v0.12.6-beta.3**](../README.md)
 
-***
+---
 
 [@wpkernel/pipeline](../README.md) / CreateHelperOptions
 
-# Interface: CreateHelperOptions&lt;TContext, TInput, TOutput, TReporter, TKind&gt;
+# Interface: CreateHelperOptions<TContext, TInput, TOutput, TReporter, TKind>
 
 Options for creating a new helper.
 
@@ -24,21 +24,21 @@ Options for creating a new helper.
 
 ### TReporter
 
-`TReporter` *extends* [`PipelineReporter`](PipelineReporter.md) = [`PipelineReporter`](PipelineReporter.md)
+`TReporter` _extends_ [`PipelineReporter`](PipelineReporter.md) = [`PipelineReporter`](PipelineReporter.md)
 
 ### TKind
 
-`TKind` *extends* [`HelperKind`](../type-aliases/HelperKind.md) = [`HelperKind`](../type-aliases/HelperKind.md)
+`TKind` _extends_ [`HelperKind`](../type-aliases/HelperKind.md) = [`HelperKind`](../type-aliases/HelperKind.md)
 
 ## Properties
 
 ### apply
 
 ```ts
-readonly apply: HelperApplyFn&lt;TContext, TInput, TOutput, TReporter&gt;;
+readonly apply: HelperApplyFn<TContext, TInput, TOutput, TReporter>;
 ```
 
-***
+---
 
 ### key
 
@@ -46,7 +46,7 @@ readonly apply: HelperApplyFn&lt;TContext, TInput, TOutput, TReporter&gt;;
 readonly key: string;
 ```
 
-***
+---
 
 ### kind
 
@@ -54,7 +54,7 @@ readonly key: string;
 readonly kind: TKind;
 ```
 
-***
+---
 
 ### dependsOn?
 
@@ -62,7 +62,7 @@ readonly kind: TKind;
 readonly optional dependsOn: readonly string[];
 ```
 
-***
+---
 
 ### mode?
 
@@ -70,7 +70,7 @@ readonly optional dependsOn: readonly string[];
 readonly optional mode: HelperMode;
 ```
 
-***
+---
 
 ### origin?
 
@@ -78,7 +78,7 @@ readonly optional mode: HelperMode;
 readonly optional origin: string;
 ```
 
-***
+---
 
 ### priority?
 

@@ -1,6 +1,6 @@
 [**@wpkernel/wp-json-ast v0.12.6-beta.3**](../README.md)
 
-***
+---
 
 [@wpkernel/wp-json-ast](../README.md) / BuildWpPostListRouteStatementsOptions
 
@@ -14,7 +14,7 @@
 readonly cacheSegments: readonly unknown[];
 ```
 
-***
+---
 
 ### metadataHost
 
@@ -22,7 +22,7 @@ readonly cacheSegments: readonly unknown[];
 readonly metadataHost: ResourceMetadataHost;
 ```
 
-***
+---
 
 ### pascalName
 
@@ -30,7 +30,7 @@ readonly metadataHost: ResourceMetadataHost;
 readonly pascalName: string;
 ```
 
-***
+---
 
 ### resource
 

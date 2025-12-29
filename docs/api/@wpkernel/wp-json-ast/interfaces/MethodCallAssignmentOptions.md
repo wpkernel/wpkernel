@@ -1,6 +1,6 @@
 [**@wpkernel/wp-json-ast v0.12.6-beta.3**](../README.md)
 
-***
+---
 
 [@wpkernel/wp-json-ast](../README.md) / MethodCallAssignmentOptions
 
@@ -22,7 +22,7 @@ readonly method: string;
 
 [`MethodCallExpressionOptions`](MethodCallExpressionOptions.md).[`method`](MethodCallExpressionOptions.md#method)
 
-***
+---
 
 ### subject
 
@@ -34,7 +34,7 @@ readonly subject: MethodCallSubject;
 
 [`MethodCallExpressionOptions`](MethodCallExpressionOptions.md).[`subject`](MethodCallExpressionOptions.md#subject)
 
-***
+---
 
 ### variable
 
@@ -42,7 +42,7 @@ readonly subject: MethodCallSubject;
 readonly variable: string;
 ```
 
-***
+---
 
 ### args?
 

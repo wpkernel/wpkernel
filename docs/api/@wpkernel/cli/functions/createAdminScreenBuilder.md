@@ -1,6 +1,6 @@
 [**@wpkernel/cli v0.12.6-beta.3**](../README.md)
 
-***
+---
 
 [@wpkernel/cli](../README.md) / createAdminScreenBuilder
 
@@ -13,7 +13,8 @@ function createAdminScreenBuilder(): BuilderHelper;
 Creates a helper for generating admin screen components from the IR.
 
 Generated screens:
-- Wrap content in `&lt;WPKernelScreen&gt;` using the resolved runtime.
+
+- Wrap content in `<WPKernelScreen>` using the resolved runtime.
 - Stamp `data-wp-interactive` and `data-wp-context` for use with wp-interactivity.
 
 ## Returns

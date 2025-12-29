@@ -1,6 +1,6 @@
 [**@wpkernel/cli v0.12.6-beta.3**](../README.md)
 
-***
+---
 
 [@wpkernel/cli](../README.md) / createSchemasFragment
 
@@ -13,6 +13,7 @@ function createSchemasFragment(): IrFragment;
 Creates an IR fragment that loads configured JSON Schemas.
 
 This fragment:
+
 - Loads schemas declared in `config.schemas` from disk
 - Hashes and normalises them
 - Populates a shared SchemaAccumulator extension

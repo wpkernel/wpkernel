@@ -1,6 +1,6 @@
 [**@wpkernel/core v0.12.6-beta.3**](../README.md)
 
-***
+---
 
 [@wpkernel/core](../README.md) / UIIntegrationOptions
 
@@ -44,7 +44,7 @@ optional enable: boolean;
 optional preferences: unknown;
 ```
 
-***
+---
 
 ### devtools?
 
@@ -52,7 +52,7 @@ optional preferences: unknown;
 optional devtools: boolean;
 ```
 
-***
+---
 
 ### notices?
 
@@ -60,7 +60,7 @@ optional devtools: boolean;
 optional notices: boolean;
 ```
 
-***
+---
 
 ### suspense?
 
