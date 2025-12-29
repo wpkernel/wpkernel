@@ -1,5 +1,8 @@
 import { makePipeline } from '../../core/makePipeline';
-import { makeFinalizeFragmentsStage } from '../../core/runner/stage-factories';
+import {
+	isPaused,
+	makeFinalizeFragmentsStage,
+} from '../../core/runner/stage-factories';
 import { maybeThen } from '../../core/async-utils';
 import type {
 	PipelineDiagnostic,
@@ -292,6 +295,7 @@ export function createStandardPipeline<
 				FragmentFinalizationMetadata<TFragmentKind>
 			>({
 				isHalt: d.runnerEnv.isHalt,
+				isPaused,
 				snapshotFragments: (state) => {
 					const fragments = ((
 						state as unknown as StateWithExecution

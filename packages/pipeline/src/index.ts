@@ -2,6 +2,7 @@
 export { createHelper } from './core/helper';
 export { createPipeline } from './standard-pipeline/createPipeline';
 export { makePipeline } from './core/makePipeline';
+export { makeResumablePipeline } from './core/makeResumablePipeline';
 export { createPipelineExtension } from './core/createExtension';
 export type { CreatePipelineExtensionOptions } from './core/createExtension';
 export { executeHelpers } from './core/executor';
@@ -51,7 +52,12 @@ export type {
 	PipelineStep,
 	PipelineRunState,
 	HelperExecutionSnapshot,
+	PipelinePauseKind,
+	PipelinePauseOptions,
+	PipelinePauseSnapshot,
+	PipelinePaused,
 	PipelineExtensionRollbackErrorMetadata,
+	ResumablePipeline,
 } from './core/types';
 
 export type {

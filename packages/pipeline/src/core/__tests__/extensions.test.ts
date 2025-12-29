@@ -37,6 +37,40 @@ describe('extensions', () => {
 	});
 
 	describe('runExtensionHooks', () => {
+		it('handles sync hooks returning values', () => {
+			const hook = jest.fn().mockReturnValue({
+				artifact: { artifact: 'sync' },
+			});
+			const hooks: ExtensionHookEntry<
+				TestContext,
+				TestOptions,
+				TestArtifact
+			>[] = [
+				{
+					key: 'sync-hook',
+					lifecycle: 'after-fragments',
+					hook,
+				},
+			];
+
+			const result = runExtensionHooks(
+				hooks,
+				'after-fragments',
+				{ artifact: { artifact: 'initial' } } as any,
+				() => {}
+			);
+
+			expect(result).toEqual({
+				artifact: { artifact: 'sync' },
+				results: [
+					{
+						hook: hooks[0],
+						result: { artifact: { artifact: 'sync' } },
+					},
+				],
+			});
+		});
+
 		it('handles async hooks returning values', async () => {
 			const hook = jest
 				.fn()
@@ -220,6 +254,29 @@ describe('extensions', () => {
 				})
 			);
 		});
+
+		it('handles sync rollbacks', () => {
+			const rollback = jest.fn();
+			const results: ExtensionHookExecution<
+				TestContext,
+				TestOptions,
+				TestArtifact
+			>[] = [
+				{
+					hook: { key: 'hook1' } as any,
+					result: { rollback },
+				},
+			];
+
+			const outcome = rollbackExtensionResults(
+				results,
+				[{ key: 'hook1' } as any],
+				() => {}
+			);
+
+			expect(outcome).toBeUndefined();
+			expect(rollback).toHaveBeenCalled();
+		});
 	});
 
 	describe('commitExtensionResults', () => {
@@ -238,6 +295,25 @@ describe('extensions', () => {
 
 			await commitExtensionResults(results);
 
+			expect(commit).toHaveBeenCalled();
+		});
+
+		it('handles sync commits', () => {
+			const commit = jest.fn();
+			const results: ExtensionHookExecution<
+				TestContext,
+				TestOptions,
+				TestArtifact
+			>[] = [
+				{
+					hook: { key: 'hook1' } as any,
+					result: { commit },
+				},
+			];
+
+			const outcome = commitExtensionResults(results);
+
+			expect(outcome).toBeUndefined();
 			expect(commit).toHaveBeenCalled();
 		});
 	});
