@@ -1,35 +1,35 @@
 [**@wpkernel/php-json-ast v0.12.6-beta.3**](../README.md)
 
-***
+---
 
 [@wpkernel/php-json-ast](../README.md) / CreatePhpFileBuilderOptions
 
-# Interface: CreatePhpFileBuilderOptions&lt;TContext, TInput, TOutput&gt;
+# Interface: CreatePhpFileBuilderOptions<TContext, TInput, TOutput>
 
 ## Extends
 
-- `Omit`&lt;[`CreatePhpProgramBuilderOptions`](CreatePhpProgramBuilderOptions.md)&lt;`TContext`, `TInput`, `TOutput`&gt;, `"build"`&gt;
+- `Omit`<[`CreatePhpProgramBuilderOptions`](CreatePhpProgramBuilderOptions.md)<`TContext`, `TInput`, `TOutput`>, `"build"`>
 
 ## Type Parameters
 
 ### TContext
 
-`TContext` *extends* [`PipelineContext`](PipelineContext.md) = [`PipelineContext`](PipelineContext.md)
+`TContext` _extends_ [`PipelineContext`](PipelineContext.md) = [`PipelineContext`](PipelineContext.md)
 
 ### TInput
 
-`TInput` *extends* [`BuilderInput`](BuilderInput.md) = [`BuilderInput`](BuilderInput.md)
+`TInput` _extends_ [`BuilderInput`](BuilderInput.md) = [`BuilderInput`](BuilderInput.md)
 
 ### TOutput
 
-`TOutput` *extends* [`BuilderOutput`](BuilderOutput.md) = [`BuilderOutput`](BuilderOutput.md)
+`TOutput` _extends_ [`BuilderOutput`](BuilderOutput.md) = [`BuilderOutput`](BuilderOutput.md)
 
 ## Properties
 
 ### build()
 
 ```ts
-readonly build: (builder, entry) =&gt; void | Promise&lt;void&gt;;
+readonly build: (builder, entry) => void | Promise<void>;
 ```
 
 #### Parameters
@@ -44,9 +44,9 @@ readonly build: (builder, entry) =&gt; void | Promise&lt;void&gt;;
 
 #### Returns
 
-`void` \| `Promise`&lt;`void`&gt;
+`void` \| `Promise`<`void`>
 
-***
+---
 
 ### filePath
 
@@ -57,10 +57,10 @@ readonly filePath: string;
 #### Inherited from
 
 ```ts
-Omit.filePath
+Omit.filePath;
 ```
 
-***
+---
 
 ### key
 
@@ -71,10 +71,10 @@ readonly key: string;
 #### Inherited from
 
 ```ts
-Omit.key
+Omit.key;
 ```
 
-***
+---
 
 ### metadata
 
@@ -85,10 +85,10 @@ readonly metadata: PhpFileMetadata;
 #### Inherited from
 
 ```ts
-Omit.metadata
+Omit.metadata;
 ```
 
-***
+---
 
 ### namespace
 
@@ -99,10 +99,10 @@ readonly namespace: string;
 #### Inherited from
 
 ```ts
-Omit.namespace
+Omit.namespace;
 ```
 
-***
+---
 
 ### dependsOn?
 
@@ -114,7 +114,7 @@ readonly optional dependsOn: readonly string[];
 
 [`CreateHelperOptions`](CreateHelperOptions.md).[`dependsOn`](CreateHelperOptions.md#dependson)
 
-***
+---
 
 ### mode?
 
@@ -126,7 +126,7 @@ readonly optional mode: HelperMode;
 
 [`CreateHelperOptions`](CreateHelperOptions.md).[`mode`](CreateHelperOptions.md#mode)
 
-***
+---
 
 ### origin?
 
@@ -138,7 +138,7 @@ readonly optional origin: string;
 
 [`CreateHelperOptions`](CreateHelperOptions.md).[`origin`](CreateHelperOptions.md#origin)
 
-***
+---
 
 ### priority?
 

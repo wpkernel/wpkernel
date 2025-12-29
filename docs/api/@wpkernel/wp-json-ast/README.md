@@ -1,6 +1,6 @@
 **@wpkernel/wp-json-ast v0.12.6-beta.3**
 
-***
+---
 
 # @wpkernel/wp-json-ast v0.12.6-beta.3
 
@@ -235,10 +235,10 @@
 
 ### WordPress AST
 
-- [AUTO\_GUARD\_BEGIN](variables/AUTO_GUARD_BEGIN.md)
-- [AUTO\_GUARD\_END](variables/AUTO_GUARD_END.md)
-- [DEFAULT\_DOC\_HEADER](variables/DEFAULT_DOC_HEADER.md)
-- [WP\_POST\_MUTATION\_CONTRACT](variables/WP_POST_MUTATION_CONTRACT.md)
+- [AUTO_GUARD_BEGIN](variables/AUTO_GUARD_BEGIN.md)
+- [AUTO_GUARD_END](variables/AUTO_GUARD_END.md)
+- [DEFAULT_DOC_HEADER](variables/DEFAULT_DOC_HEADER.md)
+- [WP_POST_MUTATION_CONTRACT](variables/WP_POST_MUTATION_CONTRACT.md)
 
 ## Functions
 

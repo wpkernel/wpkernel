@@ -1,6 +1,6 @@
 [**@wpkernel/php-json-ast v0.12.6-beta.3**](../README.md)
 
-***
+---
 
 [@wpkernel/php-json-ast](../README.md) / PhpStmtIf
 
@@ -24,7 +24,7 @@ readonly attributes: PhpAttributes;
 
 [`PhpStmtBase`](PhpStmtBase.md).[`attributes`](PhpStmtBase.md#attributes)
 
-***
+---
 
 ### cond
 
@@ -32,7 +32,7 @@ readonly attributes: PhpAttributes;
 readonly cond: PhpExpr;
 ```
 
-***
+---
 
 ### else
 
@@ -40,7 +40,7 @@ readonly cond: PhpExpr;
 readonly else: PhpStmtElse | null;
 ```
 
-***
+---
 
 ### elseifs
 
@@ -48,7 +48,7 @@ readonly else: PhpStmtElse | null;
 readonly elseifs: PhpStmtElseIf[];
 ```
 
-***
+---
 
 ### nodeType
 
@@ -60,7 +60,7 @@ readonly nodeType: "Stmt_If";
 
 [`PhpStmtBase`](PhpStmtBase.md).[`nodeType`](PhpStmtBase.md#nodetype)
 
-***
+---
 
 ### stmts
 

@@ -1,6 +1,6 @@
 [**@wpkernel/ui v0.12.6-beta.3**](../README.md)
 
-***
+---
 
 [@wpkernel/ui](../README.md) / WPKernelUIProviderProps
 
@@ -18,7 +18,7 @@ children: ReactNode;
 
 The React nodes to render within the provider.
 
-***
+---
 
 ### runtime
 

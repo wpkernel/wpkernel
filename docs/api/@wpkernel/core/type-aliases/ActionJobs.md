@@ -1,6 +1,6 @@
 [**@wpkernel/core v0.12.6-beta.3**](../README.md)
 
-***
+---
 
 [@wpkernel/core](../README.md) / ActionJobs
 
@@ -20,18 +20,18 @@ job engine provided by the host application.
 
 ```typescript
 async function SendWelcomeEmail(ctx, { userId }) {
-  // Enqueue background job
-  await ctx.jobs.enqueue('email.send', {
-    to: user.email,
-    template: 'welcome',
-    userId
-  });
+	// Enqueue background job
+	await ctx.jobs.enqueue('email.send', {
+		to: user.email,
+		template: 'welcome',
+		userId,
+	});
 
-  // Or wait for job completion
-  const result = await ctx.jobs.wait('email.send', payload, {
-    timeoutMs: 30000,
-    pollIntervalMs: 1000
-  });
+	// Or wait for job completion
+	const result = await ctx.jobs.wait('email.send', payload, {
+		timeoutMs: 30000,
+		pollIntervalMs: 1000,
+	});
 }
 ```
 
@@ -40,7 +40,7 @@ async function SendWelcomeEmail(ctx, { userId }) {
 ### enqueue()
 
 ```ts
-enqueue: &lt;TPayload&gt;(jobName, payload) =&gt; Promise&lt;void&gt;;
+enqueue: <TPayload>(jobName, payload) => Promise<void>;
 ```
 
 #### Type Parameters
@@ -61,14 +61,14 @@ enqueue: &lt;TPayload&gt;(jobName, payload) =&gt; Promise&lt;void&gt;;
 
 #### Returns
 
-`Promise`&lt;`void`&gt;
+`Promise`<`void`>
 
-***
+---
 
 ### wait()
 
 ```ts
-wait: &lt;TPayload, TResult&gt;(jobName, payload, options?) =&gt; Promise&lt;TResult&gt;;
+wait: <TPayload, TResult>(jobName, payload, options?) => Promise<TResult>;
 ```
 
 #### Type Parameters
@@ -97,4 +97,4 @@ wait: &lt;TPayload, TResult&gt;(jobName, payload, options?) =&gt; Promise&lt;TRe
 
 #### Returns
 
-`Promise`&lt;`TResult`&gt;
+`Promise`<`TResult`>

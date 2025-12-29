@@ -1,13 +1,13 @@
 [**@wpkernel/core v0.12.6-beta.3**](../README.md)
 
-***
+---
 
 [@wpkernel/core](../README.md) / CapabilityHelpers
 
-# Type Alias: CapabilityHelpers&lt;K&gt;
+# Type Alias: CapabilityHelpers<K>
 
 ```ts
-type CapabilityHelpers&lt;K&gt; = object;
+type CapabilityHelpers<K> = object;
 ```
 
 Runtime helpers exposed by `defineCapability()`.
@@ -16,21 +16,21 @@ Runtime helpers exposed by `defineCapability()`.
 
 ### K
 
-`K` *extends* `Record`&lt;`string`, `unknown`&gt;
+`K` _extends_ `Record`<`string`, `unknown`>
 
 ## Properties
 
 ### assert()
 
 ```ts
-assert: &lt;Key&gt;(key, ...params) =&gt; void | Promise&lt;void&gt;;
+assert: <Key>(key, ...params) => void | Promise<void>;
 ```
 
 #### Type Parameters
 
 ##### Key
 
-`Key` *extends* keyof `K`
+`Key` _extends_ keyof `K`
 
 #### Parameters
 
@@ -40,13 +40,13 @@ assert: &lt;Key&gt;(key, ...params) =&gt; void | Promise&lt;void&gt;;
 
 ##### params
 
-...[`ParamsOf`](ParamsOf.md)&lt;`K`, `Key`&gt;
+...[`ParamsOf`](ParamsOf.md)<`K`, `Key`>
 
 #### Returns
 
-`void` \| `Promise`&lt;`void`&gt;
+`void` \| `Promise`<`void`>
 
-***
+---
 
 ### cache
 
@@ -54,19 +54,19 @@ assert: &lt;Key&gt;(key, ...params) =&gt; void | Promise&lt;void&gt;;
 readonly cache: CapabilityCache;
 ```
 
-***
+---
 
 ### can()
 
 ```ts
-can: &lt;Key&gt;(key, ...params) =&gt; boolean | Promise&lt;boolean&gt;;
+can: <Key>(key, ...params) => boolean | Promise<boolean>;
 ```
 
 #### Type Parameters
 
 ##### Key
 
-`Key` *extends* keyof `K`
+`Key` _extends_ keyof `K`
 
 #### Parameters
 
@@ -76,36 +76,36 @@ can: &lt;Key&gt;(key, ...params) =&gt; boolean | Promise&lt;boolean&gt;;
 
 ##### params
 
-...[`ParamsOf`](ParamsOf.md)&lt;`K`, `Key`&gt;
+...[`ParamsOf`](ParamsOf.md)<`K`, `Key`>
 
 #### Returns
 
-`boolean` \| `Promise`&lt;`boolean`&gt;
+`boolean` \| `Promise`<`boolean`>
 
-***
+---
 
 ### extend()
 
 ```ts
-extend: (additionalMap) =&gt; void;
+extend: (additionalMap) => void;
 ```
 
 #### Parameters
 
 ##### additionalMap
 
-`Partial`&lt;[`CapabilityMap`](CapabilityMap.md)&lt;`K`&gt;&gt;
+`Partial`<[`CapabilityMap`](CapabilityMap.md)<`K`>>
 
 #### Returns
 
 `void`
 
-***
+---
 
 ### keys()
 
 ```ts
-keys: () =&gt; keyof K[];
+keys: () => keyof K[];
 ```
 
 #### Returns

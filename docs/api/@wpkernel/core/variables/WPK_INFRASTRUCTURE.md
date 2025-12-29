@@ -1,10 +1,10 @@
 [**@wpkernel/core v0.12.6-beta.3**](../README.md)
 
-***
+---
 
-[@wpkernel/core](../README.md) / WPK\_INFRASTRUCTURE
+[@wpkernel/core](../README.md) / WPK_INFRASTRUCTURE
 
-# Variable: WPK\_INFRASTRUCTURE
+# Variable: WPK_INFRASTRUCTURE
 
 ```ts
 const WPK_INFRASTRUCTURE: object;
@@ -16,7 +16,7 @@ Keys used for browser APIs (storage, channels), WordPress hooks, and public even
 
 ## Type Declaration
 
-### ACTIONS\_CHANNEL
+### ACTIONS_CHANNEL
 
 ```ts
 readonly ACTIONS_CHANNEL: "wpk.actions";
@@ -24,7 +24,7 @@ readonly ACTIONS_CHANNEL: "wpk.actions";
 
 BroadcastChannel name for action lifecycle events
 
-### ACTIONS\_MESSAGE\_TYPE\_EVENT
+### ACTIONS_MESSAGE_TYPE_EVENT
 
 ```ts
 readonly ACTIONS_MESSAGE_TYPE_EVENT: "wpk.action.event";
@@ -32,7 +32,7 @@ readonly ACTIONS_MESSAGE_TYPE_EVENT: "wpk.action.event";
 
 BroadcastChannel message type for action custom events
 
-### ACTIONS\_MESSAGE\_TYPE\_LIFECYCLE
+### ACTIONS_MESSAGE_TYPE_LIFECYCLE
 
 ```ts
 readonly ACTIONS_MESSAGE_TYPE_LIFECYCLE: "wpk.action.lifecycle";
@@ -40,7 +40,7 @@ readonly ACTIONS_MESSAGE_TYPE_LIFECYCLE: "wpk.action.lifecycle";
 
 BroadcastChannel message type for action lifecycle events
 
-### CAPABILITY\_CACHE\_CHANNEL
+### CAPABILITY_CACHE_CHANNEL
 
 ```ts
 readonly CAPABILITY_CACHE_CHANNEL: "wpk.capability.cache";
@@ -48,7 +48,7 @@ readonly CAPABILITY_CACHE_CHANNEL: "wpk.capability.cache";
 
 BroadcastChannel name for capability cache sync
 
-### CAPABILITY\_CACHE\_STORAGE
+### CAPABILITY_CACHE_STORAGE
 
 ```ts
 readonly CAPABILITY_CACHE_STORAGE: "wpk.capability.cache";
@@ -56,7 +56,7 @@ readonly CAPABILITY_CACHE_STORAGE: "wpk.capability.cache";
 
 Storage key prefix for capability cache
 
-### CAPABILITY\_EVENT\_CHANNEL
+### CAPABILITY_EVENT_CHANNEL
 
 ```ts
 readonly CAPABILITY_EVENT_CHANNEL: "wpk.capability.events";
@@ -64,7 +64,7 @@ readonly CAPABILITY_EVENT_CHANNEL: "wpk.capability.events";
 
 BroadcastChannel name for capability events
 
-### WP\_HOOKS\_NAMESPACE\_PREFIX
+### WP_HOOKS_NAMESPACE_PREFIX
 
 ```ts
 readonly WP_HOOKS_NAMESPACE_PREFIX: "wpk/notices";
@@ -72,7 +72,7 @@ readonly WP_HOOKS_NAMESPACE_PREFIX: "wpk/notices";
 
 WordPress hooks namespace prefix for WPKernel events plugin
 
-### WP\_HOOKS\_NAMESPACE\_UI\_DATAVIEWS
+### WP_HOOKS_NAMESPACE_UI_DATAVIEWS
 
 ```ts
 readonly WP_HOOKS_NAMESPACE_UI_DATAVIEWS: "wpk/ui/dataviews";

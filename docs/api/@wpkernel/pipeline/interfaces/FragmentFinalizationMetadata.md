@@ -1,10 +1,10 @@
 [**@wpkernel/pipeline v0.12.6-beta.3**](../README.md)
 
-***
+---
 
 [@wpkernel/pipeline](../README.md) / FragmentFinalizationMetadata
 
-# Interface: FragmentFinalizationMetadata&lt;TFragmentKind&gt;
+# Interface: FragmentFinalizationMetadata<TFragmentKind>
 
 Metadata from fragment helper execution.
 
@@ -16,12 +16,12 @@ Metadata from fragment helper execution.
 
 ### TFragmentKind
 
-`TFragmentKind` *extends* [`HelperKind`](../type-aliases/HelperKind.md) = [`HelperKind`](../type-aliases/HelperKind.md)
+`TFragmentKind` _extends_ [`HelperKind`](../type-aliases/HelperKind.md) = [`HelperKind`](../type-aliases/HelperKind.md)
 
 ## Properties
 
 ### fragments
 
 ```ts
-readonly fragments: HelperExecutionSnapshot&lt;TFragmentKind&gt;;
+readonly fragments: HelperExecutionSnapshot<TFragmentKind>;
 ```

@@ -1,6 +1,6 @@
 [**@wpkernel/wp-json-ast v0.12.6-beta.3**](../README.md)
 
-***
+---
 
 [@wpkernel/wp-json-ast](../README.md) / RestControllerRouteHandlers
 
@@ -14,7 +14,7 @@
 readonly optional create: RestControllerRouteStatementsBuilder;
 ```
 
-***
+---
 
 ### custom?
 
@@ -22,7 +22,7 @@ readonly optional create: RestControllerRouteStatementsBuilder;
 readonly optional custom: RestControllerRouteStatementsBuilder;
 ```
 
-***
+---
 
 ### get?
 
@@ -30,7 +30,7 @@ readonly optional custom: RestControllerRouteStatementsBuilder;
 readonly optional get: RestControllerRouteStatementsBuilder;
 ```
 
-***
+---
 
 ### list?
 
@@ -38,7 +38,7 @@ readonly optional get: RestControllerRouteStatementsBuilder;
 readonly optional list: RestControllerRouteStatementsBuilder;
 ```
 
-***
+---
 
 ### remove?
 
@@ -46,7 +46,7 @@ readonly optional list: RestControllerRouteStatementsBuilder;
 readonly optional remove: RestControllerRouteStatementsBuilder;
 ```
 
-***
+---
 
 ### update?
 

@@ -1,6 +1,6 @@
 [**@wpkernel/cli v0.12.6-beta.3**](../README.md)
 
-***
+---
 
 [@wpkernel/cli](../README.md) / PhpBuilderChannel
 
@@ -11,31 +11,31 @@
 ### drain()
 
 ```ts
-drain: () =&gt; readonly PhpProgramAction[];
+drain: () => readonly PhpProgramAction[];
 ```
 
 #### Returns
 
 readonly [`PhpProgramAction`](PhpProgramAction.md)[]
 
-***
+---
 
 ### pending()
 
 ```ts
-pending: () =&gt; readonly PhpProgramAction[];
+pending: () => readonly PhpProgramAction[];
 ```
 
 #### Returns
 
 readonly [`PhpProgramAction`](PhpProgramAction.md)[]
 
-***
+---
 
 ### queue()
 
 ```ts
-queue: (action) =&gt; void;
+queue: (action) => void;
 ```
 
 #### Parameters
@@ -48,12 +48,12 @@ queue: (action) =&gt; void;
 
 `void`
 
-***
+---
 
 ### reset()
 
 ```ts
-reset: () =&gt; void;
+reset: () => void;
 ```
 
 #### Returns

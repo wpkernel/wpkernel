@@ -1,12 +1,12 @@
 [**@wpkernel/php-json-ast v0.12.6-beta.3**](../README.md)
 
-***
+---
 
 [@wpkernel/php-json-ast](../README.md) / PhpExprArrowFunction
 
 # Interface: PhpExprArrowFunction
 
-Represents a PHP arrow function expression (e.g., `fn($x) =&gt; $x * 2`).
+Represents a PHP arrow function expression (e.g., `fn($x) => $x * 2`).
 
 ## Extends
 
@@ -20,7 +20,7 @@ Represents a PHP arrow function expression (e.g., `fn($x) =&gt; $x * 2`).
 readonly attrGroups: PhpAttrGroup[];
 ```
 
-***
+---
 
 ### attributes
 
@@ -32,7 +32,7 @@ readonly attributes: PhpAttributes;
 
 [`PhpExprBase`](PhpExprBase.md).[`attributes`](PhpExprBase.md#attributes)
 
-***
+---
 
 ### byRef
 
@@ -40,7 +40,7 @@ readonly attributes: PhpAttributes;
 readonly byRef: boolean;
 ```
 
-***
+---
 
 ### expr
 
@@ -48,7 +48,7 @@ readonly byRef: boolean;
 readonly expr: PhpExpr;
 ```
 
-***
+---
 
 ### nodeType
 
@@ -60,7 +60,7 @@ readonly nodeType: "Expr_ArrowFunction";
 
 [`PhpExprBase`](PhpExprBase.md).[`nodeType`](PhpExprBase.md#nodetype)
 
-***
+---
 
 ### params
 
@@ -68,7 +68,7 @@ readonly nodeType: "Expr_ArrowFunction";
 readonly params: PhpParam[];
 ```
 
-***
+---
 
 ### returnType
 
@@ -76,7 +76,7 @@ readonly params: PhpParam[];
 readonly returnType: PhpType | null;
 ```
 
-***
+---
 
 ### static
 

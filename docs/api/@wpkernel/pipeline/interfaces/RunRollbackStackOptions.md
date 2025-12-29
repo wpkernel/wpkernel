@@ -1,6 +1,6 @@
 [**@wpkernel/pipeline v0.12.6-beta.3**](../README.md)
 
-***
+---
 
 [@wpkernel/pipeline](../README.md) / RunRollbackStackOptions
 
@@ -16,12 +16,12 @@ Options for executing a rollback stack.
 readonly source: "extension" | "helper";
 ```
 
-***
+---
 
 ### onError()?
 
 ```ts
-readonly optional onError: (args) =&gt; void;
+readonly optional onError: (args) => void;
 ```
 
 #### Parameters

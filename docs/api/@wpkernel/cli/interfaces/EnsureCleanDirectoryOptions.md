@@ -1,6 +1,6 @@
 [**@wpkernel/cli v0.12.6-beta.3**](../README.md)
 
-***
+---
 
 [@wpkernel/cli](../README.md) / EnsureCleanDirectoryOptions
 
@@ -18,7 +18,7 @@ readonly directory: string;
 
 The directory to ensure is clean.
 
-***
+---
 
 ### workspace
 
@@ -28,7 +28,7 @@ readonly workspace: Workspace;
 
 The workspace instance.
 
-***
+---
 
 ### create?
 
@@ -38,7 +38,7 @@ readonly optional create: boolean;
 
 Whether to create the directory if it doesn't exist.
 
-***
+---
 
 ### force?
 
@@ -48,7 +48,7 @@ readonly optional force: boolean;
 
 Whether to force the cleanup, even if the directory is not empty.
 
-***
+---
 
 ### reporter?
 

@@ -1,6 +1,6 @@
 [**@wpkernel/php-json-ast v0.12.6-beta.3**](../README.md)
 
-***
+---
 
 [@wpkernel/php-json-ast](../README.md) / PhpStmtPropertyProperty
 
@@ -24,7 +24,7 @@ readonly attributes: PhpAttributes;
 
 [`PhpStmtBase`](PhpStmtBase.md).[`attributes`](PhpStmtBase.md#attributes)
 
-***
+---
 
 ### default
 
@@ -32,7 +32,7 @@ readonly attributes: PhpAttributes;
 readonly default: PhpExpr | null;
 ```
 
-***
+---
 
 ### name
 
@@ -40,7 +40,7 @@ readonly default: PhpExpr | null;
 readonly name: PhpIdentifier;
 ```
 
-***
+---
 
 ### nodeType
 

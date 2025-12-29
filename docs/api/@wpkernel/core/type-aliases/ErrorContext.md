@@ -1,6 +1,6 @@
 [**@wpkernel/core v0.12.6-beta.3**](../README.md)
 
-***
+---
 
 [@wpkernel/core](../README.md) / ErrorContext
 
@@ -28,7 +28,7 @@ Additional arbitrary data
 optional actionName: string;
 ```
 
-***
+---
 
 ### capabilityKey?
 
@@ -36,7 +36,7 @@ optional actionName: string;
 optional capabilityKey: string;
 ```
 
-***
+---
 
 ### method?
 
@@ -44,7 +44,7 @@ optional capabilityKey: string;
 optional method: string;
 ```
 
-***
+---
 
 ### path?
 
@@ -54,7 +54,7 @@ optional path: string;
 
 Request details
 
-***
+---
 
 ### requestId?
 
@@ -64,7 +64,7 @@ optional requestId: string;
 
 Correlation ID for tracing
 
-***
+---
 
 ### resourceName?
 
@@ -74,7 +74,7 @@ optional resourceName: string;
 
 Resource or action name
 
-***
+---
 
 ### siteId?
 
@@ -82,7 +82,7 @@ Resource or action name
 optional siteId: number;
 ```
 
-***
+---
 
 ### status?
 
@@ -90,7 +90,7 @@ optional siteId: number;
 optional status: number;
 ```
 
-***
+---
 
 ### userId?
 

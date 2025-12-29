@@ -1,6 +1,6 @@
 [**@wpkernel/php-json-ast v0.12.6-beta.3**](../README.md)
 
-***
+---
 
 [@wpkernel/php-json-ast](../README.md) / PhpStmtClassMethod
 
@@ -20,7 +20,7 @@ Represents a PHP class method declaration statement.
 readonly attrGroups: PhpAttrGroup[];
 ```
 
-***
+---
 
 ### attributes
 
@@ -32,7 +32,7 @@ readonly attributes: PhpAttributes;
 
 [`PhpStmtBase`](PhpStmtBase.md).[`attributes`](PhpStmtBase.md#attributes)
 
-***
+---
 
 ### byRef
 
@@ -40,7 +40,7 @@ readonly attributes: PhpAttributes;
 readonly byRef: boolean;
 ```
 
-***
+---
 
 ### flags
 
@@ -48,7 +48,7 @@ readonly byRef: boolean;
 readonly flags: number;
 ```
 
-***
+---
 
 ### name
 
@@ -56,7 +56,7 @@ readonly flags: number;
 readonly name: PhpIdentifier;
 ```
 
-***
+---
 
 ### nodeType
 
@@ -68,7 +68,7 @@ readonly nodeType: "Stmt_ClassMethod";
 
 [`PhpStmtBase`](PhpStmtBase.md).[`nodeType`](PhpStmtBase.md#nodetype)
 
-***
+---
 
 ### params
 
@@ -76,7 +76,7 @@ readonly nodeType: "Stmt_ClassMethod";
 readonly params: PhpParam[];
 ```
 
-***
+---
 
 ### returnType
 
@@ -84,7 +84,7 @@ readonly params: PhpParam[];
 readonly returnType: PhpType | null;
 ```
 
-***
+---
 
 ### stmts
 

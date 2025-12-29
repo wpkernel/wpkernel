@@ -1,6 +1,6 @@
 [**@wpkernel/cli v0.12.6-beta.3**](../README.md)
 
-***
+---
 
 [@wpkernel/cli](../README.md) / BuildInitCommandOptions
 
@@ -13,7 +13,7 @@ Options for building the `init` command.
 ### buildReadinessRegistry()?
 
 ```ts
-readonly optional buildReadinessRegistry: (options?) =&gt; ReadinessRegistry;
+readonly optional buildReadinessRegistry: (options?) => ReadinessRegistry;
 ```
 
 Optional: Custom readiness registry builder.
@@ -28,12 +28,12 @@ Optional: Custom readiness registry builder.
 
 [`ReadinessRegistry`](../classes/ReadinessRegistry.md)
 
-***
+---
 
 ### buildReporter()?
 
 ```ts
-readonly optional buildReporter: (options) =&gt; Reporter;
+readonly optional buildReporter: (options) => Reporter;
 ```
 
 Optional: Custom reporter builder function.
@@ -48,12 +48,12 @@ Optional: Custom reporter builder function.
 
 `Reporter`
 
-***
+---
 
 ### buildWorkspace()?
 
 ```ts
-readonly optional buildWorkspace: (root) =&gt; Workspace;
+readonly optional buildWorkspace: (root) => Workspace;
 ```
 
 Optional: Custom workspace builder function.
@@ -68,12 +68,12 @@ Optional: Custom workspace builder function.
 
 [`Workspace`](Workspace.md)
 
-***
+---
 
 ### checkGitRepository()?
 
 ```ts
-readonly optional checkGitRepository: (cwd, __namedParameters) =&gt; Promise&lt;boolean&gt;;
+readonly optional checkGitRepository: (cwd, __namedParameters) => Promise<boolean>;
 ```
 
 Optional: Custom git repository checker function.
@@ -90,14 +90,14 @@ Optional: Custom git repository checker function.
 
 #### Returns
 
-`Promise`&lt;`boolean`&gt;
+`Promise`<`boolean`>
 
-***
+---
 
 ### runWorkflow()?
 
 ```ts
-readonly optional runWorkflow: (options) =&gt; Promise&lt;InitWorkflowResult&gt;;
+readonly optional runWorkflow: (options) => Promise<InitWorkflowResult>;
 ```
 
 Optional: Custom workflow runner function.
@@ -110,4 +110,4 @@ Optional: Custom workflow runner function.
 
 #### Returns
 
-`Promise`&lt;[`InitWorkflowResult`](InitWorkflowResult.md)&gt;
+`Promise`<[`InitWorkflowResult`](InitWorkflowResult.md)>

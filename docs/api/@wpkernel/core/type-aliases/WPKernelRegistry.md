@@ -1,6 +1,6 @@
 [**@wpkernel/core v0.12.6-beta.3**](../README.md)
 
-***
+---
 
 [@wpkernel/core](../README.md) / WPKernelRegistry
 
@@ -15,7 +15,7 @@ type WPKernelRegistry = WPDataRegistry & object;
 ### dispatch()
 
 ```ts
-dispatch: (storeName) =&gt; unknown;
+dispatch: (storeName) => unknown;
 ```
 
 #### Parameters
@@ -31,15 +31,15 @@ dispatch: (storeName) =&gt; unknown;
 ### \_\_experimentalUseMiddleware()?
 
 ```ts
-optional __experimentalUseMiddleware: (middleware) =&gt; () =&gt; void | void;
+optional __experimentalUseMiddleware: (middleware) => () => void | void;
 ```
 
 #### Parameters
 
 ##### middleware
 
-() =&gt; [`ReduxMiddleware`](ReduxMiddleware.md)[]
+() => [`ReduxMiddleware`](ReduxMiddleware.md)[]
 
 #### Returns
 
-() =&gt; `void` \| `void`
+() => `void` \| `void`

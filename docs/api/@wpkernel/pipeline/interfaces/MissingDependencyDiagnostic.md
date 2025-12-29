@@ -1,10 +1,10 @@
 [**@wpkernel/pipeline v0.12.6-beta.3**](../README.md)
 
-***
+---
 
 [@wpkernel/pipeline](../README.md) / MissingDependencyDiagnostic
 
-# Interface: MissingDependencyDiagnostic&lt;TKind&gt;
+# Interface: MissingDependencyDiagnostic<TKind>
 
 Diagnostic for missing helper dependencies.
 
@@ -12,7 +12,7 @@ Diagnostic for missing helper dependencies.
 
 ### TKind
 
-`TKind` *extends* [`HelperKind`](../type-aliases/HelperKind.md) = [`HelperKind`](../type-aliases/HelperKind.md)
+`TKind` _extends_ [`HelperKind`](../type-aliases/HelperKind.md) = [`HelperKind`](../type-aliases/HelperKind.md)
 
 ## Properties
 
@@ -22,7 +22,7 @@ Diagnostic for missing helper dependencies.
 readonly dependency: string;
 ```
 
-***
+---
 
 ### key
 
@@ -30,7 +30,7 @@ readonly dependency: string;
 readonly key: string;
 ```
 
-***
+---
 
 ### message
 
@@ -38,7 +38,7 @@ readonly key: string;
 readonly message: string;
 ```
 
-***
+---
 
 ### type
 
@@ -46,7 +46,7 @@ readonly message: string;
 readonly type: "missing-dependency";
 ```
 
-***
+---
 
 ### helper?
 
@@ -54,7 +54,7 @@ readonly type: "missing-dependency";
 readonly optional helper: string;
 ```
 
-***
+---
 
 ### kind?
 

@@ -1,6 +1,6 @@
 [**@wpkernel/e2e-utils v0.12.6-beta.3**](../README.md)
 
-***
+---
 
 [@wpkernel/e2e-utils](../README.md) / FileManifestDiff
 
@@ -14,7 +14,7 @@
 added: string[];
 ```
 
-***
+---
 
 ### changed
 
@@ -22,7 +22,7 @@ added: string[];
 changed: string[];
 ```
 
-***
+---
 
 ### removed
 

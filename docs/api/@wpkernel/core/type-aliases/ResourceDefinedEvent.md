@@ -1,13 +1,13 @@
 [**@wpkernel/core v0.12.6-beta.3**](../README.md)
 
-***
+---
 
 [@wpkernel/core](../README.md) / ResourceDefinedEvent
 
-# Type Alias: ResourceDefinedEvent&lt;T, TQuery&gt;
+# Type Alias: ResourceDefinedEvent<T, TQuery>
 
 ```ts
-type ResourceDefinedEvent&lt;T, TQuery&gt; = object;
+type ResourceDefinedEvent<T, TQuery> = object;
 ```
 
 ## Type Parameters
@@ -28,10 +28,11 @@ type ResourceDefinedEvent&lt;T, TQuery&gt; = object;
 namespace: string;
 ```
 
-***
+---
 
 ### resource
 
 ```ts
-resource: ResourceObject&lt;T, TQuery&gt;;
+resource: ResourceObject & lt;
+(T, TQuery & gt);
 ```

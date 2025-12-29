@@ -1,13 +1,13 @@
 [**@wpkernel/test-utils v0.12.6-beta.3**](../README.md)
 
-***
+---
 
 [@wpkernel/test-utils](../README.md) / withActionRuntimeOverrides
 
 # Function: withActionRuntimeOverrides()
 
 ```ts
-function withActionRuntimeOverrides&lt;T&gt;(overrides, callback): Promise&lt;T&gt;;
+function withActionRuntimeOverrides<T>(overrides, callback): Promise<T>;
 ```
 
 Executes a callback with temporary action runtime overrides, ensuring cleanup afterwards.
@@ -28,12 +28,12 @@ The overrides to apply to the action runtime.
 
 ### callback
 
-() =&gt; `T` \| `Promise`&lt;`T`&gt;
+() => `T` \| `Promise`<`T`>
 
 The function to execute with the modified runtime.
 
 ## Returns
 
-`Promise`&lt;`T`&gt;
+`Promise`<`T`>
 
 The return value of the callback.

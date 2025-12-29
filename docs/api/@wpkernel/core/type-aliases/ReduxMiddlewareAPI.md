@@ -1,13 +1,13 @@
 [**@wpkernel/core v0.12.6-beta.3**](../README.md)
 
-***
+---
 
 [@wpkernel/core](../README.md) / ReduxMiddlewareAPI
 
-# Type Alias: ReduxMiddlewareAPI&lt;TState&gt;
+# Type Alias: ReduxMiddlewareAPI<TState>
 
 ```ts
-type ReduxMiddlewareAPI&lt;TState&gt; = object;
+type ReduxMiddlewareAPI<TState> = object;
 ```
 
 Redux compatible middleware API signature.
@@ -26,12 +26,12 @@ Redux compatible middleware API signature.
 dispatch: ReduxDispatch;
 ```
 
-***
+---
 
 ### getState()
 
 ```ts
-getState: () =&gt; TState;
+getState: () => TState;
 ```
 
 #### Returns

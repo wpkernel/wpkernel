@@ -1,6 +1,6 @@
 [**@wpkernel/cli v0.12.6-beta.3**](../README.md)
 
-***
+---
 
 [@wpkernel/cli](../README.md) / TsxRuntimeState
 
@@ -14,7 +14,7 @@
 readonly installedDuringRun: boolean;
 ```
 
-***
+---
 
 ### missingError
 
@@ -22,7 +22,7 @@ readonly installedDuringRun: boolean;
 readonly missingError: WPKernelError | null;
 ```
 
-***
+---
 
 ### resolvedPath
 
@@ -30,7 +30,7 @@ readonly missingError: WPKernelError | null;
 readonly resolvedPath: string | null;
 ```
 
-***
+---
 
 ### workspace
 
@@ -38,7 +38,7 @@ readonly resolvedPath: string | null;
 readonly workspace: Workspace | null;
 ```
 
-***
+---
 
 ### workspaceRoot
 

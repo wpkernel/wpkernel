@@ -1,34 +1,34 @@
 [**@wpkernel/wp-json-ast v0.12.6-beta.3**](../README.md)
 
-***
+---
 
 [@wpkernel/wp-json-ast](../README.md) / ProgramTargetPlannerStrategy
 
-# Type Alias: ProgramTargetPlannerStrategy&lt;TFile&gt;
+# Type Alias: ProgramTargetPlannerStrategy<TFile>
 
 ```ts
-type ProgramTargetPlannerStrategy&lt;TFile&gt; = object;
+type ProgramTargetPlannerStrategy<TFile> = object;
 ```
 
 ## Type Parameters
 
 ### TFile
 
-`TFile` *extends* [`ProgramTargetFile`](../interfaces/ProgramTargetFile.md) = [`ProgramTargetFile`](../interfaces/ProgramTargetFile.md)
+`TFile` _extends_ [`ProgramTargetFile`](../interfaces/ProgramTargetFile.md) = [`ProgramTargetFile`](../interfaces/ProgramTargetFile.md)
 
 ## Properties
 
 ### resolveFilePath()?
 
 ```ts
-readonly optional resolveFilePath: (context) =&gt; string;
+readonly optional resolveFilePath: (context) => string;
 ```
 
 #### Parameters
 
 ##### context
 
-[`ResolveFilePathStrategyContext`](../interfaces/ResolveFilePathStrategyContext.md)&lt;`TFile`&gt;
+[`ResolveFilePathStrategyContext`](../interfaces/ResolveFilePathStrategyContext.md)<`TFile`>
 
 #### Returns
 

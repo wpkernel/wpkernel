@@ -1,6 +1,6 @@
 [**@wpkernel/php-json-ast v0.12.6-beta.3**](../README.md)
 
-***
+---
 
 [@wpkernel/php-json-ast](../README.md) / PhpAstContext
 
@@ -14,7 +14,7 @@
 readonly docblockLines: string[];
 ```
 
-***
+---
 
 ### namespaceParts
 
@@ -22,7 +22,7 @@ readonly docblockLines: string[];
 namespaceParts: string[];
 ```
 
-***
+---
 
 ### pendingStatementLines
 
@@ -30,7 +30,7 @@ namespaceParts: string[];
 readonly pendingStatementLines: string[];
 ```
 
-***
+---
 
 ### statementEntries
 
@@ -38,7 +38,7 @@ readonly pendingStatementLines: string[];
 readonly statementEntries: PhpStatementEntry[];
 ```
 
-***
+---
 
 ### statementLines
 
@@ -46,7 +46,7 @@ readonly statementEntries: PhpStatementEntry[];
 readonly statementLines: string[];
 ```
 
-***
+---
 
 ### statements
 
@@ -54,10 +54,10 @@ readonly statementLines: string[];
 readonly statements: PhpStmt[];
 ```
 
-***
+---
 
 ### uses
 
 ```ts
-readonly uses: Map&lt;string, ProgramUse&gt;;
+readonly uses: Map<string, ProgramUse>;
 ```

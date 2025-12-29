@@ -1,6 +1,6 @@
 [**@wpkernel/php-json-ast v0.12.6-beta.3**](../README.md)
 
-***
+---
 
 [@wpkernel/php-json-ast](../README.md) / buildArray
 
@@ -22,7 +22,7 @@ An array of `PhpExprArrayItem` nodes.
 
 ### attributes?
 
-`Readonly`&lt;`Record`&lt;`string`, `unknown`&gt;&gt;
+`Readonly`<`Record`<`string`, `unknown`>>
 
 Optional attributes for the node.
 

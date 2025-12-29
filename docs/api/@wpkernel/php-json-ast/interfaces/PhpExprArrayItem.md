@@ -1,6 +1,6 @@
 [**@wpkernel/php-json-ast v0.12.6-beta.3**](../README.md)
 
-***
+---
 
 [@wpkernel/php-json-ast](../README.md) / PhpExprArrayItem
 
@@ -24,7 +24,7 @@ readonly attributes: PhpAttributes;
 
 [`PhpExprBase`](PhpExprBase.md).[`attributes`](PhpExprBase.md#attributes)
 
-***
+---
 
 ### byRef
 
@@ -32,7 +32,7 @@ readonly attributes: PhpAttributes;
 readonly byRef: boolean;
 ```
 
-***
+---
 
 ### key
 
@@ -40,7 +40,7 @@ readonly byRef: boolean;
 readonly key: PhpExpr | null;
 ```
 
-***
+---
 
 ### nodeType
 
@@ -52,7 +52,7 @@ readonly nodeType: "ArrayItem";
 
 [`PhpExprBase`](PhpExprBase.md).[`nodeType`](PhpExprBase.md#nodetype)
 
-***
+---
 
 ### unpack
 
@@ -60,7 +60,7 @@ readonly nodeType: "ArrayItem";
 readonly unpack: boolean;
 ```
 
-***
+---
 
 ### value
 

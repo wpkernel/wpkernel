@@ -1,25 +1,31 @@
 [**@wpkernel/php-json-ast v0.12.6-beta.3**](../README.md)
 
-***
+---
 
 [@wpkernel/php-json-ast](../README.md) / BuilderHelper
 
-# Type Alias: BuilderHelper&lt;TContext, TInput, TOutput&gt;
+# Type Alias: BuilderHelper<TContext, TInput, TOutput>
 
 ```ts
-type BuilderHelper&lt;TContext, TInput, TOutput&gt; = Helper&lt;TContext, TInput, TOutput, TContext["reporter"], "builder"&gt;;
+type BuilderHelper<TContext, TInput, TOutput> = Helper<
+	TContext,
+	TInput,
+	TOutput,
+	TContext['reporter'],
+	'builder'
+>;
 ```
 
 ## Type Parameters
 
 ### TContext
 
-`TContext` *extends* [`PipelineContext`](../interfaces/PipelineContext.md) = [`PipelineContext`](../interfaces/PipelineContext.md)
+`TContext` _extends_ [`PipelineContext`](../interfaces/PipelineContext.md) = [`PipelineContext`](../interfaces/PipelineContext.md)
 
 ### TInput
 
-`TInput` *extends* [`BuilderInput`](../interfaces/BuilderInput.md) = [`BuilderInput`](../interfaces/BuilderInput.md)
+`TInput` _extends_ [`BuilderInput`](../interfaces/BuilderInput.md) = [`BuilderInput`](../interfaces/BuilderInput.md)
 
 ### TOutput
 
-`TOutput` *extends* [`BuilderOutput`](../interfaces/BuilderOutput.md) = [`BuilderOutput`](../interfaces/BuilderOutput.md)
+`TOutput` _extends_ [`BuilderOutput`](../interfaces/BuilderOutput.md) = [`BuilderOutput`](../interfaces/BuilderOutput.md)

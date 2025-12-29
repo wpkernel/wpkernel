@@ -1,6 +1,6 @@
 [**@wpkernel/cli v0.12.6-beta.3**](../README.md)
 
-***
+---
 
 [@wpkernel/cli](../README.md) / PipelineRunResult
 
@@ -18,7 +18,7 @@ readonly diagnostics: readonly PipelineDiagnostic[];
 
 An array of diagnostic messages.
 
-***
+---
 
 ### ir
 
@@ -28,7 +28,7 @@ readonly ir: IRv1;
 
 The generated Intermediate Representation (IR).
 
-***
+---
 
 ### steps
 
