@@ -1,6 +1,6 @@
-[**@wpkernel/test-utils v0.12.6-beta.0**](../README.md)
+[**@wpkernel/test-utils v0.12.6-beta.3**](../README.md)
 
-***
+---
 
 [@wpkernel/test-utils](../README.md) / ApiFetchHarnessOptions
 
@@ -18,22 +18,22 @@ optional apiFetch: any;
 
 A mock `apiFetch` function.
 
-***
+---
 
 ### data?
 
 ```ts
-optional data: Partial&lt;WordPressData&gt;;
+optional data: Partial<WordPressData>;
 ```
 
 Partial overrides for `window.wp.data`.
 
-***
+---
 
 ### hooks?
 
 ```ts
-optional hooks: Partial&lt;any&gt;;
+optional hooks: Partial<any>;
 ```
 
 Partial overrides for `window.wp.hooks`.

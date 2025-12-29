@@ -1,6 +1,6 @@
-[**@wpkernel/core v0.12.6-beta.0**](../README.md)
+[**@wpkernel/core v0.12.6-beta.3**](../README.md)
 
-***
+---
 
 [@wpkernel/core](../README.md) / ReporterOptions
 
@@ -18,7 +18,7 @@ type ReporterOptions = object;
 optional channel: ReporterChannel;
 ```
 
-***
+---
 
 ### enabled?
 
@@ -29,7 +29,7 @@ optional enabled: boolean;
 Enables or disables the reporter instance without changing transport configuration.
 Primarily used for conditional debug reporters.
 
-***
+---
 
 ### level?
 
@@ -37,7 +37,7 @@ Primarily used for conditional debug reporters.
 optional level: ReporterLevel;
 ```
 
-***
+---
 
 ### namespace?
 

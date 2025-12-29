@@ -1,6 +1,6 @@
-[**@wpkernel/cli v0.12.6-beta.0**](../README.md)
+[**@wpkernel/cli v0.12.6-beta.3**](../README.md)
 
-***
+---
 
 [@wpkernel/cli](../README.md) / CollatePhpBlockArtifactsOptions
 
@@ -16,7 +16,7 @@ Options for collating PHP block artifacts during build.
 readonly processedBlocks: readonly ProcessedBlockManifest[];
 ```
 
-***
+---
 
 ### reporter
 
@@ -24,7 +24,7 @@ readonly processedBlocks: readonly ProcessedBlockManifest[];
 readonly reporter: Reporter;
 ```
 
-***
+---
 
 ### suppressWarnings?
 

@@ -1,6 +1,6 @@
-[**@wpkernel/cli v0.12.6-beta.0**](../README.md)
+[**@wpkernel/cli v0.12.6-beta.3**](../README.md)
 
-***
+---
 
 [@wpkernel/cli](../README.md) / PatchRecord
 
@@ -14,7 +14,7 @@
 readonly file: string;
 ```
 
-***
+---
 
 ### status
 
@@ -22,7 +22,7 @@ readonly file: string;
 readonly status: PatchStatus;
 ```
 
-***
+---
 
 ### description?
 
@@ -30,10 +30,10 @@ readonly status: PatchStatus;
 readonly optional description: string;
 ```
 
-***
+---
 
 ### details?
 
 ```ts
-readonly optional details: Record&lt;string, unknown&gt;;
+readonly optional details: Record<string, unknown>;
 ```

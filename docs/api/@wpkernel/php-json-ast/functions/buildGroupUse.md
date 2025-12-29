@@ -1,17 +1,13 @@
-[**@wpkernel/php-json-ast v0.12.6-beta.0**](../README.md)
+[**@wpkernel/php-json-ast v0.12.6-beta.3**](../README.md)
 
-***
+---
 
 [@wpkernel/php-json-ast](../README.md) / buildGroupUse
 
 # Function: buildGroupUse()
 
 ```ts
-function buildGroupUse(
-   type, 
-   prefix, 
-   uses, 
-   attributes?): PhpStmtGroupUse;
+function buildGroupUse(type, prefix, uses, attributes?): PhpStmtGroupUse;
 ```
 
 Builds a PHP group `use` statement node.
@@ -38,7 +34,7 @@ An array of `PhpStmtUseUse` nodes within the group.
 
 ### attributes?
 
-`Readonly`&lt;`Record`&lt;`string`, `unknown`&gt;&gt;
+`Readonly`<`Record`<`string`, `unknown`>>
 
 Optional attributes for the node.
 

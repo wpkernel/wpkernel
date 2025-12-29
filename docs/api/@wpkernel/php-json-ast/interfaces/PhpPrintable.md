@@ -1,10 +1,10 @@
-[**@wpkernel/php-json-ast v0.12.6-beta.0**](../README.md)
+[**@wpkernel/php-json-ast v0.12.6-beta.3**](../README.md)
 
-***
+---
 
 [@wpkernel/php-json-ast](../README.md) / PhpPrintable
 
-# Interface: PhpPrintable&lt;TNode&gt;
+# Interface: PhpPrintable<TNode>
 
 ## Type Parameters
 
@@ -20,7 +20,7 @@
 readonly lines: readonly string[];
 ```
 
-***
+---
 
 ### node
 

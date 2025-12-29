@@ -1,16 +1,16 @@
-[**@wpkernel/pipeline v0.12.6-beta.0**](../README.md)
+[**@wpkernel/pipeline v0.12.6-beta.3**](../README.md)
 
-***
+---
 
 [@wpkernel/pipeline](../README.md) / PipelineExtensionRegisterOutput
 
-# Type Alias: PipelineExtensionRegisterOutput&lt;TContext, TOptions, TArtifact&gt;
+# Type Alias: PipelineExtensionRegisterOutput<TContext, TOptions, TArtifact>
 
 ```ts
-type PipelineExtensionRegisterOutput&lt;TContext, TOptions, TArtifact&gt; = 
-  | void
-  | PipelineExtensionHook&lt;TContext, TOptions, TArtifact&gt;
-| PipelineExtensionHookRegistration&lt;TContext, TOptions, TArtifact&gt;;
+type PipelineExtensionRegisterOutput<TContext, TOptions, TArtifact> =
+	| void
+	| PipelineExtensionHook<TContext, TOptions, TArtifact>
+	| PipelineExtensionHookRegistration<TContext, TOptions, TArtifact>;
 ```
 
 ## Type Parameters

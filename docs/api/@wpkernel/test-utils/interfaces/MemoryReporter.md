@@ -1,6 +1,6 @@
-[**@wpkernel/test-utils v0.12.6-beta.0**](../README.md)
+[**@wpkernel/test-utils v0.12.6-beta.3**](../README.md)
 
-***
+---
 
 [@wpkernel/test-utils](../README.md) / MemoryReporter
 
@@ -13,7 +13,7 @@ A test utility that captures reporter output in memory.
 ### clear()
 
 ```ts
-clear: () =&gt; void;
+clear: () => void;
 ```
 
 Clears all captured log entries.
@@ -22,7 +22,7 @@ Clears all captured log entries.
 
 `void`
 
-***
+---
 
 ### entries
 
@@ -32,7 +32,7 @@ readonly entries: MemoryReporterEntry[];
 
 An array of captured log entries.
 
-***
+---
 
 ### namespace
 
@@ -42,7 +42,7 @@ readonly namespace: string;
 
 The namespace of the reporter.
 
-***
+---
 
 ### reporter
 

@@ -1,6 +1,6 @@
-[**@wpkernel/cli v0.12.6-beta.0**](../README.md)
+[**@wpkernel/cli v0.12.6-beta.3**](../README.md)
 
-***
+---
 
 [@wpkernel/cli](../README.md) / ResourceStorageHelperHost
 
@@ -8,7 +8,7 @@
 
 ## Properties
 
-### \[RESOURCE\_STORAGE\_HELPERS\_SYMBOL\]?
+### \[RESOURCE_STORAGE_HELPERS_SYMBOL\]?
 
 ```ts
 optional [RESOURCE_STORAGE_HELPERS_SYMBOL]: ResourceStorageHelperState;

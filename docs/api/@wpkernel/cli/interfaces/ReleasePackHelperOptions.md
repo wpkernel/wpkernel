@@ -1,6 +1,6 @@
-[**@wpkernel/cli v0.12.6-beta.0**](../README.md)
+[**@wpkernel/cli v0.12.6-beta.3**](../README.md)
 
-***
+---
 
 [@wpkernel/cli](../README.md) / ReleasePackHelperOptions
 
@@ -11,10 +11,10 @@
 ### dependencies?
 
 ```ts
-readonly optional dependencies: Partial&lt;ReleasePackDependencies&gt;;
+readonly optional dependencies: Partial<ReleasePackDependencies>;
 ```
 
-***
+---
 
 ### manifest?
 

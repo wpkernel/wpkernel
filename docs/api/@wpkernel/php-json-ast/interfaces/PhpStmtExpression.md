@@ -1,6 +1,6 @@
-[**@wpkernel/php-json-ast v0.12.6-beta.0**](../README.md)
+[**@wpkernel/php-json-ast v0.12.6-beta.3**](../README.md)
 
-***
+---
 
 [@wpkernel/php-json-ast](../README.md) / PhpStmtExpression
 
@@ -24,7 +24,7 @@ readonly attributes: PhpAttributes;
 
 [`PhpStmtBase`](PhpStmtBase.md).[`attributes`](PhpStmtBase.md#attributes)
 
-***
+---
 
 ### expr
 
@@ -32,7 +32,7 @@ readonly attributes: PhpAttributes;
 readonly expr: PhpExpr;
 ```
 
-***
+---
 
 ### nodeType
 

@@ -1,6 +1,6 @@
-[**@wpkernel/wp-json-ast v0.12.6-beta.0**](../README.md)
+[**@wpkernel/wp-json-ast v0.12.6-beta.3**](../README.md)
 
-***
+---
 
 [@wpkernel/wp-json-ast](../README.md) / ResourceMutationContract
 
@@ -32,7 +32,7 @@ readonly syncMeta: string;
 readonly syncTaxonomies: string;
 ```
 
-***
+---
 
 ### macroFactories
 
@@ -46,7 +46,7 @@ readonly macroFactories: object;
 readonly mutationGuard: string;
 ```
 
-***
+---
 
 ### metadataKeys
 
@@ -90,7 +90,7 @@ readonly syncMeta: string;
 readonly syncTaxonomies: string;
 ```
 
-***
+---
 
 ### mutationKinds
 

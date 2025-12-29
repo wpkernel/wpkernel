@@ -1,6 +1,6 @@
-[**@wpkernel/cli v0.12.6-beta.0**](../README.md)
+[**@wpkernel/cli v0.12.6-beta.3**](../README.md)
 
-***
+---
 
 [@wpkernel/cli](../README.md) / UnusedHelperDiagnostic
 
@@ -18,7 +18,7 @@ readonly key: string;
 
 The key of the helper emitting the diagnostic.
 
-***
+---
 
 ### message
 
@@ -28,7 +28,7 @@ readonly message: string;
 
 A descriptive message about the unused helper.
 
-***
+---
 
 ### type
 
@@ -38,7 +38,7 @@ readonly type: "unused-helper";
 
 The type of diagnostic, always 'unused-helper'.
 
-***
+---
 
 ### dependsOn?
 
@@ -48,7 +48,7 @@ readonly optional dependsOn: readonly string[];
 
 Dependency list used when determining helper usage.
 
-***
+---
 
 ### helper?
 
@@ -58,7 +58,7 @@ readonly optional helper: string;
 
 Optional helper key flagged as unused.
 
-***
+---
 
 ### kind?
 

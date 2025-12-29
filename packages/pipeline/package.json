@@ -1,6 +1,6 @@
 {
 	"name": "@wpkernel/pipeline",
-	"version": "0.12.6-beta.0",
+	"version": "1.0.0",
 	"description": "Framework-agnostic pipeline orchestration primitives for WPKernel",
 	"type": "module",
 	"sideEffects": false,
@@ -23,10 +23,20 @@
 			"import": "./dist/core/index.js",
 			"default": "./dist/core/index.js"
 		},
+		"./core/*": {
+			"types": "./dist/core/*.d.ts",
+			"import": "./dist/core/*.js",
+			"default": "./dist/core/*.js"
+		},
 		"./extensions": {
 			"types": "./dist/extensions/index.d.ts",
 			"import": "./dist/extensions/index.js",
 			"default": "./dist/extensions/index.js"
+		},
+		"./extensions/*": {
+			"types": "./dist/extensions/*.d.ts",
+			"import": "./dist/extensions/*.js",
+			"default": "./dist/extensions/*.js"
 		},
 		"./package.json": "./package.json"
 	},

@@ -1,6 +1,6 @@
-[**@wpkernel/cli v0.12.6-beta.0**](../README.md)
+[**@wpkernel/cli v0.12.6-beta.3**](../README.md)
 
-***
+---
 
 [@wpkernel/cli](../README.md) / InitWorkflowResult
 
@@ -14,7 +14,7 @@
 readonly dependencySource: string;
 ```
 
-***
+---
 
 ### manifest
 
@@ -22,7 +22,7 @@ readonly dependencySource: string;
 readonly manifest: FileManifest;
 ```
 
-***
+---
 
 ### namespace
 
@@ -30,7 +30,7 @@ readonly manifest: FileManifest;
 readonly namespace: string;
 ```
 
-***
+---
 
 ### summaries
 
@@ -38,7 +38,7 @@ readonly namespace: string;
 readonly summaries: ScaffoldSummary[];
 ```
 
-***
+---
 
 ### summaryText
 
@@ -46,7 +46,7 @@ readonly summaries: ScaffoldSummary[];
 readonly summaryText: string;
 ```
 
-***
+---
 
 ### templateName
 
@@ -54,7 +54,7 @@ readonly summaryText: string;
 readonly templateName: string;
 ```
 
-***
+---
 
 ### installations?
 

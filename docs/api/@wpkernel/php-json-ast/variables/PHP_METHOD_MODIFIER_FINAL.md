@@ -1,10 +1,10 @@
-[**@wpkernel/php-json-ast v0.12.6-beta.0**](../README.md)
+[**@wpkernel/php-json-ast v0.12.6-beta.3**](../README.md)
 
-***
+---
 
-[@wpkernel/php-json-ast](../README.md) / PHP\_METHOD\_MODIFIER\_FINAL
+[@wpkernel/php-json-ast](../README.md) / PHP_METHOD_MODIFIER_FINAL
 
-# Variable: PHP\_METHOD\_MODIFIER\_FINAL
+# Variable: PHP_METHOD_MODIFIER_FINAL
 
 ```ts
 const PHP_METHOD_MODIFIER_FINAL: 32 = 32;

@@ -1,6 +1,6 @@
-[**@wpkernel/php-json-ast v0.12.6-beta.0**](../README.md)
+[**@wpkernel/php-json-ast v0.12.6-beta.3**](../README.md)
 
-***
+---
 
 [@wpkernel/php-json-ast](../README.md) / PhpStmtFunction
 
@@ -20,7 +20,7 @@ Represents a PHP function declaration statement.
 readonly attrGroups: PhpAttrGroup[];
 ```
 
-***
+---
 
 ### attributes
 
@@ -32,7 +32,7 @@ readonly attributes: PhpAttributes;
 
 [`PhpStmtBase`](PhpStmtBase.md).[`attributes`](PhpStmtBase.md#attributes)
 
-***
+---
 
 ### byRef
 
@@ -40,7 +40,7 @@ readonly attributes: PhpAttributes;
 readonly byRef: boolean;
 ```
 
-***
+---
 
 ### name
 
@@ -48,7 +48,7 @@ readonly byRef: boolean;
 readonly name: PhpIdentifier;
 ```
 
-***
+---
 
 ### namespacedName
 
@@ -56,7 +56,7 @@ readonly name: PhpIdentifier;
 readonly namespacedName: PhpName | null;
 ```
 
-***
+---
 
 ### nodeType
 
@@ -68,7 +68,7 @@ readonly nodeType: "Stmt_Function";
 
 [`PhpStmtBase`](PhpStmtBase.md).[`nodeType`](PhpStmtBase.md#nodetype)
 
-***
+---
 
 ### params
 
@@ -76,7 +76,7 @@ readonly nodeType: "Stmt_Function";
 readonly params: PhpParam[];
 ```
 
-***
+---
 
 ### returnType
 
@@ -84,7 +84,7 @@ readonly params: PhpParam[];
 readonly returnType: PhpType | null;
 ```
 
-***
+---
 
 ### stmts
 

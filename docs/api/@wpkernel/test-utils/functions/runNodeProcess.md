@@ -1,16 +1,14 @@
-[**@wpkernel/test-utils v0.12.6-beta.0**](../README.md)
+[**@wpkernel/test-utils v0.12.6-beta.3**](../README.md)
 
-***
+---
 
 [@wpkernel/test-utils](../README.md) / runNodeProcess
 
 # Function: runNodeProcess()
 
 ```ts
-function runNodeProcess(
-   scriptPath, 
-   args, 
-options): Promise&lt;RunProcessResult&gt;;
+function runNodeProcess(scriptPath, args, options): Promise & lt;
+RunProcessResult & gt;
 ```
 
 ## Parameters
@@ -29,4 +27,4 @@ readonly `string`[] = `[]`
 
 ## Returns
 
-`Promise`&lt;[`RunProcessResult`](../interfaces/RunProcessResult.md)&gt;
+`Promise`<[`RunProcessResult`](../interfaces/RunProcessResult.md)>

@@ -1,16 +1,13 @@
-[**@wpkernel/php-json-ast v0.12.6-beta.0**](../README.md)
+[**@wpkernel/php-json-ast v0.12.6-beta.3**](../README.md)
 
-***
+---
 
 [@wpkernel/php-json-ast](../README.md) / buildDeclareItem
 
 # Function: buildDeclareItem()
 
 ```ts
-function buildDeclareItem(
-   key, 
-   value, 
-   attributes?): PhpDeclareItem;
+function buildDeclareItem(key, value, attributes?): PhpDeclareItem;
 ```
 
 Builds a PHP declare item node.
@@ -31,7 +28,7 @@ The expression representing the value of the declare item.
 
 ### attributes?
 
-`Readonly`&lt;`Record`&lt;`string`, `unknown`&gt;&gt;
+`Readonly`<`Record`<`string`, `unknown`>>
 
 Optional attributes for the node.
 

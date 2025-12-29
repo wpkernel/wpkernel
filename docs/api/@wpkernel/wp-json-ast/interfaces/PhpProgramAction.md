@@ -1,6 +1,6 @@
-[**@wpkernel/wp-json-ast v0.12.6-beta.0**](../README.md)
+[**@wpkernel/wp-json-ast v0.12.6-beta.3**](../README.md)
 
-***
+---
 
 [@wpkernel/wp-json-ast](../README.md) / PhpProgramAction
 
@@ -14,7 +14,7 @@
 readonly docblock: readonly string[];
 ```
 
-***
+---
 
 ### file
 
@@ -22,7 +22,7 @@ readonly docblock: readonly string[];
 readonly file: string;
 ```
 
-***
+---
 
 ### metadata
 
@@ -30,7 +30,7 @@ readonly file: string;
 readonly metadata: PhpFileMetadata;
 ```
 
-***
+---
 
 ### program
 
@@ -38,7 +38,7 @@ readonly metadata: PhpFileMetadata;
 readonly program: PhpProgram;
 ```
 
-***
+---
 
 ### statements
 
@@ -46,7 +46,7 @@ readonly program: PhpProgram;
 readonly statements: readonly string[];
 ```
 
-***
+---
 
 ### uses
 
@@ -54,7 +54,7 @@ readonly statements: readonly string[];
 readonly uses: readonly string[];
 ```
 
-***
+---
 
 ### codemod?
 

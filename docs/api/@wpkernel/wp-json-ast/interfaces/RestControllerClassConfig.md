@@ -1,6 +1,6 @@
-[**@wpkernel/wp-json-ast v0.12.6-beta.0**](../README.md)
+[**@wpkernel/wp-json-ast v0.12.6-beta.3**](../README.md)
 
-***
+---
 
 [@wpkernel/wp-json-ast](../README.md) / RestControllerClassConfig
 
@@ -18,7 +18,7 @@
 readonly className: string;
 ```
 
-***
+---
 
 ### identity
 
@@ -26,7 +26,7 @@ readonly className: string;
 readonly identity: RestControllerIdentity;
 ```
 
-***
+---
 
 ### resourceName
 
@@ -34,7 +34,7 @@ readonly identity: RestControllerIdentity;
 readonly resourceName: string;
 ```
 
-***
+---
 
 ### restArgsExpression
 
@@ -42,7 +42,7 @@ readonly resourceName: string;
 readonly restArgsExpression: PhpExpr;
 ```
 
-***
+---
 
 ### routes
 
@@ -50,7 +50,7 @@ readonly restArgsExpression: PhpExpr;
 readonly routes: readonly RestRouteConfig[];
 ```
 
-***
+---
 
 ### schemaKey
 
@@ -58,7 +58,7 @@ readonly routes: readonly RestRouteConfig[];
 readonly schemaKey: string;
 ```
 
-***
+---
 
 ### capabilityClass?
 
@@ -66,7 +66,7 @@ readonly schemaKey: string;
 readonly optional capabilityClass: string;
 ```
 
-***
+---
 
 ### helperMethods?
 

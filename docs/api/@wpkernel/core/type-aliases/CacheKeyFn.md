@@ -1,13 +1,15 @@
-[**@wpkernel/core v0.12.6-beta.0**](../README.md)
+[**@wpkernel/core v0.12.6-beta.3**](../README.md)
 
-***
+---
 
 [@wpkernel/core](../README.md) / CacheKeyFn
 
-# Type Alias: CacheKeyFn&lt;TParams&gt;
+# Type Alias: CacheKeyFn<TParams>
 
 ```ts
-type CacheKeyFn&lt;TParams&gt; = (params?) =&gt; (string | number | boolean | null | undefined)[];
+type CacheKeyFn<TParams> = (
+	params?
+) => (string | number | boolean | null | undefined)[];
 ```
 
 Cache key generator function
@@ -38,6 +40,6 @@ Array of cache key segments
 ## Example
 
 ```ts
-(params) =&gt; ['thing', 'list', params?.q, params?.cursor]
-(id) =&gt; ['thing', 'get', id]
+(params) => ['thing', 'list', params?.q, params?.cursor]
+(id) => ['thing', 'get', id]
 ```

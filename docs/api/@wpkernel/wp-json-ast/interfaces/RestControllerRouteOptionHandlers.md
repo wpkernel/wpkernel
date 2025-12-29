@@ -1,6 +1,6 @@
-[**@wpkernel/wp-json-ast v0.12.6-beta.0**](../README.md)
+[**@wpkernel/wp-json-ast v0.12.6-beta.3**](../README.md)
 
-***
+---
 
 [@wpkernel/wp-json-ast](../README.md) / RestControllerRouteOptionHandlers
 
@@ -14,7 +14,7 @@
 readonly optional get: RestControllerRouteStatementsBuilder;
 ```
 
-***
+---
 
 ### unsupported?
 
@@ -22,7 +22,7 @@ readonly optional get: RestControllerRouteStatementsBuilder;
 readonly optional unsupported: RestControllerRouteStatementsBuilder;
 ```
 
-***
+---
 
 ### update?
 

@@ -1,6 +1,6 @@
-[**@wpkernel/php-json-ast v0.12.6-beta.0**](../README.md)
+[**@wpkernel/php-json-ast v0.12.6-beta.3**](../README.md)
 
-***
+---
 
 [@wpkernel/php-json-ast](../README.md) / BuilderOutput
 
@@ -14,12 +14,12 @@
 readonly actions: BuilderWriteAction[];
 ```
 
-***
+---
 
 ### queueWrite()
 
 ```ts
-queueWrite: (action) =&gt; void;
+queueWrite: (action) => void;
 ```
 
 #### Parameters

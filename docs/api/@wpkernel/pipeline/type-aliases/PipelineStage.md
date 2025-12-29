@@ -1,13 +1,13 @@
-[**@wpkernel/pipeline v0.12.6-beta.0**](../README.md)
+[**@wpkernel/pipeline v0.12.6-beta.3**](../README.md)
 
-***
+---
 
 [@wpkernel/pipeline](../README.md) / PipelineStage
 
-# Type Alias: PipelineStage&lt;TState, TResult&gt;
+# Type Alias: PipelineStage<TState, TResult>
 
 ```ts
-type PipelineStage&lt;TState, TResult&gt; = Program&lt;TState | TResult&gt;;
+type PipelineStage<TState, TResult> = Program<TState | TResult>;
 ```
 
 ## Type Parameters

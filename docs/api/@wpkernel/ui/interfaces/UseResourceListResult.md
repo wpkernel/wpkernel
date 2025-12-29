@@ -1,10 +1,10 @@
-[**@wpkernel/ui v0.12.6-beta.0**](../README.md)
+[**@wpkernel/ui v0.12.6-beta.3**](../README.md)
 
-***
+---
 
 [@wpkernel/ui](../README.md) / UseResourceListResult
 
-# Interface: UseResourceListResult&lt;T&gt;
+# Interface: UseResourceListResult<T>
 
 Result shape for list resource hooks
 
@@ -21,12 +21,12 @@ Entity type in the list
 ### data
 
 ```ts
-data: ListResponse&lt;T&gt; | undefined;
+data: ListResponse<T> | undefined;
 ```
 
 The fetched list response with items and metadata, or undefined if not yet loaded
 
-***
+---
 
 ### error
 
@@ -36,7 +36,7 @@ error: string | undefined;
 
 Error message if the fetch failed, undefined otherwise
 
-***
+---
 
 ### isLoading
 

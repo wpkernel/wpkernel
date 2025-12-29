@@ -11,6 +11,7 @@ import type {
 	HelperApplyOptions,
 	HelperKind,
 	MaybePromise,
+	PipelinePaused,
 	PipelineExtensionRollbackErrorMetadata,
 	PipelineReporter,
 } from '../types';
@@ -47,6 +48,17 @@ export function isHalt<TRunResult>(value: unknown): value is Halt<TRunResult> {
 			typeof value === 'object' &&
 			'__halt' in value &&
 			(value as { __halt?: unknown }).__halt === true
+	);
+}
+
+export function isPaused<TState>(
+	value: unknown
+): value is PipelinePaused<TState> {
+	return Boolean(
+		value &&
+			typeof value === 'object' &&
+			'__paused' in value &&
+			(value as { __paused?: unknown }).__paused === true
 	);
 }
 
@@ -143,6 +155,7 @@ export function createHelpersProgram<
  * @param options.isHalt
  * @param options.snapshotFragments
  * @param options.applyArtifact
+ * @param options.isPaused
  */
 export function makeFinalizeFragmentsStage<
 	TState,
@@ -150,15 +163,31 @@ export function makeFinalizeFragmentsStage<
 	TFragments,
 >(options: {
 	isHalt: (value: TState | THalt) => value is THalt;
+	isPaused?: (value: unknown) => value is PipelinePaused<TState>;
 	snapshotFragments: (state: TState) => TFragments;
 	applyArtifact: (state: TState, fragments: TFragments) => TState;
-}): Program<TState | THalt> {
-	const { isHalt: isHaltState, snapshotFragments, applyArtifact } = options;
+}): Program<TState | THalt | PipelinePaused<TState>> {
+	const {
+		isHalt: isHaltState,
+		isPaused: isPausedState,
+		snapshotFragments,
+		applyArtifact,
+	} = options;
 
-	return (state) =>
-		isHaltState(state)
-			? state
-			: applyArtifact(state, snapshotFragments(state));
+	return (state) => {
+		if (isPausedState && isPausedState(state)) {
+			return state;
+		}
+
+		if (isHaltState(state as TState | THalt)) {
+			return state;
+		}
+
+		return applyArtifact(
+			state as TState,
+			snapshotFragments(state as TState)
+		);
+	};
 }
 
 /**
@@ -166,16 +195,28 @@ export function makeFinalizeFragmentsStage<
  * @param options
  * @param options.isHalt
  * @param options.execute
+ * @param options.isPaused
  */
 export function makeAfterFragmentsStage<
 	TState,
 	THalt extends Halt<unknown>,
 >(options: {
 	isHalt: (value: TState | THalt) => value is THalt;
+	isPaused?: (value: unknown) => value is PipelinePaused<TState>;
 	execute: (state: TState) => MaybePromise<TState>;
-}): Program<TState | THalt> {
-	const { isHalt: isHaltState, execute } = options;
-	return (state) => (isHaltState(state) ? state : execute(state));
+}): Program<TState | THalt | PipelinePaused<TState>> {
+	const { isHalt: isHaltState, isPaused: isPausedState, execute } = options;
+	return (state) => {
+		if (isPausedState && isPausedState(state)) {
+			return state;
+		}
+
+		if (isHaltState(state as TState | THalt)) {
+			return state;
+		}
+
+		return execute(state as TState);
+	};
 }
 
 /**
@@ -184,13 +225,20 @@ export function makeAfterFragmentsStage<
  * @param options.isHalt
  * @param options.commit
  * @param options.rollbackToHalt
+ * @param options.isPaused
  */
 export function makeCommitStage<TState, THalt extends Halt<unknown>>(options: {
 	isHalt: (value: TState | THalt) => value is THalt;
+	isPaused?: (value: unknown) => value is PipelinePaused<TState>;
 	commit: (state: TState) => MaybePromise<void>;
 	rollbackToHalt: (state: TState, error: unknown) => MaybePromise<THalt>;
-}): Program<TState | THalt> {
-	const { isHalt: isHaltState, commit, rollbackToHalt } = options;
+}): Program<TState | THalt | PipelinePaused<TState>> {
+	const {
+		isHalt: isHaltState,
+		isPaused: isPausedState,
+		commit,
+		rollbackToHalt,
+	} = options;
 
 	const runCommit = (state: TState): MaybePromise<TState | THalt> => {
 		const onCommitSuccess = (): TState | THalt => state;
@@ -203,7 +251,17 @@ export function makeCommitStage<TState, THalt extends Halt<unknown>>(options: {
 		);
 	};
 
-	return (state) => (isHaltState(state) ? state : runCommit(state as TState));
+	return (state) => {
+		if (isPausedState && isPausedState(state)) {
+			return state;
+		}
+
+		if (isHaltState(state as TState | THalt)) {
+			return state;
+		}
+
+		return runCommit(state as TState);
+	};
 }
 
 /**
@@ -211,16 +269,28 @@ export function makeCommitStage<TState, THalt extends Halt<unknown>>(options: {
  * @param options
  * @param options.isHalt
  * @param options.finalize
+ * @param options.isPaused
  */
 export function makeFinalizeResultStage<
 	TState,
 	THalt extends Halt<unknown>,
 >(options: {
 	isHalt: (value: TState | THalt) => value is THalt;
+	isPaused?: (value: unknown) => value is PipelinePaused<TState>;
 	finalize: (state: TState) => TState;
-}): Program<TState | THalt> {
-	const { isHalt: isHaltState, finalize } = options;
-	return (state) => (isHaltState(state) ? state : finalize(state));
+}): Program<TState | THalt | PipelinePaused<TState>> {
+	const { isHalt: isHaltState, isPaused: isPausedState, finalize } = options;
+	return (state) => {
+		if (isPausedState && isPausedState(state)) {
+			return state;
+		}
+
+		if (isHaltState(state as TState | THalt)) {
+			return state;
+		}
+
+		return finalize(state as TState);
+	};
 }
 
 export function makeHelperStageFactory<
@@ -256,7 +326,7 @@ export function makeHelperStageFactory<
 			TInput,
 			TOutput
 		>
-	): Program<TState | Halt<TRunResult>> {
+	): Program<TState | Halt<TRunResult> | PipelinePaused<TState>> {
 		const {
 			pushStep,
 			toRollbackContext,
@@ -265,16 +335,18 @@ export function makeHelperStageFactory<
 			onHelperRollbackError,
 		} = config;
 
-		const invokeHelper = ({
-			helper,
-			args,
-			next,
-		}: {
-			helper: THelper;
-			args: HelperApplyOptions<TContext, TInput, TOutput, TReporter>;
-			next: () => MaybePromise<void>;
-		}): MaybePromise<void> =>
-			helper.apply(args, next) as MaybePromise<void>;
+		const invokeHelper =
+			spec.invoke ??
+			(({
+				helper,
+				args,
+				next,
+			}: {
+				helper: THelper;
+				args: HelperApplyOptions<TContext, TInput, TOutput, TReporter>;
+				next: () => MaybePromise<void>;
+			}): MaybePromise<void> =>
+				helper.apply(args, next) as MaybePromise<void>);
 
 		const registerPipelineRollback =
 			(rollbacks: RollbackEntry<THelper>[]) =>
@@ -313,6 +385,9 @@ export function makeHelperStageFactory<
 
 		return (state) => {
 			if (isHaltState(state)) {
+				return state;
+			}
+			if (isPaused<TState>(state)) {
 				return state;
 			}
 

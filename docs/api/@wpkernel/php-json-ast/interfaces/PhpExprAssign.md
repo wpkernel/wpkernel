@@ -1,6 +1,6 @@
-[**@wpkernel/php-json-ast v0.12.6-beta.0**](../README.md)
+[**@wpkernel/php-json-ast v0.12.6-beta.3**](../README.md)
 
-***
+---
 
 [@wpkernel/php-json-ast](../README.md) / PhpExprAssign
 
@@ -24,7 +24,7 @@ readonly attributes: PhpAttributes;
 
 [`PhpExprBase`](PhpExprBase.md).[`attributes`](PhpExprBase.md#attributes)
 
-***
+---
 
 ### expr
 
@@ -32,7 +32,7 @@ readonly attributes: PhpAttributes;
 readonly expr: PhpExpr;
 ```
 
-***
+---
 
 ### nodeType
 
@@ -44,7 +44,7 @@ readonly nodeType: "Expr_Assign";
 
 [`PhpExprBase`](PhpExprBase.md).[`nodeType`](PhpExprBase.md#nodetype)
 
-***
+---
 
 ### var
 

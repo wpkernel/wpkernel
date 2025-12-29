@@ -1,6 +1,6 @@
-[**@wpkernel/wp-json-ast v0.12.6-beta.0**](../README.md)
+[**@wpkernel/wp-json-ast v0.12.6-beta.3**](../README.md)
 
-***
+---
 
 [@wpkernel/wp-json-ast](../README.md) / RestControllerIndexEntriesOptions
 
@@ -14,7 +14,7 @@
 readonly additionalEntries: readonly ModuleIndexEntry[];
 ```
 
-***
+---
 
 ### baseControllerFileName
 
@@ -22,7 +22,7 @@ readonly additionalEntries: readonly ModuleIndexEntry[];
 readonly baseControllerFileName: string;
 ```
 
-***
+---
 
 ### controllers
 
@@ -30,7 +30,7 @@ readonly baseControllerFileName: string;
 readonly controllers: readonly RestControllerModuleControllerConfig[];
 ```
 
-***
+---
 
 ### includeBase
 
@@ -38,7 +38,7 @@ readonly controllers: readonly RestControllerModuleControllerConfig[];
 readonly includeBase: boolean;
 ```
 
-***
+---
 
 ### namespace
 

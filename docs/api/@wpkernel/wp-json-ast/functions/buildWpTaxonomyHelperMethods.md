@@ -1,13 +1,15 @@
-[**@wpkernel/wp-json-ast v0.12.6-beta.0**](../README.md)
+[**@wpkernel/wp-json-ast v0.12.6-beta.3**](../README.md)
 
-***
+---
 
 [@wpkernel/wp-json-ast](../README.md) / buildWpTaxonomyHelperMethods
 
 # Function: buildWpTaxonomyHelperMethods()
 
 ```ts
-function buildWpTaxonomyHelperMethods(options): readonly WpTaxonomyHelperMethod[];
+function buildWpTaxonomyHelperMethods(
+	options
+): readonly WpTaxonomyHelperMethod[];
 ```
 
 ## Parameters

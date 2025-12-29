@@ -1,6 +1,6 @@
-[**@wpkernel/cli v0.12.6-beta.0**](../README.md)
+[**@wpkernel/cli v0.12.6-beta.3**](../README.md)
 
-***
+---
 
 [@wpkernel/cli](../README.md) / IRBlock
 
@@ -18,7 +18,7 @@ directory: string;
 
 The directory where the block is defined.
 
-***
+---
 
 ### hash
 
@@ -28,7 +28,7 @@ hash: IRHashProvenance;
 
 Provenance hash for the discovered block.
 
-***
+---
 
 ### hasRender
 
@@ -38,7 +38,7 @@ hasRender: boolean;
 
 Indicates if the block has a render function.
 
-***
+---
 
 ### id
 
@@ -48,7 +48,7 @@ id: string;
 
 Stable identifier for the block entry.
 
-***
+---
 
 ### key
 
@@ -58,7 +58,7 @@ key: string;
 
 A unique key for the block.
 
-***
+---
 
 ### manifestSource
 
@@ -68,7 +68,7 @@ manifestSource: string;
 
 The source path of the block's manifest.
 
-***
+---
 
 ### registrarFileName?
 
@@ -78,7 +78,7 @@ optional registrarFileName: string;
 
 Optional override for the registrar file name.
 
-***
+---
 
 ### renderStub?
 

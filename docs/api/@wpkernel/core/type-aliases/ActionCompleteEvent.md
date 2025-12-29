@@ -1,6 +1,6 @@
-[**@wpkernel/core v0.12.6-beta.0**](../README.md)
+[**@wpkernel/core v0.12.6-beta.3**](../README.md)
 
-***
+---
 
 [@wpkernel/core](../README.md) / ActionCompleteEvent
 
@@ -13,6 +13,7 @@ type ActionCompleteEvent = object & ActionLifecycleEventBase;
 Lifecycle event emitted when an action completes successfully.
 
 Emitted after the action function returns, enabling:
+
 - Success notifications and toasts
 - Performance monitoring and metrics
 - Post-execution hooks for analytics
@@ -30,7 +31,7 @@ durationMs: number;
 ### phase
 
 ```ts
-phase: "complete";
+phase: 'complete';
 ```
 
 ### result

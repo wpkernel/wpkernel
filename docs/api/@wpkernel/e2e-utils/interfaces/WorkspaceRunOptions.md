@@ -1,6 +1,6 @@
-[**@wpkernel/e2e-utils v0.12.6-beta.0**](../README.md)
+[**@wpkernel/e2e-utils v0.12.6-beta.3**](../README.md)
 
-***
+---
 
 [@wpkernel/e2e-utils](../README.md) / WorkspaceRunOptions
 
@@ -14,7 +14,7 @@
 optional cwd: string;
 ```
 
-***
+---
 
 ### env?
 
@@ -22,7 +22,7 @@ optional cwd: string;
 optional env: ProcessEnv;
 ```
 
-***
+---
 
 ### stdin?
 
@@ -30,7 +30,7 @@ optional env: ProcessEnv;
 optional stdin: string;
 ```
 
-***
+---
 
 ### timeoutMs?
 

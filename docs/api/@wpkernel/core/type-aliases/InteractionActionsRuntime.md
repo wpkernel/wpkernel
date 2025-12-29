@@ -1,13 +1,20 @@
-[**@wpkernel/core v0.12.6-beta.0**](../README.md)
+[**@wpkernel/core v0.12.6-beta.3**](../README.md)
 
-***
+---
 
 [@wpkernel/core](../README.md) / InteractionActionsRuntime
 
-# Type Alias: InteractionActionsRuntime&lt;TActions&gt;
+# Type Alias: InteractionActionsRuntime<TActions>
 
 ```ts
-type InteractionActionsRuntime&lt;TActions&gt; = { [Key in keyof TActions]: TActions[Key] extends InteractionActionInput&lt;infer TArgs, infer TResult&gt; ? (args: TArgs) =&gt; Promise&lt;TResult&gt; : never };
+type InteractionActionsRuntime<TActions> = {
+	[Key in keyof TActions]: TActions[Key] extends InteractionActionInput<
+		infer TArgs,
+		infer TResult
+	>
+		? (args: TArgs) => Promise<TResult>
+		: never;
+};
 ```
 
 Runtime representation of bound interaction actions.
@@ -16,4 +23,4 @@ Runtime representation of bound interaction actions.
 
 ### TActions
 
-`TActions` *extends* [`InteractionActionsRecord`](InteractionActionsRecord.md)
+`TActions` _extends_ [`InteractionActionsRecord`](InteractionActionsRecord.md)

@@ -1,16 +1,13 @@
-[**@wpkernel/php-json-ast v0.12.6-beta.0**](../README.md)
+[**@wpkernel/php-json-ast v0.12.6-beta.3**](../README.md)
 
-***
+---
 
 [@wpkernel/php-json-ast](../README.md) / buildNode
 
 # Function: buildNode()
 
 ```ts
-function buildNode&lt;T&gt;(
-   nodeType, 
-   props, 
-   attributes?): T;
+function buildNode<T>(nodeType, props, attributes?): T;
 ```
 
 Generic factory helper for PHP AST node construction.
@@ -22,7 +19,7 @@ Use this generic builder for niche constructs that do not yet have a typed facto
 
 ### T
 
-`T` *extends* [`PhpNode`](../interfaces/PhpNode.md)
+`T` _extends_ [`PhpNode`](../interfaces/PhpNode.md)
 
 ## Parameters
 
@@ -34,13 +31,13 @@ The type of the PHP AST node.
 
 ### props
 
-`Omit`&lt;`T`, `"nodeType"` \| `"attributes"`&gt;
+`Omit`<`T`, `"nodeType"` \| `"attributes"`>
 
 The properties of the node, excluding `nodeType` and `attributes`.
 
 ### attributes?
 
-`Readonly`&lt;`Record`&lt;`string`, `unknown`&gt;&gt;
+`Readonly`<`Record`<`string`, `unknown`>>
 
 Optional attributes for the node.
 

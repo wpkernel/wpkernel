@@ -1,6 +1,6 @@
-[**@wpkernel/php-json-ast v0.12.6-beta.0**](../README.md)
+[**@wpkernel/php-json-ast v0.12.6-beta.3**](../README.md)
 
-***
+---
 
 [@wpkernel/php-json-ast](../README.md) / PhpScalarString
 
@@ -24,7 +24,7 @@ readonly attributes: PhpAttributes;
 
 [`PhpScalarBase`](PhpScalarBase.md).[`attributes`](PhpScalarBase.md#attributes)
 
-***
+---
 
 ### nodeType
 
@@ -36,7 +36,7 @@ readonly nodeType: "Scalar_String";
 
 [`PhpScalarBase`](PhpScalarBase.md).[`nodeType`](PhpScalarBase.md#nodetype)
 
-***
+---
 
 ### value
 

@@ -1,6 +1,6 @@
-[**@wpkernel/cli v0.12.6-beta.0**](../README.md)
+[**@wpkernel/cli v0.12.6-beta.3**](../README.md)
 
-***
+---
 
 [@wpkernel/cli](../README.md) / BuildApplyCommandOptions
 
@@ -13,7 +13,7 @@
 #### buildReporter()?
 
 ```ts
-readonly optional buildReporter: (options) =&gt; Reporter;
+readonly optional buildReporter: (options) => Reporter;
 ```
 
 Create a WPKernel reporter backed by LogLayer transports.
@@ -40,7 +40,7 @@ Reporter instance with child helpers
 #### createPatcher()?
 
 ```ts
-readonly optional createPatcher: () =&gt; BuilderHelper;
+readonly optional createPatcher: () => BuilderHelper;
 ```
 
 Creates a builder helper for applying patches to the workspace.
@@ -60,7 +60,7 @@ A `BuilderHelper` instance for applying patches.
 #### appendApplyLog()?
 
 ```ts
-readonly optional appendApplyLog: (workspace, entry) =&gt; Promise&lt;void&gt;;
+readonly optional appendApplyLog: (workspace, entry) => Promise<void>;
 ```
 
 ##### Parameters
@@ -75,26 +75,26 @@ readonly optional appendApplyLog: (workspace, entry) =&gt; Promise&lt;void&gt;;
 
 ##### Returns
 
-`Promise`&lt;`void`&gt;
+`Promise`<`void`>
 
-***
+---
 
 #### buildBuilderOutput()?
 
 ```ts
-readonly optional buildBuilderOutput: () =&gt; BuilderOutput;
+readonly optional buildBuilderOutput: () => BuilderOutput;
 ```
 
 ##### Returns
 
 `BuilderOutput`
 
-***
+---
 
 #### buildReadinessRegistry()?
 
 ```ts
-readonly optional buildReadinessRegistry: (options?) =&gt; ReadinessRegistry;
+readonly optional buildReadinessRegistry: (options?) => ReadinessRegistry;
 ```
 
 ##### Parameters
@@ -107,12 +107,12 @@ readonly optional buildReadinessRegistry: (options?) =&gt; ReadinessRegistry;
 
 [`ReadinessRegistry`](../classes/ReadinessRegistry.md)
 
-***
+---
 
 #### buildWorkspace()?
 
 ```ts
-readonly optional buildWorkspace: (root) =&gt; Workspace;
+readonly optional buildWorkspace: (root) => Workspace;
 ```
 
 ##### Parameters
@@ -125,12 +125,12 @@ readonly optional buildWorkspace: (root) =&gt; Workspace;
 
 [`Workspace`](Workspace.md)
 
-***
+---
 
 #### createBackups()?
 
 ```ts
-readonly optional createBackups: (options) =&gt; Promise&lt;void&gt;;
+readonly optional createBackups: (options) => Promise<void>;
 ```
 
 ##### Parameters
@@ -141,14 +141,14 @@ readonly optional createBackups: (options) =&gt; Promise&lt;void&gt;;
 
 ##### Returns
 
-`Promise`&lt;`void`&gt;
+`Promise`<`void`>
 
-***
+---
 
 #### ensureGitRepository()?
 
 ```ts
-readonly optional ensureGitRepository: (workspace) =&gt; Promise&lt;void&gt;;
+readonly optional ensureGitRepository: (workspace) => Promise<void>;
 ```
 
 ##### Parameters
@@ -159,26 +159,26 @@ readonly optional ensureGitRepository: (workspace) =&gt; Promise&lt;void&gt;;
 
 ##### Returns
 
-`Promise`&lt;`void`&gt;
+`Promise`<`void`>
 
-***
+---
 
 #### loadWPKernelConfig()?
 
 ```ts
-readonly optional loadWPKernelConfig: () =&gt; Promise&lt;LoadedWPKernelConfig&gt;;
+readonly optional loadWPKernelConfig: () => Promise<LoadedWPKernelConfig>;
 ```
 
 ##### Returns
 
-`Promise`&lt;[`LoadedWPKernelConfig`](LoadedWPKernelConfig.md)&gt;
+`Promise`<[`LoadedWPKernelConfig`](LoadedWPKernelConfig.md)>
 
-***
+---
 
 #### promptConfirm()?
 
 ```ts
-readonly optional promptConfirm: (options) =&gt; Promise&lt;boolean&gt;;
+readonly optional promptConfirm: (options) => Promise<boolean>;
 ```
 
 ##### Parameters
@@ -203,14 +203,14 @@ readonly optional promptConfirm: (options) =&gt; Promise&lt;boolean&gt;;
 
 ##### Returns
 
-`Promise`&lt;`boolean`&gt;
+`Promise`<`boolean`>
 
-***
+---
 
 #### readManifest()?
 
 ```ts
-readonly optional readManifest: (workspace) =&gt; Promise&lt;PatchManifest | null&gt;;
+readonly optional readManifest: (workspace) => Promise<PatchManifest | null>;
 ```
 
 ##### Parameters
@@ -221,14 +221,14 @@ readonly optional readManifest: (workspace) =&gt; Promise&lt;PatchManifest | nul
 
 ##### Returns
 
-`Promise`&lt;[`PatchManifest`](PatchManifest.md) \| `null`&gt;
+`Promise`<[`PatchManifest`](PatchManifest.md) \| `null`>
 
-***
+---
 
 #### resolveWorkspaceRoot()?
 
 ```ts
-readonly optional resolveWorkspaceRoot: (loaded) =&gt; string;
+readonly optional resolveWorkspaceRoot: (loaded) => string;
 ```
 
 ##### Parameters

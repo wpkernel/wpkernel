@@ -1,12 +1,12 @@
-[**@wpkernel/php-json-ast v0.12.6-beta.0**](../README.md)
+[**@wpkernel/php-json-ast v0.12.6-beta.3**](../README.md)
 
-***
+---
 
 [@wpkernel/php-json-ast](../README.md) / PhpExprNullsafeMethodCall
 
 # Interface: PhpExprNullsafeMethodCall
 
-Represents a PHP nullsafe method call expression (e.g., `$object?-&gt;method()`).
+Represents a PHP nullsafe method call expression (e.g., `$object?->method()`).
 
 ## Extends
 
@@ -20,7 +20,7 @@ Represents a PHP nullsafe method call expression (e.g., `$object?-&gt;method()`)
 readonly args: PhpArg[];
 ```
 
-***
+---
 
 ### attributes
 
@@ -32,17 +32,17 @@ readonly attributes: PhpAttributes;
 
 [`PhpExprBase`](PhpExprBase.md).[`attributes`](PhpExprBase.md#attributes)
 
-***
+---
 
 ### name
 
 ```ts
-readonly name: 
+readonly name:
   | PhpExpr
   | PhpIdentifier;
 ```
 
-***
+---
 
 ### nodeType
 
@@ -54,7 +54,7 @@ readonly nodeType: "Expr_NullsafeMethodCall";
 
 [`PhpExprBase`](PhpExprBase.md).[`nodeType`](PhpExprBase.md#nodetype)
 
-***
+---
 
 ### var
 

@@ -1,10 +1,10 @@
-[**@wpkernel/wp-json-ast v0.12.6-beta.0**](../README.md)
+[**@wpkernel/wp-json-ast v0.12.6-beta.3**](../README.md)
 
-***
+---
 
 [@wpkernel/wp-json-ast](../README.md) / ResourceStorageAccessors
 
-# Interface: ResourceStorageAccessors&lt;TStorageKind&gt;
+# Interface: ResourceStorageAccessors<TStorageKind>
 
 ## Extends
 
@@ -14,37 +14,37 @@
 
 ### TStorageKind
 
-`TStorageKind` *extends* `string` = `string`
+`TStorageKind` _extends_ `string` = `string`
 
 ## Properties
 
 ### caches
 
 ```ts
-readonly caches: readonly ResourceAccessorDescriptor&lt;unknown&gt;[];
+readonly caches: readonly ResourceAccessorDescriptor<unknown>[];
 ```
 
 #### Inherited from
 
 ```ts
-ResourceAccessorBuckets.caches
+ResourceAccessorBuckets.caches;
 ```
 
-***
+---
 
 ### helpers
 
 ```ts
-readonly helpers: readonly ResourceAccessorDescriptor&lt;unknown&gt;[];
+readonly helpers: readonly ResourceAccessorDescriptor<unknown>[];
 ```
 
 #### Inherited from
 
 ```ts
-ResourceAccessorBuckets.helpers
+ResourceAccessorBuckets.helpers;
 ```
 
-***
+---
 
 ### kind
 
@@ -52,7 +52,7 @@ ResourceAccessorBuckets.helpers
 readonly kind: TStorageKind;
 ```
 
-***
+---
 
 ### label
 
@@ -60,44 +60,44 @@ readonly kind: TStorageKind;
 readonly label: string;
 ```
 
-***
+---
 
 ### mutations
 
 ```ts
-readonly mutations: readonly ResourceAccessorDescriptor&lt;unknown&gt;[];
+readonly mutations: readonly ResourceAccessorDescriptor<unknown>[];
 ```
 
 #### Inherited from
 
 ```ts
-ResourceAccessorBuckets.mutations
+ResourceAccessorBuckets.mutations;
 ```
 
-***
+---
 
 ### queries
 
 ```ts
-readonly queries: readonly ResourceAccessorDescriptor&lt;unknown&gt;[];
+readonly queries: readonly ResourceAccessorDescriptor<unknown>[];
 ```
 
 #### Inherited from
 
 ```ts
-ResourceAccessorBuckets.queries
+ResourceAccessorBuckets.queries;
 ```
 
-***
+---
 
 ### requests
 
 ```ts
-readonly requests: readonly ResourceAccessorDescriptor&lt;unknown&gt;[];
+readonly requests: readonly ResourceAccessorDescriptor<unknown>[];
 ```
 
 #### Inherited from
 
 ```ts
-ResourceAccessorBuckets.requests
+ResourceAccessorBuckets.requests;
 ```

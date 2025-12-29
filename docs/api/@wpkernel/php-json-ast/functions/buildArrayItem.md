@@ -1,16 +1,13 @@
-[**@wpkernel/php-json-ast v0.12.6-beta.0**](../README.md)
+[**@wpkernel/php-json-ast v0.12.6-beta.3**](../README.md)
 
-***
+---
 
 [@wpkernel/php-json-ast](../README.md) / buildArrayItem
 
 # Function: buildArrayItem()
 
 ```ts
-function buildArrayItem(
-   value, 
-   options, 
-   attributes?): PhpExprArrayItem;
+function buildArrayItem(value, options, attributes?): PhpExprArrayItem;
 ```
 
 Builds a PHP array item node.
@@ -41,7 +38,7 @@ Optional configuration for the array item (key, by reference, unpack).
 
 ### attributes?
 
-`Readonly`&lt;`Record`&lt;`string`, `unknown`&gt;&gt;
+`Readonly`<`Record`<`string`, `unknown`>>
 
 Optional attributes for the node.
 

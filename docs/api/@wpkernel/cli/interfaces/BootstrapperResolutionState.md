@@ -1,6 +1,6 @@
-[**@wpkernel/cli v0.12.6-beta.0**](../README.md)
+[**@wpkernel/cli v0.12.6-beta.3**](../README.md)
 
-***
+---
 
 [@wpkernel/cli](../README.md) / BootstrapperResolutionState
 
@@ -14,7 +14,7 @@
 readonly bootstrapperPath: string;
 ```
 
-***
+---
 
 ### repoRoot
 
@@ -22,7 +22,7 @@ readonly bootstrapperPath: string;
 readonly repoRoot: string;
 ```
 
-***
+---
 
 ### lastRun?
 

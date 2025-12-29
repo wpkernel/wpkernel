@@ -1,18 +1,19 @@
-[**@wpkernel/core v0.12.6-beta.0**](../README.md)
+[**@wpkernel/core v0.12.6-beta.3**](../README.md)
 
-***
+---
 
 [@wpkernel/core](../README.md) / ResourceConfig
 
-# Type Alias: ResourceConfig&lt;T, TQuery, TRoutes, _TTypes&gt;
+# Type Alias: ResourceConfig<T, TQuery, TRoutes, \_TTypes>
 
 ```ts
-type ResourceConfig&lt;T, TQuery, TRoutes, _TTypes&gt; = object;
+type ResourceConfig<T, TQuery, TRoutes, _TTypes> = object;
 ```
 
 Declarative configuration for a resource.
 
 This is consumed by `defineResource()` to:
+
 - describe REST routes and capabilities
 - configure cache keys and store behavior
 - attach optional UI and persistence metadata for generators and tooling
@@ -33,9 +34,9 @@ Query shape for list operations (e.g. `{ search?: string }`).
 
 ### TRoutes
 
-`TRoutes` *extends* [`ResourceRoutes`](ResourceRoutes.md) = [`ResourceRoutes`](ResourceRoutes.md)
+`TRoutes` _extends_ [`ResourceRoutes`](ResourceRoutes.md) = [`ResourceRoutes`](ResourceRoutes.md)
 
-### _TTypes
+### \_TTypes
 
 `_TTypes` = \[`T`, `TQuery`, `TRoutes`\]
 
@@ -53,7 +54,7 @@ Unique resource name (lowercase, singular recommended)
 
 Used for store keys, event names, and debugging
 
-***
+---
 
 ### routes
 
@@ -65,24 +66,24 @@ REST route definitions
 
 Define only the operations your resource supports
 
-***
+---
 
 ### cacheKeys?
 
 ```ts
-optional cacheKeys: CacheKeys&lt;TQuery&gt;;
+optional cacheKeys: CacheKeys<TQuery>;
 ```
 
 Cache key generators
 
 Optional. If omitted, default cache keys based on resource name will be used
 
-***
+---
 
 ### capabilities?
 
 ```ts
-optional capabilities: ResourceCapabilityMap&lt;TRoutes&gt;;
+optional capabilities: ResourceCapabilityMap<TRoutes>;
 ```
 
 Optional inline capability mappings.
@@ -101,7 +102,7 @@ capabilities: {
 }
 ```
 
-***
+---
 
 ### identity?
 
@@ -113,7 +114,7 @@ Optional identifier hints used by tooling.
 
 The runtime ignores this field; CLI tooling can derive store defaults and route helpers.
 
-***
+---
 
 ### namespace?
 
@@ -129,12 +130,12 @@ For explicit control, provide a namespace string.
 #### Example
 
 ```ts
-namespace: 'my-plugin'  // Explicit namespace
+namespace: 'my-plugin'; // Explicit namespace
 // OR
-name: 'my-plugin:job'   // Shorthand namespace:name format
+name: 'my-plugin:job'; // Shorthand namespace:name format
 ```
 
-***
+---
 
 ### queryParams?
 
@@ -144,7 +145,7 @@ optional queryParams: ResourceQueryParams;
 
 Optional query parameter descriptors for tooling.
 
-***
+---
 
 ### reporter?
 
@@ -157,12 +158,12 @@ Optional reporter override for resource instrumentation.
 When provided, the resource will emit debug/info/error logs through this
 reporter instead of creating a child reporter from the WPKernel instance.
 
-***
+---
 
 ### schema?
 
 ```ts
-optional schema: Promise&lt;unknown&gt; | unknown | string;
+optional schema: Promise<unknown> | unknown | string;
 ```
 
 JSON Schema for runtime validation
@@ -172,10 +173,10 @@ Optional. Provides runtime type safety and validation errors
 #### Example
 
 ```ts
-schema: import('../../contracts/thing.schema.json')
+schema: import('../../contracts/thing.schema.json');
 ```
 
-***
+---
 
 ### storage?
 
@@ -187,19 +188,19 @@ Optional persistence strategy metadata.
 
 The runtime ignores this field; CLI tooling can emit registration scaffolding.
 
-***
+---
 
 ### store?
 
 ```ts
-optional store: ResourceStoreOptions&lt;T, TQuery&gt;;
+optional store: ResourceStoreOptions<T, TQuery>;
 ```
 
 Optional overrides for store configuration.
 
 Provided for forward compatibility with CLI-generated descriptors.
 
-***
+---
 
 ### ui?
 

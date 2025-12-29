@@ -1,16 +1,13 @@
-[**@wpkernel/php-json-ast v0.12.6-beta.0**](../README.md)
+[**@wpkernel/php-json-ast v0.12.6-beta.3**](../README.md)
 
-***
+---
 
 [@wpkernel/php-json-ast](../README.md) / buildAttribute
 
 # Function: buildAttribute()
 
 ```ts
-function buildAttribute(
-   name, 
-   args, 
-   attributes?): PhpAttribute;
+function buildAttribute(name, args, attributes?): PhpAttribute;
 ```
 
 Builds a PHP attribute node.
@@ -31,7 +28,7 @@ An array of `PhpArg` nodes representing the attribute's arguments.
 
 ### attributes?
 
-`Readonly`&lt;`Record`&lt;`string`, `unknown`&gt;&gt;
+`Readonly`<`Record`<`string`, `unknown`>>
 
 Optional attributes for the node.
 

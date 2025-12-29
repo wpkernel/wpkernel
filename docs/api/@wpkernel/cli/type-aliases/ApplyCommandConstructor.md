@@ -1,13 +1,13 @@
-[**@wpkernel/cli v0.12.6-beta.0**](../README.md)
+[**@wpkernel/cli v0.12.6-beta.3**](../README.md)
 
-***
+---
 
 [@wpkernel/cli](../README.md) / ApplyCommandConstructor
 
 # Type Alias: ApplyCommandConstructor
 
 ```ts
-type ApplyCommandConstructor = () =&gt; ApplyCommandInstance;
+type ApplyCommandConstructor = () => ApplyCommandInstance;
 ```
 
 ## Returns

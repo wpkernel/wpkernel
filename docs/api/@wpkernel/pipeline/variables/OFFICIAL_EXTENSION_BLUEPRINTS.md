@@ -1,10 +1,10 @@
-[**@wpkernel/pipeline v0.12.6-beta.0**](../README.md)
+[**@wpkernel/pipeline v0.12.6-beta.3**](../README.md)
 
-***
+---
 
-[@wpkernel/pipeline](../README.md) / OFFICIAL\_EXTENSION\_BLUEPRINTS
+[@wpkernel/pipeline](../README.md) / OFFICIAL_EXTENSION_BLUEPRINTS
 
-# Variable: OFFICIAL\_EXTENSION\_BLUEPRINTS
+# Variable: OFFICIAL_EXTENSION_BLUEPRINTS
 
 ```ts
 const OFFICIAL_EXTENSION_BLUEPRINTS: readonly OfficialExtensionBlueprint[];
@@ -18,7 +18,7 @@ Blueprint catalogue for official extensions that the pipeline team will own.
 import { OFFICIAL_EXTENSION_BLUEPRINTS } from '@wpkernel/pipeline/extensions';
 
 const liveRunner = OFFICIAL_EXTENSION_BLUEPRINTS.find(
-	(entry) =&gt; entry.id === 'live-runner'
+	(entry) => entry.id === 'live-runner'
 );
 
 if (liveRunner?.factory) {

@@ -1,6 +1,6 @@
-[**@wpkernel/core v0.12.6-beta.0**](../README.md)
+[**@wpkernel/core v0.12.6-beta.3**](../README.md)
 
-***
+---
 
 [@wpkernel/core](../README.md) / TransportError
 
@@ -12,10 +12,10 @@ Error thrown when a network/HTTP request fails
 
 ```typescript
 throw new TransportError({
-  status: 404,
-  path: '/my-plugin/v1/things/123',
-  method: 'GET',
-  message: 'Resource not found'
+	status: 404,
+	path: '/my-plugin/v1/things/123',
+	method: 'GET',
+	message: 'Resource not found',
 });
 ```
 
@@ -85,7 +85,7 @@ Error code - identifies the type of error
 
 [`WPKernelError`](WPKernelError.md).[`code`](WPKernelError.md#code)
 
-***
+---
 
 ### method
 
@@ -95,7 +95,7 @@ readonly method: string;
 
 HTTP method
 
-***
+---
 
 ### path
 
@@ -105,7 +105,7 @@ readonly path: string;
 
 Request path
 
-***
+---
 
 ### status
 
@@ -115,7 +115,7 @@ readonly status: number;
 
 HTTP status code
 
-***
+---
 
 ### context?
 
@@ -129,7 +129,7 @@ Context in which the error occurred
 
 [`WPKernelError`](WPKernelError.md).[`context`](WPKernelError.md#context)
 
-***
+---
 
 ### data?
 
@@ -171,7 +171,7 @@ New WPKernelError instance
 
 [`WPKernelError`](WPKernelError.md).[`fromJSON`](WPKernelError.md#fromjson)
 
-***
+---
 
 ### isClientError()
 
@@ -187,7 +187,7 @@ Check if error is a client error (4xx)
 
 True if this is a client error
 
-***
+---
 
 ### isRetryable()
 
@@ -203,7 +203,7 @@ Check if error is retryable
 
 True if request should be retried
 
-***
+---
 
 ### isServerError()
 
@@ -219,7 +219,7 @@ Check if error is a server error (5xx)
 
 True if this is a server error
 
-***
+---
 
 ### isTimeout()
 
@@ -235,7 +235,7 @@ Check if error is a network timeout
 
 True if this is a timeout error
 
-***
+---
 
 ### isWPKernelError()
 
@@ -263,7 +263,7 @@ True if error is a WPKernelError
 
 [`WPKernelError`](WPKernelError.md).[`isWPKernelError`](WPKernelError.md#iswpkernelerror)
 
-***
+---
 
 ### toJSON()
 
@@ -283,14 +283,14 @@ Serialized error object
 
 [`WPKernelError`](WPKernelError.md).[`toJSON`](WPKernelError.md#tojson)
 
-***
+---
 
 ### wrap()
 
 ```ts
 static wrap(
-   error, 
-   code, 
+   error,
+   code,
    context?): WPKernelError;
 ```
 

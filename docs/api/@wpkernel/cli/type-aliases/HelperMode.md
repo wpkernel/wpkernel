@@ -1,13 +1,13 @@
-[**@wpkernel/cli v0.12.6-beta.0**](../README.md)
+[**@wpkernel/cli v0.12.6-beta.3**](../README.md)
 
-***
+---
 
 [@wpkernel/cli](../README.md) / HelperMode
 
 # Type Alias: HelperMode
 
 ```ts
-type HelperMode = "extend" | "override" | "merge";
+type HelperMode = 'extend' | 'override' | 'merge';
 ```
 
 Helper execution mode - determines how it integrates with existing helpers.

@@ -1,12 +1,12 @@
-[**@wpkernel/php-json-ast v0.12.6-beta.0**](../README.md)
+[**@wpkernel/php-json-ast v0.12.6-beta.3**](../README.md)
 
-***
+---
 
 [@wpkernel/php-json-ast](../README.md) / PhpExprNullsafePropertyFetch
 
 # Interface: PhpExprNullsafePropertyFetch
 
-Represents a PHP nullsafe property fetch expression (e.g., `$object?-&gt;property`).
+Represents a PHP nullsafe property fetch expression (e.g., `$object?->property`).
 
 ## Extends
 
@@ -24,17 +24,17 @@ readonly attributes: PhpAttributes;
 
 [`PhpExprBase`](PhpExprBase.md).[`attributes`](PhpExprBase.md#attributes)
 
-***
+---
 
 ### name
 
 ```ts
-readonly name: 
+readonly name:
   | PhpExpr
   | PhpIdentifier;
 ```
 
-***
+---
 
 ### nodeType
 
@@ -46,7 +46,7 @@ readonly nodeType: "Expr_NullsafePropertyFetch";
 
 [`PhpExprBase`](PhpExprBase.md).[`nodeType`](PhpExprBase.md#nodetype)
 
-***
+---
 
 ### var
 

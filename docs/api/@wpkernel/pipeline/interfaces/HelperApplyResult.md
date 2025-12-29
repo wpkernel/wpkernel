@@ -1,10 +1,10 @@
-[**@wpkernel/pipeline v0.12.6-beta.0**](../README.md)
+[**@wpkernel/pipeline v0.12.6-beta.3**](../README.md)
 
-***
+---
 
 [@wpkernel/pipeline](../README.md) / HelperApplyResult
 
-# Interface: HelperApplyResult&lt;TOutput&gt;
+# Interface: HelperApplyResult<TOutput>
 
 Result returned from a helper's apply function.
 
@@ -25,7 +25,7 @@ encounters a failure after the helper completes.
 readonly optional output: TOutput;
 ```
 
-***
+---
 
 ### rollback?
 

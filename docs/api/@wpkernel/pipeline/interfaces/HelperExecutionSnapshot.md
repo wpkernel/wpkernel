@@ -1,10 +1,10 @@
-[**@wpkernel/pipeline v0.12.6-beta.0**](../README.md)
+[**@wpkernel/pipeline v0.12.6-beta.3**](../README.md)
 
-***
+---
 
 [@wpkernel/pipeline](../README.md) / HelperExecutionSnapshot
 
-# Interface: HelperExecutionSnapshot&lt;TKind&gt;
+# Interface: HelperExecutionSnapshot<TKind>
 
 Snapshot of helper execution status.
 
@@ -12,7 +12,7 @@ Snapshot of helper execution status.
 
 ### TKind
 
-`TKind` *extends* [`HelperKind`](../type-aliases/HelperKind.md) = [`HelperKind`](../type-aliases/HelperKind.md)
+`TKind` _extends_ [`HelperKind`](../type-aliases/HelperKind.md) = [`HelperKind`](../type-aliases/HelperKind.md)
 
 ## Properties
 
@@ -22,7 +22,7 @@ Snapshot of helper execution status.
 readonly executed: readonly string[];
 ```
 
-***
+---
 
 ### kind
 
@@ -30,7 +30,7 @@ readonly executed: readonly string[];
 readonly kind: TKind;
 ```
 
-***
+---
 
 ### missing
 
@@ -38,7 +38,7 @@ readonly kind: TKind;
 readonly missing: readonly string[];
 ```
 
-***
+---
 
 ### registered
 

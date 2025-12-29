@@ -1,17 +1,13 @@
-[**@wpkernel/php-json-ast v0.12.6-beta.0**](../README.md)
+[**@wpkernel/php-json-ast v0.12.6-beta.3**](../README.md)
 
-***
+---
 
 [@wpkernel/php-json-ast](../README.md) / buildPropertyHook
 
 # Function: buildPropertyHook()
 
 ```ts
-function buildPropertyHook(
-   name, 
-   body, 
-   options, 
-   attributes?): PhpPropertyHook;
+function buildPropertyHook(name, body, options, attributes?): PhpPropertyHook;
 ```
 
 Builds a PHP property hook node.
@@ -52,7 +48,7 @@ Optional configuration for the property hook (attribute groups, flags, by refere
 
 ### attributes?
 
-`Readonly`&lt;`Record`&lt;`string`, `unknown`&gt;&gt;
+`Readonly`<`Record`<`string`, `unknown`>>
 
 Optional attributes for the node.
 

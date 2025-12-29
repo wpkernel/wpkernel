@@ -1,6 +1,6 @@
-[**@wpkernel/cli v0.12.6-beta.0**](../README.md)
+[**@wpkernel/cli v0.12.6-beta.3**](../README.md)
 
-***
+---
 
 [@wpkernel/cli](../README.md) / ReadinessRegistry
 
@@ -30,7 +30,7 @@ describe(): readonly ReadinessHelperDescriptor[];
 
 readonly [`ReadinessHelperDescriptor`](../interfaces/ReadinessHelperDescriptor.md)[]
 
-***
+---
 
 ### keys()
 
@@ -42,19 +42,19 @@ keys(): readonly ReadinessKey[];
 
 readonly [`ReadinessKey`](../type-aliases/ReadinessKey.md)[]
 
-***
+---
 
 ### list()
 
 ```ts
-list(): readonly ReadinessHelper&lt;unknown&gt;[];
+list(): readonly ReadinessHelper<unknown>[];
 ```
 
 #### Returns
 
-readonly [`ReadinessHelper`](../interfaces/ReadinessHelper.md)&lt;`unknown`&gt;[]
+readonly [`ReadinessHelper`](../interfaces/ReadinessHelper.md)<`unknown`>[]
 
-***
+---
 
 ### plan()
 
@@ -72,12 +72,12 @@ readonly [`ReadinessKey`](../type-aliases/ReadinessKey.md)[]
 
 [`ReadinessPlan`](../interfaces/ReadinessPlan.md)
 
-***
+---
 
 ### register()
 
 ```ts
-register&lt;State&gt;(helper): void;
+register<State>(helper): void;
 ```
 
 #### Type Parameters
@@ -90,7 +90,7 @@ register&lt;State&gt;(helper): void;
 
 ##### helper
 
-[`ReadinessHelper`](../interfaces/ReadinessHelper.md)&lt;`State`&gt;
+[`ReadinessHelper`](../interfaces/ReadinessHelper.md)<`State`>
 
 #### Returns
 

@@ -1,18 +1,19 @@
-[**@wpkernel/core v0.12.6-beta.0**](../README.md)
+[**@wpkernel/core v0.12.6-beta.3**](../README.md)
 
-***
+---
 
 [@wpkernel/core](../README.md) / ActionFn
 
-# Type Alias: ActionFn&lt;TArgs, TResult&gt;
+# Type Alias: ActionFn<TArgs, TResult>
 
 ```ts
-type ActionFn&lt;TArgs, TResult&gt; = (ctx, args) =&gt; Promise&lt;TResult&gt;;
+type ActionFn<TArgs, TResult> = (ctx, args) => Promise<TResult>;
 ```
 
 Function signature for action implementations.
 
 Actions are async functions that receive:
+
 1. **Context** (`ctx`) - Integration surfaces (emit, invalidate, jobs, capability, reporter)
 2. **Arguments** (`args`) - Input data provided by the caller
 
@@ -44,16 +45,16 @@ Return type (value returned by the action)
 
 ## Returns
 
-`Promise`&lt;`TResult`&gt;
+`Promise`<`TResult`>
 
 ## Example
 
 ```typescript
 // Simple action
-const CreatePost: ActionFn&lt;CreatePostInput, Post&gt; = async (ctx, input) =&gt; {
-  const post = await api.posts.create(input);
-  ctx.emit('post.created', { postId: post.id });
-  ctx.invalidate(['posts']);
-  return post;
+const CreatePost: ActionFn<CreatePostInput, Post> = async (ctx, input) => {
+	const post = await api.posts.create(input);
+	ctx.emit('post.created', { postId: post.id });
+	ctx.invalidate(['posts']);
+	return post;
 };
 ```

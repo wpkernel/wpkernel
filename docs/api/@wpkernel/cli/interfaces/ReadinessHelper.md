@@ -1,10 +1,10 @@
-[**@wpkernel/cli v0.12.6-beta.0**](../README.md)
+[**@wpkernel/cli v0.12.6-beta.3**](../README.md)
 
-***
+---
 
 [@wpkernel/cli](../README.md) / ReadinessHelper
 
-# Interface: ReadinessHelper&lt;State&gt;
+# Interface: ReadinessHelper<State>
 
 Contract implemented by readiness helpers.
 
@@ -19,7 +19,7 @@ Contract implemented by readiness helpers.
 ### confirm()
 
 ```ts
-readonly confirm: (context, state) =&gt; Promise&lt;ReadinessConfirmation&lt;State&gt;&gt;;
+readonly confirm: (context, state) => Promise<ReadinessConfirmation<State>>;
 ```
 
 #### Parameters
@@ -34,14 +34,14 @@ readonly confirm: (context, state) =&gt; Promise&lt;ReadinessConfirmation&lt;Sta
 
 #### Returns
 
-`Promise`&lt;[`ReadinessConfirmation`](ReadinessConfirmation.md)&lt;`State`&gt;&gt;
+`Promise`<[`ReadinessConfirmation`](ReadinessConfirmation.md)<`State`>>
 
-***
+---
 
 ### detect()
 
 ```ts
-readonly detect: (context) =&gt; Promise&lt;ReadinessDetection&lt;State&gt;&gt;;
+readonly detect: (context) => Promise<ReadinessDetection<State>>;
 ```
 
 #### Parameters
@@ -52,9 +52,9 @@ readonly detect: (context) =&gt; Promise&lt;ReadinessDetection&lt;State&gt;&gt;;
 
 #### Returns
 
-`Promise`&lt;[`ReadinessDetection`](ReadinessDetection.md)&lt;`State`&gt;&gt;
+`Promise`<[`ReadinessDetection`](ReadinessDetection.md)<`State`>>
 
-***
+---
 
 ### key
 
@@ -62,7 +62,7 @@ readonly detect: (context) =&gt; Promise&lt;ReadinessDetection&lt;State&gt;&gt;;
 readonly key: ReadinessKey;
 ```
 
-***
+---
 
 ### metadata
 
@@ -70,12 +70,12 @@ readonly key: ReadinessKey;
 readonly metadata: ReadinessHelperMetadata;
 ```
 
-***
+---
 
 ### execute()?
 
 ```ts
-readonly optional execute: (context, state) =&gt; Promise&lt;ReadinessStepResult&lt;State&gt;&gt;;
+readonly optional execute: (context, state) => Promise<ReadinessStepResult<State>>;
 ```
 
 #### Parameters
@@ -90,14 +90,14 @@ readonly optional execute: (context, state) =&gt; Promise&lt;ReadinessStepResult
 
 #### Returns
 
-`Promise`&lt;[`ReadinessStepResult`](ReadinessStepResult.md)&lt;`State`&gt;&gt;
+`Promise`<[`ReadinessStepResult`](ReadinessStepResult.md)<`State`>>
 
-***
+---
 
 ### prepare()?
 
 ```ts
-readonly optional prepare: (context, state) =&gt; Promise&lt;ReadinessStepResult&lt;State&gt;&gt;;
+readonly optional prepare: (context, state) => Promise<ReadinessStepResult<State>>;
 ```
 
 #### Parameters
@@ -112,14 +112,14 @@ readonly optional prepare: (context, state) =&gt; Promise&lt;ReadinessStepResult
 
 #### Returns
 
-`Promise`&lt;[`ReadinessStepResult`](ReadinessStepResult.md)&lt;`State`&gt;&gt;
+`Promise`<[`ReadinessStepResult`](ReadinessStepResult.md)<`State`>>
 
-***
+---
 
 ### rollback()?
 
 ```ts
-readonly optional rollback: (context, state) =&gt; Promise&lt;void&gt;;
+readonly optional rollback: (context, state) => Promise<void>;
 ```
 
 #### Parameters
@@ -134,4 +134,4 @@ readonly optional rollback: (context, state) =&gt; Promise&lt;void&gt;;
 
 #### Returns
 
-`Promise`&lt;`void`&gt;
+`Promise`<`void`>
