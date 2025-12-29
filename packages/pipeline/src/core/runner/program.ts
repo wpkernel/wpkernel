@@ -7,9 +7,12 @@ import type {
 	Halt,
 	StageEnv,
 	HelperStageSpec,
+	PipelineStage,
+	PipelineStepResult,
 } from './types';
 import {
 	isHalt,
+	isPaused,
 	makeHelperStageFactory,
 	makeFinalizeResultStage,
 	makeAfterFragmentsStage,
@@ -22,9 +25,35 @@ import type {
 	MaybePromise,
 	PipelineExtensionLifecycle,
 	Helper,
+	PipelinePauseOptions,
+	PipelinePauseSnapshot,
+	PipelinePaused,
 } from '../types';
 
-export const createAgnosticProgram = <
+const readStageIndex = (state: { stageIndex?: number }): number =>
+	state.stageIndex ?? 0;
+
+const createPauseSnapshot = <TState>(
+	state: TState,
+	options?: PipelinePauseOptions
+): PipelinePauseSnapshot<TState> => ({
+	stageIndex: readStageIndex(state as { stageIndex?: number }),
+	state,
+	token: options?.token,
+	pauseKind: options?.pauseKind,
+	payload: options?.payload,
+	createdAt: Date.now(),
+});
+
+const createPaused = <TState>(
+	state: TState,
+	options?: PipelinePauseOptions
+): PipelinePaused<TState> => ({
+	__paused: true,
+	snapshot: createPauseSnapshot(state, options),
+});
+
+export const createAgnosticStages = <
 	TRunOptions,
 	TUserState,
 	TContext extends { reporter: TReporter },
@@ -47,10 +76,10 @@ export const createAgnosticProgram = <
 		TReporter,
 		TDiagnostic
 	>
-): Program<
-	| AgnosticState<TRunOptions, TUserState, TContext, TReporter, TDiagnostic>
-	| Halt<TRunResult>
-> => {
+): PipelineStage<
+	AgnosticState<TRunOptions, TUserState, TContext, TReporter, TDiagnostic>,
+	Halt<TRunResult>
+>[] => {
 	type RunnerState = AgnosticState<
 		TRunOptions,
 		TUserState,
@@ -58,7 +87,10 @@ export const createAgnosticProgram = <
 		TReporter,
 		TDiagnostic
 	>;
-	type RunnerResult = RunnerState | Halt<TRunResult>;
+	type RunnerResult =
+		| RunnerState
+		| Halt<TRunResult>
+		| PipelinePaused<RunnerState>;
 	type RunnerProgram = Program<RunnerResult>;
 
 	const halt = (error?: unknown): Halt<TRunResult> => ({
@@ -84,6 +116,10 @@ export const createAgnosticProgram = <
 			extensionStack: state.extensionStack,
 		}),
 		halt,
+		pause: dependencies.options.supportsPause
+			? (state: RunnerState, options?: PipelinePauseOptions) =>
+					createPaused(state, options)
+			: undefined,
 		isHalt,
 		onHelperRollbackError: dependencies.options.onHelperRollbackError,
 	};
@@ -219,6 +255,7 @@ export const createAgnosticProgram = <
 	const makeLifecycleStage = (lifecycle: string): RunnerProgram =>
 		makeAfterFragmentsStage<RunnerState, Halt<TRunResult>>({
 			isHalt,
+			isPaused,
 			execute: (state) => {
 				state.executedLifecycles.add(lifecycle);
 				const coordinator = state.extensionCoordinator;
@@ -262,6 +299,7 @@ export const createAgnosticProgram = <
 		Halt<TRunResult>
 	>({
 		isHalt,
+		isPaused,
 		commit: (state) => {
 			const coordinator = state.extensionCoordinator;
 			if (!coordinator) {
@@ -282,6 +320,7 @@ export const createAgnosticProgram = <
 		Halt<TRunResult>
 	>({
 		isHalt,
+		isPaused,
 		finalize: (state) => {
 			const s = state;
 			const nextState = {
@@ -348,6 +387,62 @@ export const createAgnosticProgram = <
 		);
 	}
 
-	const effectiveStages = dependencies.stages(deps);
-	return composeK<RunnerResult>(...[...effectiveStages].reverse());
+	return dependencies.stages(deps);
+};
+
+export const createAgnosticProgram = <
+	TRunOptions,
+	TUserState,
+	TContext extends { reporter: TReporter },
+	TReporter extends PipelineReporter,
+	TDiagnostic extends PipelineDiagnostic,
+	TRunResult,
+>(
+	dependencies: AgnosticRunnerDependencies<
+		TRunOptions,
+		TUserState,
+		TContext,
+		TReporter,
+		TDiagnostic,
+		TRunResult
+	>,
+	runContext: AgnosticRunContext<
+		TRunOptions,
+		TUserState,
+		TContext,
+		TReporter,
+		TDiagnostic
+	>
+): Program<
+	PipelineStepResult<
+		AgnosticState<
+			TRunOptions,
+			TUserState,
+			TContext,
+			TReporter,
+			TDiagnostic
+		>,
+		TRunResult
+	>
+> => {
+	const stages = createAgnosticStages(dependencies, runContext);
+	return composeK<
+		| AgnosticState<
+				TRunOptions,
+				TUserState,
+				TContext,
+				TReporter,
+				TDiagnostic
+		  >
+		| Halt<TRunResult>
+		| PipelinePaused<
+				AgnosticState<
+					TRunOptions,
+					TUserState,
+					TContext,
+					TReporter,
+					TDiagnostic
+				>
+		  >
+	>(...[...stages].reverse());
 };

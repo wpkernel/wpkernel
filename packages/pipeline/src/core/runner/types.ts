@@ -7,6 +7,9 @@ import type {
 	HelperExecutionSnapshot,
 	HelperKind,
 	MaybePromise,
+	PipelinePauseOptions,
+	PipelinePauseSnapshot,
+	PipelinePaused,
 	PipelineDiagnostic,
 	PipelineExtensionHookOptions,
 	PipelineExtensionLifecycle,
@@ -38,6 +41,7 @@ export interface AgnosticRunnerOptions<
 		readonly options: TRunOptions;
 	}) => TUserState;
 	readonly createError: ErrorFactory;
+	readonly supportsPause?: boolean;
 	readonly onExtensionRollbackError?: (options: {
 		readonly error: unknown;
 		readonly extensionKeys: readonly string[];
@@ -128,6 +132,8 @@ export interface AgnosticState<
 	readonly steps: PipelineStep[];
 	readonly diagnostics: TDiagnostic[];
 	readonly executedLifecycles: Set<string>;
+	readonly stageIndex?: number;
+	readonly resumeInput?: unknown;
 
 	readonly helperExecution?: Map<string, HelperExecutionSnapshot>;
 	readonly helperRollbacks?: Map<
@@ -216,6 +222,10 @@ export type StageEnv<
 		state: TState
 	) => RollbackContext<TContext, TOptions, TUserState>;
 	halt: (error?: unknown) => Halt<TRunResult>;
+	pause?: (
+		state: TState,
+		options?: PipelinePauseOptions
+	) => PipelinePaused<TState>;
 	isHalt: (value: unknown) => value is Halt<TRunResult>;
 	onHelperRollbackError?: (options: {
 		readonly error: unknown;
@@ -231,7 +241,14 @@ export type StageEnv<
 	}) => void;
 };
 
-export type PipelineStage<TState, TResult> = Program<TState | TResult>;
+export type PipelineStage<TState, TResult> = Program<
+	TState | TResult | PipelinePaused<TState>
+>;
+
+export type PipelineStepResult<TState, TRunResult> =
+	| TState
+	| PipelinePaused<TState>
+	| Halt<TRunResult>;
 
 export type AgnosticStageDeps<
 	TState,
@@ -391,6 +408,68 @@ export interface AgnosticRunner<
 	) => MaybePromise<TRunResult>;
 }
 
+export interface AgnosticResumableRunner<
+	TRunOptions,
+	TUserState,
+	TContext extends { reporter: TReporter },
+	TReporter extends PipelineReporter,
+	TDiagnostic extends PipelineDiagnostic,
+	TRunResult,
+> {
+	readonly prepareContext: (
+		runOptions: TRunOptions
+	) => AgnosticRunContext<
+		TRunOptions,
+		TUserState,
+		TContext,
+		TReporter,
+		TDiagnostic
+	>;
+	readonly executeRun: (
+		context: AgnosticRunContext<
+			TRunOptions,
+			TUserState,
+			TContext,
+			TReporter,
+			TDiagnostic
+		>
+	) => MaybePromise<
+		| TRunResult
+		| PipelinePaused<
+				AgnosticState<
+					TRunOptions,
+					TUserState,
+					TContext,
+					TReporter,
+					TDiagnostic
+				>
+		  >
+	>;
+	readonly executeResume: (
+		snapshot: PipelinePauseSnapshot<
+			AgnosticState<
+				TRunOptions,
+				TUserState,
+				TContext,
+				TReporter,
+				TDiagnostic
+			>
+		>,
+		resumeInput?: unknown
+	) => MaybePromise<
+		| TRunResult
+		| PipelinePaused<
+				AgnosticState<
+					TRunOptions,
+					TUserState,
+					TContext,
+					TReporter,
+					TDiagnostic
+				>
+		  >
+	>;
+}
+
 export type HelperInvokeOptions<
 	THelper,
 	TInput,
@@ -418,6 +497,15 @@ export type HelperStageSpec<
 	) => (
 		entry: RegisteredHelper<THelper>
 	) => HelperApplyOptions<TContext, TInput, TOutput, TReporter>;
+	readonly invoke?: (
+		invokeOptions: HelperInvokeOptions<
+			THelper,
+			TInput,
+			TOutput,
+			TContext,
+			TReporter
+		>
+	) => MaybePromise<void>;
 	readonly onVisited: (
 		state: TState,
 		visited: Set<string>,

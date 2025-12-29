@@ -11,6 +11,7 @@ import type {
 	PipelineReporter,
 	PipelineDiagnostic,
 	PipelineExtensionRollbackErrorMetadata,
+	PipelinePauseSnapshot,
 } from '../types';
 import { initExtensionCoordinator } from '../internal/extension-coordinator';
 
@@ -166,6 +167,82 @@ export const prepareContext = <
 		pushStep,
 		helperRegistries: dependencies.helperRegistries,
 		helperOrders,
+		buildHookOptions,
+		handleRollbackError,
+	};
+};
+
+export const prepareResumeContext = <
+	TRunOptions,
+	TUserState,
+	TContext extends { reporter: TReporter },
+	TReporter extends PipelineReporter,
+	TDiagnostic extends PipelineDiagnostic,
+	TRunResult,
+>(
+	dependencies: AgnosticRunnerDependencies<
+		TRunOptions,
+		TUserState,
+		TContext,
+		TReporter,
+		TDiagnostic,
+		TRunResult
+	>,
+	snapshot: PipelinePauseSnapshot<
+		AgnosticState<TRunOptions, TUserState, TContext, TReporter, TDiagnostic>
+	>
+): AgnosticRunContext<
+	TRunOptions,
+	TUserState,
+	TContext,
+	TReporter,
+	TDiagnostic
+> => {
+	const state = snapshot.state;
+	const context = state.context;
+
+	dependencies.diagnosticManager.setReporter(context.reporter);
+
+	const steps = state.steps;
+	const pushStep = (entry: RegisteredHelper<unknown>) =>
+		(steps as unknown as RegisteredHelper<unknown>[]).push(entry);
+
+	const handleRollbackError = (options: {
+		readonly error: unknown;
+		readonly extensionKeys: readonly string[];
+		readonly hookSequence: readonly string[];
+		readonly errorMetadata: PipelineExtensionRollbackErrorMetadata;
+		readonly context: TContext;
+	}) => {
+		if (dependencies.options.onExtensionRollbackError) {
+			dependencies.options.onExtensionRollbackError(options);
+		}
+	};
+
+	const buildHookOptions = (
+		currentState: AgnosticState<
+			TRunOptions,
+			TUserState,
+			TContext,
+			TReporter,
+			TDiagnostic
+		>,
+		lifecycle: string
+	) => ({
+		context,
+		options: state.runOptions,
+		artifact: currentState.userState,
+		lifecycle,
+	});
+
+	return {
+		runOptions: state.runOptions,
+		context,
+		state,
+		steps,
+		pushStep,
+		helperRegistries: state.helperRegistries,
+		helperOrders: state.helperOrders ?? new Map(),
 		buildHookOptions,
 		handleRollbackError,
 	};

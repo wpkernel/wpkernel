@@ -239,6 +239,44 @@ export interface HelperExecutionSnapshot<
 }
 
 /**
+ * Pause kind identifier for resumable pipeline runs.
+ * @public
+ */
+export type PipelinePauseKind = string;
+
+/**
+ * Options for pausing a pipeline run.
+ * @public
+ */
+export interface PipelinePauseOptions {
+	readonly token?: unknown;
+	readonly pauseKind?: PipelinePauseKind;
+	readonly payload?: unknown;
+}
+
+/**
+ * Snapshot captured when a pipeline run pauses.
+ * @public
+ */
+export interface PipelinePauseSnapshot<TState> {
+	readonly stageIndex: number;
+	readonly state: TState;
+	readonly token?: unknown;
+	readonly pauseKind?: PipelinePauseKind;
+	readonly createdAt: number;
+	readonly payload?: unknown;
+}
+
+/**
+ * Pause result returned from a pipeline run.
+ * @public
+ */
+export interface PipelinePaused<TState> {
+	readonly __paused: true;
+	readonly snapshot: PipelinePauseSnapshot<TState>;
+}
+
+/**
  * Options passed to pipeline extension hooks.
  * @public
  */
@@ -413,16 +451,16 @@ export interface AgnosticPipelineOptions<
  * @public
  */
 
-export interface AgnosticPipeline<
+export interface PipelineBase<
 	TRunOptions,
-	TRunResult,
 	TContext extends { reporter: TReporter },
 	TReporter extends PipelineReporter = PipelineReporter,
+	TPipeline = unknown,
 > {
 	readonly extensions: {
 		use: (
 			extension: PipelineExtension<
-				AgnosticPipeline<TRunOptions, TRunResult, TContext, TReporter>,
+				TPipeline,
 				TContext,
 				TRunOptions,
 				unknown
@@ -442,9 +480,47 @@ export interface AgnosticPipeline<
 	use: (
 		helper: Helper<TContext, unknown, unknown, TReporter, HelperKind>
 	) => void;
+}
 
+export interface AgnosticPipeline<
+	TRunOptions,
+	TRunResult,
+	TContext extends { reporter: TReporter },
+	TReporter extends PipelineReporter = PipelineReporter,
+> extends PipelineBase<
+		TRunOptions,
+		TContext,
+		TReporter,
+		AgnosticPipeline<TRunOptions, TRunResult, TContext, TReporter>
+	> {
 	/**
 	 * Execute the pipeline.
 	 */
 	run: (options: TRunOptions) => MaybePromise<TRunResult>;
+}
+
+/**
+ * A resumable pipeline instance.
+ *
+ * @public
+ */
+export interface ResumablePipeline<
+	TRunOptions,
+	TRunResult,
+	TContext extends { reporter: TReporter },
+	TReporter extends PipelineReporter = PipelineReporter,
+	TState = unknown,
+> extends PipelineBase<
+		TRunOptions,
+		TContext,
+		TReporter,
+		ResumablePipeline<TRunOptions, TRunResult, TContext, TReporter, TState>
+	> {
+	run: (
+		options: TRunOptions
+	) => MaybePromise<TRunResult | PipelinePaused<TState>>;
+	resume: (
+		snapshot: PipelinePauseSnapshot<TState>,
+		resumeInput?: unknown
+	) => MaybePromise<TRunResult | PipelinePaused<TState>>;
 }
