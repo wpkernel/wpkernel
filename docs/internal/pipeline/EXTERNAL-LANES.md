@@ -47,9 +47,11 @@ every downstream consumer migrated. llm-core/AIFSD currently pin 1.4.1.
 Their compiler changes require their own synchronous-settlement and
 authority-recheck evidence.
 
-ADR-002 already assigns durable journals, retries, process supervision,
-external-effect idempotency and checkpoints to the host. Observers report
+ADR-002 already assigns durable admission and idempotency keys, durable
+journals, retries, process supervision, external-effect authority and
+exactly-once claims, and checkpoints to the host. Observers report
 run-local transitions. They do not provide durable audit storage or provider
 billing. Declared effects commit after graph success and compensate on failure;
 eager host mutation is outside that guarantee. A durable restart is a fresh
 graph invocation, not a serialised private frontier.
+
