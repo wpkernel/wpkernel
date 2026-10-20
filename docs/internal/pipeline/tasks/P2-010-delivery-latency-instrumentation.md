@@ -85,3 +85,27 @@ gate schedule. Re-run one representative Pipeline change through the revised
 schedule and compare total elapsed time and failure quality.
 
 Suggested execution tier: fast instrumentation with balanced review.
+
+## Bounded context and agent-economics comparison
+
+Use the same scoped change, source/dependency revisions and acceptance checks
+for the current schedule and one candidate change. Evaluate a bounded initial
+context packet, grouped independent reads or stable tool/prompt prefix only
+where the actual host exposes that control. Keep model and reasoning effort
+fixed for this first comparison; record a later model change as a separate
+variant. Do not remove required review or concurrently overload CPU-heavy
+gates to manufacture a faster result.
+
+Alongside the existing timing ledger, retain available model-call and cache
+usage, preparation, tools/tests, review/repair, cancellation and approval/queue
+waits. Distinguish provider observations from host timings; count overlapping
+intervals once for elapsed time and allocate shared preparation once. Preserve
+raw observations even where tokens or billing are unavailable.
+
+[Cloudflare's optimisation report](https://blog.cloudflare.com/obsessive-inference-optimization/)
+is observational comparison evidence, not a promised percentage saving.
+[Modal's Vera benchmark](https://modal.com/blog/nvidia-vera-sandboxes) isolates
+CPU/verifier work with warmed containers and removed LLM/network time; it does
+not establish full-agent speed or justify a cloud migration. Existing local
+instrumentation is the first comparison. No paid infrastructure, new scheduler
+or hardware qualification becomes a dependency of this operational task.
