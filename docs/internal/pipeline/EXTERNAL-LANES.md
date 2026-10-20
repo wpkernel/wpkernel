@@ -54,4 +54,3 @@ run-local transitions. They do not provide durable audit storage or provider
 billing. Declared effects commit after graph success and compensate on failure;
 eager host mutation is outside that guarantee. A durable restart is a fresh
 graph invocation, not a serialised private frontier.
-
