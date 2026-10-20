@@ -16,8 +16,8 @@ chain inside a sequential stage programme. It is not yet a dataflow DAG.
 
 - [`ROADMAP.md`](ROADMAP.md) shows programme dependencies and external release
   lanes. Task front matter owns lifecycle state.
-- [`EXTERNAL-LANES.md`](EXTERNAL-LANES.md) records non-blocking Task Graph and
-  llm-core evidence without pretending this repository owns their state.
+- [`EXTERNAL-LANES.md`](EXTERNAL-LANES.md) records historical Task Graph
+  tooling compatibility evidence.
 - [`COORDINATION.md`](COORDINATION.md) defines safe parallel execution.
 - [`decisions/`](decisions/) records accepted semantic boundaries.
 - [`contracts/`](contracts/) contains versioned implementation contracts.
@@ -34,6 +34,5 @@ Three boundaries are non-negotiable:
    belong to its host.
 
 V2 is a major version, not a silent reinterpretation of `dependsOn`,
-`next(output?)`, extensions or pause snapshots. Historical 1.4.1 consumer pins
-remain exact external dependency boundaries, not evidence that this source
-checkout still exposes the 1.4 API. See [external lanes](EXTERNAL-LANES.md).
+`next(output?)`, extensions or pause snapshots. The package root exposes v2;
+`@wpkernel/pipeline/v1` provides the serial compatibility adapter.

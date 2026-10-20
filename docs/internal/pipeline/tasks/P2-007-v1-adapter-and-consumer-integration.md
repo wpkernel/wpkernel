@@ -66,7 +66,7 @@ required_reading:
     - path: docs/internal/pipeline/contracts/v2-vocabulary.md
       reason: Keep migration names consistent.
     - path: docs/internal/pipeline/ROADMAP.md
-      reason: Preserve Task Graph and llm-core release sequencing.
+      reason: Preserve WPKernel integration and release sequencing.
 read_scope:
     - docs/internal/pipeline/**
     - packages/pipeline/src/**

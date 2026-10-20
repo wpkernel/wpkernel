@@ -27,6 +27,7 @@ env:
 jobs:
     admit-main-ref:
         name: Admit main deployment ref
+        if: github.repository == 'wpkernel/wpkernel'
         runs-on: ubuntu-latest
         steps:
             - name: Require main

@@ -3,12 +3,11 @@
 Architecture version: 1
 Role: dependency and execution guidance; task front matter owns status
 
-## Release and consumer lanes
+## Release and tooling lanes
 
 The package is now 2.0.0; P2-009 records its completed release evidence.
 The following 1.4.1/beta.4 chain is historical compatibility evidence, not
-current package status. Root tooling now pins TaskGraph beta.6. Its installed
-resolution remains distinct from each downstream consumer's selected API:
+current package status. Root tooling now pins TaskGraph beta.6:
 
 ```text
 Pipeline 1.4.1 published from wpkernel/wpkernel
@@ -18,8 +17,7 @@ Pipeline 1.4.1 published from wpkernel/wpkernel
 ```
 
 The published Task Graph manifest now owns the exact Pipeline 1.4.1 dependency.
-WPKernel does not override it. Release evidence and the remaining external
-llm-core lane are recorded in [`EXTERNAL-LANES.md`](EXTERNAL-LANES.md).
+WPKernel does not override it. Release evidence is recorded in [`EXTERNAL-LANES.md`](EXTERNAL-LANES.md).
 
 P2-016 separates WPKernel's intentional first-party source aliases from the
 root runtime context. Task Graph beta.4 retains exact Pipeline 1.4.1 and its
@@ -35,18 +33,6 @@ Task Graph compiled-package base
 
 Neither beta.4 nor native Task Graph v2 adoption is a Pipeline runtime or
 release dependency. P2-016 owns and qualifies the WPKernel resolution boundary.
-
-The llm-core specification compiler has a separate early migration:
-
-```text
-P2-001 contract freeze
-  -> remove llm-core's non-semantic Pipeline wrapper
-  -> preserve synchronous MaybePromise settlement
-  -> preserve the asynchronous authority recheck
-```
-
-That work belongs in llm-core. It must not invent a synthetic Pipeline consumer
-to justify v2.
 
 ## V2 programme
 

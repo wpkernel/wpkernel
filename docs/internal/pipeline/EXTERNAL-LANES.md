@@ -26,31 +26,3 @@ real Pipeline authority without resolving the local v2 root. This tooling pin
 requires Node 22 for governance commands; that does not change Pipeline's
 separate Node 20 runtime qualification. It is not a P2-007 dependency or a
 Pipeline 2.0.0 release gate.
-
-## llm-core specification compiler
-
-Status: proposed in the llm-core repository
-
-The specification compiler should replace its non-semantic Pipeline wrapper
-with direct `MaybePromise` composition after P2-001 freezes the semantic
-contract. That migration must preserve synchronous settlement and the
-asynchronous authority recheck.
-
-The work belongs to llm-core and carries its own repository evidence. It is not
-an acceptance criterion for P2-007 or Pipeline 2.0.0 publication.
-
-## Current version and host boundaries
-
-Pipeline 2.0.0 publication is recorded in P2-009. Native TaskGraph adoption is
-separately owned and qualified by TaskGraph; publication here does not prove
-every downstream consumer migrated. llm-core/AIFSD currently pin 1.4.1.
-Their compiler changes require their own synchronous-settlement and
-authority-recheck evidence.
-
-ADR-002 already assigns durable admission and idempotency keys, durable
-journals, retries, process supervision, external-effect authority and
-exactly-once claims, and checkpoints to the host. Observers report
-run-local transitions. They do not provide durable audit storage or provider
-billing. Declared effects commit after graph success and compensate on failure;
-eager host mutation is outside that guarantee. A durable restart is a fresh
-graph invocation, not a serialised private frontier.
