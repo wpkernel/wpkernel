@@ -15,17 +15,17 @@ write_scope:
 required_reading:
     - path: docs/internal/pipeline/COORDINATION.md
       reason: Measure the intended ownership and review sequence against actual execution.
-    - path: instructions/wpkernel-repository-guide.md
+    - path: docs/REPOSITORY-GUIDE.md
       reason: Preserve the repository's required qualification and publication boundaries.
 read_scope:
     - docs/internal/pipeline/**
-    - instructions/wpkernel-repository-guide.md
+    - docs/REPOSITORY-GUIDE.md
     - package.json
     - turbo.json
     - packages/*/package.json
     - scripts/**
 review_owner: coordinator
-updated_at: 2026-08-19
+updated_at: 2026-10-20
 ---
 
 # P2-010: Instrument Pipeline delivery latency

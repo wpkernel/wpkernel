@@ -3,14 +3,15 @@
 Architecture version: 1
 Role: non-blocking ecosystem evidence outside the Pipeline v2 task authority
 
-## Task Graph compatibility baseline
+## Historical Task Graph compatibility baseline
 
 Status: package and workspace tooling boundaries qualified
 
 - `@wpkernel/pipeline@1.4.1` was published from the trusted upstream workflow.
 - `@geekist/task-graph@0.1.0-beta.4` is qualified against that exact version.
 - The published Task Graph manifest declares Pipeline 1.4.1 directly.
-- WPKernel pins Task Graph 0.1.0-beta.4 without an override.
+- The original compatibility lane pinned Task Graph 0.1.0-beta.4 without an override.
+- Current root tooling pins Task Graph 0.1.0-beta.6; the root manifest and lock own that installed version.
 
 This baseline proves the published dependency boundary: Task Graph beta.4 asks
 for and receives exact Pipeline 1.4.1 under normal package resolution. P2-016
@@ -37,3 +38,18 @@ asynchronous authority recheck.
 
 The work belongs to llm-core and carries its own repository evidence. It is not
 an acceptance criterion for P2-007 or Pipeline 2.0.0 publication.
+
+## Current version and host boundaries
+
+Pipeline 2.0.0 publication is recorded in P2-009. Native TaskGraph adoption is
+separately owned and qualified by TaskGraph; publication here does not prove
+every downstream consumer migrated. llm-core/AIFSD currently pin 1.4.1.
+Their compiler changes require their own synchronous-settlement and
+authority-recheck evidence.
+
+ADR-002 already assigns durable journals, retries, process supervision,
+external-effect idempotency and checkpoints to the host. Observers report
+run-local transitions. They do not provide durable audit storage or provider
+billing. Declared effects commit after graph success and compensate on failure;
+eager host mutation is outside that guarantee. A durable restart is a fresh
+graph invocation, not a serialised private frontier.

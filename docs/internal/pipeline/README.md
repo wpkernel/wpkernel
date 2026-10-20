@@ -4,9 +4,11 @@ Architecture version: 1
 Task contract version: 1
 Target package version: 2.0.0
 
-This directory is the internal engineering authority for Pipeline v2. Public
-documentation continues to describe the released v1 contract until v2 exists
-and qualifies as a packed artefact.
+This directory is the internal engineering authority for Pipeline v2.
+The package is version 2.0.0. P2-009 records publication and exact packed
+qualification; [the package README](../../../packages/pipeline/README.md)
+and [public guide](../../packages/pipeline.md) describe the v2 API.
+Task front matter distinguishes completed release work from future work.
 
 The programme starts from an explicit correction: Pipeline v1 validates and
 topologically orders helper dependencies, then executes a serial transformation
@@ -31,6 +33,7 @@ Three boundaries are non-negotiable:
    retries, journals, process supervision and external-effect idempotency
    belong to its host.
 
-The current 1.4.x package remains supported while v2 is built beside it. V2 is
-a major version, not a silent reinterpretation of `dependsOn`, `next(output?)`,
-extensions or pause snapshots.
+V2 is a major version, not a silent reinterpretation of `dependsOn`,
+`next(output?)`, extensions or pause snapshots. Historical 1.4.1 consumer pins
+remain exact external dependency boundaries, not evidence that this source
+checkout still exposes the 1.4 API. See [external lanes](EXTERNAL-LANES.md).

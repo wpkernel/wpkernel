@@ -5,8 +5,11 @@ Role: dependency and execution guidance; task front matter owns status
 
 ## Release and consumer lanes
 
-The 1.4.1 patch and v2 are separate release lines. The compatibility lane is
-now complete:
+The package is now 2.0.0; P2-009 records its completed release evidence.
+The following 1.4.1/beta.4 chain is historical compatibility evidence, not
+current package status. Root tooling now pins TaskGraph beta.6. Its installed
+resolution remains distinct from each downstream consumer's selected API:
+
 
 ```text
 Pipeline 1.4.1 published from wpkernel/wpkernel
