@@ -10,7 +10,6 @@ The following 1.4.1/beta.4 chain is historical compatibility evidence, not
 current package status. Root tooling now pins TaskGraph beta.6. Its installed
 resolution remains distinct from each downstream consumer's selected API:
 
-
 ```text
 Pipeline 1.4.1 published from wpkernel/wpkernel
   -> Task Graph qualified against exact 1.4.1

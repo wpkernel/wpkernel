@@ -259,13 +259,13 @@ Both patterns work identically - pick what you prefer. Submodule imports provide
 
 ## 📦 Packages
 
-| Package                                   | Description                                              | Version |
-| ----------------------------------------- | -------------------------------------------------------- | ------- |
-| [@wpkernel/pipeline](packages/pipeline) | Standalone typed dataflow DAG evaluator; usable outside WordPress | 2.0.0 |
-| [@wpkernel/core](packages/core)           | Core framework (Resources, Actions, Events, Jobs)        | 0.1.0   |
-| [@wpkernel/ui](packages/ui)               | Accessible UI components (wraps @wordpress/components)   | 0.1.0   |
-| [@wpkernel/cli](packages/cli)             | Scaffolding CLI (generators)                             | 0.1.0   |
-| [@wpkernel/e2e-utils](packages/e2e-utils) | Playwright test utilities _(optional - for E2E testing)_ | 0.1.0   |
+| Package                                   | Description                                                       | Version |
+| ----------------------------------------- | ----------------------------------------------------------------- | ------- |
+| [@wpkernel/pipeline](packages/pipeline)   | Standalone typed dataflow DAG evaluator; usable outside WordPress | 2.0.0   |
+| [@wpkernel/core](packages/core)           | Core framework (Resources, Actions, Events, Jobs)                 | 0.1.0   |
+| [@wpkernel/ui](packages/ui)               | Accessible UI components (wraps @wordpress/components)            | 0.1.0   |
+| [@wpkernel/cli](packages/cli)             | Scaffolding CLI (generators)                                      | 0.1.0   |
+| [@wpkernel/e2e-utils](packages/e2e-utils) | Playwright test utilities _(optional - for E2E testing)_          | 0.1.0   |
 
 ---
 

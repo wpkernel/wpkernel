@@ -24,7 +24,7 @@ write_scope:
     - docs/api/@wpkernel/pipeline/**
     - docs/internal/pipeline/contracts/**
 required_reading:
-    - path: instructions/wpkernel-repository-guide.md
+    - path: docs/REPOSITORY-GUIDE.md
       reason: Regenerate and verify public API documentation through repository-owned workflows.
     - path: docs/internal/pipeline/contracts/v2-public-contract.md
       reason: Preserve the evaluator authority and configuration-failure algebra.
@@ -35,7 +35,7 @@ required_reading:
     - path: docs/internal/pipeline/decisions/ADR-002-process-local-host-boundary.md
       reason: Keep inspection distinct from durable plans and execution authority.
 read_scope:
-    - instructions/wpkernel-repository-guide.md
+    - docs/REPOSITORY-GUIDE.md
     - packages/pipeline/src/v2/**
     - packages/pipeline/README.md
     - packages/pipeline/scripts/qualify-packed-api.mjs
